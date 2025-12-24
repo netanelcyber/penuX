@@ -118,6 +118,27 @@ def download_kaggle_dataset(dataset_slug: str, dest_dir: Path) -> Path:
     print(f"[INFO] Downloading Kaggle dataset: {dataset_slug}")
     api.dataset_download_files(dataset_slug, path=str(dest_dir), unzip=True)
     return dest_dir
+def multimodal_generator(image_gen, clinical_data):
+    i = 0
+    n = len(clinical_data)
+
+    while True:
+        images, labels = next(image_gen)
+        b = images.shape[0]
+
+        # wraparound-safe clinical batch
+        if i + b <= n:
+            clinical_batch = clinical_data[i:i+b]
+            i += b
+        else:
+            part1 = clinical_data[i:n]
+            part2 = clinical_data[0:(i+b) % n]
+            clinical_batch = np.concatenate([part1, part2], axis=0)
+            i = (i + b) % n
+
+        clinical_batch = clinical_batch.astype(np.float32)
+        images = images.astype(np.float32)
+        yield (clinical_batch, images), labels
 
 def find_chest_xray_root(download_root: Path) -> Path:
     """
@@ -350,7 +371,7 @@ def build_multimodal_model():
 # ============================================
 # MULTI-MODAL GENERATOR (ROBUST WRAPAROUND)
 # ============================================
-def multimodal_generator(image_gen, clinical_data):
+def multi1modal_generator(image_gen, clinical_data):
     """
     Yields ([clinical_batch, image_batch], labels).
     Ensures clinical_batch always matches image_batch size (wrap-around safe).
