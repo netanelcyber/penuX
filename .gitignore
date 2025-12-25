@@ -1,0 +1,15 @@
+# Bytecode
+__pycache__/
+*.pyc
+
+# Python env
+.env/
+.venv/
+
+# Data outputs
+docs/images/
+docs/examples/
+
+# Editor
+.vscode/
+.idea/
