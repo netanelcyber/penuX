@@ -116,6 +116,102 @@ def test_batch_prediction_json(tmp_path, monkeypatch):
     assert len(arr) == 2
 
 
+def test_order_classes_and_sort_rows(tmp_path, monkeypatch):
+    mu = np.array([0.0, 0.0, 0.0, 0.0], dtype=np.float32)
+    sd = np.array([1.0, 1.0, 1.0, 1.0], dtype=np.float32)
+    np.savez(tmp_path / "clin_scaler.npz", mu=mu, sd=sd)
+    (tmp_path / "clin_encoder.keras").write_text("")
+    (tmp_path / "clin_head.keras").write_text("")
+
+    monkeypatch.setattr(predict_pathogen, "SCALER_FILE", tmp_path / "clin_scaler.npz")
+    monkeypatch.setattr(predict_pathogen, "ENCODER_FILE", tmp_path / "clin_encoder.keras")
+    monkeypatch.setattr(predict_pathogen, "HEAD_FILE", tmp_path / "clin_head.keras")
+
+    # first row has higher top prob than second
+    def fake_load(p):
+        if str(p).endswith("clin_encoder.keras"):
+            return DummyModel([0.1, 0.7, 0.2])
+        return DummyModel([0.1, 0.7, 0.2])
+
+    monkeypatch.setattr(predict_pathogen.tf.keras.models, "load_model", fake_load)
+
+    rows = [
+        {"temperature_c": 36.6, "wbc": 7000, "spo2": 96, "age": 60, "patient_id": "b2"},
+        {"temperature_c": 37.0, "wbc": 6000, "spo2": 95, "age": 50, "patient_id": "a1"},
+    ]
+    csv_in = tmp_path / "in.csv"
+    write_csv(csv_in, rows, ["patient_id", "temperature_c", "wbc", "spo2", "age"])
+
+    out = tmp_path / "out.json"
+    args = [
+        "--input",
+        str(csv_in),
+        "--format",
+        "json",
+        "--output",
+        str(out),
+        "--task",
+        "3class",
+        "--keep_cols",
+        "patient_id",
+        "--order_classes",
+        "--sort_rows_by",
+        "top_prob",
+    ]
+    predict_pathogen.main(args)
+
+    arr = json.loads(out.read_text())
+    # Rows should be sorted by top_prob (first row has higher top prob)
+    assert arr[0]["patient_id"] == "b2"
+    # preds should be a list ordered descending
+    assert isinstance(arr[0]["preds"], list)
+    assert arr[0]["preds"][0][1] >= arr[0]["preds"][1][1]
+
+
+def test_order_classes_csv_field(tmp_path, monkeypatch):
+    mu = np.array([0.0, 0.0, 0.0, 0.0], dtype=np.float32)
+    sd = np.array([1.0, 1.0, 1.0, 1.0], dtype=np.float32)
+    np.savez(tmp_path / "clin_scaler.npz", mu=mu, sd=sd)
+    (tmp_path / "clin_encoder.keras").write_text("")
+    (tmp_path / "clin_head.keras").write_text("")
+
+    monkeypatch.setattr(predict_pathogen, "SCALER_FILE", tmp_path / "clin_scaler.npz")
+    monkeypatch.setattr(predict_pathogen, "ENCODER_FILE", tmp_path / "clin_encoder.keras")
+    monkeypatch.setattr(predict_pathogen, "HEAD_FILE", tmp_path / "clin_head.keras")
+
+    def fake_load(p):
+        if str(p).endswith("clin_encoder.keras"):
+            return DummyModel([0.12, 0.88])
+        return DummyModel([0.12, 0.88])
+
+    monkeypatch.setattr(predict_pathogen.tf.keras.models, "load_model", fake_load)
+
+    rows = [
+        {"temperature_c": 36.6, "wbc": 7000, "spo2": 96, "age": 60},
+    ]
+    csv_in = tmp_path / "in.csv"
+    write_csv(csv_in, rows, ["temperature_c", "wbc", "spo2", "age"])
+
+    out = tmp_path / "out.csv"
+    args = [
+        "--input",
+        str(csv_in),
+        "--format",
+        "csv",
+        "--output",
+        str(out),
+        "--task",
+        "binary",
+        "--order_classes",
+    ]
+    predict_pathogen.main(args)
+
+    rows_out = read_csv(out)
+    assert "preds" in rows_out[0]
+    # preds string should contain ordered class:prob structure (descending)
+    assert rows_out[0]["preds"].startswith("Pneumonia:")
+
+
 def test_single_threshold_round_json(tmp_path, monkeypatch):
     mu = np.array([0.0, 0.0, 0.0, 0.0], dtype=np.float32)
     sd = np.array([1.0, 1.0, 1.0, 1.0], dtype=np.float32)
