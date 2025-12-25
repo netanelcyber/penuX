@@ -1,0 +1,5 @@
+temperature_c,wbc,spo2,age,label
+36.6,7000,98,45,Normal
+38.2,15000,92,68,Bacterial
+37.0,9000,95,30,Normal
+39.0,20000,88,77,Viral

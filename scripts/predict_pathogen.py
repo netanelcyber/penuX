@@ -95,9 +95,41 @@ def main(argv=None):
     ap.add_argument("--output", "-o", type=str, default=None, help="Output file (CSV or JSON based on --format)")
     ap.add_argument("--format", choices=["csv", "json"], default="csv")
     ap.add_argument("--top", type=int, default=None, help="If provided, include only top-K classes per row (useful for 'specpath')")
+
+    # New convenience parameters
+    ap.add_argument("--threshold", type=float, default=None, help="Only include class probs >= threshold (0..1), per-row")
+    ap.add_argument("--keep_cols", type=str, default=None, help="Comma-separated list of extra input columns to include in output rows")
+    ap.add_argument("--sep", type=str, default=",", help="Input CSV separator/delimiter (default=",")")
+    ap.add_argument("--round", type=int, default=None, help="Round probabilities to N decimals in output")
+    ap.add_argument("--no_print", action="store_true", help="Suppress printing to stdout; write only to --output if provided")
+
     args = ap.parse_args(argv)
 
     mu, sd, clin_enc, clin_head = _load_models()
+
+    def _process_row_values(d: dict, class_cols: list) -> dict:
+        """Apply threshold/rounding for output formatting. Returns a new dict."""
+        out = {}
+        # Handle class columns
+        for c in class_cols:
+            v = d.get(c)
+            if v is None:
+                continue
+            if args.threshold is not None:
+                if args.format == "json":
+                    # JSON: omit classes below threshold
+                    if v < args.threshold:
+                        continue
+                else:
+                    # CSV: set below-threshold to empty string for readability
+                    if v < args.threshold:
+                        out[c] = ""
+                        continue
+            if args.round is not None and isinstance(v, float):
+                out[c] = round(float(v), args.round)
+            else:
+                out[c] = float(v)
+        return out
 
     if args.single:
         for nm in ("temperature_c", "wbc", "spo2", "age"):
@@ -109,16 +141,27 @@ def main(argv=None):
         if args.top:
             items = sorted(row.items(), key=lambda t: t[1], reverse=True)[: args.top]
             row = dict(items)
-        # Print and optionally save
-        print(json.dumps(row, indent=2))
+
+        class_cols = list(row.keys())
+        processed = _process_row_values(row, class_cols)
+
+        # Print (unless suppressed) and optionally save
+        if not args.no_print:
+            if args.format == "json":
+                print(json.dumps(processed, indent=2))
+            else:
+                print(processed)
+
         if args.output:
             outp = Path(args.output)
             if args.format == "csv":
-                if pd is None:
-                    raise RuntimeError("Pandas is required for CSV output. Install pandas and retry.")
-                pd.DataFrame([row]).to_csv(outp, index=False)
+                cols = class_cols
+                with open(outp, "w", newline="", encoding="utf-8") as f:
+                    w = csv.DictWriter(f, fieldnames=cols)
+                    w.writeheader()
+                    w.writerow({k: processed.get(k, "") for k in cols})
             else:
-                outp.write_text(json.dumps(row), encoding="utf-8")
+                outp.write_text(json.dumps(processed), encoding="utf-8")
         return
 
     if args.input is None:
@@ -127,34 +170,49 @@ def main(argv=None):
     # Read CSV input using stdlib csv (avoid pandas dependency)
     required = ["temperature_c", "wbc", "spo2", "age"]
     rows = []
+    original_rows = []
+    keep_cols = []
+    if args.keep_cols:
+        keep_cols = [c.strip() for c in args.keep_cols.split(",") if c.strip()]
+
     with open(args.input, "r", newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
+        reader = csv.DictReader(f, delimiter=args.sep)
         header = reader.fieldnames or []
         for c in required:
             if c not in header:
                 raise ValueError(f"Input CSV must contain column: {c}")
+        for kc in keep_cols:
+            if kc not in header:
+                raise ValueError(f"Requested --keep_cols column not in input CSV: {kc}")
         for r in reader:
+            original_rows.append(r)
             rows.append({c: float(r[c]) for c in required})
 
     import numpy as _np
     X = _np.array([[r[c] for c in required] for r in rows], dtype=_np.float32)
     preds = _predict_array(X, mu, sd, clin_enc, clin_head, args.task)
 
-    # Expand predictions and include original columns
+    # Expand predictions and include original/keep columns
     out_rows = []
     class_cols = _class_names(args.task)
     for i, p in enumerate(preds):
         row = {k: float(v) for k, v in p.items()}
         for c in required:
             row[c] = float(rows[i][c])
-        out_rows.append(row)
+        for kc in keep_cols:
+            row[kc] = original_rows[i].get(kc, "")
+        # Apply rounding and threshold for class columns
+        class_proc = _process_row_values(row, class_cols)
+        # merge processed class cols with the rest
+        merged = {**class_proc, **{c: row[c] for c in required}, **{kc: row[kc] for kc in keep_cols}}
+        out_rows.append(merged)
 
     # Top-K handling
     if args.top and args.top < len(class_cols):
         tops = []
-        for r in out_rows:
-            items = sorted([(c, r[c]) for c in class_cols], key=lambda t: t[1], reverse=True)[: args.top]
-            tops.append({"top": items, **{c: r[c] for c in required}})
+        for r, orig in zip(out_rows, original_rows):
+            items = sorted([(c, r.get(c)) for c in class_cols if c in r], key=lambda t: (t[1] if t[1] is not None else -1), reverse=True)[: args.top]
+            tops.append({"top": items, **{c: r[c] for c in required}, **{kc: orig.get(kc, "") for kc in keep_cols}})
         output_data = tops
     else:
         output_data = out_rows
@@ -163,8 +221,8 @@ def main(argv=None):
     if args.output:
         outp = Path(args.output)
         if args.format == "csv":
-            # write CSV with class columns + required columns
-            cols = class_cols + required
+            # write CSV with class columns + required columns + keep cols
+            cols = class_cols + required + keep_cols
             with open(outp, "w", newline="", encoding="utf-8") as f:
                 w = csv.DictWriter(f, fieldnames=cols)
                 w.writeheader()
@@ -174,8 +232,9 @@ def main(argv=None):
         else:
             outp.write_text(json.dumps(output_data), encoding="utf-8")
     else:
-        # Print a short preview
-        print(json.dumps(output_data[:5], indent=2))
+        if not args.no_print:
+            # Print a short preview
+            print(json.dumps(output_data[:5], indent=2))
 
 
 if __name__ == "__main__":

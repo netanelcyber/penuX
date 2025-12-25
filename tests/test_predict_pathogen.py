@@ -114,3 +114,113 @@ def test_batch_prediction_json(tmp_path, monkeypatch):
     arr = json.loads(txt)
     assert isinstance(arr, list)
     assert len(arr) == 2
+
+
+def test_single_threshold_round_json(tmp_path, monkeypatch):
+    mu = np.array([0.0, 0.0, 0.0, 0.0], dtype=np.float32)
+    sd = np.array([1.0, 1.0, 1.0, 1.0], dtype=np.float32)
+    np.savez(tmp_path / "clin_scaler.npz", mu=mu, sd=sd)
+    (tmp_path / "clin_encoder.keras").write_text("")
+    (tmp_path / "clin_head.keras").write_text("")
+
+    monkeypatch.setattr(predict_pathogen, "SCALER_FILE", tmp_path / "clin_scaler.npz")
+    monkeypatch.setattr(predict_pathogen, "ENCODER_FILE", tmp_path / "clin_encoder.keras")
+    monkeypatch.setattr(predict_pathogen, "HEAD_FILE", tmp_path / "clin_head.keras")
+
+    def fake_load(p):
+        if str(p).endswith("clin_encoder.keras"):
+            return DummyModel([0.1, 0.6, 0.3])
+        return DummyModel([0.1, 0.6, 0.3])
+
+    monkeypatch.setattr(predict_pathogen.tf.keras.models, "load_model", fake_load)
+
+    out = tmp_path / "out.json"
+    args = [
+        "--single",
+        "--task",
+        "3class",
+        "--temperature_c",
+        "36.6",
+        "--wbc",
+        "7000",
+        "--spo2",
+        "96",
+        "--age",
+        "60",
+        "--format",
+        "json",
+        "--output",
+        str(out),
+        "--threshold",
+        "0.5",
+        "--round",
+        "2",
+    ]
+    predict_pathogen.main(args)
+    txt = out.read_text()
+    data = json.loads(txt)
+    # Only the class with prob 0.6 should remain (rounded to 2 decimals)
+    assert isinstance(data, dict)
+    assert len(data.keys()) == 1
+    assert list(data.values())[0] == 0.6
+
+
+def test_batch_keep_cols_and_sep_and_round(tmp_path, monkeypatch):
+    mu = np.array([0.0, 0.0, 0.0, 0.0], dtype=np.float32)
+    sd = np.array([1.0, 1.0, 1.0, 1.0], dtype=np.float32)
+    np.savez(tmp_path / "clin_scaler.npz", mu=mu, sd=sd)
+    (tmp_path / "clin_encoder.keras").write_text("")
+    (tmp_path / "clin_head.keras").write_text("")
+
+    monkeypatch.setattr(predict_pathogen, "SCALER_FILE", tmp_path / "clin_scaler.npz")
+    monkeypatch.setattr(predict_pathogen, "ENCODER_FILE", tmp_path / "clin_encoder.keras")
+    monkeypatch.setattr(predict_pathogen, "HEAD_FILE", tmp_path / "clin_head.keras")
+
+    def fake_load(p):
+        if str(p).endswith("clin_encoder.keras"):
+            return DummyModel([0.12, 0.88])
+        return DummyModel([0.12, 0.88])
+
+    monkeypatch.setattr(predict_pathogen.tf.keras.models, "load_model", fake_load)
+
+    # Prepare TSV input with extra patient_id column
+    rows = [
+        {"patient_id": "a1", "temperature_c": 36.6, "wbc": 7000, "spo2": 96, "age": 60},
+        {"patient_id": "b2", "temperature_c": 37.0, "wbc": 6000, "spo2": 95, "age": 50},
+    ]
+    csv_in = tmp_path / "in.tsv"
+    with open(csv_in, "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=["patient_id", "temperature_c", "wbc", "spo2", "age"], delimiter="\t")
+        w.writeheader()
+        for r in rows:
+            w.writerow(r)
+
+    out = tmp_path / "out.json"
+    args = [
+        "--input",
+        str(csv_in),
+        "--format",
+        "json",
+        "--output",
+        str(out),
+        "--task",
+        "binary",
+        "--keep_cols",
+        "patient_id",
+        "--sep",
+        "\t",
+        "--round",
+        "2",
+    ]
+    predict_pathogen.main(args)
+
+    txt = out.read_text()
+    arr = json.loads(txt)
+    assert isinstance(arr, list)
+    assert len(arr) == 2
+    assert all("patient_id" in r for r in arr)
+    # probabilities should be rounded to 2 decimals
+    for r in arr:
+        vals = [v for k, v in r.items() if k in ["Normal", "Pneumonia"]]
+        assert all(isinstance(v, float) for v in vals)
+        assert all(round(v, 2) == v for v in vals)
