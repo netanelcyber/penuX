@@ -121,7 +121,35 @@ A short example notebook is available at `notebooks/correlations_example.ipynb` 
 
 ### Per-epoch correlation saving during training
 
-... (see above for usage; defaults and auto-downsampling rules apply)
+The dual-correlation training in `m.py` can capture and save correlation matrices (CSV, NPY) and heatmap PNGs for the image and clinical embeddings during training so you can track how embeddings' correlations evolve over epochs.
+
+Key flags:
+- `--corr_every N` : save correlation artifacts every N epochs (0 = off). Default: `1` (every epoch).
+- `--corr_dir DIR` : output directory for correlation artifacts. Default: `corrs`.
+- `--force-corr-every` : bypass the auto-downsampling heuristic (dangerous on long runs) and respect the provided `--corr_every` even for very large epoch counts.
+
+Auto-downsampling heuristic:
+- If you leave `--corr_every` at the default (1) and run for a large number of epochs (>= 1000), the training script **automatically adjusts** the effective sampling to `--corr_every 10` to avoid generating thousands of large files. A message is printed indicating the adjustment.
+
+Recommended 1000-epoch runs on the MIMIC dataset:
+
+```bash
+# Recommended: sample every 10 epochs (keeps file count manageable)
+python m.py --task specpath --mimic_dir dataset/mimic/mimic-iii-clinical-database-demo-1.4 --epochs 1000 --steps_per_epoch 200 --corr_every 10 --corr_dir corrs
+```
+
+If you truly need per-epoch artifacts for all 1000 epochs (WARNING: may use multiple GBs and thousands of files), use `--force-corr-every` to override the heuristic:
+
+```bash
+# Force per-epoch saves for all 1000 epochs (BE CAREFUL)
+python m.py --task specpath --mimic_dir dataset/mimic/mimic-iii-clinical-database-demo-1.4 --epochs 1000 --steps_per_epoch 200 --corr_every 1 --force-corr-every --corr_dir corrs
+```
+
+Disk / file-count guidance:
+- Each save produces multiple files (CSV, NPY, PNG) for image & clinical sides — expect ~5–8 files per save depending on settings. 
+- At `corr_every=10` for 1000 epochs you'll get ~100 saves (several hundred files). At `corr_every=1` you'll get ~1000 saves (several thousand files), possibly using multiple GBs of disk.
+- Monitor usage during long runs (`du -sh corrs` and `ls corrs | wc -l`).
+
 
 ### Predicting pathogens from vitals 🧪
 

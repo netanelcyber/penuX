@@ -21,3 +21,8 @@ def test_effective_corr_every_large_epochs_custom():
 def test_effective_corr_every_zero_off():
     # 0 turns off saving
     assert _effective_corr_every(2000, 0) == 0
+
+
+def test_effective_corr_every_force():
+    # force should honor the user setting
+    assert _effective_corr_every(1000, 1, force=True) == 1

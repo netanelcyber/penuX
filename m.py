@@ -1115,16 +1115,18 @@ def predict_from_vitals(task: str, temperature_c: float, wbc: float, spo2: float
 # UTILITIES
 # =========================
 
-def _effective_corr_every(epochs: int, corr_every: int) -> int:
+def _effective_corr_every(epochs: int, corr_every: int, force: bool = False) -> int:
     """Return an effective corr_every.
 
     Heuristic: if the user left the setting at the default (1) and the total
     number of epochs is large (>=1000), increase the sampling frequency to 10
     to avoid excessive disk usage and many large heatmap files.
+
+    If `force` is True, return the user-provided `corr_every` unchanged.
     """
     if corr_every == 0:
         return 0
-    if corr_every == 1 and epochs >= 1000:
+    if not force and corr_every == 1 and epochs >= 1000:
         return 10
     return corr_every
 
@@ -1148,6 +1150,7 @@ def main():
 
     ap.add_argument("--corr_every", type=int, default=1, help="Save correlation matrices every N epochs (0=off)")
     ap.add_argument("--corr_dir", type=str, default="corrs", help="Output directory for correlation matrices")
+    ap.add_argument("--force-corr-every", action="store_true", help="Bypass corr_every auto-downsampling and respect provided --corr_every even for long runs (dangerous - many files)")
 
     # clinical inference
     ap.add_argument("--predict_clin", action="store_true")
@@ -1282,9 +1285,9 @@ def main():
     clin_train = make_clin_ds(train_csv, batch=BATCH_CLIN, shuffle=True)
     clin_val = make_clin_ds(val_csv, batch=BATCH_CLIN, shuffle=False)
 
-    corr_every_eff = _effective_corr_every(args.epochs, args.corr_every)
-    if corr_every_eff != args.corr_every:
-        print(f"[INFO] Auto-adjusting --corr_every from {args.corr_every} to {corr_every_eff} for epochs={args.epochs}")
+    corr_every_eff = _effective_corr_every(args.epochs, args.corr_every, force=args.force_corr_every)
+    if corr_every_eff != args.corr_every and not args.force_corr_every:
+        print(f"[INFO] Adjusted --corr_every from {args.corr_every} to {corr_every_eff} to limit disk usage; pass --force-corr-every to override")
 
     # ---- Train dual
     train_dual(
