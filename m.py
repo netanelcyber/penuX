@@ -13,6 +13,11 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
 
+import os
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
 # =========================
 # SEED
 # =========================
@@ -825,6 +830,45 @@ def coral_corr_loss(a: tf.Tensor, b: tf.Tensor) -> tf.Tensor:
     return tf.reduce_mean(tf.square(ca - cb))
 
 
+def _save_corr_pair(z_img: np.ndarray, z_clin: np.ndarray, out_dir: Path, epoch: int) -> float:
+    """
+    Save correlation matrices (CSV/NPY) and heatmap PNGs for image and clinical embeddings.
+    Returns the coral-like loss between the two correlation matrices (mean squared diff).
+    """
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    ca = _corr_matrix(tf.constant(z_img)).numpy()
+    cb = _corr_matrix(tf.constant(z_clin)).numpy()
+
+    np.savetxt(out_dir / f"corr_epoch_{epoch:03d}_img.csv", ca, delimiter=",")
+    np.savetxt(out_dir / f"corr_epoch_{epoch:03d}_clin.csv", cb, delimiter=",")
+    np.save(out_dir / f"corr_epoch_{epoch:03d}_img.npy", ca)
+    np.save(out_dir / f"corr_epoch_{epoch:03d}_clin.npy", cb)
+
+    def _plot_and_save(mat, path, title):
+        plt.figure(figsize=(6, 6))
+        plt.imshow(mat, cmap="RdBu", vmin=-1, vmax=1)
+        plt.colorbar()
+        plt.title(title)
+        plt.tight_layout()
+        plt.savefig(path, dpi=150)
+        plt.close()
+
+    _plot_and_save(ca, out_dir / f"corr_epoch_{epoch:03d}_img.png", f"Img Corr Epoch {epoch}")
+    _plot_and_save(cb, out_dir / f"corr_epoch_{epoch:03d}_clin.png", f"Clin Corr Epoch {epoch}")
+
+    coral_loss = float(np.mean((ca - cb) ** 2))
+    log_path = out_dir / "corr_log.csv"
+    write_header = not log_path.exists()
+    with open(log_path, "a", encoding="utf-8") as f:
+        if write_header:
+            f.write("epoch,coral_loss\n")
+        f.write(f"{epoch},{coral_loss:.6f}\n")
+
+    return coral_loss
+
+
 # =========================
 # Training loop
 # =========================
@@ -840,6 +884,8 @@ def train_dual(
     lam_corr: float,
     steps_per_epoch: int,
     clin_label_to_group: Optional[np.ndarray] = None,
+    corr_every: int = 1,
+    corr_out_dir: Optional[Path] = None,
 ):
     img_enc = build_img_encoder(EMB_DIM)
     clin_enc = build_clin_encoder(EMB_DIM)
@@ -962,6 +1008,36 @@ def train_dual(
             f"val_acc_img={acc_i:.3f} val_acc_clin={acc_c:.3f}"
         )
 
+        # Optionally compute and save correlation matrices for embeddings on validation sets
+        if corr_out_dir is None:
+            corr_out_dir = Path("corrs")
+
+        if corr_every and corr_every > 0 and (ep % corr_every == 0):
+            # collect image embeddings from validation
+            z_img_parts = []
+            for xb, _ in img_val:
+                z_img_parts.append(img_enc(xb, training=False).numpy())
+            if len(z_img_parts) > 0:
+                z_img_all = np.vstack(z_img_parts)
+            else:
+                z_img_all = np.zeros((0, EMB_DIM), dtype=np.float32)
+
+            # collect clinical embeddings from validation
+            z_clin_parts = []
+            for xc, _ in clin_val:
+                z_clin_parts.append(clin_enc(xc, training=False).numpy())
+            if len(z_clin_parts) > 0:
+                z_clin_all = np.vstack(z_clin_parts)
+            else:
+                z_clin_all = np.zeros((0, EMB_DIM), dtype=np.float32)
+
+            if z_img_all.shape[0] >= 2 and z_clin_all.shape[0] >= 2:
+                coral_loss_epoch = _save_corr_pair(z_img_all, z_clin_all, corr_out_dir, ep)
+                print(f"[EPOCH {ep:03d}] coral_corr_between_corrs={coral_loss_epoch:.6f}")
+            else:
+                print(f"[EPOCH {ep:03d}] Not enough val embeddings to compute correlations.")
+
+
     img_enc.save("img_encoder.keras")
     clin_enc.save("clin_encoder.keras")
     head_img.save("img_head.keras")
@@ -1036,6 +1112,24 @@ def predict_from_vitals(task: str, temperature_c: float, wbc: float, spo2: float
 
 
 # =========================
+# UTILITIES
+# =========================
+
+def _effective_corr_every(epochs: int, corr_every: int) -> int:
+    """Return an effective corr_every.
+
+    Heuristic: if the user left the setting at the default (1) and the total
+    number of epochs is large (>=1000), increase the sampling frequency to 10
+    to avoid excessive disk usage and many large heatmap files.
+    """
+    if corr_every == 0:
+        return 0
+    if corr_every == 1 and epochs >= 1000:
+        return 10
+    return corr_every
+
+
+# =========================
 # MAIN
 # =========================
 def main():
@@ -1051,6 +1145,9 @@ def main():
 
     ap.add_argument("--top_k_bact", type=int, default=10)
     ap.add_argument("--top_k_viral", type=int, default=10)
+
+    ap.add_argument("--corr_every", type=int, default=1, help="Save correlation matrices every N epochs (0=off)")
+    ap.add_argument("--corr_dir", type=str, default="corrs", help="Output directory for correlation matrices")
 
     # clinical inference
     ap.add_argument("--predict_clin", action="store_true")
@@ -1185,6 +1282,10 @@ def main():
     clin_train = make_clin_ds(train_csv, batch=BATCH_CLIN, shuffle=True)
     clin_val = make_clin_ds(val_csv, batch=BATCH_CLIN, shuffle=False)
 
+    corr_every_eff = _effective_corr_every(args.epochs, args.corr_every)
+    if corr_every_eff != args.corr_every:
+        print(f"[INFO] Auto-adjusting --corr_every from {args.corr_every} to {corr_every_eff} for epochs={args.epochs}")
+
     # ---- Train dual
     train_dual(
         img_train=img_train,
@@ -1198,6 +1299,8 @@ def main():
         lam_corr=args.lam_corr,
         steps_per_epoch=args.steps_per_epoch,
         clin_label_to_group=clin_label_to_group,
+        corr_every=corr_every_eff,
+        corr_out_dir=Path(args.corr_dir),
     )
 
 
