@@ -106,6 +106,15 @@ python -m scripts.compute_correlations --input dataset/mimic/mimic-iii-clinical-
 
 This produces per-group CSVs/PNGs such as `mimic_spec_pearson_Bacterial.csv` and a grouped sample-feature heatmap `mimic_spec_grouped_by_label.png`.
 
+You can control ordering of groups in the grouped heatmap and per-group outputs with `--group_order`. Example:
+
+```bash
+# Order groups with Viral first, then Bacterial
+python -m scripts.compute_correlations --input dataset/mimic/mimic-iii-clinical-database-demo-1.4/mimic_features_specpath.csv --outdir docs/images --prefix mimic_spec --groupby label --compute_per_group --grouped_heatmap --group_order Viral,Bacterial,Other
+```
+
+This ensures the grouped heatmap's sample blocks and per-group outputs follow the specified order (groups not listed are appended alphabetically).
+
 ### Notebook example
 
 A short example notebook is available at `notebooks/correlations_example.ipynb` demonstrating programmatic use of the script and inline display of heatmaps.

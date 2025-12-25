@@ -119,6 +119,7 @@ def run(
     group_map: Path | None = None,
     sample_limit: int | None = None,
     seed: int = 42,
+    group_order: list | None = None,
 ):
     logger.info(f"Loading data from {input_csv}")
     df = pd.read_csv(input_csv)
@@ -156,12 +157,23 @@ def run(
         "pearson_png": pearson_png,
         "spearman_png": spearman_png,
     }
+    # record group ordering used (if relevant)
+    results["group_order_used"] = group_order if group_order is not None else None
 
     # Per-group correlations
     if compute_per_group:
         if groupby is None or groupby not in df.columns:
             raise ValueError("--compute_per_group requires --groupby <column> that exists in the CSV")
-        groups = sorted(df[groupby].dropna().unique().tolist())
+        # Determine group ordering: explicit group_order (if provided) then remaining groups sorted
+        present_groups = [g for g in df[groupby].dropna().unique().tolist()]
+        if group_order is not None:
+            # Keep only groups actually present, preserve requested order, append any missing
+            ordered = [g for g in group_order if g in present_groups]
+            ordered += [g for g in sorted(present_groups, key=lambda x: str(x)) if g not in ordered]
+            groups = ordered
+        else:
+            groups = sorted(present_groups, key=lambda x: str(x))
+
         rng = np.random.RandomState(seed)
         for g in groups:
             gsan = str(g).replace(" ", "_").replace("/", "_")
@@ -190,7 +202,12 @@ def run(
         if sample_limit is not None:
             rng = np.random.RandomState(seed)
             rows = []
-            for g, sub in df.groupby(groupby):
+            # Use group_order if provided
+            group_iter = group_order if group_order is not None else sorted(df[groupby].dropna().unique().tolist())
+            for g in group_iter:
+                sub = df[df[groupby] == g]
+                if sub.shape[0] == 0:
+                    continue
                 if sub.shape[0] > sample_limit:
                     sel = sub.sample(sample_limit, random_state=rng)
                 else:
@@ -198,7 +215,20 @@ def run(
                 rows.append(sel)
             df_plot = pd.concat(rows, axis=0)
         else:
-            df_plot = df.copy()
+            # If no sampling limit but user requested group_order, reorder accordingly
+            if group_order is not None:
+                rows = []
+                for g in group_order:
+                    sub = df[df[groupby] == g]
+                    if sub.shape[0] > 0:
+                        rows.append(sub)
+                # append any remaining groups not listed in group_order
+                remaining = [g for g in df[groupby].dropna().unique().tolist() if g not in group_order]
+                for g in remaining:
+                    rows.append(df[df[groupby] == g])
+                df_plot = pd.concat(rows, axis=0)
+            else:
+                df_plot = df.copy()
         gh_png = outdir / f"{prefix}_grouped_by_{groupby}.png"
         save_sample_feature_heatmap(df_plot, numeric_cols, groupby, gh_png, title=f"{prefix} samples ordered by {groupby}")
         results.update({"grouped_heatmap": gh_png})
@@ -218,6 +248,7 @@ def parse_args(argv=None):
     parser.add_argument("--group_map", type=str, default=None, help="Optional JSON file mapping group ids to names (e.g., pathogen_vocab.json)")
     parser.add_argument("--sample_limit", type=int, default=None, help="Max samples per group to include in grouped heatmap / group-specific computations")
     parser.add_argument("--seed", type=int, default=42, help="Random seed for sampling when limiting per-group samples")
+    parser.add_argument("--group_order", type=str, default=None, help="Optional comma-separated group names to order groups by (e.g., 'Bacterial,Viral,Other')")
     return parser.parse_args(argv)
 
 
@@ -227,7 +258,8 @@ def main(argv=None):
         cols = [c.strip() for c in args.columns.split(",") if c.strip()]
     else:
         cols = None
-    return run(args.input, args.outdir, args.prefix, cols)
+    group_order = [g.strip() for g in args.group_order.split(",") if g.strip()] if args.group_order else None
+    return run(args.input, args.outdir, args.prefix, cols, groupby=args.groupby, compute_per_group=args.compute_per_group, grouped_heatmap=args.grouped_heatmap, group_map=args.group_map, sample_limit=args.sample_limit, seed=args.seed, group_order=group_order)
 
 
 if __name__ == "__main__":
