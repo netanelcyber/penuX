@@ -155,6 +155,9 @@ New convenience parameters (predict_pathogen.py):
 - `--sep SEP` — Input CSV delimiter (default: `,`). Use `--sep '\t'` for TSV inputs.
 - `--round N` — Round probability values to N decimal places in the output (useful for human-readable reports).
 - `--no_print` — Suppress printing to stdout (useful in automation or CI when only file output is required).
+- `--order_classes` — Order class probabilities per row (descending) and include as `preds` in JSON (list of [class,prob]) and CSV (semicolons-separated `Class:prob` string).
+- `--sort_rows_by KEY` — Sort batch output rows by `KEY`, where `KEY` may be `top_prob` (the highest predicted probability), a class name (sort by that class' prob), or an input column name (e.g., `patient_id` or `age`).
+- `--sort_desc` — Sort rows in descending order (default for probability-based sorting).
 
 Examples:
 
@@ -170,9 +173,19 @@ python -m scripts.predict_pathogen --single --task 3class --temperature_c 36.6 -
 python -m scripts.predict_pathogen --input patients.tsv --sep $'\t' --keep_cols patient_id --format json --output preds.json --round 2
 ```
 
+- Batch prediction with ordered class lists and rows sorted by top probability:
+
+```bash
+python -m scripts.predict_pathogen --input patients.csv --format json --output preds.json --order_classes --sort_rows_by top_prob
+```
+
 Behavior notes:
 - `--top K` is applied before `--threshold` (top-K selects the top K classes by probability; threshold then filters low probabilities).
 - For CSV outputs, omitted classes (below threshold) are written as empty cells so the table remains consistent.
+- When `--order_classes` is used:
+  - JSON outputs include a `preds` key containing a list of `[class, prob]` tuples ordered by probability (descending).
+  - CSV outputs include a `preds` column with a semicolon-separated `Class:prob` string in descending order.
+- `--sort_rows_by` accepts `top_prob` (sort by the highest-per-row probability), a class name (sort rows by that class probability), or an input column to sort by value.
 - `specpath` class names are read from `pathogen_vocab.json` so ensure it is present after feature building or training.
 
 The training pipeline in `m.py` supports saving per-epoch correlation matrices of learned embeddings (image vs. clinical) so you can track how correlations evolve during training.
