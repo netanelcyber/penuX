@@ -1,0 +1,791 @@
+<!--#set var="TITLE" value="MIMIC Database Index"-->
+<!--#include virtual="/head.shtml"-->
+
+
+<p>
+Note that some subjects have been recorded more than once.  Each subject
+has been given an identification number that is the same as that of the
+first MIMIC Database record number for that subject.  In this index, all
+records for each subject have been grouped together.  Each subject's gender
+and age (where available) are given in parentheses following the subject
+number.
+
+<p>
+Each entry indicates which signals (ECGs sampled at 500 Hz, and other signals
+sampled at 125 Hz) and <a href="numerics/">numerics</a> (measurements of
+variables such as heart rate, sampled at intervals of 1.024 seconds) were
+recorded.  Numerics are available here for all 121 records in the MIMIC
+Database.  Signals are available here for most but not all of these 121
+records.
+
+<hr>
+<h3>Subject 032 (m, 34)</h3>
+<b>Clinical class:</b> Metabolic coma
+<h4>Record 032 Duration 21.6 hours</h4>
+<b>Signals:</b> II I V ABP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<hr>
+<h3>Subject 033 (m, 74)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 033 Duration 28.0 hours</h4>
+<b>Signals:</b> III I V ABP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<hr>
+<h3>Subject 037 (f, 38)</h3>
+<b>Clinical class:</b> 
+<h4>Record 037 Duration 31.0 hours</h4>
+<b><a href="037/">Signals:</a></b> MCL1 ABP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<hr>
+<h3>Subject 039 (m, 70)</h3>
+<b>Clinical class:</b> Bleed
+<h4>Record 039 Duration 77.4 hours</h4>
+<b><a href="039/">Signals:</a></b> III ABP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<h4>Record 041 Duration 10.3 hours</h4>
+<b><a href="041/">Signals:</a></b> III I V ABP PAP<br>
+<b>Measurements:</b> ABP C.O. PAP SpO2 TBLOOD
+
+<hr>
+<h3>Subject 048 (m, age not recorded)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 048 Duration 14.5 hours</h4>
+<b>Signals:</b> MCL1 V V ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<hr>
+<h3>Subject 052 (m, 87)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 052 Duration 22.0 hours</h4>
+<b>Signals:</b> II II ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<h4>Record 054 Duration 40.5 hours</h4>
+<b>Signals:</b> II I V ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<hr>
+<h3>Subject 055 (m, 38)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 055 Duration 37.5 hours</h4>
+<b><a href="055/">Signals:</a></b> MCL1 III V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP C.O. HR NBP PAP PULSE RESP SpO2 TBLOOD
+
+<hr>
+<h3>Subject 208 (m, 80)</h3>
+<b>Clinical class:</b> Bleed
+<h4>Record 208 Duration 1.33 hours</h4>
+<b><a href="208/">Signals:</a></b> II II V PLETH RESP<br>
+<b>Measurements:</b> NBP RESP SpO2
+
+<h4>Record 209 Duration 26.4 hours</h4>
+<b><a href="209/">Signals:</a></b> II II V PLETH RESP<br>
+<b>Measurements:</b> NBP RESP SpO2
+
+<h4>Record 210 Duration 18.8 hours</h4>
+<b><a href="210/">Signals:</a></b> II II V PAP PLETH RESP<br>
+<b>Measurements:</b> C.O. NBP RESP SpO2 TBLOOD
+
+<hr>
+<h3>Subject 211 (f, 67)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 211 Duration 21.6 hours</h4>
+<b><a href="211/">Signals:</a></b> II V V ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR RESP SpO2
+
+<hr>
+<h3>Subject 212 (m, 84)</h3>
+<b>Clinical class:</b> CHF/pulmonary edema
+<h4>Record 212 Duration 41.3 hours</h4>
+<b><a href="212/">Signals:</a></b> MCL1 II V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PAP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 213 (f, 82)</h3>
+<b>Clinical class:</b> CHF/pulmonary edema
+<h4>Record 213 Duration 50.6 hours</h4>
+<b><a href="213/">Signals:</a></b> I II V ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<hr>
+<h3>Subject 214 (f, 72)</h3>
+<b>Clinical class:</b> CHF/pulmonary edema
+<h4>Record 214 Duration 25.6 hours</h4>
+<b>Signals:</b> V II V ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PULSE RESP SpO2
+
+<h4>Record 215 Duration 24.1 hours</h4>
+<b>Signals:</b> V II V PAP ART PLETH RESP<br>
+<b>Measurements:</b> ART HR NBP PAP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 216 (m, 67)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 216 Duration 39.4 hours</h4>
+<b><a href="216/">Signals:</a></b> II MCL1 ABP PAP ART PLETH RESP<br>
+<b>Measurements:</b> ABP ART HR NBP PAP PULSE RESP SpO2
+
+<h4>Record 218 Duration 26.0 hours</h4>
+<b><a href="218/">Signals:</a></b> MCL1 II V ABP PLETH<br>
+<b>Measurements:</b> ABP HR NBP PULSE SpO2
+
+<h4>Record 219 Duration 27.5 hours</h4>
+<b><a href="219/">Signals:</a></b> MCL1 II V ABP PLETH<br>
+<b>Measurements:</b> ABP HR NBP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 220 (f, 68)</h3>
+<b>Clinical class:</b> Brain injury
+<h4>Record 220 Duration 1.16 hours</h4>
+<b><a href="220/">Signals:</a></b> V ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<h4>Record 221 Duration 23.7 hours</h4>
+<b><a href="221/">Signals:</a></b> V II V ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<hr>
+<h3>Subject 222 (m, 88)</h3>
+<b>Clinical class:</b> Sepsis
+<h4>Record 222 Duration 23.6 hours</h4>
+<b><a href="222/">Signals:</a></b> II MCL1 V ABP RESP<br>
+<b>Measurements:</b> RESP
+
+<hr>
+<h3>Subject 224 (m, 21)</h3>
+<b>Clinical class:</b> Sepsis
+<h4>Record 224 Duration 46.9 hours</h4>
+<b><a href="224/">Signals:</a></b> II V ABP PLETH RESP<br>
+<b>Measurements:</b> RESP SpO2
+
+<hr>
+<h3>Subject 225 (m, 73)</h3>
+<b>Clinical class:</b> CHF/pulmonary edema
+<h4>Record 225 Duration 46.1 hours</h4>
+<b><a href="225/">Signals:</a></b> II MCL1 V ABP PLETH RESP<br>
+<b>Measurements:</b> RESP SpO2
+
+<hr>
+<h3>Subject 226 (m, 68)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 226 Duration 31.9 hours</h4>
+<b><a href="226/">Signals:</a></b> II II V ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<hr>
+<h3>Subject 230 (f, 75)</h3>
+<b>Clinical class:</b> CHF/pulmonary edema
+<h4>Record 230 Duration 19.0 hours</h4>
+<b><a href="230/">Signals:</a></b> V II V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PAP PULSE RESP SpO2
+
+<h4>Record 231 Duration 47.3 hours</h4>
+<b><a href="231/">Signals:</a></b> V II V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PAP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 232 (m, 68)</h3>
+<b>Clinical class:</b> MI/cardiogenic shock
+<h4>Record 232 Duration 26.4 hours</h4>
+<b>Signals:</b> II V V ABP RESP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<h4>Record 233 Duration 27.4 hours</h4>
+<b>Signals:</b> MCL1 II V RESP<br>
+<b>Measurements:</b> HR NBP PULSE RESP
+
+<hr>
+<h3>Subject 235 (f, 67)</h3>
+<b>Clinical class:</b> MI/cardiogenic shock
+<h4>Record 235 Duration 47.6 hours</h4>
+<b>Signals:</b> II aVF V ABP CVP PLETH RESP<br>
+<b>Measurements:</b> ABP CVP HR NBP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 237 (f, 63)</h3>
+<b>Clinical class:</b> MI/cardiogenic shock
+<h4>Record 237 Duration 47.3 hours</h4>
+<b><a href="237/">Signals:</a></b> V II V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PAP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 240 (m, 68)</h3>
+<b>Clinical class:</b> Angina
+<h4>Record 240 Duration 30.6 hours</h4>
+<b><a href="240/">Signals:</a></b> V II ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PAP RESP SpO2 ST1 ST2
+
+<hr>
+<h3>Subject 241 (f, 76)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 241 Duration 19.9 hours</h4>
+<b>Signals:</b> V II V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PAP PAWP PULSE RESP SpO2
+
+<h4>Record 242 Duration 47.3 hours</h4>
+<b>Signals:</b> V II V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PAP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 243 (m, 90)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 243 Duration 46.8 hours</h4>
+<b>Signals:</b> V II V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PAP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 245 (f, 63)</h3>
+<b>Clinical class:</b> CHF/pulmonary edema
+<h4>Record 245 Duration 47.4 hours</h4>
+<b>Signals:</b> V II V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PAP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 248 (f, 80)</h3>
+<b>Clinical class:</b> MI/cardiogenic shock
+<h4>Record 248 Duration 47.3 hours</h4>
+<b><a href="248/">Signals:</a></b> MCL1 I V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PAP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 252 (m, 52)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 252 Duration 35.1 hours</h4>
+<b><a href="252/">Signals:</a></b> MCL1 II V ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PULSE RESP SpO2
+
+<h4>Record 253 Duration 52.3 hours</h4>
+<b><a href="253/">Signals:</a></b> MCL1 II V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PAP PAWP RESP SpO2
+
+<h4>Record 254 Duration 46.1 hours</h4>
+<b><a href="254/">Signals:</a></b> II MCL1 V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP C.O. HR NBP PAP PAWP RESP SpO2 ST1 ST2 TBLOOD
+
+<hr>
+<h3>Subject 255 (m, 67)</h3>
+<b>Clinical class:</b> CHF/pulmonary edema
+<h4>Record 255 Duration 49.7 hours</h4>
+<b>Signals:</b> III V V PAP ART PLETH<br>
+<b>Measurements:</b> ART HR PAP PULSE SpO2
+
+<hr>
+<h3>Subject 259 (f, 76)</h3>
+<b>Clinical class:</b> CHF/pulmonary edema
+<h4>Record 259 Duration 47.1 hours</h4>
+<b>Signals:</b> III MCL1 V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP C.O. HR PAP PULSE RESP SpO2 TBLOOD
+
+<h4>Record 260 Duration 13.1 hours</h4>
+<b><a href="260/">Signals:</a></b> V II V ABP PAP<br>
+<b>Measurements:</b> ABP HR NBP PAP PAWP RESP SpO2
+
+<hr>
+<h3>Subject 262 (f, 65)</h3>
+<b>Clinical class:</b> Post-op valve
+<h4>Record 262 Duration 49.8 hours</h4>
+<b><a href="262/">Signals:</a></b> II MCL1 V ABP PAP PLETH<br>
+<b>Measurements:</b> ABP HR PAP PULSE SpO2
+
+<h4>Record 453 Duration 48.3 hours</h4>
+<b><a href="453/">Signals:</a></b> V aVL V ABP PAP CVP PLETH<br>
+<b>Measurements:</b> ABP C.O. CVP HR LAP PAP PAWP SpO2 ST1 ST2 ST3 TBLOOD
+
+<h4>Record 454 Duration 49.3 hours</h4>
+<b><a href="454/">Signals:</a></b> II aVL V ABP PAP CVP PLETH<br>
+<b>Measurements:</b> ABP C.O. CVP HR PAP PAWP PULSE SpO2 TBLOOD
+
+<hr>
+<h3>Subject 264 (m, 65)</h3>
+<b>Clinical class:</b> MI/cardiogenic shock
+<h4>Record 264 Duration 46.3 hours</h4>
+<b>Signals:</b> V II V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PAP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 267 (m, 67)</h3>
+<b>Clinical class:</b> Angina
+<h4>Record 267 Duration 45.9 hours</h4>
+<b>Signals:</b> II V V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PAP PULSE RESP SpO2
+
+<h4>Record 268 Duration 37.0 hours</h4>
+<b>Signals:</b> II V V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PAP PULSE RESP SpO2
+
+<h4>Record 467 Duration 55.1 hours</h4>
+<b>Signals:</b> II V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PAP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 269 (f, 82)</h3>
+<b>Clinical class:</b> Sepsis
+<h4>Record 269 Duration 42.5 hours</h4>
+<b>Signals:</b> V II V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PAP PAWP RESP SpO2
+
+<h4>Record 271 Duration 31.5 hours</h4>
+<b>Signals:</b> aVL II ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PAP PAWP RESP SpO2
+
+<hr>
+<h3>Subject 276 (f, 66)</h3>
+<b>Clinical class:</b> 
+<h4>Record 276 Duration 58.3 hours</h4>
+<b><a href="276/">Signals:</a></b> MCL1 II ABP PAP CVP PLETH<br>
+<b>Measurements:</b> ABP C.O. CVP HR PAP PAWP PULSE SpO2 ST1 ST2 ST3 TBLOOD
+
+<hr>
+<h3>Subject 277 (f, 71)</h3>
+<b>Clinical class:</b> Post op liver resection
+<h4>Record 277 Duration 43.3 hours</h4>
+<b>Signals:</b> II aVR ABP PAP CVP PLETH<br>
+<b>Measurements:</b> ABP C.O. CVP HR NBP PAP PAWP PULSE SpO2 ST1 ST2 ST3 TBLOOD
+
+<hr>
+<h3>Subject 279 (f, 85)</h3>
+<b>Clinical class:</b> Sepsis
+<h4>Record 279 Duration 59.3 hours</h4>
+<b>Signals:</b> II I ABP PAP PLETH RESP<br>
+<b>Measurements:</b> C.O. RESP SpO2 TBLOOD
+
+<hr>
+<h3>Subject 280 (m, 60)</h3>
+<b>Clinical class:</b> Brain injury
+<h4>Record 280 Duration 42.5 hours</h4>
+<b>Signals:</b> I aVL V ABP ICP CVP PLETH<br>
+<b>Measurements:</b> ABP CPP CVP HR ICP SpO2 ST1 ST2 ST3
+
+<hr>
+<h3>Subject 281 (m, 61)</h3>
+<b>Clinical class:</b> 
+<h4>Record 281 Duration 10.5 hours</h4>
+<b><a href="281/">Signals:</a></b> II aVF ABP PAP CVP LAP PLETH<br>
+<b>Measurements:</b> ABP AWRR C.O. CVP ETCO2 HR IMCO2 LAP PAP PAWP SpO2 ST1 ST2 ST3 TBLOOD
+
+<hr>
+<h3>Subject 284 (f, 59)</h3>
+<b>Clinical class:</b> Angina
+<h4>Record 284 Duration 42.5 hours</h4>
+<b><a href="284/">Signals:</a></b> III II V ABP PLETH RESP<br>
+<b>Measurements:</b> RESP SpO2
+
+<hr>
+<h3>Subject 285 (m, 55)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 285 Duration 62.6 hours</h4>
+<b>Signals:</b> II I ABP PAP PLETH RESP<br>
+<b>Measurements:</b> C.O. RESP SpO2 TBLOOD
+
+<hr>
+<h3>Subject 286 (f, 34)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 286 Duration 30.4 hours</h4>
+<b>Signals:</b> II aVR ABP PAP CVP PLETH<br>
+<b>Measurements:</b> ABP C.O. CVP HR PAP PAWP PULSE SpO2 ST1 ST2 ST3 TBLOOD
+
+<hr>
+<h3>Subject 288 (f, 59)</h3>
+<b>Clinical class:</b> 
+<h4>Record 288 Duration 35.7 hours</h4>
+<b>Signals:</b> I ABP PAP CVP ART LAP PLETH CO2<br>
+<b>Measurements:</b> ABP ART AWRR C.O. CVP ETCO2 HR IMCO2 LAP PAP PAWP SpO2 ST1 ST2 ST3 TBLOOD
+
+<hr>
+<h3>Subject 289 (f, 61)</h3>
+<b>Clinical class:</b> 
+<h4>Record 289 Duration 42.3 hours</h4>
+<b>Signals:</b> III aVF ABP PAP CVP PLETH CO2<br>
+<b>Measurements:</b> ABP AWRR C.O. CVP ETCO2 HR IMCO2 PAP PAWP SpO2 ST1 ST2 ST3 TBLOOD
+
+<hr>
+<h3>Subject 291 (m, 27)</h3>
+<b>Clinical class:</b> Sepsis
+<h4>Record 291 Duration 21.5 hours</h4>
+<b><a href="291/">Signals:</a></b> V II V ABP RESP<br>
+<b>Measurements:</b> ABP HR RESP SpO2
+
+<hr>
+<h3>Subject 293 (f, 71)</h3>
+<b>Clinical class:</b> MI/cardiogenic shock
+<h4>Record 293 Duration 50.3 hours</h4>
+<b>Signals:</b> I III V ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 401 (f, 64)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 401 Duration 25.1 hours</h4>
+<b><a href="401/">Signals:</a></b> II V V ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<h4>Record 403 Duration 53.5 hours</h4>
+<b><a href="403/">Signals:</a></b> II V V ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<hr>
+<h3>Subject 404 (f, 87)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 404 Duration 22.2 hours</h4>
+<b><a href="404/">Signals:</a></b> II I V ABP PLETH RESP<br>
+<b>Measurements:</b> RESP SpO2
+
+<hr>
+<h3>Subject 405 (f, 63)</h3>
+<b>Clinical class:</b> MI/cardiogenic shock
+<h4>Record 405 Duration 22.9 hours</h4>
+<b><a href="405/">Signals:</a></b> V ABP PAP ART ART<br>
+<b>Measurements:</b> ABP ART HR PAP PULSE
+
+<hr>
+<h3>Subject 408 (m, 45)</h3>
+<b>Clinical class:</b> Bleed
+<h4>Record 408 Duration 48.3 hours</h4>
+<b><a href="408/">Signals:</a></b> I I V ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<h4>Record 409 Duration 43.5 hours</h4>
+<b><a href="409/">Signals:</a></b> II MCL1 V ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<hr>
+<h3>Subject 410 (m, 57)</h3>
+<b>Clinical class:</b> Sepsis
+<h4>Record 410 Duration 23.5 hours</h4>
+<b><a href="410/">Signals:</a></b> MCL1 V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> C.O. PAWP RESP SpO2 TBLOOD
+
+<hr>
+<h3>Subject 411 (f, 82)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 411 Duration 45.6 hours</h4>
+<b><a href="411/">Signals:</a></b> II V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> C.O. RESP SpO2 TBLOOD
+
+<hr>
+<h3>Subject 413 (f, 92)</h3>
+<b>Clinical class:</b> CHF/pulmonary edema
+<h4>Record 413 Duration 21.3 hours</h4>
+<b><a href="413/">Signals:</a></b> II MCL1 V ABP RESP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<h4>Record 414 Duration 71.0 hours</h4>
+<b><a href="414/">Signals:</a></b> II MCL1 V ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<hr>
+<h3>Subject 415 (f, 54)</h3>
+<b>Clinical class:</b> CHF/pulmonary edema
+<h4>Record 415 Duration 42.2 hours</h4>
+<b><a href="415/">Signals:</a></b> I MCL1 V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PAP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 417 (m, 86)</h3>
+<b>Clinical class:</b> CHF/pulmonary edema
+<h4>Record 417 Duration 12.4 hours</h4>
+<b><a href="417/">Signals:</a></b> MCL1 II V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PAP PAWP PULSE RESP SpO2 ST1 ST2
+
+<hr>
+<h3>Subject 418 (m, 52)</h3>
+<b>Clinical class:</b> CHF/pulmonary edema
+<h4>Record 418 Duration 27.0 hours</h4>
+<b><a href="418/">Signals:</a></b> V II ABP PAP ART PLETH RESP<br>
+<b>Measurements:</b> ABP ART HR NBP PAP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 422 (f, 84)</h3>
+<b>Clinical class:</b> Sepsis
+<h4>Record 422 Duration 26.1 hours</h4>
+<b>Signals:</b> II V V ABP PLETH RESP<br>
+<b>Measurements:</b> RESP SpO2
+
+<hr>
+<h3>Subject 427 (m, 48)</h3>
+<b>Clinical class:</b> MI/arrest
+<h4>Record 427 Duration 58.7 hours</h4>
+<b><a href="427/">Signals:</a></b> V II ABP PAP ART<br>
+<b>Measurements:</b> ABP ART HR PAP PRESS 4 PULSE RESP SpO2
+
+<hr>
+<h3>Subject 430 (m, 91)</h3>
+<b>Clinical class:</b> 
+<h4>Record 430 Duration 53.8 hours</h4>
+<b><a href="430/">Signals:</a></b> aVL III V ABP PLETH RESP<br>
+<b>Measurements:</b> RESP SpO2
+
+<hr>
+<h3>Subject 431 (f, 83)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 431 Duration 46.1 hours</h4>
+<b>Signals:</b> II I V ABP PLETH RESP<br>
+<b>Measurements:</b> NBP RESP SpO2
+
+<h4>Record 432 Duration 56.8 hours</h4>
+<b>Signals:</b> II MCL1 V PLETH RESP<br>
+<b>Measurements:</b> NBP RESP SpO2
+
+<hr>
+<h3>Subject 434 (f, 52)</h3>
+<b>Clinical class:</b> Metabolic coma
+<h4>Record 434 Duration 53.6 hours</h4>
+<b>Signals:</b> II MCL1 V ABP PLETH RESP<br>
+<b>Measurements:</b> RESP SpO2
+
+<hr>
+<h3>Subject 436 (f, 87)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 436 Duration 54.0 hours</h4>
+<b>Signals:</b> II III V ABP PAP PLETH<br>
+<b>Measurements:</b> C.O. SpO2 TBLOOD
+
+<hr>
+<h3>Subject 437 (m, 75)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 437 Duration 51.3 hours</h4>
+<b><a href="437/">Signals:</a></b> II III V ABP PLETH RESP CO2<br>
+<b>Measurements:</b> AWRR ETCO2 IMCO2 RESP SpO2
+
+<hr>
+<h3>Subject 438 (m, 78)</h3>
+<b>Clinical class:</b> Sepsis
+<h4>Record 438 Duration 53.1 hours</h4>
+<b><a href="438/">Signals:</a></b> II I V ABP PLETH RESP<br>
+<b>Measurements:</b> RESP SpO2
+
+<hr>
+<h3>Subject 439 (f, 75)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 439 Duration 46.4 hours</h4>
+<b><a href="439/">Signals:</a></b> II aVR V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> C.O. PAWP RESP SpO2 TBLOOD
+
+<hr>
+<h3>Subject 440 (f, 67)</h3>
+<b>Clinical class:</b> Post-op valve
+<h4>Record 440 Duration 56.0 hours</h4>
+<b>Signals:</b> II MCL1 V PLETH RESP<br>
+<b>Measurements:</b> HR NBP PULSE RESP SpO2
+
+<h4>Record 441 Duration 56.0 hours</h4>
+<b>Signals:</b> II MCL1 V PLETH RESP<br>
+<b>Measurements:</b> HR NBP PULSE RESP SpO2
+
+<h4>Record 442 Duration 35.0 hours</h4>
+<b><a href="441/">Signals:</a></b> MCL1 MCL1 V ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2
+
+<hr>
+<h3>Subject 443 (m, 75)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 443 Duration 51.1 hours</h4>
+<b><a href="443/">Signals:</a></b> II I V ABP PLETH RESP<br>
+<b>Measurements:</b> RESP SpO2
+
+<h4>Record 444 Duration 54.1 hours</h4>
+<b><a href="444/">Signals:</a></b> II I V ABP PLETH RESP<br>
+<b>Measurements:</b> RESP SpO2
+
+<hr>
+<h3>Subject 446 (m, 73)</h3>
+<b>Clinical class:</b> Sepsis
+<h4>Record 446 Duration 27.6 hours</h4>
+<b><a href="446/">Signals:</a></b> II MCL1 V ABP PLETH RESP<br>
+<b>Measurements:</b> RESP SpO2
+
+<hr>
+<h3>Subject 447 (m, 50)</h3>
+<b>Clinical class:</b> Respiratory failure
+<h4>Record 447 Duration 56.9 hours</h4>
+<b>Signals:</b> MCL1 II ABP PAP PLETH RESP<br>
+<b>Measurements:</b> C.O. RESP SpO2 TBLOOD
+
+<hr>
+<h3>Subject 449 (m, 75)</h3>
+<b>Clinical class:</b> Brain injury
+<h4>Record 449 Duration 42.5 hours</h4>
+<b><a href="449/">Signals:</a></b> II aVF V ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PULSE RESP SpO2 ST1 ST2
+
+<hr>
+<h3>Subject 450 (f, 76)</h3>
+<b>Clinical class:</b> CHF/pulmonary edema
+<h4>Record 450 Duration 22.2 hours</h4>
+<b><a href="450/">Signals:</a></b> III MCL1<br>
+<b>Measurements:</b> C.O. RESP SpO2 TBLOOD
+
+<h4>Record 451 Duration 59.8 hours</h4>
+<b><a href="451/">Signals:</a></b> II V ABP PAP UAP PLETH RESP<br>
+<b>Measurements:</b> C.O. RESP TBLOOD UAP
+
+<hr>
+<h3>Subject 452 (m, 73)</h3>
+<b>Clinical class:</b> Cord compression
+<h4>Record 452 Duration 48.5 hours</h4>
+<b><a href="452/">Signals:</a></b> aVR II V ABP PLETH RESP<br>
+<b>Measurements:</b> RESP SpO2
+
+<hr>
+<h3>Subject 455 (m, 49)</h3>
+<b>Clinical class:</b> Post-op CABG
+<h4>Record 455 Duration 48.8 hours</h4>
+<b>Signals:</b> II aVF V ABP CVP PLETH RESP<br>
+<b>Measurements:</b> ABP C.O. CVP HR LAP PAP PULSE RESP SpO2 ST1 ST2 ST3 TBLOOD
+
+<hr>
+<h3>Subject 456 (m, 84)</h3>
+<b>Clinical class:</b> Post-op CABG
+<h4>Record 456 Duration 49.5 hours</h4>
+<b><a href="456/">Signals:</a></b> MCL1 III V ABP PAP CVP PLETH<br>
+<b>Measurements:</b> ABP C.O. CVP HR PAP PAWP SpO2 ST1 ST2 ST3 TBLOOD
+
+<hr>
+<h3>Subject 457 (f, 80)</h3>
+<b>Clinical class:</b> Post-op CABG
+<h4>Record 457 Duration 57.8 hours</h4>
+<b>Signals:</b> II aVF ABP PAP CVP PLETH RESP<br>
+<b>Measurements:</b> ABP C.O. CVP HR PAP PAWP RESP SpO2 ST1 ST2 ST3 TBLOOD
+
+<hr>
+<h3>Subject 458 (f, 73)</h3>
+<b>Clinical class:</b> 
+<h4>Record 458 Duration 49.5 hours</h4>
+<b>Signals:</b> II aVL V ABP PAP CVP PLETH RESP<br>
+<b>Measurements:</b> ABP C.O. CVP HR PAP PAWP PULSE SpO2 ST1 ST2 ST3 TBLOOD
+
+<hr>
+<h3>Subject 463 (f, 69)</h3>
+<b>Clinical class:</b> CHF/pulmonary edema
+<h4>Record 463 Duration 70.0 hours</h4>
+<b>Signals:</b> V II PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PAP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 464 (f, 49)</h3>
+<b>Clinical class:</b> Post-op valve
+<h4>Record 464 Duration 26.6 hours</h4>
+<b>Signals:</b> V II ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PAP PULSE RESP SpO2
+
+<h4>Record 465 Duration 63.5 hours</h4>
+<b>Signals:</b> aVL V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR PAP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 466 (m, 70)</h3>
+<b>Clinical class:</b> CHF/pulmonary edema
+<h4>Record 466 Duration 69.3 hours</h4>
+<b><a href="466/">Signals:</a></b> MCL1 III ABP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 468 (f, 76)</h3>
+<b>Clinical class:</b> 
+<h4>Record 468 Duration 52.1 hours</h4>
+<b>Signals:</b> V II V ABP PAP PLETH<br>
+<b>Measurements:</b> ABP HR NBP PAP PULSE SpO2
+
+<hr>
+<h3>Subject 471 (f, 78)</h3>
+<b>Clinical class:</b> Renal failure
+<h4>Record 471 Duration 62.8 hours</h4>
+<b><a href="471/">Signals:</a></b> V II ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP HR NBP PAP PULSE RESP SpO2
+
+<hr>
+<h3>Subject 472 (m, 79)</h3>
+<b>Clinical class:</b> Bleed
+<h4>Record 472 Duration 36.6 hours</h4>
+<b><a href="472/">Signals:</a></b> aVL II ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP C.O. HR PAP PAWP PULSE RESP SpO2 TBLOOD
+
+<hr>
+<h3>Subject 474 (m, 75)</h3>
+<b>Clinical class:</b> 
+<h4>Record 474 Duration 51.0 hours</h4>
+<b><a href="474/">Signals:</a></b> I aVF ABP PAP CVP PLETH RESP CO2<br>
+<b>Measurements:</b> ABP AWRR C.O. CVP ETCO2 HR IMCO2 PAP PAWP PULSE RESP SpO2 ST1 ST2 ST3 TBLOOD
+
+<hr>
+<h3>Subject 476 (f, 72)</h3>
+<b>Clinical class:</b> Post-op CABG
+<h4>Record 476 Duration 35.4 hours</h4>
+<b><a href="476/">Signals:</a></b> II aVF ABP PAP CVP PLETH RESP CO2<br>
+<b>Measurements:</b> ABP AWRR C.O. CVP ETCO2 HR IMCO2 PAP RESP SpO2 ST1 ST2 ST3 TBLOOD
+
+<hr>
+<h3>Subject 477 (m, 67)</h3>
+<b>Clinical class:</b> Post-op CABG
+<h4>Record 477 Duration 30.0 hours</h4>
+<b><a href="477/">Signals:</a></b> I aVL ABP PAP CVP PLETH CO2<br>
+<b>Measurements:</b> ABP AWRR C.O. CVP ETCO2 HR IMCO2 PAP PAWP PULSE SpO2 ST1 ST2 ST3 TBLOOD
+
+<hr>
+<h3>Subject 478 (m, age not recorded)</h3>
+<b>Clinical class:</b> 
+<h4>Record 478 Duration 12.9 hours</h4>
+<b>Signals:</b> II aVL ABP PAP CVP PLETH CO2<br>
+<b>Measurements:</b> ABP AWRR C.O. CVP ETCO2 HR IMCO2 PAP PAWP PAP SpO2 ST1 ST2 ST3 TBLOOD
+
+<hr>
+<h3>Subject 479 (f, 77)</h3>
+<b>Clinical class:</b> Post-op valve
+<h4>Record 479 Duration 52.5 hours</h4>
+<b>Signals:</b> MCL1 aVF ABP PAP CVP LAP PLETH<br>
+<b>Measurements:</b> ABP C.O. CVP HR LAP PAP PAwP SpO2 ST1 ST2 ST3 TBLOOD
+
+<hr>
+<h3>Subject 480 (m, 52)</h3>
+<b>Clinical class:</b> Post-op CABG
+<h4>Record 480 Duration 19.3 hours</h4>
+<b><a href="480/">Signals:</a></b> I aVL ABP PAP CVP PLETH CO2<br>
+<b>Measurements:</b> ABP AWRR C.O. CVP ETCO2 HR IMCO2 PAP PAWP SpO2 ST1 ST2 ST3 TBLOOD
+
+<hr>
+<h3>Subject 481 (f, 73)</h3>
+<b>Clinical class:</b> Post-op valve
+<h4>Record 481 Duration 42.6 hours</h4>
+<b>Signals:</b> II aVL ABP PAP CVP LAP ART PLETH<br>
+<b>Measurements:</b> ABP ART C.O. CVP HR LAP PAP PAWP SpO2 TBLOOD
+
+<hr>
+<h3>Subject 482 (f, 92)</h3>
+<b>Clinical class:</b> Trauma
+<h4>Record 482 Duration 51.4 hours</h4>
+<b><a href="482/">Signals:</a></b> II aVR V ABP PAP CVP PLETH<br>
+<b>Measurements:</b> ABP C.O. CVP HR PAP PAWP SpO2 ST1 ST2 TBLOOD
+
+<hr>
+<h3>Subject 484 (m, 60)</h3>
+<b>Clinical class:</b> 
+<h4>Record 484 Duration 44.9 hours</h4>
+<b><a href="484/">Signals:</a></b> II I ABP PAP CVP LAP PLETH CO2<br>
+<b>Measurements:</b> ABP AWRR C.O. CVP ETCO2 HR IMCO2 LAP PAP SpO2 TBLOOD
+
+<hr>
+<h3>Subject 485 (m, 69)</h3>
+<b>Clinical class:</b> 
+<h4>Record 485 Duration 49.8 hours</h4>
+<b><a href="485/">Signals:</a></b> II aVF V ABP PAP CVP PLETH<br>
+<b>Measurements:</b> ABP C.O. CVP HR PAP PAWP SpO2 TBLOOD
+
+<h4>Record 486 Duration 55.3 hours</h4>
+<b>Signals:</b> II aVF ABP PAP CVP PLETH CO2<br>
+<b>Measurements:</b> C.O. RESP SpO2 TBLOOD
+
+<hr>
+<h3>Subject 488 (age and gender not recorded)</h3>
+<b>Clinical class:</b>
+<h4>Record 488 Duration 50.9 hours</h4>
+<b>Signals:</b> II III V ABP PAP PLETH RESP<br>
+<b>Measurements:</b> ABP AWRR C.O. CVP ETCO2 HR IMCO2 PAP PAWP SpO2 ST1 ST2 ST3 TBLOOD
+
+<hr>
+<!--#include virtual="/footer.shtml"-->
+</body>
+</html>

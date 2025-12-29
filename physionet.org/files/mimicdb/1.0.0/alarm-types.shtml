@@ -1,0 +1,72 @@
+<!--#set var="TITLE" value="MIMIC Database Alarm Types"-->
+<!--#include virtual="/head.shtml"-->
+
+
+<p>
+This is a list of alarm messages recorded in the <tt>.al</tt> files of the
+MIMIC Database.  The messages were originally produced by the HP
+CMS (Merlin) bedside ICU monitors from which the MIMIC database
+records were obtained.  Note that this is not a complete list of
+all possible alarm messages;  it contains only those that were actually
+recorded in the MIMIC Database.
+
+<p>
+Many of the messages include numeric values.  In this list,
+<tt><em>m</em></tt> represents a value measured and reported by the
+monitor, and <tt><em>n</em></tt> represents an alarm limit.  These
+values are integers (except for <tt>ST<em>i</em></tt> and
+<tt>Tblood</tt>, where <tt><em>m.m</em></tt> and <tt><em>n.n</em></tt>
+indicate values with one digit to the right of a decimal point).
+Values may be negative.  In a few cases (<tt>P<em>i</em></tt> and
+<tt>ST<em>i</em></tt>), <tt><em>i</em></tt> represents a channel number.
+
+<pre>
+ALARM: ***ABP DISCONNECT     
+ALARM: ** ABP <em>m</em> &lt; <em>n</em>
+ALARM: ** ABP <em>m</em> &gt; <em>n</em>  
+ALARM: ***APNEA      
+ALARM: ** ART <em>m</em> &lt; <em>n</em>  
+ALARM: ** ART <em>m</em> &gt; <em>n</em>
+ALARM: ***ASYSTOLE      
+ALARM: ***BRADY <em>m</em> &lt; <em>n</em>
+ALARM: ** CVP <em>m</em> &lt; <em>n</em>
+ALARM: ** HR <em>m</em> &lt; <em>n</em>
+ALARM: ** HR <em>m</em> &gt; <em>n</em>  
+ALARM: ** ICP <em>m</em> &gt; <em>n</em>
+ALARM: ** IRREGULAR HR    
+ALARM: ** LAP <em>m</em> &gt; <em>n</em>  
+ALARM: ** MISSED BEATS    
+ALARM: ** MULTIFORM VPBs    
+ALARM: ** NBP <em>m</em> &lt; <em>n</em>
+ALARM: ** NBP <em>m</em> &gt; <em>n</em>
+ALARM: ** PACER NOT CAPT   
+ALARM: ** PAIR VPBs    
+ALARM: ***PAP DISCONNECT     
+ALARM: ** PAP <em>m</em> &lt; <em>n</em>  
+ALARM: ** PAP <em>m</em> &gt; <em>n</em>  
+ALARM: ** P<em>i</em> <em>m</em> &lt; <em>n</em>  
+ALARM: ** RESP <em>m</em> &gt; <em>n</em>
+ALARM: ** R-ON-T VPBs    
+ALARM: ** RUN VPBs &gt; 9  
+ALARM: ** RUN VPBs 3 - 9 
+ALARM: **SpO2 <em>m</em> &lt; <em>n</em>
+ALARM: ** ST<em>i</em> <em>m</em>.<em>m</em>&lt;<em>n</em>.<em>n</em>    
+ALARM: ** ST<em>i</em> <em>m</em>.<em>m</em>&gt;<em>n</em>.<em>n</em>    
+ALARM: ***TACHY <em>m</em> &gt; <em>n</em>
+ALARM: **Tblood <em>m</em>.<em>m</em>&lt;<em>n</em>.<em>n</em>     
+ALARM: ***UAP DISCONNECT     
+ALARM: ** UAP <em>m</em> &lt; <em>n</em>  
+ALARM: ** UAP <em>m</em> &gt; <em>n</em>
+ALARM: ** UVP <em>m</em> &gt; <em>n</em>
+ALARM: ** VENT BIGEMINY    
+ALARM: ***VENT FIB/TACH     
+ALARM: ** VENT RHYTHM    
+ALARM: ***VENT TACHY     
+ALARM: ** VENT TRIGEMINY    
+ALARM: ** VPBs &gt; <em>n</em>/MIN
+</pre>
+
+<hr>
+<!--#include virtual="/footer.shtml"-->
+</body>
+</html>

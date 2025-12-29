@@ -1,0 +1,4689 @@
+[13:36:21 26/10/1994]	04100033.txt 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	83 
+RESP  	14 
+PAP   	30	35	22 
+ABP   	91	137	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+ABP   	91	137	72 
+PAP   	31	37	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+ABP   	91	137	72 
+PAP   	31	37	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	32	37	26 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	90	135	71 
+PAP   	32	37	26 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	89	135	71 
+PAP   	31	36	26 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+ABP   	89	134	71 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	134	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+ABP   	88	133	70 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	0 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	0 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	0 
+RESP  	14 
+ABP   	88	133	70 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	0 
+RESP  	14 
+PAP   	29	35	23 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	0 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	0 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	0 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	0 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+ABP   	88	133	70 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	32	37	26 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+ABP   	89	133	71 
+PAP   	32	37	26 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+ABP   	89	133	70 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	31	36	26 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	29	35	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	25 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+ABP   	89	134	71 
+PAP   	30	35	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	29	35	23 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	89	134	71 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	32	37	26 
+ABP   	90	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	25 
+ABP   	90	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	31	36	26 
+ABP   	90	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	136	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	136	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	136	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	136	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	29	35	23 
+ABP   	89	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	89	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	136	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	135	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	88	134	70 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	135	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	88	135	70 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	134	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	87	133	69 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	32	37	26 
+ABP   	88	133	69 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	31	37	26 
+ABP   	88	134	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	87	133	69 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	87	133	69 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	87	133	69 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	29	34	24 
+ABP   	87	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	29	35	23 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+ABP   	88	133	70 
+PAP   	29	34	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+ABP   	88	133	70 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+ABP   	88	133	70 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	29	35	23 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+ABP   	88	133	70 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	25 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+ABP   	90	134	72 
+PAP   	30	34	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	83 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	91	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	83 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	91	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	83 
+RESP  	14 
+ABP   	91	136	73 
+PAP   	31	36	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	83 
+RESP  	14 
+PAP   	30	35	22 
+ABP   	91	136	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	83 
+RESP  	14 
+PAP   	30	35	22 
+ABP   	91	136	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	32	37	25 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+ABP   	92	137	73 
+PAP   	30	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	92	138	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	36	25 
+ABP   	92	138	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	36	25 
+ABP   	92	138	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	36	25 
+ABP   	92	138	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	25 
+ABP   	91	138	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	138	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	91	137	72 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	91	137	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	90	137	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	136	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	136	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	90	136	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+PAP   	31	35	25 
+ABP   	90	136	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+ABP   	90	136	71 
+PAP   	30	35	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	136	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	80 
+RESP  	14 
+ABP   	91	137	72 
+PAP   	32	37	27 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	81 
+RESP  	14 
+PAP   	31	36	26 
+ABP   	91	137	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	137	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+ABP   	91	138	72 
+PAP   	31	35	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	31	37	27 
+ABP   	91	138	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	25 
+ABP   	91	138	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+ABP   	91	137	72 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	137	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	36	25 
+ABP   	91	137	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	137	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	91	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	91	137	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	29	35	21 
+ABP   	91	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	91	136	72 
+PAP   	29	35	21 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	81 
+RESP  	14 
+PAP   	32	37	25 
+ABP   	91	137	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+ABP   	91	137	72 
+PAP   	31	37	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+ABP   	90	135	72 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	36	25 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	89	134	71 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+ABP   	89	134	71 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	92	136	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	92	136	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	83 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	92	136	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	83 
+HR    	83 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	93	136	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	83 
+HR    	83 
+RESP  	14 
+PAP   	30	36	25 
+ABP   	93	137	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	83 
+HR    	83 
+RESP  	14 
+PAP   	30	36	25 
+ABP   	93	137	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	83 
+HR    	83 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	93	137	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	83 
+HR    	83 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	93	137	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	83 
+HR    	83 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	93	138	75 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	83 
+HR    	83 
+RESP  	14 
+ABP   	93	138	75 
+PAP   	31	36	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	83 
+HR    	83 
+RESP  	14 
+PAP   	30	35	21 
+ABP   	93	137	75 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	83 
+RESP  	14 
+PAP   	30	35	21 
+ABP   	93	137	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	83 
+RESP  	14 
+PAP   	31	36	23 
+ABP   	94	138	75 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	31	36	23 
+ABP   	94	138	75 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	93	138	75 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	93	138	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	94	138	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	93	138	75 
+PAP   	32	37	26 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	25 
+ABP   	93	137	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+ABP   	93	137	74 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+ABP   	92	137	73 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	92	136	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	91	135	73 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	36	25 
+ABP   	92	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	25 
+ABP   	92	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	92	135	73 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	92	136	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	81 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	93	136	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	83 
+HR    	81 
+RESP  	14 
+ABP   	93	136	74 
+PAP   	31	36	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	83 
+HR    	83 
+RESP  	14 
+ABP   	93	136	74 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	83 
+HR    	83 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	93	136	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	83 
+HR    	83 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	93	137	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	83 
+HR    	83 
+RESP  	14 
+ABP   	93	137	74 
+PAP   	31	36	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	83 
+HR    	83 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	92	136	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	83 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	92	136	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+ABP   	92	136	73 
+PAP   	32	37	26 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	82 
+HR    	81 
+RESP  	14 
+PAP   	32	37	26 
+ABP   	92	136	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	92	136	73 
+PAP   	31	36	26 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+ABP   	91	135	73 
+PAP   	30	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	96 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+ABP   	91	134	72 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+ABP   	91	134	72 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	134	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	30	35	25 
+ABP   	92	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+ABP   	92	135	73 
+PAP   	32	37	26 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	31	37	26 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	134	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	134	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	92	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	36	25 
+ABP   	92	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	91	135	73 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	92	136	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	91	136	73 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	25 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	29	34	23 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	29	34	23 
+ABP   	90	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	133	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	133	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	90	134	72 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	90	133	72 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	133	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	92	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	31	37	24 
+ABP   	92	136	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	93	137	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	93	137	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	81 
+RESP  	14 
+PAP   	31	37	24 
+ABP   	92	136	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+ABP   	92	136	73 
+PAP   	31	37	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	31	37	23 
+ABP   	92	136	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	79 
+RESP  	14 
+PAP   	32	45	24 
+ABP   	91	136	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	30	42	21 
+ABP   	91	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	78 
+RESP  	14 
+PAP   	31	41	21 
+ABP   	91	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	32	41	25 
+ABP   	91	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	32	42	24 
+ABP   	91	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+ABP   	91	135	72 
+PAP   	31	41	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	41	22 
+ABP   	91	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	41	23 
+ABP   	91	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	31	41	23 
+ABP   	91	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	31	40	23 
+ABP   	90	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	31	38	24 
+ABP   	90	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	31	39	24 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+ABP   	90	135	71 
+PAP   	31	39	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+PAP   	30	37	21 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+PAP   	30	36	21 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+PAP   	30	37	22 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+PAP   	30	37	23 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+PAP   	30	36	23 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+PAP   	30	36	23 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+ABP   	90	134	71 
+PAP   	30	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+ABP   	88	133	70 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	32	37	26 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	31	37	26 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+ABP   	89	133	70 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	80 
+RESP  	14 
+ABP   	90	134	71 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	91	135	72 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	91	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	91	135	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	81 
+RESP  	14 
+ABP   	92	136	73 
+PAP   	31	36	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	93	137	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+ABP   	93	137	74 
+PAP   	31	36	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+ABP   	94	138	75 
+PAP   	31	36	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	31	36	26 
+ABP   	94	138	75 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+ABP   	94	139	75 
+PAP   	32	37	26 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+ABP   	94	139	75 
+PAP   	32	37	26 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	94	138	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	93	138	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	82 
+HR    	82 
+RESP  	14 
+PAP   	32	37	25 
+ABP   	93	138	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	81 
+HR    	82 
+RESP  	14 
+PAP   	32	37	25 
+ABP   	93	138	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	80 
+HR    	80 
+RESP  	14 
+ABP   	93	137	73 
+PAP   	31	37	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	80 
+RESP  	14 
+ABP   	92	137	73 
+PAP   	31	37	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	78 
+RESP  	14 
+PAP   	33	38	27 
+ABP   	93	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+ABP   	92	137	73 
+PAP   	33	38	27 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	92	136	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	92	136	73 
+PAP   	31	37	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	91	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	91	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+ABP   	90	135	71 
+PAP   	30	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	32	38	26 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	30	36	23 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	89	133	70 
+PAP   	31	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	89	133	70 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	36	23 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	89	133	70 
+PAP   	31	37	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	89	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+ABP   	89	133	71 
+PAP   	31	37	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+ABP   	89	133	71 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	37	26 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+ABP   	88	132	70 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	36	21 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	36	21 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	37	23 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	37	23 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	36	23 
+ABP   	89	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	37	23 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	37	24 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	37	24 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	37	24 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+ABP   	90	134	71 
+PAP   	31	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	32	37	25 
+ABP   	91	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	91	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	91	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	37	24 
+ABP   	92	136	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	92	137	73 
+PAP   	30	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	92	138	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	92	138	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+ABP   	92	137	73 
+PAP   	30	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	32	37	26 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+ABP   	92	137	73 
+PAP   	32	37	26 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+ABP   	92	137	73 
+PAP   	31	36	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	91	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	91	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	91	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+ABP   	90	135	72 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	90	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	90	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+ABP   	90	134	71 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	90	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	90	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+ABP   	90	135	71 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	37	26 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	90	134	71 
+PAP   	31	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	90	135	72 
+PAP   	31	36	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	90	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	91	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	91	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	91	137	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	37	24 
+ABP   	91	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	37	24 
+ABP   	91	137	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	37	24 
+ABP   	92	137	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	37	24 
+ABP   	91	137	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	37	24 
+ABP   	91	137	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	91	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+PAP   	32	38	26 
+ABP   	91	137	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	75 
+HR    	77 
+RESP  	14 
+ABP   	91	137	72 
+PAP   	32	38	26 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	75 
+HR    	77 
+RESP  	14 
+ABP   	90	136	72 
+PAP   	31	37	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	75 
+HR    	76 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	90	136	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	75 
+HR    	75 
+RESP  	14 
+PAP   	31	37	24 
+ABP   	90	136	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	75 
+HR    	75 
+RESP  	14 
+PAP   	31	37	24 
+ABP   	90	136	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	75 
+HR    	75 
+RESP  	14 
+PAP   	30	36	23 
+ABP   	90	136	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	75 
+HR    	75 
+RESP  	14 
+PAP   	30	36	23 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	75 
+HR    	75 
+RESP  	14 
+PAP   	31	36	23 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	75 
+HR    	75 
+RESP  	14 
+PAP   	32	38	26 
+ABP   	90	136	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	75 
+HR    	75 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	90	136	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+PAP   	30	36	23 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+ABP   	90	135	71 
+PAP   	30	36	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	91	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	91	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	90	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	90	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	90	135	71 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	90	135	72 
+PAP   	30	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	90	135	72 
+PAP   	32	37	26 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	32	37	26 
+ABP   	90	135	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+ABP   	90	135	72 
+PAP   	31	37	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+ABP   	90	134	71 
+PAP   	30	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	135	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+ABP   	89	134	71 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+ABP   	89	134	71 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+ABP   	89	134	71 
+PAP   	32	37	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	78 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+ABP   	89	133	71 
+PAP   	30	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+ABP   	88	133	70 
+PAP   	30	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	88	132	70 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	89	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	89	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+ABP   	89	133	71 
+PAP   	31	37	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	91	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+ABP   	91	135	72 
+PAP   	31	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+ABP   	91	135	72 
+PAP   	31	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	37	24 
+ABP   	92	136	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	33	38	27 
+ABP   	93	137	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	32	38	26 
+ABP   	93	137	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	31	37	24 
+ABP   	93	137	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	32	38	24 
+ABP   	94	138	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	32	38	25 
+ABP   	94	139	75 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	32	38	25 
+ABP   	94	139	75 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	94	138	75 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	94	138	75 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	94	139	75 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	79 
+HR    	79 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	94	139	75 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	94	139	75 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	94	138	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	94	139	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	93	138	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	30	36	23 
+ABP   	93	138	74 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	79 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	92	137	73 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+ABP   	92	137	73 
+PAP   	31	37	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+ABP   	91	136	73 
+PAP   	31	37	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	91	136	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+PAP   	30	36	23 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	75 
+HR    	76 
+RESP  	14 
+PAP   	30	36	23 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	75 
+HR    	76 
+RESP  	14 
+ABP   	90	135	72 
+PAP   	30	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	75 
+HR    	76 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	75 
+HR    	76 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+PAP   	32	37	25 
+ABP   	90	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+ABP   	89	133	71 
+PAP   	30	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	90	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	90	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	32	37	25 
+ABP   	90	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	90	133	71 
+PAP   	32	37	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	132	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	132	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+PAP   	30	36	23 
+ABP   	90	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+ABP   	90	133	72 
+PAP   	30	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	133	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	90	133	71 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	32	37	26 
+ABP   	90	133	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	32	37	26 
+ABP   	90	133	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	89	132	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	36	23 
+ABP   	89	132	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	89	132	71 
+PAP   	30	36	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+ABP   	88	132	70 
+PAP   	30	36	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+ABP   	88	131	70 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+PAP   	30	36	23 
+ABP   	88	131	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+ABP   	88	132	70 
+PAP   	32	38	26 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+PAP   	32	38	25 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+ABP   	88	132	70 
+PAP   	32	38	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+PAP   	32	38	25 
+ABP   	89	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+ABP   	89	133	71 
+PAP   	32	38	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	32	38	25 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	89	133	71 
+PAP   	31	37	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	37	24 
+ABP   	90	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+ABP   	90	134	71 
+PAP   	33	38	27 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	33	38	27 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	90	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	90	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	31	37	24 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+ABP   	90	133	71 
+PAP   	31	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+ABP   	90	134	71 
+PAP   	32	38	26 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+PAP   	32	38	26 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	36	25 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	37	25 
+ABP   	91	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	90	134	72 
+PAP   	30	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+ABP   	90	134	72 
+PAP   	30	35	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+ABP   	90	134	72 
+PAP   	31	36	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	98 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	98 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	98 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	98 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	90	134	72 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	98 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	98 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	90	134	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	98 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	89	133	71 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	98 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+ABP   	89	134	71 
+PAP   	32	37	25 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	98 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+PAP   	32	37	25 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	98 
+PULSE 	76 
+HR    	77 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	98 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	98 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	98 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	133	71 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	76 
+HR    	76 
+RESP  	14 
+ABP   	88	132	70 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	31	36	24 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+ABP   	88	133	70 
+PAP   	31	36	24 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	77 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+ABP   	88	132	70 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+ABP   	88	132	70 
+PAP   	30	35	23 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	77 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	23 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	36	24 
+ABP   	89	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	35	24 
+ABP   	88	133	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	37	24 
+ABP   	88	132	70 
+C.O.  [inactive, status = 7100] 
+Tblood[inactive, status = 3182] 
+SpO2  	97 
+PULSE 	78 
+HR    	78 
+RESP  	14 
+PAP   	30	38	23 
+ABP   	88	132	70 

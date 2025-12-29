@@ -1,7 +1,7 @@
 # Bytecode
 __pycache__/
 *.pyc
-
+/workspaces/penuX/physionet.org/*
 # Python env
 .env/
 .venv/

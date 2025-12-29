@@ -1,0 +1,13 @@
+041n 12 0.9765625 50391  8:16:10 26/10/1994
+041n.dat 16 1/mmHg 16 0 61 6494 0 ABPmean
+041n.dat 16 1/mmHg 16 0 95 13290 0 ABPsys
+041n.dat 16 1/mmHg 16 0 49 -14068 0 ABPdias
+041n.dat 16 100/lpm 16 0 949 13910 0 C.O.
+041n.dat 16 1/bpm 16 0 88 11079 0 HR
+041n.dat 16 1/mmHg 16 0 21 1603 0 PAPmean
+041n.dat 16 1/mmHg 16 0 27 3123 0 PAPsys
+041n.dat 16 1/mmHg 16 0 15 -11036 0 PAPdias
+041n.dat 16 1/bpm 16 0 88 10126 0 PULSE
+041n.dat 16 1/bpm 16 0 16 -12149 0 RESP
+041n.dat 16 1/% 16 0 95 -12021 0 SpO2
+041n.dat 16 10/degC 16 0 373 20599 0 Tblood

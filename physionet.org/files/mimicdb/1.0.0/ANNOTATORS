@@ -1,0 +1,10 @@
+abp	arterial blood pressure annotations
+al	patient alarms
+all	monitor status and patient alarms (union of al and in)
+cvp	central venous pressure annotations
+in	monitor status alarms
+log	timeline annotations
+not	calibration annotations
+pap	pulmonary artery pressure annotations
+ple	plethysmograph annotations
+qrs	unaudited beat annotations

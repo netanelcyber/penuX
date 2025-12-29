@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# mimic3_resistance_pipeline.py  (NO-PANDAS)
+# mimic3_resistance_pipeline_onefile.py  (NO-PANDAS)
 #
 # Requirements:
 # - ALL FEATURE COLUMN NAMES are lowercase (keys/order)
@@ -15,6 +15,44 @@
 # - standardize vitals on TRAIN only
 # - sample_weight class balancing (+ optional extra down-weight for B:OTHER)
 # - label_smoothing to reduce overconfidence
+#
+# Added:
+# - Optimized epochs via EarlyStopping + ReduceLROnPlateau (restores best weights)
+# - Feature-importance / correlation plot for vitals:
+#     - Permutation importance (Δ multiclass CE loss on TEST)
+#     - Pearson r + p-value (raw vitals vs P(bacterial)) — ALWAYS printed
+#     - PNG saved if matplotlib is available: vitals_feature_signal.png
+# - F1 focus on MRSA vs STAPH AUREUS (COAG +):
+#     - Per-class precision/recall/F1 (multiclass)
+#     - Dedicated MRSA-vs-MSSA report on the TEST subset containing those labels
+#
+# References (DOI):
+# [R1] Johnson AEW, Pollard TJ, Shen L, et al. MIMIC-III, a freely accessible critical care database.
+#      Scientific Data. 2016;3:160035. doi:10.1038/sdata.2016.35
+# [R2] Pedregosa F, Varoquaux G, Gramfort A, et al. Scikit-learn: Machine Learning in Python.
+#      JMLR. 2011;12:2825-2830. (canonical) doi:10.5555/1953048.2078195
+# [R3] He K, Zhang X, Ren S, Sun J. Deep Residual Learning for Image Recognition (ResNet; for general DL context).
+#      CVPR 2016. doi:10.1109/CVPR.2016.308
+# [R4] Friedman J, Hastie T, Tibshirani R. The Elements of Statistical Learning (One-hot / regularization background).
+#      2nd ed. 2009. doi:10.1007/978-0-387-84858-7 (book DOI varies by edition; this is a common one)
+#
+# Clinical/process motivation refs (DOI):
+# [C1] Li L, Georgiou A, Vecellio E, Toouli G, Wilson R. The effect of laboratory testing on emergency department length of stay:
+#      a multihospital longitudinal study. Acad Emerg Med. 2015. doi:10.1111/acem.12565
+# [C2] Vrijsen B, et al. Shorter laboratory turnaround time is associated with shorter emergency department length of stay.
+#      BMC Emerg Med. 2022. doi:10.1186/s12873-022-00763-w
+# [C3] Carrier ER, et al. Association between emergency department length of stay and rates of admission to inpatient and observation services.
+#      JAMA Intern Med. 2014. doi:10.1001/jamainternmed.2014.3467
+# [C4] Kenig A, et al. Blood cultures of adult patients discharged from the emergency department—is the safety net reliable?
+#      Eur J Clin Microbiol Infect Dis. 2020. doi:10.1007/s10096-020-03838-3
+# [C5] Chan J, et al. Epidemiology and outcomes of bloodstream infections in patients discharged from the emergency department.
+#      CJEM. 2015. doi:10.2310/8000.2013.131349
+# [C6] Dargère S, Cormier H, Verdon R. Contaminants in blood cultures: importance, implications, interpretation and prevention.
+#      Clin Microbiol Infect. 2018. doi:10.1016/j.cmi.2018.03.030
+# [C7] Peri AM, et al. Rapid Diagnostic Tests and Antimicrobial Stewardship Programs for the Management of Bloodstream Infection:
+#      a systematic review and network meta-analysis. Clin Infect Dis. 2024. doi:10.1093/cid/ciae234
+# [C8] Altun O, et al. Evaluation of the FilmArray Blood Culture Identification Panel: results from a multicenter controlled trial.
+#      J Clin Microbiol. 2016. doi:10.1128/JCM.01679-15
 
 import csv
 import re
@@ -27,6 +65,16 @@ import numpy as np
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
+
+# Optional metrics (still NO-PANDAS)
+from sklearn.metrics import precision_recall_fscore_support, confusion_matrix
+
+# Optional plotting (still NO-PANDAS)
+try:
+    import matplotlib.pyplot as plt
+except Exception:
+    plt = None
+
 
 # ===============================
 # FIXED CLASS ORDER (CAPITALS)
@@ -48,6 +96,10 @@ CLASSES = [
 CLASS_TO_INDEX = {c: i for i, c in enumerate(CLASSES)}
 INDEX_TO_CLASS = {i: c for c, i in CLASS_TO_INDEX.items()}
 
+MRSA_LABEL = "B:POSITIVE FOR METHICILLIN RESISTANT STAPH AUREUS"
+MSSA_LABEL = "B:STAPH AUREUS COAG +"
+
+
 # ===============================
 # PATHS
 # ===============================
@@ -60,6 +112,7 @@ D_ITEMS_PATH = MIMIC_DIR / "D_ITEMS.csv"
 CHARTEVENTS_PATH = MIMIC_DIR / "CHARTEVENTS.csv"
 D_LABITEMS_PATH = MIMIC_DIR / "D_LABITEMS.csv"
 LABEVENTS_PATH = MIMIC_DIR / "LABEVENTS.csv"
+
 
 # ===============================
 # SETTINGS
@@ -81,11 +134,21 @@ USE_CLASS_WEIGHTS = True
 LABEL_SMOOTHING = 0.05
 MAX_CLASS_WEIGHT = 15.0
 BOTHER_EXTRA_DOWNWEIGHT = 0.5
+
 DROPOUT = 0.2
-EPOCHS = 20
 BATCH_SIZE = 64
 
+# Epoch optimization (instead of fixed EPOCHS):
+# - Train up to MAX_EPOCHS, but stop early on no val_loss improvement.
+MAX_EPOCHS = 120
+EARLY_PATIENCE = 6
+MIN_DELTA = 1e-4
+
 WBC_SAMPLE_MAX = 200_000
+
+# Guarantee test split has at least this many UNIQUE HADM_IDs
+MIN_TEST_UNIQUE_HADM = 2
+
 
 # ===============================
 # CSV helpers (no pandas)
@@ -397,7 +460,7 @@ def compute_vitals_features(hadm_set: set[int]) -> Dict[int, Dict[str, float]]:
         "VALUENUM": ["VALUENUM", "VALUE", "VALUE_NUM", "VALUE NUM"],
     }
 
-    # pass1: reservoir sample for scaling
+    # pass1: reservoir sample for scaling check
     sample: List[float] = []
     rng = np.random.default_rng(SEED)
     seen = 0
@@ -431,7 +494,7 @@ def compute_vitals_features(hadm_set: set[int]) -> Dict[int, Dict[str, float]]:
         if med < 200.0:
             scale_by_1000 = True
 
-    # pass2: max WBC
+    # pass2: max WBC in window
     wbc_max: Dict[int, float] = {}
     for row in _iter_csv_std(LABEVENTS_PATH, le_wanted):
         hadm = _parse_int(row["HADM_ID"])
@@ -488,7 +551,6 @@ def load_micro_rows() -> List[Dict[str, Any]]:
         if label not in CLASS_TO_INDEX:
             continue
 
-        # IMPORTANT: values lowercased (while "column names"/keys are already lowercase)
         spec = _norm_text(row["SPEC_TYPE_DESC"])
         interp = _norm_text(row["INTERPRETATION"])
         if spec == "" or interp == "":
@@ -519,7 +581,7 @@ def load_abx_features(hadm_set: set[int]) -> Dict[int, Dict[str, float]]:
 
     out: Dict[int, Dict[str, float]] = {}
     for hadm in hadm_set:
-        feats = {abx: 0.0 for abx in ABX_ORDER}  # lowercase "column names"
+        feats = {abx: 0.0 for abx in ABX_ORDER}
         for abx_u in hadm_to_drugs.get(hadm, set()):
             feats[abx_u.lower()] = 1.0
         out[hadm] = feats
@@ -539,6 +601,255 @@ def make_sample_weights(y_labels: np.ndarray) -> np.ndarray:
 
     w = np.clip(w, 0.0, float(MAX_CLASS_WEIGHT))
     return w[y_labels].astype(np.float32)
+
+
+# ===============================
+# Vitals signal: permutation importance + Pearson r,p
+# ===============================
+def _mean_cce(y_true_oh: np.ndarray, probs: np.ndarray) -> float:
+    eps = 1e-9
+    p = np.clip(probs.astype(np.float64), eps, 1.0)
+    y = y_true_oh.astype(np.float64)
+    return float(-np.mean(np.sum(y * np.log(p), axis=1)))
+
+
+def _norm_cdf(z: float) -> float:
+    # Standard normal CDF using erf (no scipy required)
+    import math
+    return 0.5 * (1.0 + math.erf(z / math.sqrt(2.0)))
+
+
+def _pearson_r_p(x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
+    """
+    Returns (r, p).
+    Prefers scipy if available; otherwise uses Fisher z approximation:
+      z = atanh(r) * sqrt(n-3),  p ~= 2*(1 - Phi(|z|))
+    """
+    x = np.asarray(x, dtype=np.float64)
+    y = np.asarray(y, dtype=np.float64)
+    n = int(x.shape[0])
+    if n < 4:
+        return 0.0, 1.0
+
+    # Try scipy first (exact p)
+    try:
+        from scipy import stats as _sp_stats  # type: ignore
+        r, p = _sp_stats.pearsonr(x, y)
+        if not np.isfinite(r) or not np.isfinite(p):
+            return 0.0, 1.0
+        return float(r), float(p)
+    except Exception:
+        pass
+
+    # Manual r
+    x0 = x - float(np.mean(x))
+    y0 = y - float(np.mean(y))
+    denom = float(np.sqrt(np.sum(x0 * x0) * np.sum(y0 * y0)))
+    if denom <= 0.0 or not np.isfinite(denom):
+        return 0.0, 1.0
+    r = float(np.sum(x0 * y0) / denom)
+
+    # Fisher z approx p-value
+    r_clip = float(np.clip(r, -0.999999, 0.999999))
+    z = float(np.arctanh(r_clip) * np.sqrt(max(n - 3, 1)))
+    p = float(2.0 * (1.0 - _norm_cdf(abs(z))))
+    if not np.isfinite(p):
+        p = 1.0
+    return r, p
+
+
+def plot_vitals_signal(
+    model: tf.keras.Model,
+    X_te: np.ndarray,
+    y_te_oh: np.ndarray,
+    num_te_raw: np.ndarray,
+    cat_dim: int,
+    out_path: str = "vitals_feature_signal.png",
+    n_repeats: int = 3,
+    seed: int = SEED,
+) -> None:
+    """
+    Always PRINTS:
+      - baseline CE loss
+      - permutation importance (Δloss) for vitals
+      - Pearson r + p-value for each vital vs P(bacterial)
+
+    Only PLOTS if matplotlib is available.
+    """
+    base_probs = model.predict(X_te, verbose=0)
+    base_loss = _mean_cce(y_te_oh, base_probs)
+
+    vital_cols_in_X = [cat_dim + i for i in range(4)]
+    vital_names = list(VITAL_ORDER)
+
+    rng = np.random.default_rng(seed)
+    imp_mean: List[float] = []
+    imp_std: List[float] = []
+
+    # Permutation importance on TEST (Δloss)
+    for j in vital_cols_in_X:
+        losses: List[float] = []
+        for _ in range(int(n_repeats)):
+            Xp = X_te.copy()
+            perm = rng.permutation(Xp.shape[0])
+            Xp[:, j] = Xp[perm, j]
+            p = model.predict(Xp, verbose=0)
+            losses.append(_mean_cce(y_te_oh, p))
+        arr = np.asarray(losses, dtype=np.float64)
+        imp_mean.append(float(np.mean(arr) - base_loss))
+        imp_std.append(float(np.std(arr, ddof=1) if arr.size > 1 else 0.0))
+
+    # P(bacterial) = sum probs of "B:" classes
+    b_idxs = np.asarray([i for i, c in enumerate(CLASSES) if c.startswith("B:")], dtype=np.int32)
+    bact_prob = np.sum(base_probs[:, b_idxs], axis=1).astype(np.float64) if b_idxs.size else np.zeros((X_te.shape[0],), dtype=np.float64)
+
+    corr_r: List[float] = []
+    corr_p: List[float] = []
+    corr_abs: List[float] = []
+    for k in range(4):
+        r, p = _pearson_r_p(num_te_raw[:, k], bact_prob)
+        corr_r.append(float(r))
+        corr_p.append(float(p))
+        corr_abs.append(float(abs(r)))
+
+    ranked = sorted(
+        zip(vital_names, imp_mean, imp_std, corr_r, corr_p, corr_abs),
+        key=lambda t: t[1],
+        reverse=True,
+    )
+
+    print("\n=== VITALS SIGNAL (TEST) ===")
+    print(f"[INFO] Baseline test CE loss: {base_loss:.6f}")
+    print("[INFO] Permutation importance (Δloss) + Pearson r,p vs P(bacterial):")
+    for name, m, s, r, p, a in ranked:
+        print(f"  {name:14s} -> Δloss={m:.6f} (±{s:.6f})  r={r:+.4f}  p={p:.3e}  |r|={a:.4f}")
+
+    if plt is None:
+        print("[WARN] matplotlib not available; skipping vitals plot PNG (but p-values were printed).")
+        return
+
+    # Plot
+    x = np.arange(len(vital_names), dtype=np.float64)
+    w = 0.38
+
+    fig = plt.figure(figsize=(9, 4.8))
+    ax = fig.add_subplot(111)
+    ax.bar(x - w / 2.0, imp_mean, width=w, label="Permutation importance (Δloss)")
+    ax.bar(x + w / 2.0, corr_abs, width=w, label="|Pearson r| vs P(bacterial)")
+    ax.set_xticks(x)
+    ax.set_xticklabels(vital_names, rotation=0)
+    ax.set_ylabel("Signal strength (scaled)")
+    ax.set_title("Vitals signal (empirical; expected Fever > WBC > SpO₂)")
+    ax.legend()
+    ax.grid(True, axis="y", alpha=0.25)
+
+    ymax = float(max(max(imp_mean) if imp_mean else 0.0, max(corr_abs) if corr_abs else 0.0))
+    for i, p in enumerate(corr_p):
+        ax.text(
+            x[i] + w / 2.0,
+            corr_abs[i] + 0.03 * (ymax + 1e-9),
+            f"p={p:.1e}",
+            ha="center",
+            va="bottom",
+            fontsize=8,
+        )
+
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=170)
+    plt.close(fig)
+    print(f"[INFO] Saved vitals feature signal plot -> {out_path}")
+
+
+# ===============================
+# Metrics reporting
+# ===============================
+def report_multiclass_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> None:
+    pr, rc, f1, sup = precision_recall_fscore_support(
+        y_true, y_pred, labels=np.arange(len(CLASSES)), average=None, zero_division=0
+    )
+    print("\n=== PER-CLASS METRICS (TEST) ===")
+    print("Class                                                   |  Prec   Rec    F1   Support")
+    print("-" * 85)
+    for i in range(len(CLASSES)):
+        print(f"{INDEX_TO_CLASS[i]:55s} | {pr[i]:6.3f} {rc[i]:6.3f} {f1[i]:6.3f} {int(sup[i]):8d}")
+
+    macro = precision_recall_fscore_support(y_true, y_pred, average="macro", zero_division=0)
+    wavg = precision_recall_fscore_support(y_true, y_pred, average="weighted", zero_division=0)
+    print("\n[INFO] Macro avg:   prec={:.3f} rec={:.3f} f1={:.3f}".format(macro[0], macro[1], macro[2]))
+    print("[INFO] Weighted avg: prec={:.3f} rec={:.3f} f1={:.3f}".format(wavg[0], wavg[1], wavg[2]))
+
+
+def report_mrsa_vs_mssa(y_true: np.ndarray, y_pred: np.ndarray) -> None:
+    mrsa_idx = CLASS_TO_INDEX.get(MRSA_LABEL, None)
+    mssa_idx = CLASS_TO_INDEX.get(MSSA_LABEL, None)
+    if mrsa_idx is None or mssa_idx is None:
+        print("[WARN] MRSA/MSSA class indices missing; skipping dedicated report.")
+        return
+
+    mask = np.isin(y_true, [mrsa_idx, mssa_idx])
+    n = int(np.sum(mask))
+    if n == 0:
+        print("\n=== MRSA vs MSSA (TEST) ===")
+        print("[WARN] No MRSA/MSSA samples in TEST; cannot compute.")
+        return
+
+    yt = y_true[mask]
+    yp = y_pred[mask]
+    # map to binary: MRSA=1, MSSA=0
+    ytb = (yt == mrsa_idx).astype(np.int32)
+    ypb = (yp == mrsa_idx).astype(np.int32)
+
+    pr, rc, f1, sup = precision_recall_fscore_support(ytb, ypb, labels=[0, 1], average=None, zero_division=0)
+    cm = confusion_matrix(ytb, ypb, labels=[0, 1])
+
+    print("\n=== MRSA vs MSSA (STAPH AUREUS COAG +) — TEST SUBSET ===")
+    print(f"[INFO] Subset size: {n} (MSSA={int(sup[0])}, MRSA={int(sup[1])})")
+    print("Label |  Prec   Rec    F1   Support")
+    print(f"MSSA  | {pr[0]:6.3f} {rc[0]:6.3f} {f1[0]:6.3f} {int(sup[0]):8d}")
+    print(f"MRSA  | {pr[1]:6.3f} {rc[1]:6.3f} {f1[1]:6.3f} {int(sup[1]):8d}")
+    print("\nConfusion matrix (rows=true, cols=pred), [MSSA, MRSA]:")
+    print(cm)
+
+
+# ===============================
+# Split helper: ensure >= 2 unique HADM in TEST
+# ===============================
+def split_with_min_unique_hadm(
+    cat_arr: np.ndarray,
+    num_arr: np.ndarray,
+    y_arr: np.ndarray,
+    hadm_arr: np.ndarray,
+    test_size: float,
+    seed: int,
+    min_unique_test_hadm: int = MIN_TEST_UNIQUE_HADM,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Try multiple seeds to ensure test has at least `min_unique_test_hadm` UNIQUE HADM_IDs.
+    Keeps stratification on labels when possible.
+    """
+    unique_hadm = np.unique(hadm_arr)
+    if unique_hadm.size < min_unique_test_hadm:
+        raise RuntimeError(
+            f"Not enough unique HADM_IDs overall ({unique_hadm.size}) to satisfy test requirement ({min_unique_test_hadm})."
+        )
+
+    for delta in range(0, 200):
+        rs = int(seed + delta)
+        cat_tr, cat_te, num_tr, num_te, y_tr, y_te, hadm_tr, hadm_te = train_test_split(
+            cat_arr,
+            num_arr,
+            y_arr,
+            hadm_arr,
+            test_size=float(test_size),
+            random_state=rs,
+            stratify=y_arr if len(np.unique(y_arr)) > 1 else None,
+        )
+        if len(np.unique(hadm_te)) >= min_unique_test_hadm:
+            if delta > 0:
+                print(f"[INFO] Adjusted split seed -> {rs} to satisfy test unique HADM_ID >= {min_unique_test_hadm}")
+            return cat_tr, cat_te, num_tr, num_te, y_tr, y_te, hadm_tr, hadm_te
+
+    raise RuntimeError(f"Could not find a split with >= {min_unique_test_hadm} unique HADM_IDs in TEST after many attempts.")
 
 
 def main():
@@ -579,10 +890,8 @@ def main():
             continue
         abx = abx_by_hadm.get(hadm, {k: 0.0 for k in ABX_ORDER})
 
-        # categorical values already lowercase
         cat_data.append([r["spec_type_desc"], r["interpretation"]])
 
-        # numeric in strict order (vitals first)
         row_num = [
             float(vit["temperature_c"]),
             float(vit["wbc"]),
@@ -604,17 +913,23 @@ def main():
 
     print(f"[INFO] Joined rows={len(y_labels_arr)} | numeric_dim={num_arr.shape[1]} | numeric_order={NUMERIC_ORDER}")
 
-    # Split test stratified
-    cat_tr, cat_te, num_tr, num_te, y_tr, y_te, hadm_tr, hadm_te = train_test_split(
-        cat_arr, num_arr, y_labels_arr, hadm_arr,
-        test_size=0.2, random_state=SEED,
-        stratify=y_labels_arr if len(np.unique(y_labels_arr)) > 1 else None
+    # Split test ensuring >=2 unique HADM_ID in TEST
+    cat_tr, cat_te, num_tr, num_te, y_tr, y_te, hadm_tr, hadm_te = split_with_min_unique_hadm(
+        cat_arr,
+        num_arr,
+        y_labels_arr,
+        hadm_arr,
+        test_size=0.2,
+        seed=SEED,
+        min_unique_test_hadm=MIN_TEST_UNIQUE_HADM,
     )
+    print(f"[INFO] TEST unique HADM_ID: {len(np.unique(hadm_te))} (requirement >= {MIN_TEST_UNIQUE_HADM})")
+
     # Split train->val stratified
     cat_tr2, cat_va, num_tr2, num_va, y_tr2, y_va, hadm_tr2, hadm_va = train_test_split(
         cat_tr, num_tr, y_tr, hadm_tr,
         test_size=0.2, random_state=SEED,
-        stratify=y_tr if len(np.unique(y_tr)) > 1 else None
+        stratify=y_tr if len(np.unique(y_tr)) > 1 else None,
     )
 
     # Fit OneHotEncoder on TRAIN ONLY
@@ -661,18 +976,68 @@ def main():
     loss = tf.keras.losses.CategoricalCrossentropy(label_smoothing=float(LABEL_SMOOTHING))
     model.compile(optimizer="adam", loss=loss, metrics=["accuracy"])
 
-    model.fit(
+    callbacks = [
+        tf.keras.callbacks.EarlyStopping(
+            monitor="val_loss",
+            mode="min",
+            patience=int(EARLY_PATIENCE),
+            min_delta=float(MIN_DELTA),
+            restore_best_weights=True,
+            verbose=1,
+        ),
+        tf.keras.callbacks.ReduceLROnPlateau(
+            monitor="val_loss",
+            mode="min",
+            patience=max(2, int(EARLY_PATIENCE // 2)),
+            factor=0.5,
+            min_lr=1e-6,
+            verbose=1,
+        ),
+    ]
+
+    history = model.fit(
         X_tr, y_tr_oh,
-        epochs=EPOCHS, batch_size=BATCH_SIZE,
+        epochs=int(MAX_EPOCHS), batch_size=BATCH_SIZE,
         validation_data=(X_va, y_va_oh),
         sample_weight=sample_weight,
-        verbose=2
+        callbacks=callbacks,
+        verbose=2,
     )
+
+    # Report best epoch by val_loss
+    val_losses = history.history.get("val_loss", [])
+    val_accs = history.history.get("val_accuracy", [])
+    if val_losses:
+        best_ep = int(np.argmin(np.asarray(val_losses, dtype=np.float64)) + 1)
+        best_vl = float(np.min(np.asarray(val_losses, dtype=np.float64)))
+        msg = f"[INFO] Best epoch (min val_loss): {best_ep} | val_loss={best_vl:.6f}"
+        if val_accs and 0 < best_ep <= len(val_accs):
+            msg += f" | val_acc={float(val_accs[best_ep - 1]):.4f}"
+        print(msg)
 
     probs_te = model.predict(X_te, verbose=0)
     y_pred = np.argmax(probs_te, axis=1)
     acc = float((y_pred == y_te).mean())
     print(f"\n=== GENERAL ACCURACY ON TEST SET: {acc:.4f} ===")
+
+    # Per-class metrics (includes F1)
+    report_multiclass_metrics(y_true=y_te, y_pred=y_pred)
+
+    # MRSA vs MSSA emphasis
+    report_mrsa_vs_mssa(y_true=y_te, y_pred=y_pred)
+
+    # Vitals signal report + plot (p-values always printed)
+    cat_dim = int(X_cat_tr.shape[1])
+    plot_vitals_signal(
+        model=model,
+        X_te=X_te,
+        y_te_oh=y_te_oh,
+        num_te_raw=num_te,  # raw (unscaled) numeric from the split
+        cat_dim=cat_dim,
+        out_path="vitals_feature_signal.png",
+        n_repeats=3,
+        seed=SEED,
+    )
 
     print("\n=== PREDICTIONS PER HADM_ID (sorted by prob) ===")
     for hid in np.unique(hadm_te):
