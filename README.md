@@ -2,9 +2,6 @@ Got it — this looks like a README / documentation fix clarifying pathogen dete
 
 
 ---
-
-🔧 Fix: Pathogen detection ordering by vitals (Fever, WBC, SpO₂)
-
 Clinical feature priority (clarified)
 
 When predicting pathogens from clinical vitals, the model implicitly relies on the following signal strength ordering, which is now documented explicitly:
