@@ -1,3 +1,5 @@
+RUN MODEL ON datasets/datasets/montassarba/mimic-iv-clinical-database-demo-2-2/versions/1/mimic-iv-clinical-database-demo-2.2 AND dataset/mimic
+
 #!/usr/bin/env python3
 # mimic3_resistance_pipeline_onefile.py  (NO-PANDAS)
 #
