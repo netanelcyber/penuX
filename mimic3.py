@@ -1,77 +1,37 @@
-RUN MODEL ON datasets/datasets/montassarba/mimic-iv-clinical-database-demo-2-2/versions/1/mimic-iv-clinical-database-demo-2.2 AND dataset/mimic
-
 #!/usr/bin/env python3
-# mimic3_resistance_pipeline_onefile.py  (NO-PANDAS)
+# mimic_resistance_pipeline_onefile.py  (NO-PANDAS, AUTO-DATASET)
 #
-# Requirements:
-# - ALL FEATURE COLUMN NAMES are lowercase (keys/order)
-# - CATEGORICAL VALUES are lowercased too (reduces cardinality / duplicates)
-# - CLASSES remain CAPITALS (targets + printing)
-# - Adds vitals/labs features in REQUIRED ORDER:
-#     ["temperature_c", "wbc", "spo2", "age"]
-# - Prints per-HADM predictions ORDERED by probability (descending)
+# ✅ Fully one-file.
+# ✅ NO argparse / NO manual --data_root.
+# ✅ Auto-detects and runs on any of these (if present):
+#    1) datasets/datasets/montassarba/mimic-iv-clinical-database-demo-2-2/versions/1/mimic-iv-clinical-database-demo-2.2
+#    2) dataset/mimic  (will search inside for a MIMIC-III demo folder, and/or run if it's already the folder)
 #
-# Bias fix for "B:OTHER -> 1.0000":
-# - stratified split
-# - fit OneHotEncoder on TRAIN only
-# - standardize vitals on TRAIN only
-# - sample_weight class balancing (+ optional extra down-weight for B:OTHER)
-# - label_smoothing to reduce overconfidence
-#
-# Added:
-# - Optimized epochs via EarlyStopping + ReduceLROnPlateau (restores best weights)
-# - Feature-importance / correlation plot for vitals:
-#     - Permutation importance (Δ multiclass CE loss on TEST)
-#     - Pearson r + p-value (raw vitals vs P(bacterial)) — ALWAYS printed
-#     - PNG saved if matplotlib is available: vitals_feature_signal.png
-# - F1 focus on MRSA vs STAPH AUREUS (COAG +):
-#     - Per-class precision/recall/F1 (multiclass)
-#     - Dedicated MRSA-vs-MSSA report on the TEST subset containing those labels
-#
-# References (DOI):
-# [R1] Johnson AEW, Pollard TJ, Shen L, et al. MIMIC-III, a freely accessible critical care database.
-#      Scientific Data. 2016;3:160035. doi:10.1038/sdata.2016.35
-# [R2] Pedregosa F, Varoquaux G, Gramfort A, et al. Scikit-learn: Machine Learning in Python.
-#      JMLR. 2011;12:2825-2830. (canonical) doi:10.5555/1953048.2078195
-# [R3] He K, Zhang X, Ren S, Sun J. Deep Residual Learning for Image Recognition (ResNet; for general DL context).
-#      CVPR 2016. doi:10.1109/CVPR.2016.308
-# [R4] Friedman J, Hastie T, Tibshirani R. The Elements of Statistical Learning (One-hot / regularization background).
-#      2nd ed. 2009. doi:10.1007/978-0-387-84858-7 (book DOI varies by edition; this is a common one)
-#
-# Clinical/process motivation refs (DOI):
-# [C1] Li L, Georgiou A, Vecellio E, Toouli G, Wilson R. The effect of laboratory testing on emergency department length of stay:
-#      a multihospital longitudinal study. Acad Emerg Med. 2015. doi:10.1111/acem.12565
-# [C2] Vrijsen B, et al. Shorter laboratory turnaround time is associated with shorter emergency department length of stay.
-#      BMC Emerg Med. 2022. doi:10.1186/s12873-022-00763-w
-# [C3] Carrier ER, et al. Association between emergency department length of stay and rates of admission to inpatient and observation services.
-#      JAMA Intern Med. 2014. doi:10.1001/jamainternmed.2014.3467
-# [C4] Kenig A, et al. Blood cultures of adult patients discharged from the emergency department—is the safety net reliable?
-#      Eur J Clin Microbiol Infect Dis. 2020. doi:10.1007/s10096-020-03838-3
-# [C5] Chan J, et al. Epidemiology and outcomes of bloodstream infections in patients discharged from the emergency department.
-#      CJEM. 2015. doi:10.2310/8000.2013.131349
-# [C6] Dargère S, Cormier H, Verdon R. Contaminants in blood cultures: importance, implications, interpretation and prevention.
-#      Clin Microbiol Infect. 2018. doi:10.1016/j.cmi.2018.03.030
-# [C7] Peri AM, et al. Rapid Diagnostic Tests and Antimicrobial Stewardship Programs for the Management of Bloodstream Infection:
-#      a systematic review and network meta-analysis. Clin Infect Dis. 2024. doi:10.1093/cid/ciae234
-# [C8] Altun O, et al. Evaluation of the FilmArray Blood Culture Identification Panel: results from a multicenter controlled trial.
-#      J Clin Microbiol. 2016. doi:10.1128/JCM.01679-15
+# It will run the model ON EACH detected dataset root sequentially.
+# Output PNG is saved per dataset name to avoid overwriting:
+#   vitals_feature_signal__mimic3.png / vitals_feature_signal__mimic4.png
 
 import csv
+import gzip
 import re
+import os
+import sys
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 from collections import defaultdict, Counter
 
 import numpy as np
-import tensorflow as tf
+
+try:
+    import tensorflow as tf
+except Exception:
+    tf = None
+
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
-
-# Optional metrics (still NO-PANDAS)
 from sklearn.metrics import precision_recall_fscore_support, confusion_matrix
 
-# Optional plotting (still NO-PANDAS)
 try:
     import matplotlib.pyplot as plt
 except Exception:
@@ -103,17 +63,16 @@ MSSA_LABEL = "B:STAPH AUREUS COAG +"
 
 
 # ===============================
-# PATHS
+# PATHS (resolved per dataset run)
 # ===============================
-MIMIC_DIR = Path("dataset/mimic/mimic-iii-clinical-database-demo-1.4")
-MICRO_PATH = MIMIC_DIR / "MICROBIOLOGYEVENTS.csv"
-PRESC_PATH = MIMIC_DIR / "PRESCRIPTIONS.csv"
-ADMISSIONS_PATH = MIMIC_DIR / "ADMISSIONS.csv"
-PATIENTS_PATH = MIMIC_DIR / "PATIENTS.csv"
-D_ITEMS_PATH = MIMIC_DIR / "D_ITEMS.csv"
-CHARTEVENTS_PATH = MIMIC_DIR / "CHARTEVENTS.csv"
-D_LABITEMS_PATH = MIMIC_DIR / "D_LABITEMS.csv"
-LABEVENTS_PATH = MIMIC_DIR / "LABEVENTS.csv"
+MICRO_PATH: Path
+PRESC_PATH: Path
+ADMISSIONS_PATH: Path
+PATIENTS_PATH: Path
+D_ITEMS_PATH: Path
+CHARTEVENTS_PATH: Path
+D_LABITEMS_PATH: Path
+LABEVENTS_PATH: Path
 
 
 # ===============================
@@ -121,7 +80,8 @@ LABEVENTS_PATH = MIMIC_DIR / "LABEVENTS.csv"
 # ===============================
 SEED = 42
 np.random.seed(SEED)
-tf.random.set_seed(SEED)
+if tf is not None:
+    tf.random.set_seed(SEED)
 
 HOURS_WINDOW = 24
 
@@ -140,36 +100,37 @@ BOTHER_EXTRA_DOWNWEIGHT = 0.5
 DROPOUT = 0.2
 BATCH_SIZE = 64
 
-# Epoch optimization (instead of fixed EPOCHS):
-# - Train up to MAX_EPOCHS, but stop early on no val_loss improvement.
 MAX_EPOCHS = 120
 EARLY_PATIENCE = 6
 MIN_DELTA = 1e-4
 
 WBC_SAMPLE_MAX = 200_000
-
-# Guarantee test split has at least this many UNIQUE HADM_IDs
 MIN_TEST_UNIQUE_HADM = 2
 
 
 # ===============================
-# CSV helpers (no pandas)
+# CSV helpers (no pandas) + .csv.gz support
 # ===============================
 def _canon(s: str) -> str:
     return "".join(ch for ch in str(s).strip().lower() if ch.isalnum())
 
 
 def _norm_text(x: Any) -> str:
-    """Lowercase categorical values + normalize whitespace."""
     s = str(x).strip().lower()
     s = re.sub(r"\s+", " ", s)
     return s
 
 
+def _open_text(path: Path, encoding: str):
+    if str(path).endswith(".gz"):
+        return gzip.open(path, "rt", newline="", encoding=encoding)
+    return open(path, "r", newline="", encoding=encoding)
+
+
 def _read_header(path: Path) -> List[str]:
     for enc in ("utf-8", "utf-8-sig", "latin-1"):
         try:
-            with open(path, "r", newline="", encoding=enc) as f:
+            with _open_text(path, enc) as f:
                 r = csv.reader(f)
                 header = next(r)
                 return [h.strip() for h in header]
@@ -199,7 +160,7 @@ def _iter_csv_std(path: Path, wanted: Dict[str, List[str]]) -> Iterable[Dict[str
     idx = _resolve_usecols_idx(path, wanted)
     for enc in ("utf-8", "utf-8-sig", "latin-1"):
         try:
-            with open(path, "r", newline="", encoding=enc) as f:
+            with _open_text(path, enc) as f:
                 r = csv.reader(f)
                 _ = next(r)  # header
                 for row in r:
@@ -272,6 +233,138 @@ def _safe_parse_datetime_str(x: Any) -> Optional[datetime]:
         return datetime.fromisoformat(s.replace("Z", ""))
     except Exception:
         return None
+
+
+# ===============================
+# Dataset discovery / path resolution
+# ===============================
+def _first_existing(paths: List[Path]) -> Path:
+    for p in paths:
+        if p.exists():
+            return p
+    raise FileNotFoundError(f"None of these files exist: {[str(x) for x in paths]}")
+
+
+def _looks_like_mimic4_root(root: Path) -> bool:
+    return (root / "hosp").exists() and (root / "icu").exists()
+
+
+def _looks_like_mimic3_root(root: Path) -> bool:
+    # Flat folder: should have at least admissions + patients (any case/.gz)
+    candidates = [
+        root / "ADMISSIONS.csv",
+        root / "ADMISSIONS.csv.gz",
+        root / "admissions.csv",
+        root / "admissions.csv.gz",
+    ]
+    return any(p.exists() for p in candidates)
+
+
+def resolve_paths(data_root: Path) -> Tuple[Dict[str, Path], str]:
+    """
+    Returns (paths, tag) where tag is 'mimic4' or 'mimic3'.
+    """
+    if _looks_like_mimic4_root(data_root):
+        hosp = data_root / "hosp"
+        icu = data_root / "icu"
+
+        def pick(dirp: Path, base: str) -> Path:
+            return _first_existing(
+                [
+                    dirp / f"{base}.csv",
+                    dirp / f"{base}.csv.gz",
+                    dirp / f"{base.upper()}.csv",
+                    dirp / f"{base.upper()}.csv.gz",
+                ]
+            )
+
+        return (
+            {
+                "micro": pick(hosp, "microbiologyevents"),
+                "presc": pick(hosp, "prescriptions"),
+                "admissions": pick(hosp, "admissions"),
+                "patients": pick(hosp, "patients"),
+                "d_items": pick(icu, "d_items"),
+                "chartevents": pick(icu, "chartevents"),
+                "d_labitems": pick(hosp, "d_labitems"),
+                "labevents": pick(hosp, "labevents"),
+            },
+            "mimic4",
+        )
+
+    # MIMIC-III flat folder
+    def pick(base: str) -> Path:
+        return _first_existing(
+            [
+                data_root / f"{base}.csv",
+                data_root / f"{base}.csv.gz",
+                data_root / f"{base.upper()}.csv",
+                data_root / f"{base.upper()}.csv.gz",
+            ]
+        )
+
+    return (
+        {
+            "micro": pick("microbiologyevents"),
+            "presc": pick("prescriptions"),
+            "admissions": pick("admissions"),
+            "patients": pick("patients"),
+            "d_items": pick("d_items"),
+            "chartevents": pick("chartevents"),
+            "d_labitems": pick("d_labitems"),
+            "labevents": pick("labevents"),
+        },
+        "mimic3",
+    )
+
+
+def discover_dataset_roots() -> List[Path]:
+    """
+    Auto-detect dataset roots without CLI args.
+
+    Priority:
+      1) Explicit MIMIC-IV demo path from your message
+      2) dataset/mimic (direct, or scan its subfolders for a MIMIC-III demo folder)
+      3) Optional override via env var:
+            MIMIC_AUTOROOTS="/path1,/path2"
+    """
+    roots: List[Path] = []
+
+    # Optional env override (no CLI needed)
+    env = os.environ.get("MIMIC_AUTOROOTS", "").strip()
+    if env:
+        for part in env.split(","):
+            p = Path(part.strip())
+            if p.exists() and p.is_dir():
+                roots.append(p)
+
+    # Your requested paths
+    p_m4 = Path(
+        "datasets/datasets/montassarba/mimic-iv-clinical-database-demo-2-2/versions/1/mimic-iv-clinical-database-demo-2.2"
+    )
+    if p_m4.exists() and p_m4.is_dir():
+        roots.append(p_m4)
+
+    p_base = Path("dataset/mimic")
+    if p_base.exists() and p_base.is_dir():
+        # If it's already a dataset root
+        roots.append(p_base)
+
+        # Scan 2-level deep for likely dataset roots (cheap)
+        for cand in list(p_base.glob("*")) + list(p_base.glob("*/*")):
+            if cand.is_dir() and (cand not in roots):
+                if _looks_like_mimic4_root(cand) or _looks_like_mimic3_root(cand):
+                    roots.append(cand)
+
+    # De-duplicate while preserving order
+    seen = set()
+    out: List[Path] = []
+    for r in roots:
+        rp = r.resolve()
+        if rp not in seen:
+            seen.add(rp)
+            out.append(r)
+    return out
 
 
 # ===============================
@@ -372,22 +465,56 @@ def build_adm_windows_for_hadm_set(hadm_set: set[int]) -> Tuple[Dict[int, Tuple[
         if hadm in hadm_set:
             admissions[hadm] = (sid, adt)
 
-    pat_wanted = {"SUBJECT_ID": ["SUBJECT_ID", "SUBJECTID"], "DOB": ["DOB", "DATE_OF_BIRTH", "DATE OF BIRTH"]}
+    # MIMIC-III: has DOB
+    # MIMIC-IV: has anchor_age + anchor_year (no DOB)
+    patients_header = [h.lower() for h in _read_header(PATIENTS_PATH)]
+    has_dob = any(_canon(h) == _canon("dob") for h in patients_header)
+    has_anchor = any(_canon(h) == _canon("anchor_age") for h in patients_header) and any(
+        _canon(h) == _canon("anchor_year") for h in patients_header
+    )
+
     dob_by_subject: Dict[int, datetime] = {}
-    for row in _iter_csv_std(PATIENTS_PATH, pat_wanted):
-        sid = _parse_int(row["SUBJECT_ID"])
-        dob = _safe_parse_datetime_str(row["DOB"])
-        if sid is None or dob is None:
-            continue
-        dob_by_subject[sid] = dob
+    anchor_by_subject: Dict[int, Tuple[float, int]] = {}
+
+    if has_dob:
+        pat_wanted = {"SUBJECT_ID": ["SUBJECT_ID", "SUBJECTID"], "DOB": ["DOB", "DATE_OF_BIRTH", "DATE OF BIRTH"]}
+        for row in _iter_csv_std(PATIENTS_PATH, pat_wanted):
+            sid = _parse_int(row["SUBJECT_ID"])
+            dob = _safe_parse_datetime_str(row["DOB"])
+            if sid is None or dob is None:
+                continue
+            dob_by_subject[sid] = dob
+    elif has_anchor:
+        pat_wanted = {
+            "SUBJECT_ID": ["SUBJECT_ID", "SUBJECTID"],
+            "ANCHOR_AGE": ["ANCHOR_AGE", "ANCHORAGE"],
+            "ANCHOR_YEAR": ["ANCHOR_YEAR", "ANCHORYEAR"],
+        }
+        for row in _iter_csv_std(PATIENTS_PATH, pat_wanted):
+            sid = _parse_int(row["SUBJECT_ID"])
+            aa = _parse_float(row["ANCHOR_AGE"])
+            ay = _parse_int(row["ANCHOR_YEAR"])
+            if sid is None or aa is None or ay is None:
+                continue
+            anchor_by_subject[sid] = (float(aa), int(ay))
+    else:
+        raise RuntimeError("PATIENTS schema not recognized (no DOB and no anchor_age/anchor_year).")
 
     windows: Dict[int, Tuple[datetime, datetime]] = {}
     ages: Dict[int, float] = {}
     for hadm, (sid, adt) in admissions.items():
-        dob = dob_by_subject.get(sid)
-        if dob is None:
-            continue
-        age = float((adt - dob).days) / 365.2425
+        if has_dob:
+            dob = dob_by_subject.get(sid)
+            if dob is None:
+                continue
+            age = float((adt - dob).days) / 365.2425
+        else:
+            anc = anchor_by_subject.get(sid)
+            if anc is None:
+                continue
+            anchor_age, anchor_year = anc
+            age = float(anchor_age) + float(adt.year - int(anchor_year))
+
         if not np.isfinite(age):
             continue
         if age > 120.0:
@@ -533,7 +660,6 @@ def compute_vitals_features(hadm_set: set[int]) -> Dict[int, Dict[str, float]]:
 
 # ===============================
 # Load MICROBIOLOGYEVENTS -> rows (no pandas)
-# (categorical VALUES lowercased!)
 # ===============================
 def load_micro_rows() -> List[Dict[str, Any]]:
     micro_wanted = {
@@ -564,7 +690,6 @@ def load_micro_rows() -> List[Dict[str, Any]]:
 
 # ===============================
 # Load PRESCRIPTIONS -> hadm_id -> antibiotics binary (no pandas)
-# (feature keys lowercase)
 # ===============================
 def load_abx_features(hadm_set: set[int]) -> Dict[int, Dict[str, float]]:
     presc_wanted = {"HADM_ID": ["HADM_ID", "HADMID"], "DRUG": ["DRUG", "DRUG_NAME", "MEDICATION"]}
@@ -616,24 +741,17 @@ def _mean_cce(y_true_oh: np.ndarray, probs: np.ndarray) -> float:
 
 
 def _norm_cdf(z: float) -> float:
-    # Standard normal CDF using erf (no scipy required)
     import math
     return 0.5 * (1.0 + math.erf(z / math.sqrt(2.0)))
 
 
 def _pearson_r_p(x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
-    """
-    Returns (r, p).
-    Prefers scipy if available; otherwise uses Fisher z approximation:
-      z = atanh(r) * sqrt(n-3),  p ~= 2*(1 - Phi(|z|))
-    """
     x = np.asarray(x, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64)
     n = int(x.shape[0])
     if n < 4:
         return 0.0, 1.0
 
-    # Try scipy first (exact p)
     try:
         from scipy import stats as _sp_stats  # type: ignore
         r, p = _sp_stats.pearsonr(x, y)
@@ -643,7 +761,6 @@ def _pearson_r_p(x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
     except Exception:
         pass
 
-    # Manual r
     x0 = x - float(np.mean(x))
     y0 = y - float(np.mean(y))
     denom = float(np.sqrt(np.sum(x0 * x0) * np.sum(y0 * y0)))
@@ -651,7 +768,6 @@ def _pearson_r_p(x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
         return 0.0, 1.0
     r = float(np.sum(x0 * y0) / denom)
 
-    # Fisher z approx p-value
     r_clip = float(np.clip(r, -0.999999, 0.999999))
     z = float(np.arctanh(r_clip) * np.sqrt(max(n - 3, 1)))
     p = float(2.0 * (1.0 - _norm_cdf(abs(z))))
@@ -661,23 +777,15 @@ def _pearson_r_p(x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
 
 
 def plot_vitals_signal(
-    model: tf.keras.Model,
+    model: "tf.keras.Model",
     X_te: np.ndarray,
     y_te_oh: np.ndarray,
     num_te_raw: np.ndarray,
     cat_dim: int,
-    out_path: str = "vitals_feature_signal.png",
+    out_path: str,
     n_repeats: int = 3,
     seed: int = SEED,
 ) -> None:
-    """
-    Always PRINTS:
-      - baseline CE loss
-      - permutation importance (Δloss) for vitals
-      - Pearson r + p-value for each vital vs P(bacterial)
-
-    Only PLOTS if matplotlib is available.
-    """
     base_probs = model.predict(X_te, verbose=0)
     base_loss = _mean_cce(y_te_oh, base_probs)
 
@@ -688,7 +796,6 @@ def plot_vitals_signal(
     imp_mean: List[float] = []
     imp_std: List[float] = []
 
-    # Permutation importance on TEST (Δloss)
     for j in vital_cols_in_X:
         losses: List[float] = []
         for _ in range(int(n_repeats)):
@@ -701,9 +808,12 @@ def plot_vitals_signal(
         imp_mean.append(float(np.mean(arr) - base_loss))
         imp_std.append(float(np.std(arr, ddof=1) if arr.size > 1 else 0.0))
 
-    # P(bacterial) = sum probs of "B:" classes
     b_idxs = np.asarray([i for i, c in enumerate(CLASSES) if c.startswith("B:")], dtype=np.int32)
-    bact_prob = np.sum(base_probs[:, b_idxs], axis=1).astype(np.float64) if b_idxs.size else np.zeros((X_te.shape[0],), dtype=np.float64)
+    bact_prob = (
+        np.sum(base_probs[:, b_idxs], axis=1).astype(np.float64)
+        if b_idxs.size
+        else np.zeros((X_te.shape[0],), dtype=np.float64)
+    )
 
     corr_r: List[float] = []
     corr_p: List[float] = []
@@ -730,7 +840,6 @@ def plot_vitals_signal(
         print("[WARN] matplotlib not available; skipping vitals plot PNG (but p-values were printed).")
         return
 
-    # Plot
     x = np.arange(len(vital_names), dtype=np.float64)
     w = 0.38
 
@@ -797,8 +906,7 @@ def report_mrsa_vs_mssa(y_true: np.ndarray, y_pred: np.ndarray) -> None:
 
     yt = y_true[mask]
     yp = y_pred[mask]
-    # map to binary: MRSA=1, MSSA=0
-    ytb = (yt == mrsa_idx).astype(np.int32)
+    ytb = (yt == mrsa_idx).astype(np.int32)  # MRSA=1
     ypb = (yp == mrsa_idx).astype(np.int32)
 
     pr, rc, f1, sup = precision_recall_fscore_support(ytb, ypb, labels=[0, 1], average=None, zero_division=0)
@@ -814,7 +922,7 @@ def report_mrsa_vs_mssa(y_true: np.ndarray, y_pred: np.ndarray) -> None:
 
 
 # ===============================
-# Split helper: ensure >= 2 unique HADM in TEST
+# Split helper
 # ===============================
 def split_with_min_unique_hadm(
     cat_arr: np.ndarray,
@@ -825,10 +933,6 @@ def split_with_min_unique_hadm(
     seed: int,
     min_unique_test_hadm: int = MIN_TEST_UNIQUE_HADM,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Try multiple seeds to ensure test has at least `min_unique_test_hadm` UNIQUE HADM_IDs.
-    Keeps stratification on labels when possible.
-    """
     unique_hadm = np.unique(hadm_arr)
     if unique_hadm.size < min_unique_test_hadm:
         raise RuntimeError(
@@ -854,8 +958,41 @@ def split_with_min_unique_hadm(
     raise RuntimeError(f"Could not find a split with >= {min_unique_test_hadm} unique HADM_IDs in TEST after many attempts.")
 
 
-def main():
-    for p in [MICRO_PATH, PRESC_PATH, ADMISSIONS_PATH, PATIENTS_PATH, D_ITEMS_PATH, CHARTEVENTS_PATH, D_LABITEMS_PATH, LABEVENTS_PATH]:
+# ===============================
+# One full run for a resolved dataset
+# ===============================
+def run_once(dataset_root: Path, tag: str) -> None:
+    global MICRO_PATH, PRESC_PATH, ADMISSIONS_PATH, PATIENTS_PATH, D_ITEMS_PATH, CHARTEVENTS_PATH, D_LABITEMS_PATH, LABEVENTS_PATH
+
+    paths, detected = resolve_paths(dataset_root)
+    tag2 = tag or detected
+
+    MICRO_PATH = paths["micro"]
+    PRESC_PATH = paths["presc"]
+    ADMISSIONS_PATH = paths["admissions"]
+    PATIENTS_PATH = paths["patients"]
+    D_ITEMS_PATH = paths["d_items"]
+    CHARTEVENTS_PATH = paths["chartevents"]
+    D_LABITEMS_PATH = paths["d_labitems"]
+    LABEVENTS_PATH = paths["labevents"]
+
+    print("\n" + "=" * 98)
+    print(f"[INFO] DATASET ROOT: {dataset_root.resolve()}")
+    print(f"[INFO] DATASET TAG:  {tag2}")
+    print(f"[INFO] MICRO:        {MICRO_PATH}")
+    print(f"[INFO] PRESC:        {PRESC_PATH}")
+    print(f"[INFO] ADMISSIONS:   {ADMISSIONS_PATH}")
+    print(f"[INFO] PATIENTS:     {PATIENTS_PATH}")
+    print(f"[INFO] D_ITEMS:      {D_ITEMS_PATH}")
+    print(f"[INFO] CHARTEVENTS:  {CHARTEVENTS_PATH}")
+    print(f"[INFO] D_LABITEMS:   {D_LABITEMS_PATH}")
+    print(f"[INFO] LABEVENTS:    {LABEVENTS_PATH}")
+    print("=" * 98)
+
+    for p in [
+        MICRO_PATH, PRESC_PATH, ADMISSIONS_PATH, PATIENTS_PATH,
+        D_ITEMS_PATH, CHARTEVENTS_PATH, D_LABITEMS_PATH, LABEVENTS_PATH
+    ]:
         if not p.exists():
             raise FileNotFoundError(f"Missing file: {p.resolve()}")
 
@@ -915,26 +1052,19 @@ def main():
 
     print(f"[INFO] Joined rows={len(y_labels_arr)} | numeric_dim={num_arr.shape[1]} | numeric_order={NUMERIC_ORDER}")
 
-    # Split test ensuring >=2 unique HADM_ID in TEST
     cat_tr, cat_te, num_tr, num_te, y_tr, y_te, hadm_tr, hadm_te = split_with_min_unique_hadm(
-        cat_arr,
-        num_arr,
-        y_labels_arr,
-        hadm_arr,
-        test_size=0.2,
-        seed=SEED,
-        min_unique_test_hadm=MIN_TEST_UNIQUE_HADM,
+        cat_arr, num_arr, y_labels_arr, hadm_arr,
+        test_size=0.2, seed=SEED, min_unique_test_hadm=MIN_TEST_UNIQUE_HADM
     )
     print(f"[INFO] TEST unique HADM_ID: {len(np.unique(hadm_te))} (requirement >= {MIN_TEST_UNIQUE_HADM})")
 
-    # Split train->val stratified
     cat_tr2, cat_va, num_tr2, num_va, y_tr2, y_va, hadm_tr2, hadm_va = train_test_split(
         cat_tr, num_tr, y_tr, hadm_tr,
         test_size=0.2, random_state=SEED,
         stratify=y_tr if len(np.unique(y_tr)) > 1 else None,
     )
 
-    # Fit OneHotEncoder on TRAIN ONLY
+    # OneHotEncoder fit on TRAIN only
     try:
         ohe = OneHotEncoder(handle_unknown="ignore", sparse_output=False)
     except TypeError:
@@ -944,7 +1074,7 @@ def main():
     X_cat_va = ohe.transform(cat_va)
     X_cat_te = ohe.transform(cat_te)
 
-    # Standardize vitals on TRAIN ONLY (first 4 numeric cols)
+    # Standardize vitals on TRAIN only (first 4 numeric cols)
     mu = num_tr2[:, :4].mean(axis=0).astype(np.float32)
     sd = (num_tr2[:, :4].std(axis=0) + 1e-6).astype(np.float32)
 
@@ -1006,7 +1136,6 @@ def main():
         verbose=2,
     )
 
-    # Report best epoch by val_loss
     val_losses = history.history.get("val_loss", [])
     val_accs = history.history.get("val_accuracy", [])
     if val_losses:
@@ -1020,23 +1149,19 @@ def main():
     probs_te = model.predict(X_te, verbose=0)
     y_pred = np.argmax(probs_te, axis=1)
     acc = float((y_pred == y_te).mean())
-    print(f"\n=== GENERAL ACCURACY ON TEST SET: {acc:.4f} ===")
+    print(f"\n=== GENERAL ACCURACY ON TEST SET ({tag2}): {acc:.4f} ===")
 
-    # Per-class metrics (includes F1)
     report_multiclass_metrics(y_true=y_te, y_pred=y_pred)
-
-    # MRSA vs MSSA emphasis
     report_mrsa_vs_mssa(y_true=y_te, y_pred=y_pred)
 
-    # Vitals signal report + plot (p-values always printed)
     cat_dim = int(X_cat_tr.shape[1])
     plot_vitals_signal(
         model=model,
         X_te=X_te,
         y_te_oh=y_te_oh,
-        num_te_raw=num_te,  # raw (unscaled) numeric from the split
+        num_te_raw=num_te,   # raw numeric from split
         cat_dim=cat_dim,
-        out_path="vitals_feature_signal.png",
+        out_path=f"vitals_feature_signal__{tag2}.png",
         n_repeats=3,
         seed=SEED,
     )
@@ -1056,5 +1181,45 @@ def main():
     print("[INFO] Categorical 'values' lowercased: spec_type_desc, interpretation")
 
 
+# ===============================
+# Entrypoint (AUTO)
+# ===============================
+def main_auto() -> int:
+    if tf is None:
+        print("[ERROR] TensorFlow is not installed. Install tensorflow-cpu (or tensorflow) to run this model.", file=sys.stderr)
+        return 2
+
+    roots = discover_dataset_roots()
+    if not roots:
+        print("[ERROR] No dataset roots found. Expected one of:", file=sys.stderr)
+        print("  - datasets/datasets/montassarba/mimic-iv-clinical-database-demo-2-2/versions/1/mimic-iv-clinical-database-demo-2.2", file=sys.stderr)
+        print("  - dataset/mimic (or subfolder containing MIMIC-III demo flat CSVs)", file=sys.stderr)
+        print("\nOptionally set env var MIMIC_AUTOROOTS=\"/path1,/path2\".", file=sys.stderr)
+        return 2
+
+    ran_any = False
+    for root in roots:
+        try:
+            # Tag: infer from structure if possible
+            tag = "mimic4" if _looks_like_mimic4_root(root) else ("mimic3" if _looks_like_mimic3_root(root) else "")
+            # If root is just dataset/mimic, it may not be a direct root; resolve_paths will fail.
+            # So we skip roots that don't match and aren't resolvable.
+            try:
+                _ = resolve_paths(root)  # quick check
+            except Exception:
+                continue
+
+            ran_any = True
+            run_once(root, tag=tag)
+        except Exception as e:
+            print(f"\n[ERROR] Failed on root={root}: {e}", file=sys.stderr)
+
+    if not ran_any:
+        print("[ERROR] Found candidate folders, but none matched a runnable MIMIC-III/MIMIC-IV layout.", file=sys.stderr)
+        return 2
+
+    return 0
+
+
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main_auto())
