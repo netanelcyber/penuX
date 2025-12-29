@@ -1,336 +1,250 @@
-# penuX ✅
+# MIMIC-III Resistance / Pathogen Prediction (NO-PANDAS)
 
-Multimodal pipeline and analysis utilities for chest x-ray + clinical data (Normal / Bacterial / Viral). This repository contains data preparation, model training/evaluation, analysis notebooks, and utilities including correlation-matrix generation and per-epoch correlation saving during training.
+Train a multi-class model to predict a **fixed pathogen class** (CAPITAL labels) from:
 
----
+* Microbiology categorical fields (**lowercased values**):
 
-## Table of contents
+  * `spec_type_desc`
+  * `interpretation`
+* Antibiotic exposure (**binary one-hot**, **lowercase feature names**)
+* Early vitals/labs (**REQUIRED order**, **lowercase feature names**):
 
-- [Features](#features)
-- [Requirements](#requirements)
-- [Quick start](#quick-start)
-- [Correlation matrices (new)](#correlation-matrices-new)
-  - [Standalone script](#standalone-script)
-  - [Notebook example](#notebook-example)
-  - [Per-epoch correlation saving during training](#per-epoch-correlation-saving-during-training)
-- [Training & evaluation](#training--evaluation)
-- [Tests](#tests)
-- [Notebooks](#notebooks)
-- [Development & contribution](#development--contribution)
-- [License](#license)
+  * `temperature_c`, `wbc`, `spo2`, `age`
 
----
+The pipeline is designed to reduce the common collapse/bias:
 
-## Features ✨
+`B:OTHER -> 1.0000`
 
-- End-to-end multimodal (image + clinical) training scripts and examples
-- Auto-generation / optional download of synthetic clinical.csv aligned to Kaggle images
-- Utilities to compute and save Pearson and Spearman correlation matrices and heatmaps
-- Optional per-epoch correlation capture (CSV + heatmap) during training
-- Example notebook demonstrating correlation combinations and visualizations
-- Unit tests for the correlation tooling
+by using:
+
+* stratified split
+* train-only OneHotEncoder fitting (no leakage)
+* train-only vitals standardization
+* class-balanced `sample_weight` (+ optional extra down-weight for `B:OTHER`)
+* label smoothing to reduce overconfidence
 
 ---
 
-## Requirements ⚙️
+## 1) Project Files
 
-- Python 3.8+ (the dev container uses Ubuntu 24.04 with Python 3.11)
-- Recommended packages: numpy, scipy, pandas, seaborn, matplotlib, scikit-learn, tensorflow (as used by the training scripts)
+Expected main file:
 
-Install (minimal) via pip:
+* `mimic3_resistance_pipeline.py` (NO-PANDAS)
 
-```bash
-python -m pip install -r requirements.txt  # if a requirements file exists
-# or install directly
-python -m pip install numpy pandas seaborn matplotlib scikit-learn pytest
-```
+Expected MIMIC-III CSV files in:
 
-Note: TensorFlow and other heavy deps are only necessary for training and evaluation.
+`dataset/mimic/mimic-iii-clinical-database-demo-1.4/`
 
----
+Required CSVs:
 
-## Quick start ▶️
-
-1. Prepare dataset (Kaggle Mooney chest x-ray) and clinical CSV (auto-download or auto-generate):
-
-   - The scripts `model.py`, `model2.py`, `model3.py`, and `m.py` include helpers to prepare or auto-generate clinical data and dataset folders.
-
-2. Compute correlation matrices for a CSV file (see next section) or run training.
+* `MICROBIOLOGYEVENTS.csv`
+* `PRESCRIPTIONS.csv`
+* `ADMISSIONS.csv`
+* `PATIENTS.csv`
+* `D_ITEMS.csv`
+* `CHARTEVENTS.csv`
+* `D_LABITEMS.csv`
+* `LABEVENTS.csv`
 
 ---
 
-## Correlation matrices (new) 🔍
+## 2) Classes (CAPITALS)
 
-### Standalone script
+Fixed class order (targets + printing):
 
-A reusable script computes Pearson and Spearman correlation matrices for numeric columns and saves both CSVs and heatmap PNGs.
+* `B:PSEUDOMONAS AERUGINOSA`
+* `B:STAPH AUREUS COAG +`
+* `B:SERRATIA MARCESCENS`
+* `B:MORGANELLA MORGANII`
+* `B:ESCHERICHIA COLI`
+* `B:PROTEUS MIRABILIS`
+* `B:PROVIDENCIA STUARTII`
+* `B:POSITIVE FOR METHICILLIN RESISTANT STAPH AUREUS`
+* `B:YEAST`
+* `B:GRAM POSITIVE COCCUS(COCCI)`
+* `B:OTHER`
+* `V:OTHER`
 
-Usage:
-
-```bash
-python -m scripts.compute_correlations --input clinical.csv --outdir outputs/correlations --prefix clinical
-```
-
-Options:
-- `--input` / `-i`: input CSV (default: `clinical.csv`)
-- `--outdir` / `-o`: output folder (default: `outputs/correlations`)
-- `--prefix` / `-p`: filename prefix (default: `clinical`)
-- `--columns` / `-c`: comma-separated list of columns to include (default: all numeric columns)
-
-Outputs:
-- `<outdir>/<prefix>_pearson.csv` — Pearson correlation coefficients (CSV)
-- `<outdir>/<prefix>_spearman.csv` — Spearman correlation coefficients (CSV)
-- `<outdir>/<prefix>_pearson.png` — Pearson heatmap (PNG)
-- `<outdir>/<prefix>_spearman.png` — Spearman heatmap (PNG)
-
-Tip: Use `--columns temperature_c,wbc,spo2,age` to restrict to specific features.
-
-### Example plots
-
-Here are example heatmaps generated from `clinical.csv` (saved under `docs/images/`):
-
-![Pearson correlation](docs/images/clinical_example_pearson.png)
-
-*Figure: Pearson correlation matrix for the clinical features.*
-
-![Spearman correlation](docs/images/clinical_example_spearman.png)
-
-*Figure: Spearman correlation matrix for the clinical features.*
-
-Grouped-by-pathogen examples (generated from `mimic_features_specpath.csv` or any file with a `label` column and a mapping JSON):
-
-```bash
-# Compute per-pathogen correlations and grouped sample heatmap
-python -m scripts.compute_correlations --input dataset/mimic/mimic-iii-clinical-database-demo-1.4/mimic_features_specpath.csv --outdir docs/images --prefix mimic_spec --groupby label --compute_per_group --grouped_heatmap --group_map pathogen_vocab.json --sample_limit 200
-```
-
-This produces per-group CSVs/PNGs such as `mimic_spec_pearson_Bacterial.csv` and a grouped sample-feature heatmap `mimic_spec_grouped_by_label.png`.
-
-You can control ordering of groups in the grouped heatmap and per-group outputs with `--group_order`. Example:
-
-```bash
-# Order groups with Viral first, then Bacterial
-python -m scripts.compute_correlations --input dataset/mimic/mimic-iii-clinical-database-demo-1.4/mimic_features_specpath.csv --outdir docs/images --prefix mimic_spec --groupby label --compute_per_group --grouped_heatmap --group_order Viral,Bacterial,Other
-```
-
-This ensures the grouped heatmap's sample blocks and per-group outputs follow the specified order (groups not listed are appended alphabetically).
-
-### Notebook example
-
-A short example notebook is available at `notebooks/correlations_example.ipynb` demonstrating programmatic use of the script and inline display of heatmaps.
-
-### Per-epoch correlation saving during training
-
-The dual-correlation training in `m.py` can capture and save correlation matrices (CSV, NPY) and heatmap PNGs for the image and clinical embeddings during training so you can track how embeddings' correlations evolve over epochs.
-
-Key flags:
-- `--corr_every N` : save correlation artifacts every N epochs (0 = off). Default: `1` (every epoch).
-- `--corr_dir DIR` : output directory for correlation artifacts. Default: `corrs`.
-- `--force-corr-every` : bypass the auto-downsampling heuristic (dangerous on long runs) and respect the provided `--corr_every` even for very large epoch counts.
-
-Auto-downsampling heuristic:
-- If you leave `--corr_every` at the default (1) and run for a large number of epochs (>= 1000), the training script **automatically adjusts** the effective sampling to `--corr_every 10` to avoid generating thousands of large files. A message is printed indicating the adjustment.
-
-Recommended 1000-epoch runs on the MIMIC dataset:
-
-```bash
-# Recommended: sample every 10 epochs (keeps file count manageable)
-python m.py --task specpath --mimic_dir dataset/mimic/mimic-iii-clinical-database-demo-1.4 --epochs 1000 --steps_per_epoch 200 --corr_every 10 --corr_dir corrs
-```
-
-If you truly need per-epoch artifacts for all 1000 epochs (WARNING: may use multiple GBs and thousands of files), use `--force-corr-every` to override the heuristic:
-
-```bash
-# Force per-epoch saves for all 1000 epochs (BE CAREFUL)
-python m.py --task specpath --mimic_dir dataset/mimic/mimic-iii-clinical-database-demo-1.4 --epochs 1000 --steps_per_epoch 200 --corr_every 1 --force-corr-every --corr_dir corrs
-```
-
-Disk / file-count guidance:
-- Each save produces multiple files (CSV, NPY, PNG) for image & clinical sides — expect ~5–8 files per save depending on settings. 
-- At `corr_every=10` for 1000 epochs you'll get ~100 saves (several hundred files). At `corr_every=1` you'll get ~1000 saves (several thousand files), possibly using multiple GBs of disk.
-- Monitor usage during long runs (`du -sh corrs` and `ls corrs | wc -l`).
-
-
-### Predicting pathogens from vitals 🧪
-
-You can predict pathogen / class probabilities from clinical vitals using the lightweight `scripts/predict_pathogen.py` utility (no pandas required).
-
-Single prediction example (prints and can save CSV/JSON):
-
-```bash
-python -m scripts.predict_pathogen --single --task specpath --temperature_c 37.1 --wbc 7000 --spo2 96 --age 60 --format csv --output pred.csv
-```
-
-Batch prediction from CSV (input must include `temperature_c,wbc,spo2,age`):
-
-```bash
-python -m scripts.predict_pathogen --input patients.csv --format json --output preds.json --task specpath
-```
-
-Examples in the repo:
-- `docs/examples/predict_single.csv` — sample single-row input CSV
-- `docs/examples/predict_batch.json` — sample batch output (JSON) of predicted probabilities
-
-Notes:
-- The script requires trained clinical models `clin_encoder.keras`, `clin_head.keras` and `clin_scaler.npz` to exist in the repo root (these are produced during training).
-- For `specpath`, class names are loaded from `pathogen_vocab.json` (generated by the feature-building step).
-- Output includes class probability columns; use `--top K` for a top-K summary per row.
-- No pandas dependency is required; the script uses stdlib `csv`/`json` for I/O and `numpy`/`tensorflow` for computation.
-
-New convenience parameters (predict_pathogen.py):
-- `--threshold FLOAT` — Include only class probabilities >= threshold. For JSON output classes below the threshold are omitted; for CSV they are left empty to preserve columns.
-- `--keep_cols COL1,COL2` — Comma-separated list of extra input columns from the CSV to include in the output rows (eg. patient IDs).
-- `--sep SEP` — Input CSV delimiter (default: `,`). Use `--sep '\t'` for TSV inputs.
-- `--round N` — Round probability values to N decimal places in the output (useful for human-readable reports).
-- `--no_print` — Suppress printing to stdout (useful in automation or CI when only file output is required).
-- `--order_classes` — Order class probabilities per row (descending) and include as `preds` in JSON (list of [class,prob]) and CSV (semicolons-separated `Class:prob` string).
-- `--sort_rows_by KEY` — Sort batch output rows by `KEY`, where `KEY` may be `top_prob` (the highest predicted probability), a class name (sort by that class' prob), or an input column name (e.g., `patient_id` or `age`).
-- `--sort_desc` — Sort rows in descending order (default for probability-based sorting).
-
-Examples:
-
-- Single prediction with threshold & rounding (JSON):
-
-```bash
-python -m scripts.predict_pathogen --single --task 3class --temperature_c 36.6 --wbc 7000 --spo2 96 --age 60 --format json --output pred.json --threshold 0.1 --round 2
-```
-
-- Batch prediction with extra patient ID kept and TSV input:
-
-```bash
-python -m scripts.predict_pathogen --input patients.tsv --sep $'\t' --keep_cols patient_id --format json --output preds.json --round 2
-```
-
-- Batch prediction with ordered class lists and rows sorted by top probability:
-
-```bash
-python -m scripts.predict_pathogen --input patients.csv --format json --output preds.json --order_classes --sort_rows_by top_prob
-```
-
-Behavior notes:
-- `--top K` is applied before `--threshold` (top-K selects the top K classes by probability; threshold then filters low probabilities).
-- For CSV outputs, omitted classes (below threshold) are written as empty cells so the table remains consistent.
-- When `--order_classes` is used:
-  - JSON outputs include a `preds` key containing a list of `[class, prob]` tuples ordered by probability (descending).
-  - CSV outputs include a `preds` column with a semicolon-separated `Class:prob` string in descending order.
-- `--sort_rows_by` accepts `top_prob` (sort by the highest-per-row probability), a class name (sort rows by that class probability), or an input column to sort by value.
-- `specpath` class names are read from `pathogen_vocab.json` so ensure it is present after feature building or training.
-
-The training pipeline in `m.py` supports saving per-epoch correlation matrices of learned embeddings (image vs. clinical) so you can track how correlations evolve during training.
-
-- CLI flags added to `m.py`:
-  - `--corr_every`: Save correlation matrices every N epochs (integer). Set `0` to disable. Default: `1` (every epoch).
-  - `--corr_dir`: Output directory for correlation files. Default: `corrs`.
-
-Example (enable per-epoch saving):
-
-```bash
-python m.py --task specpath --epochs 20 --steps_per_epoch 200 --corr_every 1 --corr_dir corrs
-```
-
-What it saves (per epoch):
-- `corrs/<epoch>_pearson.csv`
-- `corrs/<epoch>_spearman.csv`
-- `corrs/<epoch>_pearson.png`
-- `corrs/<epoch>_spearman.png`
-
-Note: for very large runs we auto-adjust the sampling frequency to avoid excessive files. If you leave `--corr_every` at the default (1) and run with `--epochs >= 1000`, the script will automatically set `--corr_every` to `10` and print an informational message. You can always override with `--corr_every <N>`.
-
-You can also call `train_dual(..., corr_every=N, corr_out_dir=Path('corrs'))` from Python when running programmatically.
+> NOTE: Most organisms not matching explicit rules will map to `B:OTHER`.
+> If `B:OTHER` dominates your dataset, expand `map_org()`.
 
 ---
 
-## Training & evaluation 🏃‍♂️
+## 3) Features
 
-High-level training flow is provided in `model.py`, `model2.py`, `model3.py`, and the dual-correlation training operations are in `m.py` (including `train_dual`). See each file's docstrings and `--help` for CLI options.
+### Categorical (values lowercased)
 
-Common example:
+* `spec_type_desc`
+* `interpretation`
 
-```bash
-# Train using the Mooney dataset (auto-prep if necessary)
-python model.py
-# or run the dual-correlation training
-python m.py --task specpath --epochs 20 --steps_per_epoch 200 --corr_every 1 --corr_dir corrs
-```
+These values are normalized to lowercase + collapsed whitespace to reduce duplicates and cardinality.
 
-After training, evaluation artifacts are created (model files, confusion matrix image, AUC printed to console).
+### Numeric (feature names lowercase)
 
-### Ordering & batching (new)
+Vitals/labs (**REQUIRED order**):
 
-Control sample ordering and batch composition during training:
+1. `temperature_c` (mean within window)
+2. `wbc` (max within window)
+3. `spo2` (min within window)
+4. `age`
 
-- `--order_by {none,label,group,age}`: Deterministically sort clinical feature rows before the train/val split (useful for reproducible experiments). For example, `--order_by label` sorts samples by their label (Normal, Bacterial, Viral).
-- `--stratify_batches`: Enable stratified/balanced batching for the clinical dataset so each batch contains examples proportionally from each class (recommended for imbalanced datasets).
-- `--curriculum LABELS`: Comma-separated list to run epoch phases over specific labels in order (e.g., `--curriculum Normal,Bacterial,Viral`). Useful for curriculum learning experiments.
+Antibiotics one-hot (**lowercase feature names**):
 
-Examples:
+* `vancomycin`
+* `ciprofloxacin`
+* `meropenem`
+* `piperacillin`
+* `ceftriaxone`
 
-```bash
-python m.py --task specpath --epochs 50 --order_by label --stratify_batches
-python m.py --task binary --epochs 30 --curriculum Bacterial,Viral
-```
+Numeric order is enforced as:
 
-Implementation notes:
-- `--order_by` is applied before shuffling/splitting; tests verify deterministic ordering.
-- `--stratify_batches` modifies dataset construction to balance classes per batch and is covered by unit tests.
+`["temperature_c","wbc","spo2","age", <abx...>]`
 
 ---
 
-## Tests ✅
+## 4) Time Window Logic
 
-Unit tests for correlation utilities are in `tests/test_compute_correlations.py`.
+Vitals/labs are collected within the first **HOURS_WINDOW** hours from `ADMITTIME`.
 
-Additional tests and smoke checks:
-- `tests/test_predict_pathogen.py` — tests the predict CLI (single and batch modes and new flags).
-- `tests/test_compute_correlations_grouped.py` — tests grouped correlation behavior.
-- `tests/test_ci_compute_correlations_smoke.py` — a compact CI smoke test that runs `scripts.compute_correlations` on a tiny CSV and verifies that CSV and PNG outputs are created. Run it locally with:
+Default:
+
+* `HOURS_WINDOW = 24`
+
+### Temperature (`temperature_c`)
+
+* source: `CHARTEVENTS.csv`
+* item IDs: derived from `D_ITEMS.csv` label heuristics
+* supports Celsius and Fahrenheit conversion
+* valid range filter: 30–45 °C
+* aggregation: **mean** within window
+
+### SpO2 (`spo2`)
+
+* source: `CHARTEVENTS.csv`
+* item IDs: derived from `D_ITEMS.csv` label heuristics
+* valid range filter: 50–100
+* aggregation: **minimum** within window
+
+### WBC (`wbc`)
+
+* source: `LABEVENTS.csv`
+* item IDs: derived from `D_LABITEMS.csv` (`wbc` or `white blood` in label)
+* valid range filter: 2000–40000
+* aggregation: **maximum** within window
+* auto scaling heuristic: if median sample suggests units are small, multiply by 1000
+
+### Age (`age`)
+
+* computed from `ADMITTIME - DOB`
+* DOB years >= 3000 treated as missing (de-identified dates)
+* clipped to 0–110 with safety cap
+
+---
+
+## 5) Install / Requirements
+
+Python 3.9+ recommended.
+
+Install dependencies:
 
 ```bash
-pytest tests/test_ci_compute_correlations_smoke.py -q
+pip install numpy tensorflow scikit-learn
 ```
 
-CI recommendation: add `.github/workflows/ci-smoke.yml` to run the smoke test on push/PR; I can add this workflow on request.
+No pandas is used.
 
-Run the full test suite with:
+---
+
+## 6) Run
+
+From repo root:
 
 ```bash
-pytest -q
+python mimic3.py
+```
+
+What it does:
+
+1. Loads microbiology rows → assigns `label` (CAPITALS)
+2. Builds antibiotic one-hot per `hadm_id`
+3. Computes vitals/labs per `hadm_id` (streaming CSV)
+4. Joins everything and trains a DNN
+5. Prints:
+
+   * label counts
+   * general test accuracy
+   * per-HADM predictions sorted by probability
+
+---
+
+## 7) Output
+
+Console output includes:
+
+* dataset size stats
+* label distribution
+* enforced numeric order
+* test set accuracy
+* per-HADM probability table ordered descending
+
+Example per-HADM section:
+
+```text
+HADM_ID: 12345 (n_rows=3)
+B:ESCHERICHIA COLI -> 0.4123
+B:OTHER            -> 0.2331
+...
 ```
 
 ---
 
-## Notebooks 📓
+## 8) Fixing “B:OTHER -> 1.0000” (If It Still Happens)
 
-- `notebooks/correlations_example.ipynb` — demonstrates computing correlations, showing heatmaps, and programmatic usage of the script.
+If predictions still collapse to `B:OTHER`:
 
----
+1. Check printed **label counts**
 
-## Development & contribution 👩‍💻
+   * If `B:OTHER` is most rows, the model is learning the dataset imbalance.
+2. Expand `map_org()` rules
 
-- Use the `tests/` folder and `pytest` to add unit tests for new code.
-- Keep code style consistent and add docstrings for public functions.
-- If you add dataset download or heavy dependencies, document them in the README and in code comments.
+   * This is the best fix: reduce the “everything goes to OTHER” funnel.
+3. Tune balancing knobs (carefully)
 
----
+   * `MAX_CLASS_WEIGHT`
+   * `BOTHER_EXTRA_DOWNWEIGHT`
+4. Reduce overconfidence
 
-## Troubleshooting ⚠️
+   * increase `DROPOUT`
+   * increase `LABEL_SMOOTHING` (e.g. `0.10`)
+5. Train longer only if validation improves
 
-- Missing clinical models or scaler: `predict_pathogen.py` and `m.py` expect `clin_encoder.keras`, `clin_head.keras`, and `clin_scaler.npz` in the repo root. These are written during training; run training or provide trained model files.
-- Missing `pathogen_vocab.json`: for `specpath` task, run the MIMIC feature build (`--rebuild_mimic_features`) to generate the pathogen vocabulary used by the clinical head.
-- Missing Python packages (e.g., `seaborn`, `matplotlib`): install required packages listed in the README or use the dev container environment included with this repo.
-- Correlation outputs too many files for long runs: see the `--corr_every` auto-downsampling described above.
-
----
-
-## License
-
-No repository-level LICENSE file is present. If you plan to distribute this code, add a LICENSE (e.g., MIT) and document any dataset license constraints separately.
+   * increasing epochs helps only when val accuracy rises
 
 ---
 
-If you want, I can:
-- Add example outputs (sample correlation images) under `docs/` or `examples/` ✅
-- Add a small CLI example to run correlations as part of CI (smoke test) ✅
-- Add a brief troubleshooting section for common issues (missing CSVs, missing packages) ✅
+## 9) Common Troubleshooting
 
-If you'd like any of those, tell me which and I'll add them.
+### “No vitals complete rows”
+
+* Increase `HOURS_WINDOW`
+* Confirm MIMIC paths are correct
+* Confirm `D_ITEMS` contains temperature/spo2 labels and `D_LABITEMS` contains WBC label patterns
+
+### Very slow runtime
+
+* Full `CHARTEVENTS` / `LABEVENTS` are huge
+* This script streams row-by-row (I/O heavy)
+* Use SSD if possible
+* Consider pre-filtering your CSVs to relevant `hadm_id` and time windows
+
+---
+
+## 10) Customization
+
+Edit these in `mimic3_resistance_pipeline.py`:
+
+* `HOURS_WINDOW` : change window length
+* `ANTIBIOTICS`  : change which drugs become binary features
+* `map_org()`    : expand organism → class mapping (**best way to reduce B:OTHER dominance**)
+* `EPOCHS`, `DROPOUT`, `LABEL_SMOOTHING` : model behavior / overconfidence
+* `USE_CLASS_WEIGHTS` : toggle class balancing
