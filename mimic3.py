@@ -1,15 +1,24 @@
 #!/usr/bin/env python3
-# mimic_resistance_pipeline_onefile.py  (NO-PANDAS, AUTO-DATASET)
+# mimic_resistance_pipeline_onefile.py  (NO-PANDAS, AUTO-DATASET, TARGET-F1 STOP, FLEX ACTIVATION)
 #
 # ✅ Fully one-file.
-# ✅ NO argparse / NO manual --data_root.
-# ✅ Auto-detects and runs on any of these (if present):
+# ✅ NO manual --data_root.
+# ✅ Auto-detects and runs on:
 #    1) datasets/datasets/montassarba/mimic-iv-clinical-database-demo-2-2/versions/1/mimic-iv-clinical-database-demo-2.2
-#    2) dataset/mimic  (will search inside for a MIMIC-III demo folder, and/or run if it's already the folder)
+#    2) dataset/mimic  (direct, or scans subfolders for runnable MIMIC-III/MIMIC-IV demo roots)
+# ✅ "Fix upon F1>=0.87":
+#    - Computes validation F1 each epoch (no pandas)
+#    - Stops training as soon as val target F1 >= TARGET_F1
+#    - Restores best weights by that F1
+#    - Optional retrain restarts if threshold not reached
+# ✅ Activation is NOT forced to ReLU:
+#    - Tries multiple activations across attempts (configurable)
+#    - You can override via env var MIMIC_ACTIVATIONS="gelu,swish,elu,relu"
 #
-# It will run the model ON EACH detected dataset root sequentially.
-# Output PNG is saved per dataset name to avoid overwriting:
-#   vitals_feature_signal__mimic3.png / vitals_feature_signal__mimic4.png
+# Output:
+#   - vitals_feature_signal__<dataset>__<activation>.png   (if matplotlib available)
+#
+# IMPORTANT: Research/demo only. Not for clinical use.
 
 import csv
 import gzip
@@ -88,7 +97,7 @@ HOURS_WINDOW = 24
 ANTIBIOTICS = ["VANCOMYCIN", "CIPROFLOXACIN", "MEROPENEM", "PIPERACILLIN", "CEFTRIAXONE"]
 ABX_ORDER = [a.lower() for a in ANTIBIOTICS]  # lowercase feature names (columns)
 
-VITAL_ORDER = ["temperature_c", "wbc", "spo2", "age"]  # required order, lowercase feature names
+VITAL_ORDER = ["temperature_c", "wbc", "spo2", "age"]  # required order
 NUMERIC_ORDER = VITAL_ORDER + ABX_ORDER
 
 # bias-fix knobs
@@ -106,6 +115,20 @@ MIN_DELTA = 1e-4
 
 WBC_SAMPLE_MAX = 200_000
 MIN_TEST_UNIQUE_HADM = 2
+
+# ---- Target F1 "fix upon" ----
+TARGET_F1 = float(os.environ.get("TARGET_F1", "0.87"))
+# "macro" | "weighted" | "mrsa_mssa"
+TARGET_F1_KIND = os.environ.get("TARGET_F1_KIND", "macro").strip().lower()
+MAX_TRAIN_RESTARTS = int(os.environ.get("MAX_TRAIN_RESTARTS", "5"))
+
+# ---- Activation flexibility (NOT forced relu) ----
+# Example: export MIMIC_ACTIVATIONS="gelu,swish,elu,relu"
+_env_acts = os.environ.get("MIMIC_ACTIVATIONS", "").strip()
+if _env_acts:
+    ACTIVATION_CANDIDATES = [a.strip().lower() for a in _env_acts.split(",") if a.strip()]
+else:
+    ACTIVATION_CANDIDATES = ["gelu", "swish", "elu", "relu"]  # default try-order
 
 
 # ===============================
@@ -250,7 +273,6 @@ def _looks_like_mimic4_root(root: Path) -> bool:
 
 
 def _looks_like_mimic3_root(root: Path) -> bool:
-    # Flat folder: should have at least admissions + patients (any case/.gz)
     candidates = [
         root / "ADMISSIONS.csv",
         root / "ADMISSIONS.csv.gz",
@@ -258,6 +280,13 @@ def _looks_like_mimic3_root(root: Path) -> bool:
         root / "admissions.csv.gz",
     ]
     return any(p.exists() for p in candidates)
+
+
+def _sanitize_tag(s: str) -> str:
+    s = s.strip().lower()
+    s = re.sub(r"[^a-z0-9]+", "_", s)
+    s = re.sub(r"_+", "_", s).strip("_")
+    return s or "dataset"
 
 
 def resolve_paths(data_root: Path) -> Tuple[Dict[str, Path], str]:
@@ -292,7 +321,6 @@ def resolve_paths(data_root: Path) -> Tuple[Dict[str, Path], str]:
             "mimic4",
         )
 
-    # MIMIC-III flat folder
     def pick(base: str) -> Path:
         return _first_existing(
             [
@@ -323,14 +351,13 @@ def discover_dataset_roots() -> List[Path]:
     Auto-detect dataset roots without CLI args.
 
     Priority:
-      1) Explicit MIMIC-IV demo path from your message
-      2) dataset/mimic (direct, or scan its subfolders for a MIMIC-III demo folder)
-      3) Optional override via env var:
+      1) Optional env override:
             MIMIC_AUTOROOTS="/path1,/path2"
+      2) The explicit MIMIC-IV demo path from your message
+      3) dataset/mimic (direct, plus scan subfolders for a runnable root)
     """
     roots: List[Path] = []
 
-    # Optional env override (no CLI needed)
     env = os.environ.get("MIMIC_AUTOROOTS", "").strip()
     if env:
         for part in env.split(","):
@@ -338,7 +365,6 @@ def discover_dataset_roots() -> List[Path]:
             if p.exists() and p.is_dir():
                 roots.append(p)
 
-    # Your requested paths
     p_m4 = Path(
         "datasets/datasets/montassarba/mimic-iv-clinical-database-demo-2-2/versions/1/mimic-iv-clinical-database-demo-2.2"
     )
@@ -347,12 +373,9 @@ def discover_dataset_roots() -> List[Path]:
 
     p_base = Path("dataset/mimic")
     if p_base.exists() and p_base.is_dir():
-        # If it's already a dataset root
         roots.append(p_base)
-
-        # Scan 2-level deep for likely dataset roots (cheap)
         for cand in list(p_base.glob("*")) + list(p_base.glob("*/*")):
-            if cand.is_dir() and (cand not in roots):
+            if cand.is_dir():
                 if _looks_like_mimic4_root(cand) or _looks_like_mimic3_root(cand):
                     roots.append(cand)
 
@@ -465,8 +488,6 @@ def build_adm_windows_for_hadm_set(hadm_set: set[int]) -> Tuple[Dict[int, Tuple[
         if hadm in hadm_set:
             admissions[hadm] = (sid, adt)
 
-    # MIMIC-III: has DOB
-    # MIMIC-IV: has anchor_age + anchor_year (no DOB)
     patients_header = [h.lower() for h in _read_header(PATIENTS_PATH)]
     has_dob = any(_canon(h) == _canon("dob") for h in patients_header)
     has_anchor = any(_canon(h) == _canon("anchor_age") for h in patients_header) and any(
@@ -850,7 +871,7 @@ def plot_vitals_signal(
     ax.set_xticks(x)
     ax.set_xticklabels(vital_names, rotation=0)
     ax.set_ylabel("Signal strength (scaled)")
-    ax.set_title("Vitals signal (empirical; expected Fever > WBC > SpO₂)")
+    ax.set_title("Vitals signal (empirical)")
     ax.legend()
     ax.grid(True, axis="y", alpha=0.25)
 
@@ -886,7 +907,7 @@ def report_multiclass_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> None:
 
     macro = precision_recall_fscore_support(y_true, y_pred, average="macro", zero_division=0)
     wavg = precision_recall_fscore_support(y_true, y_pred, average="weighted", zero_division=0)
-    print("\n[INFO] Macro avg:   prec={:.3f} rec={:.3f} f1={:.3f}".format(macro[0], macro[1], macro[2]))
+    print("\n[INFO] Macro avg:    prec={:.3f} rec={:.3f} f1={:.3f}".format(macro[0], macro[1], macro[2]))
     print("[INFO] Weighted avg: prec={:.3f} rec={:.3f} f1={:.3f}".format(wavg[0], wavg[1], wavg[2]))
 
 
@@ -919,6 +940,85 @@ def report_mrsa_vs_mssa(y_true: np.ndarray, y_pred: np.ndarray) -> None:
     print(f"MRSA  | {pr[1]:6.3f} {rc[1]:6.3f} {f1[1]:6.3f} {int(sup[1]):8d}")
     print("\nConfusion matrix (rows=true, cols=pred), [MSSA, MRSA]:")
     print(cm)
+
+
+# ===============================
+# Target-F1 computation + callback
+# ===============================
+def _compute_target_f1(kind: str, y_true_int: np.ndarray, y_pred_int: np.ndarray) -> Optional[float]:
+    kind = str(kind).strip().lower()
+    if kind in {"macro", "weighted"}:
+        avg = "macro" if kind == "macro" else "weighted"
+        f1 = precision_recall_fscore_support(
+            y_true_int,
+            y_pred_int,
+            labels=np.arange(len(CLASSES)),
+            average=avg,
+            zero_division=0,
+        )[2]
+        return float(f1)
+
+    if kind == "mrsa_mssa":
+        mrsa_idx = CLASS_TO_INDEX.get(MRSA_LABEL, None)
+        mssa_idx = CLASS_TO_INDEX.get(MSSA_LABEL, None)
+        if mrsa_idx is None or mssa_idx is None:
+            return None
+        mask = np.isin(y_true_int, [mrsa_idx, mssa_idx])
+        if int(np.sum(mask)) == 0:
+            return None
+        yt = y_true_int[mask]
+        yp = y_pred_int[mask]
+        ytb = (yt == mrsa_idx).astype(np.int32)
+        ypb = (yp == mrsa_idx).astype(np.int32)
+        f1 = precision_recall_fscore_support(ytb, ypb, labels=[0, 1], average="binary", zero_division=0)[2]
+        return float(f1)
+
+    return None
+
+
+class ValF1ThresholdStop(tf.keras.callbacks.Callback):
+    """
+    Computes a chosen validation F1 each epoch and:
+      - stops training immediately once F1 >= threshold
+      - restores best weights by that F1 at end of training
+    """
+
+    def __init__(self, X_val: np.ndarray, y_val_int: np.ndarray, kind: str, threshold: float):
+        super().__init__()
+        self.X_val = X_val
+        self.y_val_int = y_val_int.astype(np.int32, copy=False)
+        self.kind = str(kind)
+        self.threshold = float(threshold)
+        self.best_f1 = -1.0
+        self.best_weights = None
+        self._warned_missing_subset = False
+
+    def on_epoch_end(self, epoch: int, logs: Optional[Dict[str, Any]] = None) -> None:
+        logs = logs or {}
+        probs = self.model.predict(self.X_val, verbose=0)
+        y_pred_int = np.argmax(probs, axis=1).astype(np.int32)
+        f1 = _compute_target_f1(self.kind, self.y_val_int, y_pred_int)
+
+        if f1 is None:
+            if (not self._warned_missing_subset) and str(self.kind).lower() == "mrsa_mssa":
+                print("[WARN] TARGET_F1_KIND=mrsa_mssa but no MRSA/MSSA samples in VAL; threshold stop disabled for this run.")
+                self._warned_missing_subset = True
+            return
+
+        logs["val_target_f1"] = float(f1)
+        print(f"[INFO] val_target_f1({self.kind})={float(f1):.4f} (target={self.threshold:.2f})")
+
+        if float(f1) > float(self.best_f1):
+            self.best_f1 = float(f1)
+            self.best_weights = self.model.get_weights()
+
+        if float(f1) >= float(self.threshold):
+            print(f"[INFO] Reached target F1: {float(f1):.4f} >= {self.threshold:.2f} -> stopping training.")
+            self.model.stop_training = True
+
+    def on_train_end(self, logs: Optional[Dict[str, Any]] = None) -> None:
+        if self.best_weights is not None:
+            self.model.set_weights(self.best_weights)
 
 
 # ===============================
@@ -959,13 +1059,48 @@ def split_with_min_unique_hadm(
 
 
 # ===============================
+# Activation resolution
+# ===============================
+def _resolve_activation(name: str):
+    """
+    Returns a TF activation function or a string accepted by Keras.
+    Falls back to relu if unknown.
+    """
+    a = str(name).strip().lower()
+    # tf.keras.activations.get handles many strings, but keep a safe fallback
+    try:
+        fn = tf.keras.activations.get(a)
+        if fn is None:
+            return "relu"
+        return fn
+    except Exception:
+        return "relu"
+
+
+def _build_model(input_dim: int, activation_name: str) -> "tf.keras.Model":
+    act = _resolve_activation(activation_name)
+    model = tf.keras.Sequential(
+        [
+            tf.keras.layers.Input(shape=(input_dim,)),
+            tf.keras.layers.Dense(256, activation=act),
+            tf.keras.layers.Dropout(DROPOUT),
+            tf.keras.layers.Dense(128, activation=act),
+            tf.keras.layers.Dropout(DROPOUT),
+            tf.keras.layers.Dense(len(CLASSES), activation="softmax"),
+        ]
+    )
+    loss = tf.keras.losses.CategoricalCrossentropy(label_smoothing=float(LABEL_SMOOTHING))
+    model.compile(optimizer="adam", loss=loss, metrics=["accuracy"])
+    return model
+
+
+# ===============================
 # One full run for a resolved dataset
 # ===============================
-def run_once(dataset_root: Path, tag: str) -> None:
+def run_once(dataset_root: Path) -> None:
     global MICRO_PATH, PRESC_PATH, ADMISSIONS_PATH, PATIENTS_PATH, D_ITEMS_PATH, CHARTEVENTS_PATH, D_LABITEMS_PATH, LABEVENTS_PATH
 
-    paths, detected = resolve_paths(dataset_root)
-    tag2 = tag or detected
+    paths, ds_kind = resolve_paths(dataset_root)
 
     MICRO_PATH = paths["micro"]
     PRESC_PATH = paths["presc"]
@@ -976,9 +1111,11 @@ def run_once(dataset_root: Path, tag: str) -> None:
     D_LABITEMS_PATH = paths["d_labitems"]
     LABEVENTS_PATH = paths["labevents"]
 
+    ds_tag = _sanitize_tag(f"{ds_kind}_{dataset_root.name}")
+
     print("\n" + "=" * 98)
     print(f"[INFO] DATASET ROOT: {dataset_root.resolve()}")
-    print(f"[INFO] DATASET TAG:  {tag2}")
+    print(f"[INFO] DATASET TAG:  {ds_tag}")
     print(f"[INFO] MICRO:        {MICRO_PATH}")
     print(f"[INFO] PRESC:        {PRESC_PATH}")
     print(f"[INFO] ADMISSIONS:   {ADMISSIONS_PATH}")
@@ -988,13 +1125,6 @@ def run_once(dataset_root: Path, tag: str) -> None:
     print(f"[INFO] D_LABITEMS:   {D_LABITEMS_PATH}")
     print(f"[INFO] LABEVENTS:    {LABEVENTS_PATH}")
     print("=" * 98)
-
-    for p in [
-        MICRO_PATH, PRESC_PATH, ADMISSIONS_PATH, PATIENTS_PATH,
-        D_ITEMS_PATH, CHARTEVENTS_PATH, D_LABITEMS_PATH, LABEVENTS_PATH
-    ]:
-        if not p.exists():
-            raise FileNotFoundError(f"Missing file: {p.resolve()}")
 
     micro_rows = load_micro_rows()
     if not micro_rows:
@@ -1030,7 +1160,6 @@ def run_once(dataset_root: Path, tag: str) -> None:
         abx = abx_by_hadm.get(hadm, {k: 0.0 for k in ABX_ORDER})
 
         cat_data.append([r["spec_type_desc"], r["interpretation"]])
-
         row_num = [
             float(vit["temperature_c"]),
             float(vit["wbc"]),
@@ -1053,14 +1182,17 @@ def run_once(dataset_root: Path, tag: str) -> None:
     print(f"[INFO] Joined rows={len(y_labels_arr)} | numeric_dim={num_arr.shape[1]} | numeric_order={NUMERIC_ORDER}")
 
     cat_tr, cat_te, num_tr, num_te, y_tr, y_te, hadm_tr, hadm_te = split_with_min_unique_hadm(
-        cat_arr, num_arr, y_labels_arr, hadm_arr,
-        test_size=0.2, seed=SEED, min_unique_test_hadm=MIN_TEST_UNIQUE_HADM
+        cat_arr, num_arr, y_labels_arr, hadm_arr, test_size=0.2, seed=SEED, min_unique_test_hadm=MIN_TEST_UNIQUE_HADM
     )
     print(f"[INFO] TEST unique HADM_ID: {len(np.unique(hadm_te))} (requirement >= {MIN_TEST_UNIQUE_HADM})")
 
     cat_tr2, cat_va, num_tr2, num_va, y_tr2, y_va, hadm_tr2, hadm_va = train_test_split(
-        cat_tr, num_tr, y_tr, hadm_tr,
-        test_size=0.2, random_state=SEED,
+        cat_tr,
+        num_tr,
+        y_tr,
+        hadm_tr,
+        test_size=0.2,
+        random_state=SEED,
         stratify=y_tr if len(np.unique(y_tr)) > 1 else None,
     )
 
@@ -1097,75 +1229,110 @@ def run_once(dataset_root: Path, tag: str) -> None:
 
     sample_weight = make_sample_weights(y_tr2) if USE_CLASS_WEIGHTS else None
 
-    model = tf.keras.Sequential([
-        tf.keras.layers.Input(shape=(X_tr.shape[1],)),
-        tf.keras.layers.Dense(256, activation="relu"),
-        tf.keras.layers.Dropout(DROPOUT),
-        tf.keras.layers.Dense(128, activation="relu"),
-        tf.keras.layers.Dropout(DROPOUT),
-        tf.keras.layers.Dense(len(CLASSES), activation="softmax"),
-    ])
-    loss = tf.keras.losses.CategoricalCrossentropy(label_smoothing=float(LABEL_SMOOTHING))
-    model.compile(optimizer="adam", loss=loss, metrics=["accuracy"])
+    # ---- Train (stop when val F1 >= TARGET_F1), optional restarts, activation not forced relu ----
+    best_model: Optional["tf.keras.Model"] = None
+    best_f1 = -1.0
+    best_activation = "unknown"
+    best_history = None
 
-    callbacks = [
-        tf.keras.callbacks.EarlyStopping(
-            monitor="val_loss",
-            mode="min",
-            patience=int(EARLY_PATIENCE),
-            min_delta=float(MIN_DELTA),
-            restore_best_weights=True,
-            verbose=1,
-        ),
-        tf.keras.callbacks.ReduceLROnPlateau(
-            monitor="val_loss",
-            mode="min",
-            patience=max(2, int(EARLY_PATIENCE // 2)),
-            factor=0.5,
-            min_lr=1e-6,
-            verbose=1,
-        ),
-    ]
+    total_attempts = max(1, int(MAX_TRAIN_RESTARTS))
+    for attempt in range(total_attempts):
+        act_name = ACTIVATION_CANDIDATES[attempt % max(1, len(ACTIVATION_CANDIDATES))]
+        local_seed = int(SEED + 1000 * attempt)
+        np.random.seed(local_seed)
+        tf.random.set_seed(local_seed)
 
-    history = model.fit(
-        X_tr, y_tr_oh,
-        epochs=int(MAX_EPOCHS), batch_size=BATCH_SIZE,
-        validation_data=(X_va, y_va_oh),
-        sample_weight=sample_weight,
-        callbacks=callbacks,
-        verbose=2,
-    )
+        model = _build_model(input_dim=int(X_tr.shape[1]), activation_name=act_name)
 
-    val_losses = history.history.get("val_loss", [])
-    val_accs = history.history.get("val_accuracy", [])
-    if val_losses:
-        best_ep = int(np.argmin(np.asarray(val_losses, dtype=np.float64)) + 1)
-        best_vl = float(np.min(np.asarray(val_losses, dtype=np.float64)))
-        msg = f"[INFO] Best epoch (min val_loss): {best_ep} | val_loss={best_vl:.6f}"
-        if val_accs and 0 < best_ep <= len(val_accs):
-            msg += f" | val_acc={float(val_accs[best_ep - 1]):.4f}"
-        print(msg)
+        f1_cb = ValF1ThresholdStop(X_val=X_va, y_val_int=y_va, kind=TARGET_F1_KIND, threshold=TARGET_F1)
 
+        callbacks = [
+            tf.keras.callbacks.EarlyStopping(
+                monitor="val_loss",
+                mode="min",
+                patience=int(EARLY_PATIENCE),
+                min_delta=float(MIN_DELTA),
+                restore_best_weights=True,
+                verbose=1,
+            ),
+            tf.keras.callbacks.ReduceLROnPlateau(
+                monitor="val_loss",
+                mode="min",
+                patience=max(2, int(EARLY_PATIENCE // 2)),
+                factor=0.5,
+                min_lr=1e-6,
+                verbose=1,
+            ),
+            f1_cb,
+        ]
+
+        print(f"\n[INFO] Training attempt {attempt + 1}/{total_attempts} | activation={act_name} | seed={local_seed}")
+        history = model.fit(
+            X_tr,
+            y_tr_oh,
+            epochs=int(MAX_EPOCHS),
+            batch_size=BATCH_SIZE,
+            validation_data=(X_va, y_va_oh),
+            sample_weight=sample_weight,
+            callbacks=callbacks,
+            verbose=2,
+        )
+
+        attempt_f1 = float(f1_cb.best_f1) if f1_cb.best_f1 is not None else -1.0
+        print(f"[INFO] Attempt best val_target_f1({TARGET_F1_KIND})={attempt_f1:.4f}")
+
+        if attempt_f1 > best_f1:
+            best_f1 = attempt_f1
+            best_model = model
+            best_activation = act_name
+            best_history = history
+
+        if attempt_f1 >= TARGET_F1:
+            print(f"[INFO] Success: {attempt_f1:.4f} >= {TARGET_F1:.2f}. Using this model.")
+            break
+
+    if best_model is None:
+        raise RuntimeError("Training failed: no model produced.")
+    model = best_model
+
+    print(f"[INFO] BEST val_target_f1({TARGET_F1_KIND}) across attempts: {best_f1:.4f} | best_activation={best_activation}")
+
+    # Best epoch by val_loss (from best attempt history)
+    if best_history is not None:
+        val_losses = best_history.history.get("val_loss", [])
+        val_accs = best_history.history.get("val_accuracy", [])
+        if val_losses:
+            best_ep = int(np.argmin(np.asarray(val_losses, dtype=np.float64)) + 1)
+            best_vl = float(np.min(np.asarray(val_losses, dtype=np.float64)))
+            msg = f"[INFO] Best epoch (min val_loss): {best_ep} | val_loss={best_vl:.6f}"
+            if val_accs and 0 < best_ep <= len(val_accs):
+                msg += f" | val_acc={float(val_accs[best_ep - 1]):.4f}"
+            print(msg)
+
+    # ---- Test evaluation ----
     probs_te = model.predict(X_te, verbose=0)
     y_pred = np.argmax(probs_te, axis=1)
     acc = float((y_pred == y_te).mean())
-    print(f"\n=== GENERAL ACCURACY ON TEST SET ({tag2}): {acc:.4f} ===")
+    print(f"\n=== GENERAL ACCURACY ON TEST SET ({ds_tag}) [activation={best_activation}]: {acc:.4f} ===")
 
     report_multiclass_metrics(y_true=y_te, y_pred=y_pred)
     report_mrsa_vs_mssa(y_true=y_te, y_pred=y_pred)
 
+    # ---- Vitals signal ----
     cat_dim = int(X_cat_tr.shape[1])
+    plot_path = f"vitals_feature_signal__{ds_tag}__{_sanitize_tag(best_activation)}.png"
     plot_vitals_signal(
         model=model,
         X_te=X_te,
         y_te_oh=y_te_oh,
-        num_te_raw=num_te,   # raw numeric from split
+        num_te_raw=num_te,
         cat_dim=cat_dim,
-        out_path=f"vitals_feature_signal__{tag2}.png",
+        out_path=plot_path,
         n_repeats=3,
         seed=SEED,
     )
 
+    # ---- Per-HADM predictions ----
     print("\n=== PREDICTIONS PER HADM_ID (sorted by prob) ===")
     for hid in np.unique(hadm_te):
         idxs = np.where(hadm_te == hid)[0]
@@ -1177,8 +1344,8 @@ def run_once(dataset_root: Path, tag: str) -> None:
             print(f"{cls:65s} -> {p:.4f}")
 
     print("\n[INFO] Done.")
-    print(f"[INFO] Feature 'column names' lowercase (numeric order): {NUMERIC_ORDER}")
-    print("[INFO] Categorical 'values' lowercased: spec_type_desc, interpretation")
+    print(f"[INFO] Feature names lowercase (numeric order): {NUMERIC_ORDER}")
+    print("[INFO] Categorical values lowercased: spec_type_desc, interpretation")
 
 
 # ===============================
@@ -1200,17 +1367,13 @@ def main_auto() -> int:
     ran_any = False
     for root in roots:
         try:
-            # Tag: infer from structure if possible
-            tag = "mimic4" if _looks_like_mimic4_root(root) else ("mimic3" if _looks_like_mimic3_root(root) else "")
-            # If root is just dataset/mimic, it may not be a direct root; resolve_paths will fail.
-            # So we skip roots that don't match and aren't resolvable.
+            # quick check: can we resolve paths?
             try:
-                _ = resolve_paths(root)  # quick check
+                _ = resolve_paths(root)
             except Exception:
                 continue
-
             ran_any = True
-            run_once(root, tag=tag)
+            run_once(root)
         except Exception as e:
             print(f"\n[ERROR] Failed on root={root}: {e}", file=sys.stderr)
 
