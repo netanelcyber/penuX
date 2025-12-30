@@ -1,250 +1,261 @@
-# MIMIC-III Resistance / Pathogen Prediction (NO-PANDAS)
+Below is a **ready-to-paste `README.md`** that matches your **`mimic_resistance_pipeline_onefile_torch.py`** (ONE FILE, NO pandas, PyTorch-only, auto MIMIC-III/MIMIC-IV demo discovery) and includes your **calibration PNG**.
 
-Train a multi-class model to predict a **fixed pathogen class** (CAPITAL labels) from:
+````md
+# penuX — MIMIC-III / MIMIC-IV Pathogen Class Prediction (ONE-FILE, PyTorch, NO-PANDAS)
 
-* Microbiology categorical fields (**lowercased values**):
+Research/demo pipeline that trains a **multi-class classifier** to predict a **fixed pathogen class (CAPITAL labels)** from:
 
-  * `spec_type_desc`
-  * `interpretation`
-* Antibiotic exposure (**binary one-hot**, **lowercase feature names**)
-* Early vitals/labs (**REQUIRED order**, **lowercase feature names**):
+- **Microbiology categorical text**
+  - `spec_type_desc` (lowercased / whitespace-collapsed)
+  - `interpretation` (lowercased / whitespace-collapsed)
+- **Antibiotic exposure** (binary one-hot)
+  - `vancomycin`, `ciprofloxacin`, `meropenem`, `piperacillin`, `ceftriaxone`
+- **Early vitals/labs (required order)**
+  - `temperature_c`, `wbc`, `spo2`, `age`
 
-  * `temperature_c`, `wbc`, `spo2`, `age`
+✅ **ONE FILE**  
+✅ **NO PANDAS** (CSV streaming)  
+✅ **MIMIC-III / MIMIC-IV demo auto-discovery** (+ `.csv.gz` support)  
+✅ **PyTorch only** (no TensorFlow)  
+✅ **Hybrid model**: Embedding → Conv1D → RNN → BiLSTM + numeric branch → MLP  
+✅ **Early stop by target ACC or F1** (default target acc = 0.95)  
+✅ **Extra evaluation**: confusion (OvR TP/FP/FN/TN + Sens/Spec/PPV/F1), ROC-AUC/PR-AUC, calibration (ECE/Brier + reliability table), subgroup bias checks
 
-The pipeline is designed to reduce the common collapse/bias:
-
-`B:OTHER -> 1.0000`
-
-by using:
-
-* stratified split
-* train-only OneHotEncoder fitting (no leakage)
-* train-only vitals standardization
-* class-balanced `sample_weight` (+ optional extra down-weight for `B:OTHER`)
-* label smoothing to reduce overconfidence
-
----
-
-## 1) Project Files
-
-Expected main file:
-
-* `mimic3_resistance_pipeline.py` (NO-PANDAS)
-
-Expected MIMIC-III CSV files in:
-
-`dataset/mimic/mimic-iii-clinical-database-demo-1.4/`
-
-Required CSVs:
-
-* `MICROBIOLOGYEVENTS.csv`
-* `PRESCRIPTIONS.csv`
-* `ADMISSIONS.csv`
-* `PATIENTS.csv`
-* `D_ITEMS.csv`
-* `CHARTEVENTS.csv`
-* `D_LABITEMS.csv`
-* `LABEVENTS.csv`
+> IMPORTANT: Research/demo only. **Not for clinical use.**
 
 ---
 
-## 2) Classes (CAPITALS)
+## Classes (fixed order, CAPITALS)
 
-Fixed class order (targets + printing):
+```text
+B:PSEUDOMONAS AERUGINOSA
+B:STAPH AUREUS COAG +
+B:SERRATIA MARCESCENS
+B:MORGANELLA MORGANII
+B:ESCHERICHIA COLI
+B:PROTEUS MIRABILIS
+B:PROVIDENCIA STUARTII
+B:POSITIVE FOR METHICILLIN RESISTANT STAPH AUREUS
+B:YEAST
+B:GRAM POSITIVE COCCUS(COCCI)
+B:OTHER
+V:OTHER
+````
 
-* `B:PSEUDOMONAS AERUGINOSA`
-* `B:STAPH AUREUS COAG +`
-* `B:SERRATIA MARCESCENS`
-* `B:MORGANELLA MORGANII`
-* `B:ESCHERICHIA COLI`
-* `B:PROTEUS MIRABILIS`
-* `B:PROVIDENCIA STUARTII`
-* `B:POSITIVE FOR METHICILLIN RESISTANT STAPH AUREUS`
-* `B:YEAST`
-* `B:GRAM POSITIVE COCCUS(COCCI)`
-* `B:OTHER`
-* `V:OTHER`
-
-> NOTE: Most organisms not matching explicit rules will map to `B:OTHER`.
-> If `B:OTHER` dominates your dataset, expand `map_org()`.
-
----
-
-## 3) Features
-
-### Categorical (values lowercased)
-
-* `spec_type_desc`
-* `interpretation`
-
-These values are normalized to lowercase + collapsed whitespace to reduce duplicates and cardinality.
-
-### Numeric (feature names lowercase)
-
-Vitals/labs (**REQUIRED order**):
-
-1. `temperature_c` (mean within window)
-2. `wbc` (max within window)
-3. `spo2` (min within window)
-4. `age`
-
-Antibiotics one-hot (**lowercase feature names**):
-
-* `vancomycin`
-* `ciprofloxacin`
-* `meropenem`
-* `piperacillin`
-* `ceftriaxone`
-
-Numeric order is enforced as:
-
-`["temperature_c","wbc","spo2","age", <abx...>]`
+Mapping is controlled by `map_org()` — if `B:OTHER` dominates, **expand the rules** there.
 
 ---
 
-## 4) Time Window Logic
+## Data requirements
 
-Vitals/labs are collected within the first **HOURS_WINDOW** hours from `ADMITTIME`.
+### MIMIC-III-like root (flat CSVs)
 
-Default:
+A dataset root containing (case-insensitive, `.csv` or `.csv.gz`):
 
-* `HOURS_WINDOW = 24`
+* `MICROBIOLOGYEVENTS`
+* `PRESCRIPTIONS`
+* `ADMISSIONS`
+* `PATIENTS`
+* `D_ITEMS`
+* `CHARTEVENTS`
+* `D_LABITEMS`
+* `LABEVENTS`
 
-### Temperature (`temperature_c`)
+### MIMIC-IV-like demo root (folders)
 
-* source: `CHARTEVENTS.csv`
-* item IDs: derived from `D_ITEMS.csv` label heuristics
-* supports Celsius and Fahrenheit conversion
-* valid range filter: 30–45 °C
-* aggregation: **mean** within window
+A dataset root with:
 
-### SpO2 (`spo2`)
+* `hosp/`
+* `icu/`
 
-* source: `CHARTEVENTS.csv`
-* item IDs: derived from `D_ITEMS.csv` label heuristics
-* valid range filter: 50–100
-* aggregation: **minimum** within window
+And within those folders the equivalent CSVs (the script resolves them automatically).
 
-### WBC (`wbc`)
+MIMIC requires credentialed access and is de-identified but still sensitive. See PhysioNet pages for MIMIC-III and the demo dataset.
 
-* source: `LABEVENTS.csv`
-* item IDs: derived from `D_LABITEMS.csv` (`wbc` or `white blood` in label)
-* valid range filter: 2000–40000
-* aggregation: **maximum** within window
-* auto scaling heuristic: if median sample suggests units are small, multiply by 1000
-
-### Age (`age`)
-
-* computed from `ADMITTIME - DOB`
-* DOB years >= 3000 treated as missing (de-identified dates)
-* clipped to 0–110 with safety cap
+* MIMIC-III demo v1.4 ([PhysioNet][1])
+* MIMIC-III v1.4 ([PhysioNet][2])
 
 ---
 
-## 5) Install / Requirements
+## Install
 
 Python 3.9+ recommended.
 
-Install dependencies:
-
 ```bash
-pip install numpy tensorflow scikit-learn
+pip install numpy scikit-learn
+pip install torch
+pip install matplotlib   # optional (for PNG plots)
+pip install scipy        # optional (better p-values in Pearson tests)
 ```
-
-No pandas is used.
 
 ---
 
-## 6) Run
+## Run
 
 From repo root:
 
 ```bash
-python mimic3.py
+python mimic_resistance_pipeline_onefile_torch.py
 ```
 
-What it does:
+The script will:
 
-1. Loads microbiology rows → assigns `label` (CAPITALS)
-2. Builds antibiotic one-hot per `hadm_id`
-3. Computes vitals/labs per `hadm_id` (streaming CSV)
-4. Joins everything and trains a DNN
-5. Prints:
-
-   * label counts
-   * general test accuracy
-   * per-HADM predictions sorted by probability
+1. Discover candidate dataset roots (defaults + `MIMIC_AUTOROOTS`)
+2. Resolve MIMIC-III/MIMIC-IV file paths
+3. Build labels from `MICROBIOLOGYEVENTS` (`map_org`)
+4. Build antibiotic one-hot per `hadm_id`
+5. Compute vitals/labs within the first `HOURS_WINDOW` hours from `ADMITTIME`
+6. Train the hybrid PyTorch model with early stopping
+7. Print metrics + write plots (if matplotlib available)
 
 ---
 
-## 7) Output
+## Auto dataset discovery
 
-Console output includes:
+The script searches these by default:
 
-* dataset size stats
-* label distribution
-* enforced numeric order
-* test set accuracy
-* per-HADM probability table ordered descending
+* `dataset/mimic` and subfolders
+* A bundled/demo-like path (see code)
+* Optionally: `MIMIC_AUTOROOTS="/path1,/path2,/path3"`
 
-Example per-HADM section:
+Example:
 
-```text
-HADM_ID: 12345 (n_rows=3)
-B:ESCHERICHIA COLI -> 0.4123
-B:OTHER            -> 0.2331
-...
+```bash
+MIMIC_AUTOROOTS="/data/mimic3_demo_1_4,/data/mimic-iv-demo-2.2" \
+python mimic_resistance_pipeline_onefile_torch.py
 ```
 
 ---
 
-## 8) Fixing “B:OTHER -> 1.0000” (If It Still Happens)
+## Key environment variables (most useful)
 
-If predictions still collapse to `B:OTHER`:
+### Window / batching
 
-1. Check printed **label counts**
+* `HOURS_WINDOW` (default `24`)
+* `BATCH_SIZE` (default `64`)
 
-   * If `B:OTHER` is most rows, the model is learning the dataset imbalance.
-2. Expand `map_org()` rules
+### Stop criteria
 
-   * This is the best fix: reduce the “everything goes to OTHER” funnel.
-3. Tune balancing knobs (carefully)
+* `TARGET_STOP_METRIC` = `acc` or `f1` (default `acc`)
+* `TARGET_ACC` (default `0.95`)
+* `TARGET_ACC_KIND` = `overall` or `mrsa_mssa`
+* `TARGET_F1` (default `0.925`)
+* `TARGET_F1_KIND` = `macro` / `weighted` / `mrsa_mssa`
+* `MAX_EPOCHS` (default `100000`)
+* `EARLY_PATIENCE` (default `360`)
+* `MIN_DELTA` (default `1e-7`)
+* `RETRAIN_ON_FULL_TRAIN` = `1`/`0` (default `1`)
+* `MAX_TRAIN_RESTARTS` (default `5`)
 
-   * `MAX_CLASS_WEIGHT`
-   * `BOTHER_EXTRA_DOWNWEIGHT`
-4. Reduce overconfidence
+### Loss
 
-   * increase `DROPOUT`
-   * increase `LABEL_SMOOTHING` (e.g. `0.10`)
-5. Train longer only if validation improves
+* `LOSS_NAME` = `ce` / `wce` / `focal` / `cb_focal` (default `cb_focal`)
+* `LOSS_LABEL_SMOOTHING` (default `0.05`)
+* `FOCAL_GAMMA` (default `2.0`)
+* `CB_BETA` (default `0.9999`)
+* `FOCAL_USE_ALPHA` = `1`/`0` (default `1`)
+* `MAX_CLASS_WEIGHT` (default `15.0`)
+* `BOTHER_EXTRA_DOWNWEIGHT` (default `0.5`)
 
-   * increasing epochs helps only when val accuracy rises
+### Text / sequence
+
+* `MAX_TEXT_TOKENS` (default `20000`)
+* `TEXT_SEQ_LEN` (default `64`)
+* `EMBED_DIM` (default `96`)
+* `CNN_FILTERS` (default `128`)
+* `CNN_KERNEL` (default `5`)
+* `RNN_UNITS` (default `64`)
+* `LSTM_UNITS` (default `64`)
+* `MIMIC_ACTIVATIONS` (comma list, e.g. `gelu,swish,elu,relu`)
+
+### Device
+
+* `DEVICE` = `cpu` / `cuda` / empty (auto)
 
 ---
 
-## 9) Common Troubleshooting
+## Outputs
 
-### “No vitals complete rows”
+### Console
 
-* Increase `HOURS_WINDOW`
-* Confirm MIMIC paths are correct
-* Confirm `D_ITEMS` contains temperature/spo2 labels and `D_LABITEMS` contains WBC label patterns
+* Label distribution
+* Numeric feature order (enforced):
 
-### Very slow runtime
+  * `temperature_c, wbc, spo2, age, vancomycin, ciprofloxacin, meropenem, piperacillin, ceftriaxone`
+* Overall test accuracy
+* Per-class precision/recall/F1
+* MRSA vs MSSA subset report
+* Confusion matrix + OvR TP/FP/FN/TN + Sens/Spec/PPV/F1
+* ROC-AUC / PR-AUC (OvR per-class + macro/weighted)
+* Calibration:
 
-* Full `CHARTEVENTS` / `LABEVENTS` are huge
-* This script streams row-by-row (I/O heavy)
-* Use SSD if possible
-* Consider pre-filtering your CSVs to relevant `hadm_id` and time windows
+  * ECE + Brier + reliability table
+* Bias checks (best-effort, if columns exist):
+
+  * gender/sex, age bins, admission_type, admission_location
+* Vitals signal:
+
+  * permutation importance (Δloss) + Pearson r,p vs P(bacterial)
+
+### PNGs (if matplotlib installed)
+
+* `calibration__<dataset_tag>__<activation>.png`
+* `vitals_feature_signal__<dataset_tag>__<activation>.png`
 
 ---
 
-## 10) Customization
+## Example: Calibration plot
 
-Edit these in `mimic3_resistance_pipeline.py`:
+If you have this image committed in the branch:
 
-* `HOURS_WINDOW` : change window length
-* `ANTIBIOTICS`  : change which drugs become binary features
-* `map_org()`    : expand organism → class mapping (**best way to reduce B:OTHER dominance**)
-* `EPOCHS`, `DROPOUT`, `LABEL_SMOOTHING` : model behavior / overconfidence
-* `USE_CLASS_WEIGHTS` : toggle class balancing
+```md
+![Calibration example](calibration__mimic3_mimic_iii_clinical_database_demo_1_4__gelu.png)
+```
+
+Or using the GitHub file URL:
+
+```md
+![Calibration example](https://github.com/netanelcyber/penuX/blob/mimic3%2B4/calibration__mimic3_mimic_iii_clinical_database_demo_1_4__gelu.png)
+```
+
+---
+
+## Troubleshooting
+
+* **“No vitals complete rows”**
+
+  * Increase `HOURS_WINDOW`
+  * Confirm `D_ITEMS` has temperature/SpO₂ labels and `D_LABITEMS` has WBC labels
+* **Very slow runtime**
+
+  * `CHARTEVENTS`/`LABEVENTS` are huge; this script streams row-by-row (I/O heavy)
+  * Use SSD if possible; consider prefiltering by `hadm_id` for experiments
+* **Model collapses to B:OTHER**
+
+  * Expand `map_org()` mapping rules (best fix)
+  * Tune `BOTHER_EXTRA_DOWNWEIGHT`, `MAX_CLASS_WEIGHT`, and loss settings
+
+---
+
+## Notes / Disclaimer
+
+This code is for **research and educational use only** and must not be used for clinical decision-making.
+MIMIC datasets contain sensitive patient information even when de-identified; follow all data-use agreements. ([PhysioNet][1])
+
+
+## References
+
+### Data sources (PhysioNet)
+- MIMIC-III Clinical Database v1.4 (project page + citation/DOI):
+  https://physionet.org/content/mimiciii/1.4/
+- MIMIC-III Clinical Database Demo v1.4 (open demo subset):
+  https://physionet.org/content/mimiciii-demo/1.4/
+
+- MIMIC-IV Clinical Database v2.2 (project page):
+  https://physionet.org/content/mimiciv/2.2/
+- MIMIC-IV Clinical Database Demo v2.2 (open demo subset):
+  https://physionet.org/content/mimic-iv-demo/2.2/
+
+### Community code
+- MIT-LCP MIMIC code repository (queries/utilities across MIMIC releases):
+  https://github.com/MIT-LCP/mimic-code
