@@ -1,6 +1,5 @@
 **`mimic3.py`** (ONE FILE, NO pandas, PyTorch-only, auto MIMIC-III/MIMIC-IV demo discovery) and includes your **calibration PNG**.
 
-````md
 # penuX — MIMIC-III / MIMIC-IV Pathogen Class Prediction (ONE-FILE, PyTorch, NO-PANDAS)
 
 Research/demo pipeline that trains a **multi-class classifier** to predict a **fixed pathogen class (CAPITAL labels)** from:
