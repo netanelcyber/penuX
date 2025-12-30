@@ -13,6 +13,7 @@
 # ✅ EXTRA EVAL ADDED:
 #    - Confusion matrix + TP/FP/FN/TN + Sensitivity/Specificity/PPV/F1 (OvR)
 #    - ROC-AUC / PR-AUC (OvR per-class + macro/weighted)
+#    - ROC & PR CURVES PNG (OvR per-class + macro curve)   <-- ADDED
 #    - Calibration: ECE + Brier + reliability table (+ PNG if matplotlib)
 #    - Bias checks by subgroups: gender / age bins / admission_type / admission_location (best-effort)
 #
@@ -44,6 +45,8 @@ from sklearn.metrics import (
     confusion_matrix,
     roc_auc_score,
     average_precision_score,
+    roc_curve,                # <-- ADDED
+    precision_recall_curve,   # <-- ADDED
 )
 
 try:
@@ -934,7 +937,7 @@ def report_mrsa_vs_mssa(y_true: np.ndarray, y_pred: np.ndarray) -> None:
 
 
 # ===============================
-# EXTRA EVAL: Confusion, Sens/Spec/PPV/F1, ROC-AUC/PR-AUC, Calibration, Bias
+# EXTRA EVAL: Confusion, Sens/Spec/PPV/F1, ROC-AUC/PR-AUC, ROC/PR CURVES, Calibration, Bias
 # ===============================
 CALIB_BINS = int(os.environ.get("CALIB_BINS", "10"))
 BIAS_MIN_GROUP_N = int(os.environ.get("BIAS_MIN_GROUP_N", "25"))
@@ -1054,6 +1057,119 @@ def report_auc_pr(y_true: np.ndarray, probs: np.ndarray, title: str = "TEST") ->
         rs = f"{ra:.4f}" if ra is not None else "  n/a "
         ps = f"{pa:.4f}" if pa is not None else "  n/a "
         print(f"{INDEX_TO_CLASS[i]:55s} | {rs:>6s}  {ps:>6s}")
+
+
+# ===============================
+# ADDED: ROC/PR CURVE PLOTS (PNG)
+# ===============================
+def plot_auc_curves(
+    y_true: np.ndarray,
+    probs: np.ndarray,
+    title: str,
+    out_roc_png: Optional[str] = None,
+    out_pr_png: Optional[str] = None,
+) -> None:
+    """
+    Saves:
+      - ROC curves (OvR per class + macro-avg curve)
+      - PR curves  (OvR per class + macro-avg curve)
+
+    Skips any class that has no positives or no negatives in this split.
+    """
+    if plt is None:
+        print("[WARN] matplotlib not available; skipping AUC curve plots.")
+        return
+    if out_roc_png is None and out_pr_png is None:
+        return
+
+    y_true = y_true.astype(np.int32, copy=False)
+    probs = np.asarray(probs, dtype=np.float64)
+    C = probs.shape[1]
+
+    valid: List[int] = []
+    for i in range(C):
+        pos = (y_true == i).astype(np.int32)
+        if int(pos.sum()) == 0 or int(pos.sum()) == int(pos.shape[0]):
+            continue
+        valid.append(i)
+
+    if not valid:
+        print("[WARN] No valid classes with both pos/neg in this split; skipping AUC curve plots.")
+        return
+
+    # ---------- ROC ----------
+    if out_roc_png is not None:
+        fpr_grid = np.linspace(0.0, 1.0, 200, dtype=np.float64)
+        tprs: List[np.ndarray] = []
+
+        fig = plt.figure(figsize=(7.2, 6.0))
+        ax = fig.add_subplot(111)
+        ax.plot([0, 1], [0, 1], linestyle="--", linewidth=1.0)
+
+        for i in valid:
+            pos = (y_true == i).astype(np.int32)
+            try:
+                fpr, tpr, _ = roc_curve(pos, probs[:, i])
+                auc_i = float(roc_auc_score(pos, probs[:, i]))
+            except Exception:
+                continue
+
+            ax.plot(fpr, tpr, linewidth=1.2, label=f"{INDEX_TO_CLASS[i][:28]}  AUC={auc_i:.3f}")
+            tprs.append(np.interp(fpr_grid, fpr, tpr))
+
+        if tprs:
+            macro_tpr = np.mean(np.vstack(tprs), axis=0)
+            ax.plot(fpr_grid, macro_tpr, linewidth=2.0, label="MACRO-AVG")
+
+        ax.set_xlabel("False Positive Rate")
+        ax.set_ylabel("True Positive Rate")
+        ax.set_title(f"ROC curves (OvR) — {title}")
+        ax.grid(True, alpha=0.25)
+        ax.legend(fontsize=8, loc="lower right")
+        fig.tight_layout()
+        fig.savefig(out_roc_png, dpi=170)
+        plt.close(fig)
+        print(f"[INFO] Saved ROC-AUC curves -> {out_roc_png}")
+
+    # ---------- PR ----------
+    if out_pr_png is not None:
+        recall_grid = np.linspace(0.0, 1.0, 200, dtype=np.float64)
+        precs: List[np.ndarray] = []
+
+        fig = plt.figure(figsize=(7.2, 6.0))
+        ax = fig.add_subplot(111)
+
+        for i in valid:
+            pos = (y_true == i).astype(np.int32)
+            prevalence = float(np.mean(pos))  # baseline on PR
+            try:
+                prec, rec, _ = precision_recall_curve(pos, probs[:, i])
+                ap_i = float(average_precision_score(pos, probs[:, i]))
+            except Exception:
+                continue
+
+            ax.plot(rec, prec, linewidth=1.2, label=f"{INDEX_TO_CLASS[i][:28]}  AP={ap_i:.3f}")
+            ax.plot([0, 1], [prevalence, prevalence], linestyle=":", linewidth=0.8)
+
+            # Interp precision on recall grid (sort recall ascending)
+            order = np.argsort(rec)
+            rec_s = rec[order]
+            prec_s = prec[order]
+            precs.append(np.interp(recall_grid, rec_s, prec_s, left=prec_s[0], right=prec_s[-1]))
+
+        if precs:
+            macro_prec = np.mean(np.vstack(precs), axis=0)
+            ax.plot(recall_grid, macro_prec, linewidth=2.0, label="MACRO-AVG")
+
+        ax.set_xlabel("Recall")
+        ax.set_ylabel("Precision")
+        ax.set_title(f"PR curves (OvR) — {title}")
+        ax.grid(True, alpha=0.25)
+        ax.legend(fontsize=8, loc="lower left")
+        fig.tight_layout()
+        fig.savefig(out_pr_png, dpi=170)
+        plt.close(fig)
+        print(f"[INFO] Saved PR-AUC curves -> {out_pr_png}")
 
 
 def calibration_report(y_true: np.ndarray, probs: np.ndarray, title: str, out_png: Optional[str] = None) -> None:
@@ -1965,6 +2081,11 @@ def run_once(dataset_root: Path) -> None:
 
     # --- Added: ROC-AUC / PR-AUC ---
     report_auc_pr(y_true=y_te, probs=probs_te, title=f"TEST {ds_tag}")
+
+    # --- Added: ROC/PR Curves (PNG) ---
+    roc_png = f"roc_auc__{ds_tag}__{_sanitize_tag(best_activation)}.png"
+    pr_png  = f"pr_auc__{ds_tag}__{_sanitize_tag(best_activation)}.png"
+    plot_auc_curves(y_true=y_te, probs=probs_te, title=f"TEST {ds_tag}", out_roc_png=roc_png, out_pr_png=pr_png)
 
     # --- Added: Calibration (ECE/Brier + optional plot) ---
     calib_png = f"calibration__{ds_tag}__{_sanitize_tag(best_activation)}.png"
