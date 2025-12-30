@@ -1,6 +1,5 @@
-Below is a **ready-to-paste `README.md`** that matches your **`mimic_resistance_pipeline_onefile_torch.py`** (ONE FILE, NO pandas, PyTorch-only, auto MIMIC-III/MIMIC-IV demo discovery) and includes your **calibration PNG**.
+**`mimic3.py`** (ONE FILE, NO pandas, PyTorch-only, auto MIMIC-III/MIMIC-IV demo discovery) and includes your **calibration PNG**.
 
-````md
 # penuX — MIMIC-III / MIMIC-IV Pathogen Class Prediction (ONE-FILE, PyTorch, NO-PANDAS)
 
 Research/demo pipeline that trains a **multi-class classifier** to predict a **fixed pathogen class (CAPITAL labels)** from:
@@ -95,7 +94,7 @@ pip install scipy        # optional (better p-values in Pearson tests)
 From repo root:
 
 ```bash
-python mimic_resistance_pipeline_onefile_torch.py
+python mimic3.py
 ```
 
 The script will:
@@ -208,15 +207,14 @@ python mimic_resistance_pipeline_onefile_torch.py
 
 If you have this image committed in the branch:
 
-```md
+
 ![Calibration example](calibration__mimic3_mimic_iii_clinical_database_demo_1_4__gelu.png)
-```
+
 
 Or using the GitHub file URL:
 
-```md
+
 ![Calibration example](https://github.com/netanelcyber/penuX/blob/mimic3%2B4/calibration__mimic3_mimic_iii_clinical_database_demo_1_4__gelu.png)
-```
 
 ---
 
