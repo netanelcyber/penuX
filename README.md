@@ -207,15 +207,14 @@ python mimic_resistance_pipeline_onefile_torch.py
 
 If you have this image committed in the branch:
 
-```md
+
 ![Calibration example](calibration__mimic3_mimic_iii_clinical_database_demo_1_4__gelu.png)
-```
+
 
 Or using the GitHub file URL:
 
-```md
+
 ![Calibration example](https://github.com/netanelcyber/penuX/blob/mimic3%2B4/calibration__mimic3_mimic_iii_clinical_database_demo_1_4__gelu.png)
-```
 
 ---
 
