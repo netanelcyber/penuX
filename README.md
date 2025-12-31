@@ -2,6 +2,12 @@
 
 > **מטרה / Objective**
 > **עברית:** לספק צינור **מחקר/דמו** בקובץ יחיד (`mimic3.py`) שמאתר אוטומטית נתיבי **MIMIC-III / MIMIC-IV** (כולל `.csv.gz`), מבצע עיבוד וקטלוג פיצ’רים (טקסט/אנטיביוטיקה/ויטלס-מעבדה מוקדמים), מאמן מודל **PyTorch** היברידי לסיווג רב-מחלקתי של **מחלקת פתוגן** (תוויות קבועות), ומפיק הערכה מתקדמת כולל **Calibration**.
+
+
+
+
+
+
 > **English:** Provide a **research/demo** single-file (`mimic3.py`) pipeline that auto-discovers **MIMIC-III / MIMIC-IV** roots (including `.csv.gz`), builds mixed text/medication/early-vitals features, trains a hybrid **PyTorch** multiclass classifier for a **fixed pathogen class set**, and produces rich evaluation including **probability calibration**.
 
 **אזהרה / Warning:** זהו קוד **מחקרי/חינוכי בלבד** ואינו מיועד לשימוש קליני או לקבלת החלטות טיפול. MIMIC הוא מאגר דה-מזוהה אך עדיין רגיש ודורש עמידה בהסכמי שימוש. ([PhysioNet][1])
