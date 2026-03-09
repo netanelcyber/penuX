@@ -1,44 +1,38 @@
-import csv
+import os
+import wfdb
+import numpy as np
+from scipy.fft import fft, fftfreq
 
-# מזהים להדגשת סימני אק"ג והפרעות קצב מהמקורות
-ecg_emphasis_ids = {
-    '220048', # קצב לב (SR, ST, SB, 1st AV Block)
-    '224650', # סוג Ectopy 1 (PVC, PAC)
-    '224651', # תדירות Ectopy 1
-    '224359', # מדד QTc (חשוב לסיכון מוות פתאומי)
-    '228305', # ניטור מקטע ST (סימני איסכמיה)
-    '224720', # התראת הפרעת קצב (Arrythmia)
-}
+root_dir = "/workspaces/penuX/mimic-ecg/physionet.org/files/mimic4wdb/0.1.0-ecg"
 
-# מדדי סיכון תמותה משלימים (GCS, נשימה, גלוקוז)
-standard_risk_ids = {
-    '220739', '223900', '223901', # מדדי GCS (הכרה)
-    '220210', # קצב נשימה
-    '220621', # גלוקוז
-}
+for root, dirs, files in os.walk(root_dir):
+    for file in files:
+        if file.endswith(".hea"):
 
-all_target_ids = ecg_emphasis_ids.union(standard_risk_ids)
+            record_path = os.path.join(root, file[:-4])  # remove .hea
+            print("Processing:", record_path)
 
-extracted_data = []
+            try:
+                record = wfdb.rdrecord(record_path)
+                signal = record.p_signal
+                fs = record.fs
 
-with open('/workspaces/penuX/dataset/mimic/mimic-iii-clinical-database-demo-1.4/CHARTEVENTS.csv', mode='r', encoding='utf-8') as infile:
-    reader = csv.DictReader(infile)
-    for row in reader:
-        if row['itemid'] in all_target_ids:
-            # חילוץ הערך: עדיפות לערך נומרי (valuenum) אם קיים, אחרת ערך טקסטואלי
-            val = row['valuenum'] if row['valuenum'] and row['valuenum'].strip() else row['value']
-            
-            extracted_data.append({
-                'subject_id': row['subject_id'],
-                'charttime': row['charttime'],
-                'itemid': row['itemid'],
-                'clinical_value': val
-            })
+                # choose lead II if available
+                if len(signal.shape) > 1:
+                    ecg = signal[:, 1]
+                else:
+                    ecg = signal
 
-# שמירה לקובץ המיועד להזנה למודל הסיכון
-with open('mortality_ecg_risk_input.csv', mode='w', newline='') as outfile:
-    writer = csv.DictWriter(outfile, fieldnames=['subject_id', 'charttime', 'itemid', 'clinical_value'])
-    writer.writeheader()
-    writer.writerows(extracted_data)
+                # FFT
+                N = len(ecg)
+                yf = fft(ecg)
+                xf = fftfreq(N, 1/fs)
 
-print(f"Extracted {len(extracted_data)} risk indicators with ECG emphasis.")
+                idx = np.where(xf >= 0)
+
+                spectrum = np.abs(yf[idx])
+
+                print("FFT computed:", len(spectrum))
+
+            except Exception as e:
+                print("Error:", e)

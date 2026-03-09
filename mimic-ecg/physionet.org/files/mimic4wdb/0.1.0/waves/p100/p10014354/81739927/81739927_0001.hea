@@ -1,0 +1,8 @@
+81739927_0001 4 62.4725/999.56 320
+81739927_0001e.dat 516x4 200/mV 14 8192 0 512 0 II
+81739927_0001e.dat 516x4 200/mV 14 8192 0 512 0 V
+81739927_0001e.dat 516x4 200/mV 14 8192 0 512 0 aVR
+81739927_0001r.dat 516 1637(1230)/Ohm 10 512 0 32736 0 Resp
+# signal 0 (II): channel=0 bandpass=[0.5,35]
+# signal 1 (V): channel=1 bandpass=[0.5,35]
+# signal 2 (aVR): channel=2 bandpass=[0.5,35]
