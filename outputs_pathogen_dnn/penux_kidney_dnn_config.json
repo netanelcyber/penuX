@@ -1,0 +1,19 @@
+{
+  "model": "dnn",
+  "target_col": "pathogen_label",
+  "input_dim": 278,
+  "num_classes": 19,
+  "hidden_dims": [
+    128,
+    64
+  ],
+  "device": "cpu",
+  "train_size": 0.7,
+  "val_size": 0.15,
+  "test_size": 0.15,
+  "input_mode": "mimic_raw",
+  "chartevents": "/root/penuX/dataset/mimic/mimic-iii-clinical-database-demo-1.4/CHARTEVENTS.csv",
+  "d_items": "/root/penuX/dataset/mimic/mimic-iii-clinical-database-demo-1.4/D_ITEMS.csv",
+  "microbiology": "/root/penuX/dataset/mimic/mimic-iii-clinical-database-demo-1.4/MICROBIOLOGYEVENTS.csv",
+  "mimic_max_rows": null
+}

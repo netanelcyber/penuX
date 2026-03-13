@@ -1,0 +1,350 @@
+{
+  "accuracy": 0.0,
+  "macro_f1": 0.0,
+  "weighted_f1": 0.0,
+  "classification_report": {
+    "acinetobacter": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "aspergillus_sp_not_fumigatus_flavus_or_niger": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "candida": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 3.0
+    },
+    "clostridium_difficile": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "corynebacterium_striatum": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "e_coli": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "enterobacter": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "enterococcus": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "gram_negative_rod_s": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "gram_positive_coccus_cocci": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "klebsiella": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "morganella_morganii": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "mycobacterium_avium_complex": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "proteus": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "providencia_stuartii": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "pseudomonas": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "staph_aureus": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 2.0
+    },
+    "staph_other": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "streptococcus": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1.0
+    },
+    "micro avg": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 12.0
+    },
+    "macro avg": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 12.0
+    },
+    "weighted avg": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 12.0
+    }
+  },
+  "pred_indices": [
+    13,
+    13,
+    5,
+    2,
+    5,
+    4,
+    4,
+    2,
+    10,
+    5,
+    13,
+    9
+  ],
+  "pred_labels": [
+    "proteus",
+    "proteus",
+    "e_coli",
+    "candida",
+    "e_coli",
+    "corynebacterium_striatum",
+    "corynebacterium_striatum",
+    "candida",
+    "klebsiella",
+    "e_coli",
+    "proteus",
+    "gram_positive_coccus_cocci"
+  ],
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 3.503251552581787,
+      "val_macro_f1": 0.05128205128205128,
+      "lr": 0.019999999999999997
+    },
+    {
+      "epoch": 2,
+      "train_loss": 2.055911123752594,
+      "val_macro_f1": 0.05128205128205128,
+      "lr": 0.039999999999999994
+    },
+    {
+      "epoch": 3,
+      "train_loss": 1.6071561574935913,
+      "val_macro_f1": 0.0,
+      "lr": 0.06
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.8698947727680206,
+      "val_macro_f1": 0.047619047619047616,
+      "lr": 0.057142857142857134
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.8245145380496979,
+      "val_macro_f1": 0.03571428571428571,
+      "lr": 0.054285714285714284
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.34981217235326767,
+      "val_macro_f1": 0.038461538461538464,
+      "lr": 0.05142857142857142
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.30366532504558563,
+      "val_macro_f1": 0.10256410256410256,
+      "lr": 0.04857142857142857
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.3296877145767212,
+      "val_macro_f1": 0.10256410256410256,
+      "lr": 0.04571428571428571
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.21422194689512253,
+      "val_macro_f1": 0.15384615384615385,
+      "lr": 0.04285714285714286
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.05617670714855194,
+      "val_macro_f1": 0.16666666666666666,
+      "lr": 0.039999999999999994
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.1257762312889099,
+      "val_macro_f1": 0.15277777777777776,
+      "lr": 0.037142857142857144
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.07481880020350218,
+      "val_macro_f1": 0.14444444444444446,
+      "lr": 0.03428571428571428
+    },
+    {
+      "epoch": 13,
+      "train_loss": 0.07798822410404682,
+      "val_macro_f1": 0.15897435897435896,
+      "lr": 0.03142857142857143
+    },
+    {
+      "epoch": 14,
+      "train_loss": 0.06253463588654995,
+      "val_macro_f1": 0.1111111111111111,
+      "lr": 0.028571428571428567
+    },
+    {
+      "epoch": 15,
+      "train_loss": 0.07679578848183155,
+      "val_macro_f1": 0.1111111111111111,
+      "lr": 0.02571428571428571
+    },
+    {
+      "epoch": 16,
+      "train_loss": 0.11381308734416962,
+      "val_macro_f1": 0.1111111111111111,
+      "lr": 0.022857142857142854
+    },
+    {
+      "epoch": 17,
+      "train_loss": 0.02976087387651205,
+      "val_macro_f1": 0.1282051282051282,
+      "lr": 0.019999999999999997
+    },
+    {
+      "epoch": 18,
+      "train_loss": 0.029492030385881662,
+      "val_macro_f1": 0.1282051282051282,
+      "lr": 0.01714285714285714
+    },
+    {
+      "epoch": 19,
+      "train_loss": 0.055458396673202515,
+      "val_macro_f1": 0.038461538461538464,
+      "lr": 0.014285714285714284
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.1409661928191781,
+      "val_macro_f1": 0.041666666666666664,
+      "lr": 0.011428571428571427
+    },
+    {
+      "epoch": 21,
+      "train_loss": 0.054597122594714165,
+      "val_macro_f1": 0.038461538461538464,
+      "lr": 0.00857142857142857
+    },
+    {
+      "epoch": 22,
+      "train_loss": 0.06210985779762268,
+      "val_macro_f1": 0.038461538461538464,
+      "lr": 0.005714285714285713
+    },
+    {
+      "epoch": 23,
+      "train_loss": 0.006704170256853104,
+      "val_macro_f1": 0.1282051282051282,
+      "lr": 0.0028571428571428567
+    },
+    {
+      "epoch": 24,
+      "train_loss": 0.020964793860912323,
+      "val_macro_f1": 0.1282051282051282,
+      "lr": 0.0
+    },
+    {
+      "epoch": 25,
+      "train_loss": 0.02032839972525835,
+      "val_macro_f1": 0.16666666666666666,
+      "lr": 0.063
+    },
+    {
+      "epoch": 26,
+      "train_loss": 0.009744769427925348,
+      "val_macro_f1": 0.1722222222222222,
+      "lr": 0.042
+    },
+    {
+      "epoch": 27,
+      "train_loss": 0.020367374178022146,
+      "val_macro_f1": 0.1722222222222222,
+      "lr": 0.0315
+    },
+    {
+      "epoch": 28,
+      "train_loss": 0.006839228328317404,
+      "val_macro_f1": 0.1722222222222222,
+      "lr": 0.0252
+    },
+    {
+      "epoch": 29,
+      "train_loss": 0.011461695656180382,
+      "val_macro_f1": 0.1722222222222222,
+      "lr": 0.021
+    },
+    {
+      "epoch": 30,
+      "train_loss": 0.008878152584657073,
+      "val_macro_f1": 0.1722222222222222,
+      "lr": 0.018000000000000002
+    }
+  ],
+  "temperature": 1.2730439901351929
+}
