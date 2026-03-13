@@ -1,0 +1,17 @@
+{
+  "model": "lstm",
+  "target_col": "pathogen_label",
+  "patient_id_col": "encounter_key",
+  "time_col": "charttime",
+  "input_dim": 130,
+  "num_classes": 19,
+  "hidden_dim": 64,
+  "num_layers": 1,
+  "max_seq_len": 16,
+  "device": "cpu",
+  "input_mode": "mimic_raw",
+  "chartevents": "/root/penuX/dataset/mimic/mimic-iii-clinical-database-demo-1.4/CHARTEVENTS.csv",
+  "d_items": "/root/penuX/dataset/mimic/mimic-iii-clinical-database-demo-1.4/D_ITEMS.csv",
+  "microbiology": "/root/penuX/dataset/mimic/mimic-iii-clinical-database-demo-1.4/MICROBIOLOGYEVENTS.csv",
+  "mimic_max_rows": null
+}

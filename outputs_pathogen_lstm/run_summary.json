@@ -1,0 +1,11 @@
+{
+  "status": "ok",
+  "output_dir": "/root/penuX/outputs_pathogen_lstm",
+  "model": "lstm",
+  "target_col": "pathogen_label",
+  "input_mode": "mimic_raw",
+  "chartevents": "/root/penuX/dataset/mimic/mimic-iii-clinical-database-demo-1.4/CHARTEVENTS.csv",
+  "d_items": "/root/penuX/dataset/mimic/mimic-iii-clinical-database-demo-1.4/D_ITEMS.csv",
+  "microbiology": "/root/penuX/dataset/mimic/mimic-iii-clinical-database-demo-1.4/MICROBIOLOGYEVENTS.csv",
+  "mimic_max_rows": null
+}
