@@ -1,0 +1,7 @@
+,baseline_creatinine,baseline_creatinine,peak_creatinine,peak_creatinine,baseline_egfr,baseline_egfr,peak_egfr,peak_egfr,cr_increase,cr_increase,bun_cr_ratio,bun_cr_ratio,peak_potassium,peak_potassium,proteinuria,proteinuria,hyperkalemia,hadm_id
+,mean,std,mean,std,mean,std,mean,std,mean,std,mean,std,mean,std,mean,std,mean,count
+aki_stage,,,,,,,,,,,,,,,,,,
+0,1.023,0.288,1.122,0.338,105.175,31.47,96.935,33.129,0.098,0.171,18.525,3.736,4.038,0.406,0.463,0.528,0.0,860
+1,1.108,0.27,1.796,0.448,97.395,28.812,56.494,20.571,0.689,0.259,18.514,3.768,4.21,0.4,0.592,0.673,0.0,2523
+2,0.951,0.265,2.277,0.657,113.117,30.373,43.749,17.954,1.326,0.429,18.411,3.746,4.387,0.406,0.465,0.55,0.002,1673
+3,0.823,0.264,2.986,0.788,127.609,30.515,31.308,12.262,2.163,0.591,18.421,3.808,4.652,0.424,0.304,0.332,0.022,800

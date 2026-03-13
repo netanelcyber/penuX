@@ -1,0 +1,10 @@
+{
+  "status": "ok",
+  "output_dir": "/root/penuX/outputs",
+  "model": "dnn",
+  "target_col": "aki_stage_label",
+  "input_mode": "mimic_raw",
+  "chartevents": "/root/penuX/dataset/mimic/mimic-iii-clinical-database-demo-1.4/CHARTEVENTS.csv",
+  "d_items": "/root/penuX/dataset/mimic/mimic-iii-clinical-database-demo-1.4/D_ITEMS.csv",
+  "mimic_max_rows": null
+}
