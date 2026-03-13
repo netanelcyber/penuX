@@ -143,7 +143,7 @@ else:
 # ---- Text / sequence knobs ----
 MAX_TEXT_TOKENS = int(os.environ.get("MAX_TEXT_TOKENS", "20000"))  # includes PAD/UNK
 TEXT_SEQ_LEN = int(os.environ.get("TEXT_SEQ_LEN", "64"))
-EMBED_DIM = int(os.environ.get("EMBED_DIM", "96"))
+EMBED_DIM = int(os.environ.get("EMBED_DIM", "16"))
 CNN_FILTERS = int(os.environ.get("CNN_FILTERS", "128"))
 CNN_KERNEL = int(os.environ.get("CNN_KERNEL", "5"))
 RNN_UNITS = int(os.environ.get("RNN_UNITS", "64"))
@@ -487,11 +487,12 @@ def map_org(org: str) -> str:
 # ===============================
 # ITEMID SETS: Temperature(C/F), SpO2, WBC
 # ===============================
-def build_itemid_sets() -> Tuple[set[int], set[int], set[int], set[int]]:
+def build_itemid_sets() -> Tuple[  set[int], set[int], set[int],set[int]]:
     d_items_wanted = {"ITEMID": ["ITEMID", "ITEM_ID"], "LABEL": ["LABEL", "NAME"]}
     temp_c_ids: set[int] = set()
     temp_f_ids: set[int] = set()
     spo2_ids: set[int] = set()
+    bp_ids: set[int] =set()
 
     for row in _iter_csv_std(D_ITEMS_PATH, d_items_wanted):
         itemid = _parse_int(row["ITEMID"])
@@ -499,6 +500,9 @@ def build_itemid_sets() -> Tuple[set[int], set[int], set[int], set[int]]:
         if itemid is None:
             continue
         ll = str(label).lower()
+        if "blood pressure" in ll:
+            bp_ids.add(itemid)
+            
         if "temperature" in ll and "c" in ll:
             temp_c_ids.add(itemid)
         if "temperature" in ll and "f" in ll:
@@ -528,7 +532,7 @@ def build_itemid_sets() -> Tuple[set[int], set[int], set[int], set[int]]:
         if wbc_re.search(ll) or ("white blood" in ll):
             wbc_ids.add(itemid)
 
-    return temp_c_ids, temp_f_ids, spo2_ids, wbc_ids
+    return temp_c_ids, spo2_ids, wbc_ids,bp_ids
 
 
 # ===============================
@@ -617,8 +621,8 @@ def compute_vitals_features(hadm_set: set[int]) -> Dict[int, Dict[str, float]]:
     if len(windows) == 0:
         raise RuntimeError("No admission windows found for hadm_set.")
 
-    temp_c_ids, temp_f_ids, spo2_ids, wbc_ids = build_itemid_sets()
-    want_chart_itemids = temp_c_ids | temp_f_ids | spo2_ids
+    temp_c_ids, spo2_ids, wbc_ids,bp_ids  = build_itemid_sets()
+    want_chart_itemids = temp_c_ids |  spo2_ids |wbc_ids | bp_ids
 
     ce_wanted = {
         "HADM_ID": ["HADM_ID", "HADMID"],
@@ -645,6 +649,9 @@ def compute_vitals_features(hadm_set: set[int]) -> Dict[int, Dict[str, float]]:
         v = _parse_float(row["VALUENUM"])
         if v is None:
             continue
+        if itemid in bp_ids:
+            bp=row[itemid]
+            print(bp)
 
         if itemid in temp_c_ids or itemid in temp_f_ids:
             temp_c = float(v) if itemid in temp_c_ids else (float(v) - 32.0) / 1.8

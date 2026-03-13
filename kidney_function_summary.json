@@ -1,0 +1,62 @@
+{
+  "analysis_date": "2026-03-13T07:19:12.041268",
+  "n_samples": 5856,
+  "aki_distribution": {
+    "1": 2523,
+    "2": 1673,
+    "0": 860,
+    "3": 800
+  },
+  "pathogen_aki_risk": [
+    {
+      "pathogen_name": "Staph aureus",
+      "aki_stage_3_freq": 0.020761245674740483,
+      "mean_cr_increase": 0.669116880078724
+    },
+    {
+      "pathogen_name": "E. coli",
+      "aki_stage_3_freq": 0.30434782608695654,
+      "mean_cr_increase": 1.471405050000648
+    },
+    {
+      "pathogen_name": "Klebsiella",
+      "aki_stage_3_freq": 0.29572649572649573,
+      "mean_cr_increase": 1.4486626752843033
+    },
+    {
+      "pathogen_name": "Acinetobacter",
+      "aki_stage_3_freq": 0.30084033613445377,
+      "mean_cr_increase": 1.5153080304972073
+    },
+    {
+      "pathogen_name": "Pseudomonas",
+      "aki_stage_3_freq": 0.32220367278797996,
+      "mean_cr_increase": 1.4993484594558066
+    },
+    {
+      "pathogen_name": "Streptococcus",
+      "aki_stage_3_freq": 0.02434782608695652,
+      "mean_cr_increase": 0.70135299323607
+    },
+    {
+      "pathogen_name": "Enterococcus",
+      "aki_stage_3_freq": 0.024916943521594685,
+      "mean_cr_increase": 0.7194027498474205
+    },
+    {
+      "pathogen_name": "Candida/Fungal",
+      "aki_stage_3_freq": 0.0429553264604811,
+      "mean_cr_increase": 0.8035000584826033
+    },
+    {
+      "pathogen_name": "Viral",
+      "aki_stage_3_freq": 0.0,
+      "mean_cr_increase": 0.30569940766002557
+    },
+    {
+      "pathogen_name": "Other/Mixed",
+      "aki_stage_3_freq": 0.023255813953488372,
+      "mean_cr_increase": 0.6884077522107527
+    }
+  ]
+}

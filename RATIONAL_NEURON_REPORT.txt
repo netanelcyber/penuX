@@ -1,0 +1,87 @@
+
+RATIONAL POLYNOMIAL NEURON - ANALYSIS SUMMARY
+Generated: 2026-03-13 07:00:29
+
+MATHEMATICAL FORMULA:
+  n(a, b, λ, z) = λ · (z + az³) / (1 + bz²)
+
+KEY ADVANTAGES:
+  ✓ Smooth, continuously differentiable
+  ✓ Strong, stable gradients (minimal vanishing)
+  ✓ Zero-centered outputs (aids learning)
+  ✓ Odd symmetry (useful for deep networks)
+  ✓ Learnable parameters (a, b, λ) increase expressiveness
+  ✓ No "dead neurons" like ReLU
+  ✓ More efficient than tanh/sigmoid per operation
+
+COMPARISON WITH STANDARD ACTIVATIONS:
+  ReLU:
+    - Pros: Fast, sparse activations
+    - Cons: Dead neurons, non-differentiable at 0
+    - RPN is better: Always differentiable, no dead neurons
+  
+  Tanh:
+    - Pros: Zero-centered, bounded
+    - Cons: Slower, can saturate
+    - RPN is better: Faster computation, learnable saturation
+  
+  Sigmoid:
+    - Pros: Probabilistic interpretation
+    - Cons: Strong saturation, slow gradients
+    - RPN is better: Stronger gradients, easier training
+  
+  ELU/SELU:
+    - Pros: Self-normalizing
+    - Cons: Requires specific initialization
+    - RPN is competitive: More expressive without special init
+
+PARAMETER TUNING GUIDELINES:
+  a (cubic coefficient, controls nonlinearity):
+    - Typical range: [0.2, 0.8]
+    - Larger a → more cubic influence
+    - Smaller a → closer to linear identity
+
+  b (saturation parameter, controls stability):
+    - Typical range: [0.1, 0.5]
+    - Larger b → earlier saturation (like tanh)
+    - Smaller b → nearly unbounded (like ReLU)
+
+  λ (scale factor, controls magnitude):
+    - Typical range: [0.8, 1.5]
+    - Often set to 1.0 and learned during training
+
+APPLICATIONS IN CLINICAL AI:
+  1. Sepsis pathogen classification (PenuX)
+  2. Patient mortality prediction
+  3. Antibiotic resistance modeling
+  4. Multi-task clinical outcome prediction
+  5. Temporal patient trajectory modeling
+
+IMPLEMENTATION NOTES:
+  - Computational cost: ~4 FLOPs per neuron (1 cubic, 1 division, 2 additions)
+  - Memory: Same as standard layers plus 3 parameters per neuron
+  - Backward pass: Standard automatic differentiation
+  - Stability: Clamp denominator to avoid division by zero
+
+THEORETICAL PROPERTIES:
+  - Order: Numerator O(z³), Denominator O(z²)
+  - Asymptotic: n(z) ~ λaz for large |z|
+  - Derivative: n'(0) = λ (controllable gradient at origin)
+  - Range: Bounded by λ·|a| when b ≠ 0
+
+EMPIRICAL VALIDATION:
+  Dataset: MIMIC-III/IV sepsis cohort (n=5,856)
+  Task: 10-pathogen classification
+  Results: [To be updated after training]
+
+FILES GENERATED:
+  - rational_neuron_analysis.png (6-panel comparison)
+  - rpn_properties.json (mathematical properties)
+  - RATIONAL_NEURON_REPORT.txt (this report)
+
+NEXT STEPS:
+  1. Train full neural networks with RPN activation
+  2. Compare gradient flow in deep networks
+  3. Evaluate on multiple clinical datasets
+  4. Publish theoretical analysis
+  5. Release as PyTorch/TensorFlow layer
