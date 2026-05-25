@@ -3,6 +3,9 @@ import csv
 import gzip
 
 from scripts.eicu_dataset import convert_eicu_to_clinical, fetch_eicu_csv, convert_amsterdamumc_to_mimic_format
+from scripts.eicu_dataset import convert_eicu_to_clinical, fetch_eicu_csv
+
+from scripts.eicu_dataset import convert_eicu_to_clinical
 
 
 def test_convert_eicu_to_clinical(tmp_path: Path):
