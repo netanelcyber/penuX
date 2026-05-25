@@ -42,3 +42,25 @@ Source images (local repo files from commit assets):
 ## Ready-to-paste summary sentence
 
 On MIMIC-IV demo 2.2 (OvR pathogen classes), POST-mode achieved AUC=1.000 for Pseudomonas, Serratia, Gram-positive cocci, and Other; E. coli improved from 0.958 to 0.992 AUC and from 0.864 to 0.977 AP, while Proteus PR-AP decreased from 1.000 to 0.667.
+
+## Additional Figure Provided by User — "Before Lab" (MIMIC-III demo 1.4 PRE)
+
+From the attached ROC figure titled:
+`ROC curves (OvR) — TEST mimic3_mimic_iii_clinical_database_demo_1_4_pre`
+
+### ROC-AUC (OvR) values read from legend
+
+| Class | AUC |
+|---|---:|
+| B:PSEUDOMONAS AERUGINOSA | 0.924 |
+| B:STAPH AUREUS COAG + | 0.976 |
+| B:SERRATIA MARCESCENS | 0.991 |
+| B:ESCHERICHIA COLI | 1.000 |
+| B:PROTEUS MIRABILIS | 0.974 |
+| B:POSITIVE FOR METHICILLIN R | 1.000 |
+| B:GRAM POSITIVE COCCUS(COCCI) | 1.000 |
+| B:OTHER | 0.966 |
+
+### Quick interpretation note
+
+This "before lab" (PRE) MIMIC-III figure shows strong OvR discrimination overall, with perfect AUC values for E. coli, Methicillin-resistant positive class, and Gram-positive cocci; the lowest class AUC in this panel is Pseudomonas (0.924).
