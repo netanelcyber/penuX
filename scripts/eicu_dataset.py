@@ -2,6 +2,7 @@
 
 Convert an eICU CSV export into this project's clinical feature schema.
 Supports optional auto-fetch of the full eICU patient table (non-demo).
+Supports optional auto-fetch of the public eICU demo patient table.
 """
 
 from __future__ import annotations
@@ -52,6 +53,9 @@ def available_open_datasets() -> list[dict[str, str]]:
         {"name": "eICU-CRD 2.0 (Full, credentialed)", "url": "https://physionet.org/content/eicu-crd/2.0/", "type": "icu_tabular"},
         {"name": "MIMIC-IV Waveform DB 0.1.0", "url": "https://physionet.org/content/mimic4wdb/0.1.0/", "type": "waveform"},
     ]
+
+EICU_DEMO_PATIENT_CSV_GZ = "https://physionet.org/files/eicu-crd-demo/2.0/patient.csv.gz"
+
 
 def _find_column(columns: list[str], aliases: list[str]) -> str | None:
     lower_to_real = {c.lower(): c for c in columns}
@@ -116,6 +120,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--list_open_datasets", action="store_true", help="Print open/public dataset catalog and exit")
     parser.add_argument("--list_kaggle_like", action="store_true", help="Print Kaggle/similar dataset sources and exit")
     parser.add_argument("--list_hf_like", action="store_true", help="Print HuggingFace/similar dataset sources and exit")
+    parser.add_argument("--autofetch", action="store_true", help="Auto-download eICU demo patient table if --input is not set")
+    parser.add_argument("--fetch_url", type=str, default=EICU_DEMO_PATIENT_CSV_GZ, help="Source URL used with --autofetch")
+    parser.add_argument("--fetched_input", type=Path, default=Path("eicu_patient_autofetch.csv"), help="Where to store downloaded source CSV")
+    parser.add_argument("--input", "-i", type=Path, required=True, help="Path to eICU CSV file")
+    parser.add_argument("--output", "-o", type=Path, default=Path("clinical_eicu.csv"), help="Output CSV")
     return parser
 
 
@@ -143,10 +152,15 @@ def main() -> None:
             raise ValueError("Provide --input, or use --autofetch to download full eICU data")
         if "demo" in args.fetch_url.lower():
             raise ValueError("Demo sources are disabled. Use full non-demo eICU source URL.")
+    input_csv = args.input
+    if input_csv is None:
+        if not args.autofetch:
+            raise ValueError("Provide --input, or use --autofetch to download eICU demo data")
         input_csv = fetch_eicu_csv(args.fetch_url, args.fetched_input)
         print(f"[INFO] Downloaded eICU source -> {input_csv}")
 
     converted = convert_eicu_to_clinical(input_csv, args.output)
+    converted = convert_eicu_to_clinical(args.input, args.output)
     print(f"[INFO] Converted {len(converted)} rows -> {args.output}")
 
 
