@@ -8,5 +8,5 @@
 - ICU mortality dataset: https://www.kaggle.com/datasets/fdemoribajolin/death-classification-icu
 
 ## Similar platforms (non-demo focus)
-- PhysioNet eICU-CRD 2.0 (official full): https://physionet.org/content/eicu-crd/2.0/
+- PhysioNet eICU-CRD 2.0 (official full): https://www.kaggle.com/datasets/bilal1907/mimic-iii-10k
 - Hugging Face (ICU sepsis example): https://huggingface.co/Abdu347/icu-sepsis-prediction
