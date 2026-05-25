@@ -88,6 +88,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--autofetch", action="store_true", help="Auto-download eICU demo patient table if --input is not set")
     parser.add_argument("--fetch_url", type=str, default=EICU_DEMO_PATIENT_CSV_GZ, help="Source URL used with --autofetch")
     parser.add_argument("--fetched_input", type=Path, default=Path("eicu_patient_autofetch.csv"), help="Where to store downloaded source CSV")
+    parser.add_argument("--input", "-i", type=Path, required=True, help="Path to eICU CSV file")
+    parser.add_argument("--output", "-o", type=Path, default=Path("clinical_eicu.csv"), help="Output CSV")
     return parser
 
 
@@ -102,6 +104,7 @@ def main() -> None:
         print(f"[INFO] Downloaded eICU source -> {input_csv}")
 
     converted = convert_eicu_to_clinical(input_csv, args.output)
+    converted = convert_eicu_to_clinical(args.input, args.output)
     print(f"[INFO] Converted {len(converted)} rows -> {args.output}")
 
 

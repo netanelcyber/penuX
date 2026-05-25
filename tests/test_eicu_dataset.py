@@ -4,6 +4,8 @@ import gzip
 
 from scripts.eicu_dataset import convert_eicu_to_clinical, fetch_eicu_csv
 
+from scripts.eicu_dataset import convert_eicu_to_clinical
+
 
 def test_convert_eicu_to_clinical(tmp_path: Path):
     src = tmp_path / "eicu_sample.csv"
