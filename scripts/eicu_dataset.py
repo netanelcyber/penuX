@@ -1,6 +1,7 @@
 """Utilities for working with the eICU Collaborative Research Database.
 
 Convert an eICU CSV export into this project's clinical feature schema.
+Supports optional auto-fetch of the full eICU patient table (non-demo).
 Supports optional auto-fetch of the public eICU demo patient table.
 """
 
@@ -24,6 +25,34 @@ EICU_ALIASES = {
     "wbc": ["wbc", "whitebloodcell", "white_blood_cells"],
     "bun": ["bun", "bloodureanitrogen", "blood_urea_nitrogen"],
 }
+
+EICU_FULL_PATIENT_CSV_GZ = "https://physionet.org/files/eicu-crd/2.0/patient.csv.gz"
+
+
+def available_hf_like_datasets() -> list[dict[str, str]]:
+    """Hugging Face / similar sources for quick experimentation."""
+    return [
+        {"name": "HF ICU sepsis prediction", "url": "https://huggingface.co/datasets/Abdu347/icu-sepsis-prediction", "type": "huggingface"},
+        {"name": "HF ICU search", "url": "https://huggingface.co/datasets?search=icu", "type": "huggingface"},
+    ]
+
+
+def available_kaggle_like_datasets() -> list[dict[str, str]]:
+    """Kaggle and similar sources for quick experimentation."""
+    return [
+        {"name": "Kaggle MIMIC-III-10k", "url": "https://www.kaggle.com/datasets/bilal1907/mimic-iii-10k", "type": "kaggle"},
+        {"name": "Kaggle MIMIC III mirror", "url": "https://www.kaggle.com/datasets/hussameldinanwer/mimic-iii", "type": "kaggle"},
+        {"name": "Kaggle ICU mortality", "url": "https://www.kaggle.com/datasets/fdemoribajolin/death-classification-icu", "type": "kaggle"},
+        {"name": "HuggingFace ICU sepsis", "url": "https://huggingface.co/Abdu347/icu-sepsis-prediction", "type": "similar"},
+    ]
+
+
+def available_open_datasets() -> list[dict[str, str]]:
+    """Catalog of non-demo datasets relevant to this project."""
+    return [
+        {"name": "eICU-CRD 2.0 (Full, credentialed)", "url": "https://physionet.org/content/eicu-crd/2.0/", "type": "icu_tabular"},
+        {"name": "MIMIC-IV Waveform DB 0.1.0", "url": "https://physionet.org/content/mimic4wdb/0.1.0/", "type": "waveform"},
+    ]
 
 EICU_DEMO_PATIENT_CSV_GZ = "https://physionet.org/files/eicu-crd-demo/2.0/patient.csv.gz"
 
@@ -85,6 +114,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Convert eICU table to clinical.csv schema")
     parser.add_argument("--input", "-i", type=Path, default=None, help="Path to eICU CSV file")
     parser.add_argument("--output", "-o", type=Path, default=Path("clinical_eicu.csv"), help="Output CSV")
+    parser.add_argument("--autofetch", action="store_true", help="Auto-download full eICU patient table if --input is not set")
+    parser.add_argument("--fetch_url", type=str, default=EICU_FULL_PATIENT_CSV_GZ, help="Source URL used with --autofetch (non-demo only)")
+    parser.add_argument("--fetched_input", type=Path, default=Path("eicu_patient_autofetch.csv"), help="Where to store downloaded source CSV")
+    parser.add_argument("--list_open_datasets", action="store_true", help="Print open/public dataset catalog and exit")
+    parser.add_argument("--list_kaggle_like", action="store_true", help="Print Kaggle/similar dataset sources and exit")
+    parser.add_argument("--list_hf_like", action="store_true", help="Print HuggingFace/similar dataset sources and exit")
     parser.add_argument("--autofetch", action="store_true", help="Auto-download eICU demo patient table if --input is not set")
     parser.add_argument("--fetch_url", type=str, default=EICU_DEMO_PATIENT_CSV_GZ, help="Source URL used with --autofetch")
     parser.add_argument("--fetched_input", type=Path, default=Path("eicu_patient_autofetch.csv"), help="Where to store downloaded source CSV")
@@ -96,6 +131,27 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = build_parser().parse_args()
 
+    if args.list_open_datasets:
+        for item in available_open_datasets():
+            print(f"{item['name']} ({item['type']}): {item['url']}")
+        return
+
+    if args.list_hf_like:
+        for item in available_hf_like_datasets():
+            print(f"{item['name']} ({item['type']}): {item['url']}")
+        return
+
+    if args.list_kaggle_like:
+        for item in available_kaggle_like_datasets():
+            print(f"{item['name']} ({item['type']}): {item['url']}")
+        return
+
+    input_csv = args.input
+    if input_csv is None:
+        if not args.autofetch:
+            raise ValueError("Provide --input, or use --autofetch to download full eICU data")
+        if "demo" in args.fetch_url.lower():
+            raise ValueError("Demo sources are disabled. Use full non-demo eICU source URL.")
     input_csv = args.input
     if input_csv is None:
         if not args.autofetch:
