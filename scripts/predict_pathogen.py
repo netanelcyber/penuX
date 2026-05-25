@@ -33,6 +33,8 @@ def _class_names(task: str) -> List[str]:
         return ["Bacterial", "Viral"]
     if task == "3class":
         return ["Normal", "Bacterial", "Viral"]
+    if task in ("mimic3", "mimic4"):
+        return ["Normal", "Bacterial", "Viral"]
     if task == "specpath":
         if not PATHOGEN_VOCAB.exists():
             raise FileNotFoundError(f"Missing {PATHOGEN_VOCAB}. Train/build features first.")
@@ -99,7 +101,7 @@ def _predict_array(x: np.ndarray, mu: np.ndarray, sd: np.ndarray, clin_enc, clin
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Predict pathogen/class probabilities from vitals")
-    ap.add_argument("--task", choices=["binary", "3class", "pathogen", "specpath"], default="specpath")
+    ap.add_argument("--task", choices=["binary", "3class", "pathogen", "specpath", "mimic3", "mimic4"], default="specpath")
     ap.add_argument("--input", type=str, default=None, help="CSV input file (columns: temperature_c,wbc,spo2,age)")
     ap.add_argument("--single", action="store_true", help="Single prediction via flags")
     ap.add_argument("--temperature_c", type=float, default=None)
