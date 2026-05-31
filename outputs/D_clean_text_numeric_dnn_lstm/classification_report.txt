@@ -1,0 +1,18 @@
+                                                 precision    recall  f1-score   support
+
+                ACINETOBACTER BAUMANNII COMPLEX       0.03      0.40      0.05         5
+                               ENTEROCOCCUS SP.       0.00      0.00      0.00         5
+                               ESCHERICHIA COLI       0.00      0.00      0.00        10
+                           GRAM NEGATIVE ROD(S)       0.00      0.00      0.00         5
+                          KLEBSIELLA PNEUMONIAE       0.00      0.00      0.00         5
+                                          OTHER       0.11      0.18      0.14        22
+POSITIVE FOR METHICILLIN RESISTANT STAPH AUREUS       0.80      0.57      0.67        14
+                              PROTEUS MIRABILIS       0.00      0.00      0.00         8
+                         PSEUDOMONAS AERUGINOSA       0.00      0.00      0.00         7
+                            STAPH AUREUS COAG +       0.00      0.00      0.00        21
+             STAPHYLOCOCCUS, COAGULASE NEGATIVE       0.00      0.00      0.00        13
+                                          YEAST       0.00      0.00      0.00        38
+
+                                       accuracy                           0.09       153
+                                      macro avg       0.08      0.10      0.07       153
+                                   weighted avg       0.09      0.09      0.08       153
