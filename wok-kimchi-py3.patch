@@ -1,0 +1,134 @@
+This file documents all source-level patches applied to Wok and Kimchi
+for Python 3.9+ compatibility. These patches are applied automatically
+by install-kimchi-wok-py39.sh via sed/2to3 in-place edits.
+
+=======================================================================
+PATCH SET 1: Shebang lines
+=======================================================================
+
+All *.py files with "#!/usr/bin/env python" or "#!/usr/bin/python"
+are updated to use "python3".
+
+--- a/src/wok/server.py
++++ b/src/wok/server.py
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+
+=======================================================================
+PATCH SET 2: Module renames (Python 2 → Python 3)
+=======================================================================
+
+--- a/src/wok/*.py
++++ b/src/wok/*.py
+
+ConfigParser (Python 2) → configparser (Python 3):
+-import ConfigParser
++import configparser as ConfigParser
+
+-from ConfigParser import SafeConfigParser
++from configparser import SafeConfigParser
+
+httplib (Python 2) → http.client (Python 3):
+-import httplib
++import http.client as httplib
+
+urllib2 (Python 2) → urllib.request (Python 3):
+-import urllib2
++import urllib.request as urllib2
+
+-from urllib2 import urlopen, Request
++from urllib.request import urlopen, Request
+
+urlparse (Python 2) → urllib.parse (Python 3):
+-import urlparse
++import urllib.parse as urlparse
+
+-from urlparse import urlsplit, urljoin
++from urllib.parse import urlsplit, urljoin
+
+StringIO (Python 2) → io (Python 3):
+-from StringIO import StringIO
++from io import StringIO
+
+=======================================================================
+PATCH SET 3: setup.py dependency names
+=======================================================================
+
+--- a/setup.py (Wok)
++++ b/setup.py (Wok)
+-    'python-m2crypto',
++    'm2crypto',        # installed as python3-m2crypto system package
+
+-    'python-cherrypy3',
++    'CherryPy',
+
+-    'python-cheetah',
++    'Cheetah3',
+
+=======================================================================
+PATCH SET 4: DEBIAN/control dependency names (if using .deb path)
+=======================================================================
+
+If you are patching the pre-built 3.0.0 .deb (not the source install
+path), apply the following control file changes:
+
+--- a/DEBIAN/control (wok-3.0.0-0.debian.noarch.deb)
++++ b/DEBIAN/control
+-Depends: python-m2crypto, python-cherrypy3, python-cheetah, ...
++Depends: python3-m2crypto, python3-cherrypy3 | python3-cheroot, python3-cheetah3 | python3-cheetah, ...
+
+Rebuild command:
+  dpkg-deb -b /tmp/wokfix /tmp/wok-fixed.deb
+  sudo apt install -y /tmp/wok-fixed.deb
+
+=======================================================================
+PATCH SET 5: Wok CherryPy 18.x API compatibility
+=======================================================================
+
+CherryPy 18.x removed several deprecated aliases. If you encounter
+AttributeError: module 'cherrypy' has no attribute 'quickstart':
+
+--- a/src/wok/server.py
++++ b/src/wok/server.py
+-cherrypy.quickstart(root, config=config)
++cherrypy.tree.mount(root, '/', config)
++cherrypy.engine.start()
++cherrypy.engine.block()
+
+If you encounter issues with cherrypy.wsgiserver:
+-from cherrypy.wsgiserver import CherryPyWSGIServer
++from cheroot.wsgi import Server as CherryPyWSGIServer
+
+=======================================================================
+PATCH SET 6: Cheetah3 template compilation
+=======================================================================
+
+Cheetah3 requires templates to be compiled. If you get NameError or
+ImportError on .tmpl files:
+
+  cd /opt/kimchi
+  python3 -m Cheetah compile --nobackup src/kimchi/API.py.tmpl || true
+  find . -name "*.tmpl" -exec python3 -m Cheetah compile --nobackup {} \; || true
+
+=======================================================================
+PATCH SET 7: libvirt Python 3 bindings
+=======================================================================
+
+The python3-libvirt package is required. If missing:
+  apt install python3-libvirt
+
+If lxml.etree is used for XML parsing (it is, in Kimchi):
+  apt install python3-lxml
+
+=======================================================================
+NOTES
+=======================================================================
+
+- All patches preserve the original Apache 2.0 / GPL license headers.
+- No binary reverse-engineering was performed.
+- Source is publicly available at:
+    https://github.com/kimchi-project/wok
+    https://github.com/kimchi-project/kimchi
+- The 2to3 tool (from python3-lib2to3 / python3 standard library)
+  performs AST-level transformations that are safer than sed for
+  complex Python 2 constructs (print statements, except syntax, etc.)
