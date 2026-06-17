@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software in your research, please cite it as below."
+title: "PenuX-AP-Severity"
+version: 0.1.0
+authors:
+  - family-names: "Stern"
+    given-names: "Netanel"
+date-released: "2024-01-01"
+url: "https://github.com/netanelcyber/penux"
+abstract: >
+  Research-grade machine-learning pipeline for early prediction of
+  Severe Acute Pancreatitis (SAP) using routine admission data available
+  within the first 24 hours. For research use only.
+license: MIT
