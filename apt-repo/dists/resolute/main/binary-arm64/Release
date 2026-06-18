@@ -1,0 +1,6 @@
+Archive: resolute
+Component: main
+Origin: kvmweb
+Label: kvmweb APT Repository
+Architecture: arm64
+Description: kvmweb for Ubuntu 26.04 LTS (Resolute)

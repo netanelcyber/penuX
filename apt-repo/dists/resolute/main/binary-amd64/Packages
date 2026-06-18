@@ -1,0 +1,31 @@
+Package: kvmweb
+Version: 1.0.0
+Architecture: all
+Depends: python3 (>= 3.8),
+ python3-flask | python3-pip,
+ python3-libvirt,
+ python3-pam,
+ python3-bcrypt,
+ libvirt-daemon-system,
+ qemu-kvm,
+ virtinst,
+ openssl
+Recommends: qemu-utils
+Maintainer: kvmweb <kvmweb@localhost>
+Priority: optional
+Section: admin
+Filename: pool/main/k/kvmweb/kvmweb_1.0.0_all.deb
+Size: 14634
+SHA256: ba7afc59a0bab6bb41d6ed753cbcdfd40f0af4566a396e45d7a51ab12c6fcc71
+SHA1: bff9c309dafdf8fa633bc603e8a050d79661793f
+MD5sum: 8b4e7557f55be61b43d86f2886fe9fb8
+Description: Lightweight KVM web management interface
+ kvmweb is a self-hosted web UI for managing KVM/QEMU virtual machines
+ via libvirt. Features include VM lifecycle control (start, stop, reboot,
+ suspend), live dashboard with host stats, VM creation via virt-install,
+ storage pool and network visibility, PAM-based authentication, and
+ HTTPS with a self-signed certificate.
+ .
+ Accessible at https://HOST:8080 after installation.
+Homepage: https://github.com/netanelcyber/penuX
+

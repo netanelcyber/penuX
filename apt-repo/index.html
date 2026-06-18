@@ -27,8 +27,13 @@
 curl -fsSL https://netanelcyber.github.io/penuX/apt-repo/kvmweb.gpg.key | sudo gpg --dearmor -o /usr/share/keyrings/kvmweb.gpg
 
 # 2. Add the repository
-echo "deb [signed-by=/usr/share/keyrings/kvmweb.gpg] https://netanelcyber.github.io/penuX/apt-repo stable main" \
+# Ubuntu 26.04 (Resolute):
+echo "deb [signed-by=/usr/share/keyrings/kvmweb.gpg] https://netanelcyber.github.io/penuX/apt-repo resolute main" \
   | sudo tee /etc/apt/sources.list.d/kvmweb.list
+
+# Other Ubuntu/Debian (stable):
+# echo "deb [signed-by=/usr/share/keyrings/kvmweb.gpg] https://netanelcyber.github.io/penuX/apt-repo stable main" \
+#   | sudo tee /etc/apt/sources.list.d/kvmweb.list
 
 # 3. Install
 sudo apt update && sudo apt install kvmweb</code></pre>
@@ -52,12 +57,13 @@ sudo journalctl -u kvmweb -f</code></pre>
 
   <h2>Repository Files</h2>
   <ul>
-    <li><a href="dists/stable/InRelease">dists/stable/InRelease</a> (signed index)</li>
+    <li><a href="dists/resolute/InRelease">dists/resolute/InRelease</a> (Ubuntu 26.04 — signed)</li>
+    <li><a href="dists/stable/InRelease">dists/stable/InRelease</a> (stable — signed)</li>
     <li><a href="kvmweb.gpg.key">kvmweb.gpg.key</a> (public signing key)</li>
   </ul>
 
   <h2>Supported Distributions</h2>
-  <p>Ubuntu 22.04 (Jammy), Ubuntu 24.04 (Noble), Debian 11 (Bullseye), Debian 12 (Bookworm)</p>
+  <p>Ubuntu 26.04 LTS (Resolute) &bull; Ubuntu 22.04 (Jammy) &bull; Ubuntu 24.04 (Noble) &bull; Debian 11 (Bullseye) &bull; Debian 12 (Bookworm)</p>
 
   <p style="margin-top:48px;font-size:12px">
     Source: <a href="https://github.com/netanelcyber/penuX">github.com/netanelcyber/penuX</a>
