@@ -1,0 +1,50 @@
+#!/bin/bash
+set -e
+
+# Install Python dependencies not available as Debian packages
+if ! python3 -c "import flask" 2>/dev/null; then
+    pip3 install --quiet flask
+fi
+if ! python3 -c "import bcrypt" 2>/dev/null; then
+    pip3 install --quiet bcrypt
+fi
+
+# Create empty users file (PAM is default; this is fallback)
+if [ ! -f /etc/kvmweb/users ]; then
+    touch /etc/kvmweb/users
+    chmod 600 /etc/kvmweb/users
+    chown root:root /etc/kvmweb/users
+fi
+
+# Generate self-signed TLS certificate if missing
+if [ ! -f /etc/kvmweb/ssl/cert.pem ]; then
+    mkdir -p /etc/kvmweb/ssl
+    HOSTNAME=$(hostname -f 2>/dev/null || hostname)
+    openssl req -x509 -nodes -newkey rsa:2048 -days 3650 \
+        -keyout /etc/kvmweb/ssl/key.pem \
+        -out    /etc/kvmweb/ssl/cert.pem \
+        -subj "/CN=${HOSTNAME}/O=kvmweb/C=US" \
+        -addext "subjectAltName=DNS:${HOSTNAME},IP:127.0.0.1" \
+        2>/dev/null || true
+    chmod 600 /etc/kvmweb/ssl/key.pem
+fi
+
+# Install and start the systemd service
+if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload
+    systemctl enable kvmweb.service
+    systemctl restart kvmweb.service || true
+fi
+
+# Ensure libvirtd is running
+if [ -d /run/systemd/system ]; then
+    systemctl enable --now libvirtd 2>/dev/null || true
+fi
+
+IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+echo ""
+echo "kvmweb installed. Access it at: https://${IP:-<server-ip>}:8080"
+echo "Login with your Linux system credentials."
+echo ""
+
+exit 0

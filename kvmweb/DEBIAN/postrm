@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+
+if [ "$1" = "purge" ]; then
+    rm -rf /etc/kvmweb
+    rm -rf /opt/kvmweb
+fi
+
+if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload 2>/dev/null || true
+fi
+
+exit 0
