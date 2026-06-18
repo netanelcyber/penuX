@@ -1,0 +1,191 @@
+name: Build & Publish APT Repository
+
+on:
+  push:
+    branches: [claude/beautiful-fermi-vkcmzu]
+    paths:
+      - 'kvmweb/**'
+      - 'kvmweb_*.deb'
+      - '.github/workflows/apt-publish.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── 1. Read version from control file ──────────────────────────────────
+      - name: Read package version
+        id: version
+        run: |
+          VERSION=$(grep '^Version:' kvmweb/DEBIAN/control | awk '{print $2}')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "deb=kvmweb_${VERSION}_all.deb" >> "$GITHUB_OUTPUT"
+
+      # ── 2. Build .deb ───────────────────────────────────────────────────────
+      - name: Build .deb package
+        run: |
+          sudo apt-get install -y --no-install-recommends dpkg-dev
+          BUILD=$(mktemp -d)
+          cp -r kvmweb "$BUILD/kvmweb_${{ steps.version.outputs.version }}"
+          # Rename service file inside package tree
+          find "$BUILD" -name 'kvmweb.service' -exec cp {} \
+            "$BUILD/kvmweb_${{ steps.version.outputs.version }}/kvmweb.service" \; 2>/dev/null || true
+
+          mkdir -p "$BUILD/kvmweb_${{ steps.version.outputs.version }}/opt/kvmweb"
+          mkdir -p "$BUILD/kvmweb_${{ steps.version.outputs.version }}/etc/kvmweb/ssl"
+          mkdir -p "$BUILD/kvmweb_${{ steps.version.outputs.version }}/etc/systemd/system"
+          mkdir -p "$BUILD/kvmweb_${{ steps.version.outputs.version }}/usr/bin"
+          mkdir -p "$BUILD/kvmweb_${{ steps.version.outputs.version }}/usr/share/doc/kvmweb"
+
+          # Copy app files
+          cp kvmweb/app.py "$BUILD/kvmweb_${{ steps.version.outputs.version }}/opt/kvmweb/"
+          cp -r kvmweb/templates "$BUILD/kvmweb_${{ steps.version.outputs.version }}/opt/kvmweb/"
+          cp -r kvmweb/static   "$BUILD/kvmweb_${{ steps.version.outputs.version }}/opt/kvmweb/"
+
+          # systemd unit
+          cat > "$BUILD/kvmweb_${{ steps.version.outputs.version }}/etc/systemd/system/kvmweb.service" <<'UNIT'
+          [Unit]
+          Description=kvmweb - KVM Web Management Interface
+          After=network.target libvirtd.service
+          Wants=libvirtd.service
+          [Service]
+          Type=simple
+          User=root
+          WorkingDirectory=/opt/kvmweb
+          ExecStart=/usr/bin/python3 /opt/kvmweb/app.py --host 0.0.0.0 --port 8080 --cert /etc/kvmweb/ssl/cert.pem --key /etc/kvmweb/ssl/key.pem
+          Restart=on-failure
+          RestartSec=5
+          StandardOutput=journal
+          StandardError=journal
+          SyslogIdentifier=kvmweb
+          Environment=KVMWEB_SESSION_MINS=60
+          [Install]
+          WantedBy=multi-user.target
+          UNIT
+
+          # /usr/bin/kvmweb launcher
+          printf '#!/bin/bash\nexec /usr/bin/python3 /opt/kvmweb/app.py "$@"\n' \
+            > "$BUILD/kvmweb_${{ steps.version.outputs.version }}/usr/bin/kvmweb"
+
+          # copyright
+          cp kvmweb/DEBIAN/control "$BUILD/kvmweb_${{ steps.version.outputs.version }}/usr/share/doc/kvmweb/copyright" 2>/dev/null || true
+
+          # empty users config
+          touch "$BUILD/kvmweb_${{ steps.version.outputs.version }}/etc/kvmweb/users"
+
+          # permissions
+          chmod 755 "$BUILD/kvmweb_${{ steps.version.outputs.version }}/usr/bin/kvmweb"
+          chmod 755 "$BUILD/kvmweb_${{ steps.version.outputs.version }}/DEBIAN/postinst" \
+                    "$BUILD/kvmweb_${{ steps.version.outputs.version }}/DEBIAN/prerm"    \
+                    "$BUILD/kvmweb_${{ steps.version.outputs.version }}/DEBIAN/postrm" 2>/dev/null || true
+          find "$BUILD/kvmweb_${{ steps.version.outputs.version }}" -type d | xargs chmod 755
+
+          dpkg-deb --build --root-owner-group \
+            "$BUILD/kvmweb_${{ steps.version.outputs.version }}" \
+            "${{ steps.version.outputs.deb }}"
+
+          echo "Built: $(ls -lh ${{ steps.version.outputs.deb }})"
+
+      # ── 3. Import GPG key ───────────────────────────────────────────────────
+      - name: Import GPG signing key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.APT_GPG_PRIVATE_KEY }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          gpg --list-secret-keys
+
+      # ── 4. Update reprepro for both suites ─────────────────────────────────
+      - name: Update APT repository
+        run: |
+          sudo apt-get install -y reprepro
+          KEY_ID=$(gpg --list-secret-keys --keyid-format LONG \
+            | grep '^sec' | awk '{print $2}' | cut -d/ -f2 | head -1)
+          echo "Signing with key: $KEY_ID"
+
+          # Regenerate distributions conf with current key id
+          mkdir -p apt-repo/conf
+          cat > apt-repo/conf/distributions <<EOF
+          Origin: kvmweb
+          Label: kvmweb APT Repository
+          Codename: stable
+          Suite: stable
+          Architectures: amd64 arm64
+          Components: main
+          Description: kvmweb KVM web management interface
+          SignWith: $KEY_ID
+
+          Origin: kvmweb
+          Label: kvmweb APT Repository
+          Codename: resolute
+          Suite: resolute
+          Architectures: amd64 arm64
+          Components: main
+          Description: kvmweb for Ubuntu 26.04 LTS (Resolute)
+          SignWith: $KEY_ID
+          EOF
+
+          cat > apt-repo/conf/options <<EOF
+          verbose
+          basedir $(pwd)/apt-repo
+          EOF
+
+          # Remove old entries to allow re-add
+          reprepro -b apt-repo remove stable kvmweb 2>/dev/null || true
+          reprepro -b apt-repo remove resolute kvmweb 2>/dev/null || true
+
+          reprepro -b apt-repo includedeb stable   "${{ steps.version.outputs.deb }}"
+          reprepro -b apt-repo includedeb resolute "${{ steps.version.outputs.deb }}"
+
+          # Export updated public key
+          gpg --armor --export "$KEY_ID" > apt-repo/kvmweb.gpg.key
+          echo "Repository updated."
+
+      # ── 5. Commit & push apt-repo ───────────────────────────────────────────
+      - name: Commit updated APT repo
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add apt-repo/ "${{ steps.version.outputs.deb }}"
+          git diff --cached --quiet && echo "No changes." || \
+            git commit -m "ci: rebuild APT repo for kvmweb ${{ steps.version.outputs.version }}"
+          git push origin HEAD
+
+      # ── 6. Upload .deb as GitHub Release asset ──────────────────────────────
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/claude/beautiful-fermi-vkcmzu'
+        with:
+          tag_name: kvmweb-v${{ steps.version.outputs.version }}
+          name: kvmweb v${{ steps.version.outputs.version }}
+          body: |
+            ## kvmweb v${{ steps.version.outputs.version }}
+
+            Lightweight KVM web management interface for Ubuntu/Debian.
+
+            ### Install via APT (Ubuntu 26.04 Resolute)
+            ```bash
+            curl -fsSL https://netanelcyber.github.io/penuX/apt-repo/kvmweb.gpg.key \
+              | sudo gpg --dearmor -o /usr/share/keyrings/kvmweb.gpg
+            echo "deb [signed-by=/usr/share/keyrings/kvmweb.gpg] \
+              https://netanelcyber.github.io/penuX/apt-repo resolute main" \
+              | sudo tee /etc/apt/sources.list.d/kvmweb.list
+            sudo apt update && sudo apt install kvmweb
+            ```
+
+            ### Direct download
+            Download `kvmweb_${{ steps.version.outputs.version }}_all.deb` below.
+          files: ${{ steps.version.outputs.deb }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
