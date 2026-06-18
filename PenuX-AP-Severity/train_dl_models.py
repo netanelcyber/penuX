@@ -47,7 +47,7 @@ def roc_points(y_true, y_prob, n=40):
 def cross_val_proba(model_fn, X, y, n_splits=5):
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
     oof = np.zeros(len(y), dtype=np.float32)
-    importances = np.zeros(N_FEAT)
+    fold_epochs = []
     for fold, (tr, va) in enumerate(skf.split(X, y)):
         Xtr, Xva = X[tr], X[va]
         ytr, yva = y[tr], y[va]
@@ -55,12 +55,15 @@ def cross_val_proba(model_fn, X, y, n_splits=5):
         Xtr = sc.fit_transform(Xtr)
         Xva = sc.transform(Xva)
         model = model_fn()
-        model.fit(Xtr, ytr, epochs=60, batch_size=32, verbose=0,
-                  validation_data=(Xva, yva),
-                  callbacks=[keras.callbacks.EarlyStopping(patience=8, restore_best_weights=True,
-                                                           monitor='val_auc', mode='max')])
+        es = keras.callbacks.EarlyStopping(patience=8, restore_best_weights=True,
+                                           monitor='val_auc', mode='max')
+        hist = model.fit(Xtr, ytr, epochs=60, batch_size=32, verbose=0,
+                         validation_data=(Xva, yva), callbacks=[es])
+        # best epoch = total epochs trained minus patience (where weights were restored)
+        best_ep = int(np.argmax(hist.history['val_auc'])) + 1
+        fold_epochs.append(best_ep)
         oof[va] = model.predict(Xva, verbose=0).ravel()
-    return oof
+    return oof, fold_epochs
 
 # ── Model 1: MLP (3-hidden-layer) ─────────────────────────────────────────
 def make_mlp():
@@ -131,15 +134,15 @@ def make_attention_mlp():
 
 # ── Train all 3 ───────────────────────────────────────────────────────────
 configs = [
-    ("MLP", make_mlp),
-    ("Residual MLP", make_residual),
-    ("Attention MLP", make_attention_mlp),
+    ("MLP", make_mlp, 1e-3),
+    ("Residual MLP", make_residual, 8e-4),
+    ("Attention MLP", make_attention_mlp, 1e-3),
 ]
 
 results = {}
-for name, fn in configs:
+for name, fn, lr in configs:
     print(f"\n=== {name} ===")
-    oof = cross_val_proba(fn, X, y)
+    oof, fold_epochs = cross_val_proba(fn, X, y)
     auc = roc_auc_score(y, oof)
     thr = best_threshold(y, oof)
     pred = (oof >= thr).astype(int)
@@ -148,7 +151,8 @@ for name, fn in configs:
     spec = tn/(tn+fp) if (tn+fp) else 0
     ppv  = tp/(tp+fp) if (tp+fp) else 0
     f1   = f1_score(y, pred)
-    print(f"AUC={auc:.4f}  F1={f1:.3f}  T={thr:.3f}  Sens={sens*100:.1f}%  Spec={spec*100:.1f}%")
+    opt_ep = int(round(np.mean(fold_epochs)))
+    print(f"AUC={auc:.4f}  F1={f1:.3f}  T={thr:.3f}  Sens={sens*100:.1f}%  Spec={spec*100:.1f}%  epochs/fold={fold_epochs}  mean={opt_ep}  lr={lr}")
     results[name] = {
         "auc": round(auc, 4),
         "f1": round(f1, 3),
@@ -157,9 +161,12 @@ for name, fn in configs:
         "sens": round(sens*100, 1),
         "spec": round(spec*100, 1),
         "ppv": round(ppv*100, 1),
+        "optimal_epochs": opt_ep,
+        "epochs_per_fold": fold_epochs,
+        "learning_rate": lr,
         "roc": roc_points(y, oof),
         "sweep": sweep_thresholds(y, oof),
-        "features": [],  # DL models don't have simple feature importance
+        "features": [],
     }
 
 # ── Merge into eval_results.json ──────────────────────────────────────────
