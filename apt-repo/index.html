@@ -24,15 +24,16 @@
 
   <h2>Quick Install</h2>
   <pre><code># 1. Add the GPG key
-curl -fsSL https://netanelcyber.github.io/penuX/apt-repo/kvmweb.gpg.key | sudo gpg --dearmor -o /usr/share/keyrings/kvmweb.gpg
+curl -fsSL https://raw.githubusercontent.com/netanelcyber/penuX/claude/beautiful-fermi-vkcmzu/apt-repo/kvmweb.gpg.key \
+  | sudo gpg --dearmor -o /usr/share/keyrings/kvmweb.gpg
 
 # 2. Add the repository
-# Ubuntu 26.04 (Resolute):
-echo "deb [signed-by=/usr/share/keyrings/kvmweb.gpg] https://netanelcyber.github.io/penuX/apt-repo resolute main" \
+# Ubuntu 26.04 LTS (Resolute):
+echo "deb [signed-by=/usr/share/keyrings/kvmweb.gpg] https://raw.githubusercontent.com/netanelcyber/penuX/claude/beautiful-fermi-vkcmzu/apt-repo resolute main" \
   | sudo tee /etc/apt/sources.list.d/kvmweb.list
 
-# Other Ubuntu/Debian (stable):
-# echo "deb [signed-by=/usr/share/keyrings/kvmweb.gpg] https://netanelcyber.github.io/penuX/apt-repo stable main" \
+# Ubuntu 22.04 / 24.04 / Debian 11 / 12 (stable):
+# echo "deb [signed-by=/usr/share/keyrings/kvmweb.gpg] https://raw.githubusercontent.com/netanelcyber/penuX/claude/beautiful-fermi-vkcmzu/apt-repo stable main" \
 #   | sudo tee /etc/apt/sources.list.d/kvmweb.list
 
 # 3. Install
