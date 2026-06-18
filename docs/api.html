@@ -272,8 +272,22 @@
       deepLinking: true,
       defaultModelsExpandDepth: 1,
       defaultModelExpandDepth: 2,
-      tryItOutEnabled: true,
+      tryItOutEnabled: false,
+      supportedSubmitMethods: [],
     });
+  </script>
+  <script>
+    // Inject "docs only" notice after Swagger UI loads
+    setTimeout(() => {
+      const info = document.querySelector('.swagger-ui .info');
+      if (info && !document.getElementById('docs-only-notice')) {
+        const notice = document.createElement('div');
+        notice.id = 'docs-only-notice';
+        notice.style = 'background:#1a3a5c;color:#90caf9;padding:.6rem 1rem;border-radius:4px;font-size:.85rem;margin-top:.5rem;';
+        notice.innerHTML = '📖 <strong>Documentation only</strong> — live server not deployed. To run locally: <code style="background:#0d2137;padding:2px 5px;border-radius:3px;">cd PenuX-AP-Severity &amp;&amp; uvicorn api.main:app --reload</code>';
+        info.appendChild(notice);
+      }
+    }, 800);
   </script>
 </body>
 </html>
