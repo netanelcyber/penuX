@@ -1,0 +1,7 @@
+kvmweb (1.0.0-1) noble; urgency=medium
+
+  * Initial release for Ubuntu Noble (24.04) and Resolute (26.04)
+  * Lightweight KVM web management interface via libvirt
+  * PAM authentication, HTTPS, systemd service
+
+ -- kvmweb <kvmweb-apt@netanelcyber.github.io>  Wed, 18 Jun 2026 07:00:00 +0000

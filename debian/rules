@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+override_dh_auto_install:
+	install -d $(DESTDIR)/opt/kvmweb
+	cp -r app.py templates static $(DESTDIR)/opt/kvmweb/
+	install -d $(DESTDIR)/etc/systemd/system
+	install -m 644 kvmweb.service $(DESTDIR)/etc/systemd/system/kvmweb.service
+	install -d $(DESTDIR)/usr/bin
+	printf '#!/bin/bash\nexec /usr/bin/python3 /opt/kvmweb/app.py "$$@"\n' \
+		> $(DESTDIR)/usr/bin/kvmweb
+	chmod 755 $(DESTDIR)/usr/bin/kvmweb
+	install -d $(DESTDIR)/usr/share/doc/kvmweb

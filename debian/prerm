@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+systemctl stop kvmweb.service || true
+systemctl disable kvmweb.service || true

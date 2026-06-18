@@ -1,6 +1,9 @@
 name: Push to Launchpad PPA
 
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
       ppa_name:
@@ -52,72 +55,21 @@ jobs:
         run: |
           PKG_VER="1.0.0"
           ORIG_DIR="/tmp/launchpad/kvmweb-${PKG_VER}"
-          mkdir -p /tmp/launchpad
-
-          # Copy app sources into package tree
-          cp -r kvmweb/. /tmp/kvmweb_src/
           mkdir -p "$ORIG_DIR"
+
+          # Copy app sources from repo
           cp kvmweb/app.py "$ORIG_DIR/"
           cp -r kvmweb/templates "$ORIG_DIR/"
           cp -r kvmweb/static "$ORIG_DIR/"
           cp kvmweb/kvmweb.service "$ORIG_DIR/" 2>/dev/null || true
 
-          # Write debian/ directory
-          mkdir -p "$ORIG_DIR/debian/source"
-          echo "3.0 (quilt)" > "$ORIG_DIR/debian/source/format"
+          # Copy debian packaging from repo
+          cp -r debian "$ORIG_DIR/debian"
 
-          cat > "$ORIG_DIR/debian/control" << 'CTRL'
-          Source: kvmweb
-          Section: admin
-          Priority: optional
-          Maintainer: kvmweb <kvmweb-apt@netanelcyber.github.io>
-          Build-Depends: debhelper-compat (= 13), python3
-          Standards-Version: 4.6.2
-          Rules-Requires-Root: no
-
-          Package: kvmweb
-          Architecture: all
-          Depends: python3, python3-flask, python3-libvirt, libvirt-daemon-system, libpam-runtime
-          Description: Lightweight KVM web management interface
-           Web-based KVM/QEMU management UI with PAM authentication,
-           HTTPS support, and a dark-themed dashboard.
-          CTRL
-          # de-indent
-          sed -i 's/^          //' "$ORIG_DIR/debian/control"
-
-          cat > "$ORIG_DIR/debian/changelog" << 'CL'
-          kvmweb (1.0.0-1) noble; urgency=medium
-
-            * Initial release for Ubuntu Noble (24.04) and Resolute (26.04)
-            * Lightweight KVM web management interface via libvirt
-            * PAM authentication, HTTPS, systemd service
-
-           -- kvmweb <kvmweb-apt@netanelcyber.github.io>  Wed, 18 Jun 2026 07:00:00 +0000
-          CL
-          sed -i 's/^          //' "$ORIG_DIR/debian/changelog"
-
-          cat > "$ORIG_DIR/debian/rules" << 'RULES'
-          #!/usr/bin/make -f
-          %:
-          	dh $@
-
-          override_dh_auto_install:
-          	install -d $(DESTDIR)/opt/kvmweb
-          	cp -r app.py templates static $(DESTDIR)/opt/kvmweb/
-          	install -d $(DESTDIR)/etc/systemd/system
-          	install -m 644 kvmweb.service $(DESTDIR)/etc/systemd/system/kvmweb.service
-          	install -d $(DESTDIR)/usr/bin
-          	printf '#!/bin/bash\nexec /usr/bin/python3 /opt/kvmweb/app.py "$$@"\n' \
-          		> $(DESTDIR)/usr/bin/kvmweb
-          	chmod 755 $(DESTDIR)/usr/bin/kvmweb
-          RULES
-          sed -i 's/^          //' "$ORIG_DIR/debian/rules"
-          chmod +x "$ORIG_DIR/debian/rules"
-
-          # Build orig tarball
+          # Build orig tarball (no debian/ dir)
           tar czf /tmp/launchpad/kvmweb_${PKG_VER}.orig.tar.gz \
             -C /tmp/launchpad \
-            --exclude='kvmweb-*/debian' \
+            --exclude="kvmweb-${PKG_VER}/debian" \
             "kvmweb-${PKG_VER}"
 
       - name: Build and sign source package
