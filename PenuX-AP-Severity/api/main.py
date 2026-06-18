@@ -12,11 +12,13 @@ import math
 import os
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 import joblib
+import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Request
+from pydantic import BaseModel
 
 from api.schemas import (
     AdmissionInput,
@@ -160,9 +162,73 @@ def _run_prediction(admission: AdmissionInput) -> tuple[float, str]:
     return proba, risk_group
 
 
+# ---------------------------------------------------------------------------
+# Keras pathogen model (latest from github.com/netanelcyber/penuX main branch)
+# Features: temperature_c (°C), wbc (cells/µL), spo2 (%), age (years)
+# Output: 12-class pathogen classification
+# ---------------------------------------------------------------------------
+_PATHOGEN_CLASSES = [
+    "B:PSEUDOMONAS AERUGINOSA",
+    "B:STAPH AUREUS COAG +",
+    "B:SERRATIA MARCESCENS",
+    "B:MORGANELLA MORGANII",
+    "B:ESCHERICHIA COLI",
+    "B:PROTEUS MIRABILIS",
+    "B:PROVIDENCIA STUARTII",
+    "B:MRSA",
+    "B:YEAST",
+    "B:GRAM POSITIVE COCCUS",
+    "B:OTHER",
+    "V:OTHER",
+]
+
+_KERAS_ENCODER = None
+_KERAS_HEAD    = None
+_KERAS_SCALER  = None   # dict with 'mu' and 'sd'
+
+_MODEL_DIR = Path(__file__).resolve().parent.parent / "models"
+
+
+def _load_keras_model():
+    global _KERAS_ENCODER, _KERAS_HEAD, _KERAS_SCALER
+    enc_path = _MODEL_DIR / "clin_encoder.keras"
+    hd_path  = _MODEL_DIR / "clin_head.keras"
+    sc_path  = _MODEL_DIR / "clin_scaler.npz"
+    if not (enc_path.exists() and hd_path.exists() and sc_path.exists()):
+        log.warning("Keras model files not found in %s", _MODEL_DIR)
+        return False
+    try:
+        import tensorflow as tf
+        _KERAS_ENCODER = tf.keras.models.load_model(str(enc_path))
+        _KERAS_HEAD    = tf.keras.models.load_model(str(hd_path))
+        sc = np.load(str(sc_path))
+        _KERAS_SCALER  = {"mu": sc["mu"], "sd": sc["sd"]}
+        log.info("Keras pathogen model loaded from %s", _MODEL_DIR)
+        return True
+    except Exception as e:
+        log.warning("Failed to load Keras model: %s", e)
+        return False
+
+
+class PathogenInput(BaseModel):
+    temperature_c: float
+    wbc: float
+    spo2: float
+    age: float
+
+
+class PathogenOutput(BaseModel):
+    predicted_pathogen: str
+    confidence: float
+    top3: list
+    model_source: str = "github.com/netanelcyber/penuX main branch"
+    warning: str = RESEARCH_WARNING
+
+
 @app.on_event("startup")
 def startup():
     _load_model()
+    _load_keras_model()
 
 
 # ---------------------------------------------------------------------------
@@ -598,4 +664,85 @@ async def hl7_predict(request: Request):
         severe_ap_probability=round(proba, 4),
         threshold_used=0.5,
         risk_group=risk_group,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Pathogen prediction — latest Keras model from github.com/netanelcyber/penuX
+# ---------------------------------------------------------------------------
+
+@app.post(
+    "/predict/pathogen",
+    response_model=PathogenOutput,
+    tags=["predict"],
+    summary="Pathogen classification — latest Keras model (MIMIC-based)",
+    description=(
+        "Classifies likely pathogen from 4 routine admission vitals/labs "
+        "using the **latest trained Keras model** from "
+        "[github.com/netanelcyber/penuX](https://github.com/netanelcyber/penuX) `main` branch.\n\n"
+        "**Input features** (all required):\n"
+        "- `temperature_c` — body temperature in °C\n"
+        "- `wbc` — white blood cell count (cells/µL, e.g. 12000)\n"
+        "- `spo2` — oxygen saturation (%)\n"
+        "- `age` — patient age in years\n\n"
+        "**Output:** 12-class pathogen probability distribution "
+        "(Bacterial: Pseudomonas, Staph, E.coli, MRSA, Yeast, etc. · Viral)\n\n"
+        "Model: `clin_encoder.keras` + `clin_head.keras` + `clin_scaler.npz` "
+        "trained on MIMIC-III clinical data."
+    ),
+    openapi_extra={
+        "requestBody": {
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "bacterial_likely": {
+                            "summary": "Bacterial — fever + high WBC + low SpO2",
+                            "value": {"temperature_c": 39.2, "wbc": 18000, "spo2": 88.0, "age": 70},
+                        },
+                        "viral_likely": {
+                            "summary": "Viral — moderate fever + normal WBC",
+                            "value": {"temperature_c": 38.1, "wbc": 8500, "spo2": 93.0, "age": 45},
+                        },
+                        "normal": {
+                            "summary": "Normal / low risk",
+                            "value": {"temperature_c": 36.8, "wbc": 7000, "spo2": 98.0, "age": 35},
+                        },
+                    }
+                }
+            }
+        }
+    },
+)
+def predict_pathogen(data: PathogenInput):
+    if _KERAS_ENCODER is None or _KERAS_HEAD is None:
+        if not _load_keras_model():
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Keras model not loaded. Place clin_encoder.keras, clin_head.keras, "
+                    "clin_scaler.npz in the models/ directory."
+                ),
+            )
+
+    mu = _KERAS_SCALER["mu"]
+    sd = _KERAS_SCALER["sd"]
+    x = np.array([[data.temperature_c, data.wbc, data.spo2, data.age]], dtype=np.float32)
+    x_norm = (x - mu) / sd
+
+    try:
+        enc   = _KERAS_ENCODER.predict(x_norm, verbose=0)
+        probs = _KERAS_HEAD.predict(enc, verbose=0)[0]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")
+
+    top_idx = probs.argsort()[::-1][:3]
+    top3 = [
+        {"rank": i + 1, "pathogen": _PATHOGEN_CLASSES[idx], "probability": round(float(probs[idx]), 4)}
+        for i, idx in enumerate(top_idx)
+    ]
+
+    return PathogenOutput(
+        predicted_pathogen=_PATHOGEN_CLASSES[int(probs.argmax())],
+        confidence=round(float(probs.max()), 4),
+        top3=top3,
     )

@@ -102,6 +102,46 @@
               "responses": { "200": { "description": "Prediction result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PredictionOutput" } } } } }
             }
           },
+          "/predict/pathogen": {
+            "post": {
+              "tags": ["predict"],
+              "summary": "Pathogen classification — latest Keras model (MIMIC)",
+              "description": "Classifies likely pathogen (12 classes: Staph, E.coli, MRSA, Pseudomonas, Yeast, Viral, etc.) from 4 vitals/labs using the latest trained Keras model from **github.com/netanelcyber/penuX** `main` branch.\n\nFeatures: `temperature_c` (°C) · `wbc` (cells/µL) · `spo2` (%) · `age` (years)\n\nModel files: `clin_encoder.keras` + `clin_head.keras` + `clin_scaler.npz` trained on MIMIC-III.",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": { "$ref": "#/components/schemas/PathogenInput" },
+                    "examples": {
+                      "bacterial": { "summary": "Bacterial — fever + high WBC", "value": { "temperature_c": 39.2, "wbc": 18000, "spo2": 88.0, "age": 70 } },
+                      "viral":     { "summary": "Viral — moderate fever",        "value": { "temperature_c": 38.1, "wbc": 8500,  "spo2": 93.0, "age": 45 } },
+                      "normal":    { "summary": "Normal",                        "value": { "temperature_c": 36.8, "wbc": 7000,  "spo2": 98.0, "age": 35 } }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": {
+                  "description": "Pathogen prediction",
+                  "content": {
+                    "application/json": {
+                      "example": {
+                        "predicted_pathogen": "B:STAPH AUREUS COAG +",
+                        "confidence": 0.999,
+                        "top3": [
+                          { "rank": 1, "pathogen": "B:STAPH AUREUS COAG +", "probability": 0.999 },
+                          { "rank": 2, "pathogen": "B:GRAM POSITIVE COCCUS", "probability": 0.0009 },
+                          { "rank": 3, "pathogen": "B:PSEUDOMONAS AERUGINOSA", "probability": 0.0001 }
+                        ],
+                        "model_source": "github.com/netanelcyber/penuX main branch",
+                        "warning": "Research prototype only. Not for clinical use."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
           "/fhir/predict": {
             "post": {
               "tags": ["fhir"], "summary": "FHIR R4 RiskAssessment",
@@ -262,6 +302,17 @@
                 }
               },
               "required": ["resourceType", "entry"]
+            },
+            "PathogenInput": {
+              "type": "object",
+              "description": "4 routine vitals/labs for pathogen classification",
+              "required": ["temperature_c", "wbc", "spo2", "age"],
+              "properties": {
+                "temperature_c": { "type": "number", "description": "Body temperature (°C)", "example": 39.2 },
+                "wbc":           { "type": "number", "description": "White blood cells (cells/µL)", "example": 18000 },
+                "spo2":          { "type": "number", "description": "Oxygen saturation (%)", "example": 88.0 },
+                "age":           { "type": "number", "description": "Patient age (years)", "example": 70 }
+              }
             }
           }
         }
