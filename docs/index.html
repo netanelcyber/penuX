@@ -236,11 +236,11 @@
 
 <!-- STATS BAR -->
 <div class="stats-bar">
-  <div class="stat"><div class="stat-value">0.82</div><div class="stat-label">AUROC</div></div>
-  <div class="stat"><div class="stat-value">&lt;4h</div><div class="stat-label">Time to prediction</div></div>
-  <div class="stat"><div class="stat-value">19</div><div class="stat-label">Lab features</div></div>
-  <div class="stat"><div class="stat-value">3</div><div class="stat-label">EHR protocols</div></div>
-  <div class="stat"><div class="stat-value">100%</div><div class="stat-label">Open source</div></div>
+  <div class="stat"><div class="stat-value">0.877</div><div class="stat-label">Best AUROC (RF)</div></div>
+  <div class="stat"><div class="stat-value">11</div><div class="stat-label">Models evaluated</div></div>
+  <div class="stat"><div class="stat-value">722</div><div class="stat-label">Patient cohort</div></div>
+  <div class="stat"><div class="stat-value">106</div><div class="stat-label">Lab features</div></div>
+  <div class="stat"><div class="stat-value">5-fold</div><div class="stat-label">Cross-validation</div></div>
   <div class="stat"><div class="stat-value">FHIR R4</div><div class="stat-label">Standard</div></div>
 </div>
 
@@ -281,7 +281,7 @@
   <div class="section-inner">
     <div class="section-header">
       <h2>Model Performance</h2>
-      <p>Validated on retrospective MIMIC-III and MIMIC-IV cohorts against existing severity scores.</p>
+      <p>11 models evaluated on a Chinese AP cohort (n=722, 585 severe / 137 mild) with 5-fold stratified cross-validation against Atlanta 2012 labels.</p>
     </div>
 
     <div class="warning-banner">
@@ -289,37 +289,63 @@
       <p><strong>Research use only.</strong> PenuX-AP-Severity is a research prototype. It has not received CE marking, FDA clearance, or any regulatory approval. Do not use for clinical decision-making without prospective validation and appropriate oversight.</p>
     </div>
 
+    <p style="font-size:.85rem;color:var(--gray-600);margin-bottom:1rem;"><strong>Best model: Random Forest</strong> — AUC=0.877, threshold=0.535 (F1-optimal)</p>
     <div class="metrics-grid">
       <div class="metric-card highlight">
-        <div class="metric-val">0.82</div>
-        <div class="metric-name">AUROC</div>
-        <div class="metric-sub">ROC Area Under Curve</div>
+        <div class="metric-val">0.877</div>
+        <div class="metric-name">AUROC — Random Forest</div>
+        <div class="metric-sub">Best across 11 models</div>
       </div>
       <div class="metric-card">
-        <div class="metric-val">0.73</div>
+        <div class="metric-val">96.8%</div>
         <div class="metric-name">Sensitivity</div>
-        <div class="metric-sub">at threshold 0.40</div>
+        <div class="metric-sub">T=0.535 · TP=566, FN=19</div>
       </div>
       <div class="metric-card">
-        <div class="metric-val">0.95</div>
+        <div class="metric-val">38.7%</div>
         <div class="metric-name">Specificity</div>
-        <div class="metric-sub">at threshold 0.40</div>
+        <div class="metric-sub">T=0.535 · TN=53, FP=84</div>
       </div>
       <div class="metric-card">
-        <div class="metric-val">0.82</div>
+        <div class="metric-val">0.917</div>
         <div class="metric-name">F1 Score</div>
-        <div class="metric-sub">harmonic mean</div>
+        <div class="metric-sub">Random Forest best</div>
       </div>
       <div class="metric-card">
-        <div class="metric-val">0.78</div>
-        <div class="metric-name">AUPRC</div>
-        <div class="metric-sub">Precision-Recall AUC</div>
+        <div class="metric-val">87.1%</div>
+        <div class="metric-name">PPV</div>
+        <div class="metric-sub">Positive Predictive Value</div>
       </div>
       <div class="metric-card">
-        <div class="metric-val">0.11</div>
-        <div class="metric-name">Brier Score</div>
-        <div class="metric-sub">calibration quality</div>
+        <div class="metric-val">0.777</div>
+        <div class="metric-name">Best LSTM AUROC</div>
+        <div class="metric-sub">CNN-LSTM architecture</div>
       </div>
+    </div>
+
+    <!-- Best-threshold confusion matrix cards -->
+    <h3 style="font-size:1.05rem;font-weight:600;margin-bottom:1rem;">Optimal-Threshold Confusion Matrices (all 11 models)</h3>
+    <div style="overflow-x:auto;border-radius:var(--radius);border:1px solid var(--gray-200);background:var(--white);box-shadow:var(--shadow);margin-bottom:1.5rem;">
+      <table>
+        <thead><tr>
+          <th>Model</th><th>Type</th><th>Best Threshold</th>
+          <th>TP</th><th>FP</th><th>FN</th><th>TN</th>
+          <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th><th>AUC</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Logistic Regression</td><td style="white-space:nowrap"><span style="background:#dbeafe;color:#1e40af;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">ML</span></td><td>0.575</td><td>549</td><td>77</td><td>36</td><td>60</td><td style="color:#057a55;font-weight:600">93.8%</td><td>43.8%</td><td style="color:#057a55;font-weight:600">87.7%</td><td>0.907</td><td>0.817</td></tr>
+          <tr style="background:#f0fdf4;font-weight:600"><td>Random Forest ★</td><td><span style="background:#dbeafe;color:#1e40af;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">ML</span></td><td>0.535</td><td>566</td><td>84</td><td>19</td><td>53</td><td style="color:#057a55">96.8%</td><td>38.7%</td><td style="color:#057a55">87.1%</td><td>0.917</td><td>0.877</td></tr>
+          <tr><td>Gradient Boosting</td><td><span style="background:#dbeafe;color:#1e40af;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">ML</span></td><td>0.350</td><td>568</td><td>85</td><td>17</td><td>52</td><td style="color:#057a55;font-weight:600">97.1%</td><td>38.0%</td><td style="color:#057a55;font-weight:600">87.0%</td><td>0.918</td><td>0.874</td></tr>
+          <tr><td>MLP (3-layer)</td><td><span style="background:#f5f3ff;color:#6d28d9;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">DL</span></td><td>0.282</td><td>567</td><td>103</td><td>18</td><td>34</td><td style="color:#057a55;font-weight:600">96.9%</td><td>24.8%</td><td style="color:#057a55;font-weight:600">84.6%</td><td>0.909</td><td>0.836</td></tr>
+          <tr><td>Residual MLP</td><td><span style="background:#f5f3ff;color:#6d28d9;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">DL</span></td><td>0.203</td><td>572</td><td>98</td><td>13</td><td>39</td><td style="color:#057a55;font-weight:600">97.8%</td><td>28.5%</td><td style="color:#057a55;font-weight:600">85.4%</td><td>0.912</td><td>0.804</td></tr>
+          <tr><td>Attention MLP</td><td><span style="background:#f5f3ff;color:#6d28d9;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">DL</span></td><td>0.418</td><td>575</td><td>105</td><td>10</td><td>32</td><td style="color:#057a55;font-weight:600">98.3%</td><td>23.4%</td><td style="color:#057a55;font-weight:600">84.6%</td><td>0.909</td><td>0.784</td></tr>
+          <tr><td>LSTM</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">LSTM</span></td><td>0.300</td><td>585</td><td>137</td><td>0</td><td>0</td><td style="color:#057a55;font-weight:600">100.0%</td><td style="color:#c81e1e">0.0%</td><td>81.0%</td><td>0.895</td><td>0.699</td></tr>
+          <tr><td>Stacked LSTM</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">LSTM</span></td><td>0.489</td><td>575</td><td>121</td><td>10</td><td>16</td><td style="color:#057a55;font-weight:600">98.3%</td><td style="color:#c81e1e">11.7%</td><td>82.6%</td><td>0.898</td><td>0.705</td></tr>
+          <tr><td>Bidirectional LSTM</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">LSTM</span></td><td>0.318</td><td>582</td><td>129</td><td>3</td><td>8</td><td style="color:#057a55;font-weight:600">99.5%</td><td style="color:#c81e1e">5.8%</td><td>81.9%</td><td>0.898</td><td>0.715</td></tr>
+          <tr><td>LSTM + Attention</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">LSTM</span></td><td>0.172</td><td>585</td><td>136</td><td>0</td><td>1</td><td style="color:#057a55;font-weight:600">100.0%</td><td style="color:#c81e1e">0.7%</td><td>81.1%</td><td>0.896</td><td>0.684</td></tr>
+          <tr><td>CNN-LSTM ★ LSTM</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">LSTM</span></td><td>0.082</td><td>585</td><td>135</td><td>0</td><td>2</td><td style="color:#057a55;font-weight:600">100.0%</td><td style="color:#c81e1e">1.5%</td><td>81.2%</td><td>0.897</td><td>0.777</td></tr>
+        </tbody>
+      </table>
     </div>
 
     <h3 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;">Comparison to Existing Severity Scores</h3>
@@ -332,11 +358,11 @@
         </thead>
         <tbody>
           <tr>
-            <td><strong>PenuX-AP-Severity</strong> <span class="badge badge-blue">This work</span></td>
-            <td><strong>~0.82</strong></td>
-            <td>0.73</td><td>0.95</td>
+            <td><strong>PenuX-AP-Severity (RF)</strong> <span class="badge badge-blue">This work</span></td>
+            <td><strong>0.877</strong></td>
+            <td>96.8%</td><td>38.7%</td>
             <td><span class="badge badge-green">&lt;4 hours</span></td>
-            <td>Routine admission labs</td>
+            <td>106 routine admission labs · Chinese cohort n=722</td>
           </tr>
           <tr>
             <td>BISAP</td><td>0.77</td><td>0.68</td><td>0.89</td>
@@ -361,7 +387,7 @@
         </tbody>
       </table>
     </div>
-    <p style="font-size:.8rem;color:var(--gray-400);margin-top:.8rem;">* Comparative figures are approximate values from published literature. PenuX figures are from internal retrospective validation.</p>
+    <p style="font-size:.8rem;color:var(--gray-400);margin-top:.8rem;">* Comparative figures are approximate values from published literature. PenuX figures are from 5-fold stratified CV on the Chinese AP cohort (n=722). No external test set — results are from in-sample cross-validation only.</p>
   </div>
 </section>
 
