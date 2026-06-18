@@ -66,7 +66,7 @@
         "tags": [
           { "name": "predict",  "description": "Plain JSON prediction" },
           { "name": "fhir",     "description": "FHIR R4 RiskAssessment — Camelion / Epic / Cerner" },
-          { "name": "camelion", "description": "Camelion (קמיליון) HIS native JSON" },
+          { "name": "camelion", "description": "Camelion HIS native JSON" },
           { "name": "hl7",      "description": "HL7 v2.x — Epic, Cerner, OpenEMR" },
           { "name": "health",   "description": "Service health" }
         ],
@@ -186,7 +186,7 @@
           },
           "/camelion/predict": {
             "post": {
-              "tags": ["camelion"], "summary": "Camelion (קמיליון) HIS native JSON",
+              "tags": ["camelion"], "summary": "Camelion HIS native JSON",
               "description": "Accepts Camelion HIS flat JSON with Hebrew or English field names.",
               "requestBody": {
                 "required": true,
@@ -195,7 +195,7 @@
                     "examples": {
                       "hebrew": {
                         "summary": "Hebrew field names",
-                        "value": { "encounter_id": "ENC-2024-00123", "גיל": 65, "מין": "זכר", "כדוריות_דם_לבנות": 18.2, "CRP": 210, "קריאטינין": 1.4, "גלוקוז": 230, "סידן": 7.8, "ldh": 480, "ast": 310, "אוריאה": 30 }
+                        "value": { "encounter_id": "ENC-2024-00123", "age": 65, "sex": "M", "wbc": 18.2, "CRP": 210, "creatinine": 1.4, "glucose": 230, "calcium": 7.8, "ldh": 480, "ast": 310, "bun": 30 }
                       },
                       "english": {
                         "summary": "English field names",

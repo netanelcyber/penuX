@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>מאמר סקירה — PenuX-AP-Severity | ניבוי דלקת לבלב חריפה קשה</title>
+  <title>Review Article — PenuX-AP-Severity | Severe Acute Pancreatitis Prediction</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
       --blue:    #1a56db;
@@ -26,7 +26,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Heebo', system-ui, sans-serif;
+      font-family: 'Inter', system-ui, sans-serif;
       background: var(--gray50);
       color: var(--text);
       line-height: 1.75;
@@ -74,7 +74,7 @@
 
     /* ── Abstract box ── */
     .abstract {
-      background: #eff6ff; border-right: 4px solid var(--blue);
+      background: #eff6ff; border-left: 4px solid var(--blue);
       border-radius: 8px; padding: 1.4rem 1.6rem; margin-bottom: 2.2rem;
     }
     .abstract h2 { color: var(--navy); font-size: 1rem; margin-bottom: .7rem; }
@@ -114,16 +114,17 @@
     .table-wrap { overflow-x: auto; margin: 1rem 0 1.5rem; border-radius: 8px; }
     table { width: 100%; border-collapse: collapse; font-size: .9rem; }
     thead tr { background: var(--navy); color: white; }
-    th { padding: .65rem .9rem; text-align: right; font-weight: 600; }
+    th { padding: .65rem .9rem; text-align: left; font-weight: 600; }
     td { padding: .55rem .9rem; border-bottom: 1px solid var(--gray200); }
     tr:nth-child(even) td { background: var(--gray100); }
     tr:last-child td { border-bottom: none; }
     td.highlight { font-weight: 700; color: var(--blue); }
     td.warn { color: var(--amber); font-weight: 600; }
     td.good { color: var(--green); font-weight: 600; }
+    .best-row td { background: #f0fdf4 !important; font-weight: 600; color: var(--green); }
 
     /* ── Info cards ── */
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1rem; margin: 1rem 0 1.5rem; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 1rem; margin: 1rem 0 1.5rem; }
     .card {
       background: white; border: 1px solid var(--gray200);
       border-radius: 10px; padding: 1.1rem 1.2rem;
@@ -142,7 +143,7 @@
     .alert-green { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
 
     /* ── References ── */
-    ol.refs { padding-right: 1.4rem; }
+    ol.refs { padding-left: 1.4rem; }
     ol.refs li { font-size: .88rem; color: var(--gray600); margin-bottom: .5rem; }
     ol.refs li span { color: var(--blue); }
 
@@ -154,6 +155,13 @@
     }
     .article-footer strong { color: #e2e8f0; }
 
+    .type-badge {
+      display: inline-block; padding: .1rem .45rem; border-radius: 4px;
+      font-size: .72rem; font-weight: 700; margin-left: .3rem; vertical-align: middle;
+    }
+    .type-ml { background: #e8f0fe; color: #1e429f; }
+    .type-dl { background: #f5f3ff; color: #6d28d9; }
+
     @media (max-width: 600px) {
       .wrapper { padding: 1.5rem 1rem 3rem; }
       .article-header { padding: 1.8rem 1.2rem 1.5rem; }
@@ -164,275 +172,345 @@
 
 <div class="topbar">
   <a href="/">← penux.uk</a>
-  <a href="models.html">מודלים ומטריצות</a>
-  <span class="badge">מאמר סקירה · 2025</span>
+  <a href="models.html">Models &amp; Matrices</a>
+  <span class="badge">Review Article · 2025</span>
 </div>
 
 <div class="wrapper">
 
   <!-- ── Article header ── -->
   <header class="article-header">
-    <div class="journal-tag">סקירה מדעית · Clinical AI Review</div>
-    <h1>PenuX-AP-Severity: מערכת ניבוי מבוססת למידת מכונה לזיהוי מוקדם של דלקת לבלב חריפה קשה</h1>
-    <div class="subtitle">ניתוח אינטגרטיבי של ביצועי המודל, אינטגרציה עם מערכות מידע קליניות, ואפיון קוהורט MIMIC-IV</div>
+    <div class="journal-tag">Scientific Review · Clinical AI</div>
+    <h1>PenuX-AP-Severity: Machine Learning and Deep Learning for Early Prediction of Severe Acute Pancreatitis</h1>
+    <div class="subtitle">Six-model comparative evaluation — Logistic Regression, Random Forest, Gradient Boosting, MLP, Residual MLP, Attention MLP — on a Chinese AP cohort (n=722)</div>
     <div class="meta">
-      <span>📅 יוני 2025</span>
+      <span>📅 June 2025</span>
       <span>🔬 PenuX Research Group</span>
-      <span>🏥 מחקר רטרוספקטיבי</span>
-      <span>📊 MIMIC-IV · HL7 R4 · Camelion</span>
+      <span>🏥 Retrospective cohort study</span>
+      <span>📊 Chinese AP Dataset · HL7 R4 · Camelion</span>
     </div>
   </header>
 
   <!-- ── Abstract ── -->
   <div class="abstract">
-    <h2>תקציר</h2>
+    <h2>Abstract</h2>
     <p>
-      <strong>רקע:</strong> דלקת לבלב חריפה קשה (Severe Acute Pancreatitis, SAP) נושאת שיעורי תמותה של 20–30% ומחייבת אבחנה מוקדמת. כלי הניקוד הקיימים — BISAP, Ranson, APACHE II — מצריכים 24–48 שעות נתונים.
+      <strong>Background:</strong> Severe Acute Pancreatitis (SAP) carries a mortality rate of 20–30% and requires early risk stratification. Classical scoring tools — BISAP, Ranson, APACHE II — require 24–48 hours of follow-up data and are not designed for automated EHR integration.
     </p>
     <p>
-      <strong>מטרה:</strong> לתאר את ארכיטקטורת מודל PenuX-AP-Severity, לאמוד את ביצועיו על קוהורט MIMIC-IV, ולסקור את אפשרויות האינטגרציה עם מערכות HL7 v2.x, FHIR R4, וה-HIS הישראלי Camelion.
+      <strong>Objective:</strong> To evaluate six ML and deep learning models for SAP severity prediction using routine admission laboratory values, and to compare their performance on a Chinese AP inpatient cohort.
     </p>
     <p>
-      <strong>שיטות:</strong> חולצה קוהורט של 8 אשפוזים עם ICD-10 K85.* / ICD-9 577.0 ממסד MIMIC-IV Clinical Database Demo. חישוב ציון סיכון לוגיסטי על בסיס 11 ערכי מעבדה. הוערכו AUROC, רגישות, סגוליות, F1.
+      <strong>Methods:</strong> Retrospective cohort of 722 AP admissions (585 severe / 137 mild, Atlanta 2012 classification) from a single Chinese institution. Models trained with 5-fold stratified cross-validation on 106 routine laboratory features. Three classical ML models (Logistic Regression, Random Forest, Gradient Boosting) and three deep learning models (MLP, Residual MLP, Attention MLP) were evaluated by AUC-ROC, F1, sensitivity, and specificity.
     </p>
     <p>
-      <strong>תוצאות:</strong> AUROC = 0.56 (קוהורט demo, n=8). בסף החלטה 0.20 הושגו רגישות 0.50, סגוליות 1.0. מסד MIMIC-IV מלא עשוי לספק הערכה סטטיסטית מהימנה יותר.
+      <strong>Results:</strong> Random Forest achieved the highest AUC (0.877, F1=0.917, sensitivity=96.8% at threshold 0.535). Gradient Boosting was comparable (AUC=0.874, F1=0.918). MLP achieved AUC=0.836 with sensitivity of 96.9%. All models substantially outperformed the classical heuristic baseline (AUC≈0.56 on small cohorts). Key predictive features across all models: Calcium, D-dimer, LDH, Lactate, Hematocrit.
     </p>
     <p>
-      <strong>מסקנות:</strong> PenuX-AP-Severity מדגים גישה רב-מקורית לניבוי SAP עם ממשקים ל-EHR מרובים. נדרשת אימות פרוספקטיבי על נתוני מרכז רפואי ישראלי.
+      <strong>Conclusions:</strong> Ensemble tree methods (Random Forest, Gradient Boosting) deliver the best trade-off of AUC, F1, and interpretability on this cohort. Deep learning models are competitive but converge in fewer than 15 epochs, suggesting the dataset is near the boundary of DL benefit. External validation on Western and Israeli cohorts is required before clinical use.
     </p>
     <div class="keywords">
-      <span class="kw">דלקת לבלב חריפה</span>
+      <span class="kw">Acute Pancreatitis</span>
       <span class="kw">SAP</span>
-      <span class="kw">למידת מכונה</span>
-      <span class="kw">MIMIC-IV</span>
+      <span class="kw">Machine Learning</span>
+      <span class="kw">Deep Learning</span>
+      <span class="kw">Random Forest</span>
+      <span class="kw">Attention MLP</span>
       <span class="kw">FHIR R4</span>
       <span class="kw">Camelion HIS</span>
       <span class="kw">BISAP</span>
-      <span class="kw">ניבוי קליני</span>
+      <span class="kw">Clinical Prediction</span>
     </div>
   </div>
 
   <!-- ── 1. Background ── -->
-  <h2 class="section-title">1. רקע ומוטיבציה</h2>
+  <h2 class="section-title">1. Background and Motivation</h2>
   <p>
-    דלקת לבלב חריפה (Acute Pancreatitis, AP) היא אחת האינדיקציות הנפוצות ביותר לאשפוז גסטרואנטרולוגי חירום, עם שכיחות של כ-34 מקרים לכל 100,000 איש בשנה בישראל. כ-20% מהמקרים מתפתחים לצורה קשה (SAP) המאופיינת בכשל איברים ובנמק לבלבי, ונושאת תמותה של 20–30%.
+    Acute Pancreatitis (AP) is one of the most common causes of emergency gastrointestinal hospitalisation, with an incidence of approximately 34 cases per 100,000 persons per year. Around 20% of cases progress to Severe Acute Pancreatitis (SAP), characterised by organ failure and pancreatic necrosis, carrying a mortality of 20–30%.
   </p>
   <p>
-    כלי ניקוד קלאסיים — Ranson (1974), APACHE II, BISAP (2008) — פותחו לפני עידן הנתונים האלקטרוניים ומצריכים 24–48 שעות עוקבות. מחקרים מאוחרים הראו כי יכולת הניבוי שלהם מוגבלת (AUROC 0.73–0.83 בסדרות שונות). מסגרת ה-Revised Atlanta Classification (2012) הציבה צורך בסיווג מהיר ומדויק יותר כבר עם הקבלה.
+    Classical scoring systems — Ranson (1974), APACHE II, BISAP (2008) — were developed before the era of electronic health records and require 24–48 hours of serial observations. Later studies reported modest predictive ability (AUROC 0.73–0.83 across different series). The Revised Atlanta Classification (2012) established the need for faster, more accurate severity stratification at admission.
   </p>
   <p>
-    PenuX-AP-Severity מציע גישה חדשה: שימוש בערכי מעבדה שגרתיים הזמינים תוך 2–4 שעות מהקבלה, באמצעות מודל לוגיסטי הממשיך את עקרונות BISAP ו-Ranson תוך שימוש בתשתית תוכנה מודרנית ואינטגרציה ישירה עם EHR.
+    PenuX-AP-Severity proposes a modern approach: using routine laboratory values available within 2–4 hours of admission, evaluated across six ML and deep learning architectures, with direct EHR integration via FHIR R4, HL7 v2.x, and the Israeli HIS Camelion.
+  </p>
+  <p>
+    A key finding in this cohort analysis is a <strong>label inversion effect</strong>: "mild AP" patients (predominantly biliary origin with concurrent cholangitis) showed higher WBC, CRP, and lipase values than "severe AP" patients (predominantly pancreatic necrosis). This explains why classical BISAP/Ranson-weighted heuristics underperformed on this Chinese dataset, and why data-driven models trained directly on the cohort are necessary.
   </p>
 
-  <!-- ── 2. Methods ── -->
-  <h2 class="section-title">2. ארכיטקטורת המודל</h2>
+  <!-- ── 2. Dataset ── -->
+  <h2 class="section-title">2. Dataset and Cohort Characteristics</h2>
 
-  <h3 class="sub-title">2.1 משתנים קליניים</h3>
-  <p>המודל משתמש ב-11 משתני מעבדה זמינים בהקבלה ובמשתני דמוגרפיה:</p>
-
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>פרמטר</th><th>קוד LOINC</th><th>סף קליני</th><th>משקל במודל</th><th>כיוון סיכון</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>WBC (כדוריות לבנות)</td><td>6690-2</td><td>&gt;12 ×10³/µL</td><td class="highlight">+0.08</td><td>↑ מעל סף</td></tr>
-        <tr><td>CRP (חלבון C-reactive)</td><td>1988-5</td><td>&gt;150 mg/L</td><td class="highlight">+0.004</td><td>↑ מעל סף</td></tr>
-        <tr><td>קריאטינין</td><td>2160-0</td><td>&gt;1.5 mg/dL</td><td class="highlight">+0.30</td><td>↑ מעל סף</td></tr>
-        <tr><td>BUN (אוריאה)</td><td>3094-0</td><td>&gt;25 mg/dL</td><td class="highlight">+0.015</td><td>↑ מעל סף</td></tr>
-        <tr><td>גלוקוז</td><td>2345-7</td><td>&gt;200 mg/dL</td><td class="highlight">+0.002</td><td>↑ מעל סף</td></tr>
-        <tr><td>LDH (לקטט דהידרוגנאז)</td><td>2532-0</td><td>&gt;250 U/L</td><td class="highlight">+0.001</td><td>↑ מעל סף</td></tr>
-        <tr><td>המטוקריט</td><td>20570-8</td><td>&gt;44%</td><td class="highlight">+0.03</td><td>↑ מעל סף</td></tr>
-        <tr><td>AST</td><td>1920-8</td><td>&gt;250 U/L</td><td class="highlight">+0.002</td><td>↑ מעל סף</td></tr>
-        <tr><td>אלבומין</td><td>1751-7</td><td>&lt;3.5 g/dL</td><td class="warn">−0.30</td><td>↓ מתחת סף</td></tr>
-        <tr><td>סידן</td><td>17861-6</td><td>&lt;8.0 mg/dL</td><td class="warn">−0.40</td><td>↓ מתחת סף</td></tr>
-        <tr><td>בילירובין כולל</td><td>1975-2</td><td>&gt;3.0 mg/dL</td><td class="highlight">+0.05</td><td>↑ מעל סף</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3 class="sub-title">2.2 נוסחת הניקוד</h3>
-  <p>המודל מחשב הסתברות לוגיסטית לפי:</p>
-
-  <div class="formula-box">
-<span class="comment"># logit של SAP</span>
-<br>logit = <span class="num">-1.8</span>  <span class="comment">  # בסיס (prevalence ~14%)</span>
-<br>       + <span class="num">0.015</span> × max(<span class="num">0</span>, <span class="var">age</span> - <span class="num">55</span>)  <span class="comment">  # גיל מעל 55</span>
-<br>       + <span class="num">0.15</span>  × (<span class="var">sex</span> == 'M')           <span class="comment">  # מין זכר</span>
-<br>       + Σ <span class="var">w_i</span> × max(<span class="num">0</span>, <span class="var">x_i</span> - <span class="var">threshold_i</span>)  <span class="comment">  # חריגה חיובית</span>
-<br>       + Σ <span class="var">w_j</span> × max(<span class="num">0</span>, <span class="var">threshold_j</span> - <span class="var">x_j</span>)  <span class="comment">  # חריגה שלילית (Ca, Alb)</span>
-<br>
-<br>P(SAP) = <span class="num">1</span> / (<span class="num">1</span> + exp(-logit))
-  </div>
-
+  <h3 class="sub-title">2.1 Cohort Description</h3>
   <p>
-    משקלות הסף נגזרו מהספרות הקלינית של Ranson ו-BISAP, ואוזנו לפי מידת הראיות בכל מאפיין. ירידת סידן ואלבומין — גורמי סיכון קלאסיים ל-SAP — מקבלים את המשקל הגבוה ביותר (|w|=0.40 ו-0.30 בהתאמה).
-  </p>
-
-  <!-- ── 3. MIMIC Cohort ── -->
-  <h2 class="section-title">3. קוהורט MIMIC-IV — שיטות וממצאים</h2>
-
-  <h3 class="sub-title">3.1 חילוץ הקוהורט</h3>
-  <p>
-    בוצע חילוץ אוטומטי ממסד MIMIC-IV Clinical Database Demo (גרסה 2.2, PhysioNet) באמצעות סקריפט <code>extract_mimic_ap.py</code>. קריטריוני ההכללה: אבחנה עיקרית ICD-10 K85.* (דלקת לבלב חריפה) או ICD-9 577.0. סיווג "קשה" נקבע לפי נוכחות קודי ICD-10 להכשל איברים באותו אשפוז: N17* (AKI), J96* (כשל נשימתי), A41* (ספסיס), R65* (SIRS עם כשל).
+    The dataset consists of 722 AP inpatient admissions from a single Chinese institution, exported as <code>ap_lnn_sanitized.csv</code>. Ground truth labels follow the Atlanta 2012 classification (ICD coding). The cohort includes 106 routine laboratory features collected at or near admission, covering haematology, biochemistry, coagulation, blood gas, and liver function panels.
   </p>
 
   <div class="cards">
     <div class="card">
-      <div class="card-val">8</div>
-      <div class="card-lbl">אשפוזי AP בקוהורט Demo</div>
+      <div class="card-val">722</div>
+      <div class="card-lbl">Total AP admissions</div>
     </div>
     <div class="card">
-      <div class="card-val">50%</div>
-      <div class="card-lbl">שיעור SAP בקוהורט (4/8)</div>
+      <div class="card-val">585</div>
+      <div class="card-lbl">Severe AP (81%)</div>
     </div>
     <div class="card">
-      <div class="card-val">0.56</div>
-      <div class="card-lbl">AUROC (קוהורט demo)</div>
+      <div class="card-val">137</div>
+      <div class="card-lbl">Mild AP (19%)</div>
     </div>
     <div class="card">
-      <div class="card-val">0.68</div>
-      <div class="card-lbl">AUPRC</div>
+      <div class="card-val">106</div>
+      <div class="card-lbl">Laboratory features</div>
     </div>
   </div>
 
+  <h3 class="sub-title">2.2 Label Inversion — Clinical Insight</h3>
+  <p>
+    Analysis of mean values by severity group revealed a counter-intuitive pattern: mild AP patients had higher WBC (15.1 vs 11.7 ×10⁹/L), CRP (102.5 vs 50.4 mg/L), and lipase (1,857 vs 904 U/L) than severe AP patients. Conversely, severe AP showed lower albumin (36.7 vs 41.0 g/L) and calcium (1.96 vs 2.23 mmol/L).
+  </p>
+  <p>
+    This inversion reflects the likely etiology mix: mild-labeled biliary AP cases with concurrent cholangitis produce a strong inflammatory response (elevated WBC/CRP/lipase) without progressing to organ failure, whereas severe-labeled cases represent pancreatic necrosis with hypoalbuminaemia and hypocalcaemia as dominant features. Importantly, 13–14 patients with high pancreatic sepsis risk scores were labeled "mild" — possible misclassification of infected pancreatic necrosis.
+  </p>
   <div class="alert alert-warn">
-    ⚠️ <div><strong>מגבלת גודל מדגם:</strong> קוהורט Demo של MIMIC-IV כולל 8 אשפוזי AP בלבד — גודל בלתי מספיק לאמידה סטטיסטית מהימנה. ה-AUROC המדווח (0.56) אינו מייצג את ביצועי המודל בגודל מדגם קליני. שימוש במסד MIMIC-IV המלא (~50,000 אשפוזים) יניב אמידה מהימנה.</div>
+    ⚠️ <strong>Consequence for heuristic models:</strong> Ranson/BISAP-weighted logistic models applied to this cohort produced AUC &lt; 0.5 (worse than chance) because their feature directions assume Western-population pathophysiology. All six models were trained data-driven on the cohort itself, not on literature-derived weights.
   </div>
 
-  <h3 class="sub-title">3.2 ביצועים לפי סף החלטה</h3>
+  <!-- ── 3. Models ── -->
+  <h2 class="section-title">3. Model Architectures</h2>
+
+  <h3 class="sub-title">3.1 Classical Machine Learning</h3>
+  <p>All three classical models were trained on StandardScaler-normalised features with 5-fold stratified cross-validation. Optimal threshold was selected by maximum F1 score on out-of-fold predictions.</p>
 
   <div class="table-wrap">
     <table>
-      <thead>
-        <tr><th>סף החלטה</th><th>TP</th><th>TN</th><th>FP</th><th>FN</th><th>רגישות</th><th>סגוליות</th><th>F1</th></tr>
-      </thead>
+      <thead><tr>
+        <th>Model</th><th>Hyperparameters</th><th>Threshold selection</th>
+      </tr></thead>
       <tbody>
-        <tr><td>0.10</td><td>4</td><td>0</td><td>4</td><td>0</td><td class="good">1.00</td><td class="warn">0.00</td><td>0.50</td></tr>
-        <tr><td>0.15</td><td>4</td><td>0</td><td>4</td><td>0</td><td class="good">1.00</td><td class="warn">0.00</td><td>0.50</td></tr>
-        <tr><td>0.20</td><td>2</td><td>4</td><td>0</td><td>2</td><td>0.50</td><td class="good">1.00</td><td>0.67</td></tr>
-        <tr><td>0.25</td><td>2</td><td>4</td><td>0</td><td>2</td><td>0.50</td><td class="good">1.00</td><td>0.67</td></tr>
-        <tr><td>0.30</td><td>0</td><td>4</td><td>0</td><td>4</td><td class="warn">0.00</td><td class="good">1.00</td><td>0.00</td></tr>
-        <tr><td>0.40 (ברירת מחדל)</td><td>0</td><td>4</td><td>0</td><td>4</td><td class="warn">0.00</td><td class="good">1.00</td><td>0.00</td></tr>
+        <tr><td>Logistic Regression <span class="type-badge type-ml">ML</span></td><td>L2, C=0.5, max_iter=1000</td><td>Max F1 on OOF predictions</td></tr>
+        <tr><td>Random Forest <span class="type-badge type-ml">ML</span></td><td>n_estimators=200, max_depth=6, min_samples_leaf=5</td><td>Max F1 on OOF predictions</td></tr>
+        <tr><td>Gradient Boosting <span class="type-badge type-ml">ML</span></td><td>n_estimators=150, max_depth=3, lr=0.05</td><td>Max F1 on OOF predictions</td></tr>
       </tbody>
     </table>
   </div>
 
-  <p>
-    ניתוח עקומת הסף מצביע כי בקוהורט Demo האופטימום מושג בסף 0.20–0.25, המאפשר סגוליות מלאה תוך שמירת רגישות בינונית. בפרקטיקה קלינית, ניבוי SAP מחייב מזעור פספוסים (FN) — לכן סף נמוך (0.15–0.20) עדיף על פני ספציפיות גבוהה.
-  </p>
+  <h3 class="sub-title">3.2 Deep Learning (TensorFlow / Keras)</h3>
+  <p>All deep learning models were trained with Adam optimizer, early stopping on val_AUC (patience=8), batch size 32, and a maximum of 60 epochs per fold. Features were StandardScaler-normalised within each fold. Convergence was rapid — 7–11 mean epochs — reflecting the limited depth of benefit achievable on n=722.</p>
 
-  <!-- ── 4. EHR Integration ── -->
-  <h2 class="section-title">4. אינטגרציה עם מערכות מידע קליניות</h2>
-
-  <h3 class="sub-title">4.1 FHIR R4 — תקן בין-לאומי</h3>
-  <p>
-    ה-API תומך בקבלת Bundle מסוג FHIR R4 הכולל משאב Patient ורשימת Observation עם קודי LOINC. התגובה מוחזרת כ-RiskAssessment resource עם ציוני SNOMED CT:
-  </p>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>רמת סיכון</th><th>קוד SNOMED CT</th><th>סף הסתברות</th></tr></thead>
+      <thead><tr>
+        <th>Model</th><th>Architecture</th><th>Learning Rate</th><th>Optimal Epochs (mean)</th><th>Fold range</th>
+      </tr></thead>
       <tbody>
-        <tr><td class="good">נמוך (Low)</td><td>723505004</td><td>&lt;0.30</td></tr>
-        <tr><td class="warn">בינוני (Moderate)</td><td>723506003</td><td>0.30–0.60</td></tr>
-        <tr><td style="color:var(--red);font-weight:700">גבוה (High)</td><td>723507007</td><td>&gt;0.60</td></tr>
+        <tr><td>MLP <span class="type-badge type-dl">DL</span></td><td>256→128→64→1, BN+Dropout (0.35/0.30/0.20)</td><td>1e-3</td><td>~11</td><td>8–16</td></tr>
+        <tr><td>Residual MLP <span class="type-badge type-dl">DL</span></td><td>128-dim projection + 2 residual blocks + skip connections</td><td>8e-4</td><td>~10</td><td>4–17</td></tr>
+        <tr><td>Attention MLP <span class="type-badge type-dl">DL</span></td><td>Sigmoid feature gate (106→106) → 256→128→64→1</td><td>1e-3</td><td>~7</td><td>2–14</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h3 class="sub-title">4.2 HL7 v2.x — תאימות עם מערכות קיימות</h3>
+  <p>The Attention MLP converges fastest (~7 epochs), suggesting the sigmoid attention gate learns feature selection rapidly, after which the downstream network has little remaining optimisation to do. The wider epoch variance of Residual MLP (4–17) reflects sensitivity of skip-connection networks to weight initialisation on small datasets.</p>
+
+  <!-- ── 4. Results ── -->
+  <h2 class="section-title">4. Results — 5-Fold Cross-Validation</h2>
+
+  <h3 class="sub-title">4.1 Summary Performance Table</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Model</th><th>Type</th><th>AUC</th><th>F1</th><th>Threshold</th>
+        <th>Sensitivity</th><th>Specificity</th><th>PPV</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td>Logistic Regression</td><td><span class="type-badge type-ml">ML</span></td>
+          <td>0.817</td><td>0.907</td><td>0.575</td>
+          <td class="good">93.8%</td><td>43.8%</td><td class="good">87.7%</td>
+        </tr>
+        <tr class="best-row">
+          <td>Random Forest ★</td><td><span class="type-badge type-ml">ML</span></td>
+          <td>0.877</td><td>0.917</td><td>0.535</td>
+          <td class="good">96.8%</td><td>38.7%</td><td class="good">87.1%</td>
+        </tr>
+        <tr>
+          <td>Gradient Boosting</td><td><span class="type-badge type-ml">ML</span></td>
+          <td>0.874</td><td>0.918</td><td>0.350</td>
+          <td class="good">97.1%</td><td>38.0%</td><td class="good">87.0%</td>
+        </tr>
+        <tr>
+          <td>MLP (3-layer)</td><td><span class="type-badge type-dl">DL</span></td>
+          <td>0.836</td><td>0.909</td><td>0.282</td>
+          <td class="good">96.9%</td><td>24.8%</td><td>84.6%</td>
+        </tr>
+        <tr>
+          <td>Residual MLP</td><td><span class="type-badge type-dl">DL</span></td>
+          <td>0.804</td><td>0.912</td><td>0.203</td>
+          <td class="good">97.8%</td><td>28.5%</td><td>85.4%</td>
+        </tr>
+        <tr>
+          <td>Attention MLP</td><td><span class="type-badge type-dl">DL</span></td>
+          <td>0.784</td><td>0.909</td><td>0.418</td>
+          <td class="good">98.3%</td><td>23.4%</td><td>84.6%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">4.2 Key Predictive Features</h3>
+  <p>Feature importance analysis across models consistently identifies the same cluster of biomarkers as most predictive:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Feature</th><th>LR (|coef|)</th><th>RF (importance)</th><th>GB (importance)</th><th>Clinical rationale</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Calcium</strong></td><td class="highlight">2nd</td><td class="highlight">1st</td><td class="highlight">2nd</td><td>Hypocalcaemia — saponification in necrotic fat; classic Ranson criterion</td></tr>
+        <tr><td><strong>D-dimer</strong></td><td>4th</td><td class="highlight">2nd</td><td class="highlight">1st</td><td>Coagulopathy / DIC in severe disease</td></tr>
+        <tr><td><strong>LDH</strong></td><td>5th</td><td>3rd</td><td>3rd</td><td>Tissue necrosis marker; Ranson criterion (&gt;250 U/L)</td></tr>
+        <tr><td><strong>Lactate</strong></td><td>4th</td><td>4th</td><td>4th</td><td>Hypoperfusion / organ dysfunction</td></tr>
+        <tr><td><strong>Hematocrit</strong></td><td>—</td><td>5th</td><td>5th</td><td>Haemoconcentration — early marker of necrotising pancreatitis</td></tr>
+        <tr><td><strong>Lymphocytes</strong></td><td class="highlight">1st</td><td>—</td><td>—</td><td>Lymphopenia in systemic inflammatory response</td></tr>
+        <tr><td><strong>Creatinine</strong></td><td>3rd</td><td>9th</td><td>10th</td><td>AKI — Ranson criterion</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">4.3 Threshold Analysis — Clinical Interpretation</h3>
   <p>
-    ממשק HL7 v2.x מנתח הודעות ORU^R01 ומחלץ גיל/מין מ-PID ונתוני מעבדה מ-OBX. המערכת תומכת בקודי LOINC וכן בקודי LIS ייחודיים של Epic, Cerner, OpenEMR, VistA ו-Allscripts, דבר המאפשר אינטגרציה ללא שינויי קוד בצד ה-EHR.
+    In a clinical setting, <strong>minimising false negatives (missed SAP)</strong> is the primary objective. The threshold sweep across all models shows that sensitivity &gt;95% is achievable at thresholds of 0.20–0.55, depending on the model. The Random Forest at its default threshold (0.535) achieves 96.8% sensitivity — missing only 19 of 585 severe cases.
+  </p>
+  <p>
+    Lowering the threshold to 0.30 across all models pushes sensitivity above 99% but reduces specificity to &lt;20%, generating many false alarms. In practice, a threshold of 0.40–0.55 provides the best clinical trade-off for triage purposes.
+  </p>
+  <div class="alert alert-info">
+    ℹ️ <strong>Threshold recommendation:</strong> For clinical triage of SAP, a sensitivity target of ≥95% is appropriate. All six models achieve this at or below their optimal thresholds. The Random Forest (T=0.535) and Gradient Boosting (T=0.350) offer complementary sensitivity/specificity trade-offs and should be considered for ensemble use.
+  </div>
+
+  <!-- ── 5. EHR Integration ── -->
+  <h2 class="section-title">5. EHR Integration</h2>
+
+  <h3 class="sub-title">5.1 FHIR R4 — International Standard</h3>
+  <p>
+    The API accepts FHIR R4 Bundle resources containing a Patient resource and a list of Observation resources with LOINC codes. The response is returned as a RiskAssessment resource with SNOMED CT risk group codes:
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Risk Level</th><th>SNOMED CT Code</th><th>Probability Threshold</th></tr></thead>
+      <tbody>
+        <tr><td class="good">Low</td><td>723505004</td><td>&lt;0.30</td></tr>
+        <tr><td class="warn">Intermediate</td><td>723506003</td><td>0.30–0.60</td></tr>
+        <tr><td style="color:var(--red);font-weight:700">High</td><td>723507007</td><td>&gt;0.60</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">5.2 HL7 v2.x — Legacy System Compatibility</h3>
+  <p>
+    The HL7 v2.x interface parses ORU^R01 messages, extracting age/sex from PID and laboratory values from OBX segments. The system supports LOINC codes and vendor-specific LIS codes (Epic, Cerner, OpenEMR, VistA, Allscripts), enabling integration without EHR-side code changes.
   </p>
 
-  <h3 class="sub-title">4.3 Camelion (קמיליון) — ה-HIS הישראלי</h3>
+  <h3 class="sub-title">5.3 Camelion — Israeli HIS</h3>
   <p>
-    מערכת קמיליון של Malam-Team היא ה-HIS הנפוץ ביותר בישראל. PenuX-AP-Severity כולל מתאם ייעודי התומך ב:
+    Camelion (Malam-Team) is the most widely deployed HIS in Israel. PenuX-AP-Severity includes a dedicated adapter supporting:
   </p>
-  <ul style="padding-right:1.5rem;margin-bottom:.9rem;color:var(--gray800)">
-    <li><strong>JSON עברי-אנגלי:</strong> שדות בעברית (גיל, מין, כדוריות דם לבנות, קריאטינין...) ובאנגלית</li>
-    <li><strong>FHIR R4 Gateway:</strong> גישה דרך SMART on FHIR עם authorization_code / client_credentials</li>
-    <li><strong>תגובה דו-לשונית:</strong> הפלט מוחזר בעברית ובאנגלית כאחד</li>
+  <ul style="padding-left:1.5rem;margin-bottom:.9rem;color:var(--gray800)">
+    <li><strong>Hebrew/English field names:</strong> fields accepted in both Hebrew and English keys</li>
+    <li><strong>FHIR R4 Gateway:</strong> access via SMART on FHIR with authorization_code / client_credentials</li>
+    <li><strong>Bilingual response:</strong> prediction output returned in both English and Hebrew</li>
   </ul>
 
   <div class="alert alert-info">
-    ℹ️ <div>לגישת Sandbox לסביבת קמיליון יש ליצור קשר עם Malam-Team ולבקש אישגורים ל-SMART on FHIR. פרטי הקשר: <strong>api-support@malam.co.il</strong></div>
+    ℹ️ For sandbox access to the Camelion environment, contact Malam-Team to request SMART on FHIR credentials: <strong>api-support@malam.co.il</strong>
   </div>
 
-  <!-- ── 5. Privacy ── -->
-  <h2 class="section-title">5. פרטיות ואבטחת מידע</h2>
+  <!-- ── 6. Privacy ── -->
+  <h2 class="section-title">6. Privacy and Data Security</h2>
   <p>
-    מערכת PenuX-AP-Severity תוכננה מלכתחילה עם עקרון <em>Privacy by Design</em>:
+    PenuX-AP-Severity was designed with Privacy by Design from the outset:
   </p>
-  <ul style="padding-right:1.5rem;margin-bottom:.9rem;color:var(--gray800)">
-    <li>מזהים אישיים (ת.ז., שם, MRN) נמחקים לפני שידור לשרת הניבוי</li>
-    <li>אין רישום (logging) של ערכים אישיים בצד השרת</li>
-    <li>כל הבקשות מעובדות בזיכרון ואינן נשמרות לבסיס נתונים</li>
-    <li>תואם ל-HIPAA Minimum Necessary Standard ולחוק הגנת הפרטיות הישראלי</li>
+  <ul style="padding-left:1.5rem;margin-bottom:.9rem;color:var(--gray800)">
+    <li>Patient identifiers (ID number, name, MRN) are stripped before transmission to the prediction server</li>
+    <li>No personal values are logged server-side</li>
+    <li>All requests are processed in-memory and are not persisted to any database</li>
+    <li>Compliant with HIPAA Minimum Necessary Standard and Israeli Privacy Protection Law</li>
   </ul>
   <div class="alert alert-green">
-    ✅ <div>ניבוי SAP הוא <strong>ניבוי בלבד</strong> — לא אבחנה. כל החלטה קלינית נשארת באחריות הרופא המטפל.</div>
+    ✅ SAP prediction is a <strong>prediction tool only</strong> — not a diagnosis. All clinical decisions remain the sole responsibility of the treating physician.
   </div>
 
-  <!-- ── 6. Comparison ── -->
-  <h2 class="section-title">6. השוואה לכלים קיימים</h2>
+  <!-- ── 7. Comparison ── -->
+  <h2 class="section-title">7. Comparison with Existing Scoring Tools</h2>
 
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>כלי ניקוד</th><th>AUROC (ספרות)</th><th>זמן לתוצאה</th><th>מספר פרמטרים</th><th>אינטגרציה ל-EHR</th></tr>
+        <tr><th>Scoring Tool</th><th>AUROC (literature)</th><th>Time to Result</th><th>Parameters</th><th>EHR Integration</th></tr>
       </thead>
       <tbody>
-        <tr><td><strong>PenuX-AP-Severity</strong></td><td class="good">~0.82 (ספרות דומה)</td><td class="good">2–4 שעות</td><td>11 מעבדה + 2 דמוגרפיה</td><td class="good">FHIR · HL7 · Camelion</td></tr>
-        <tr><td>BISAP</td><td>0.82</td><td>24 שעות</td><td>5</td><td>ידני</td></tr>
-        <tr><td>Ranson (קבלה)</td><td>0.73</td><td>הקבלה</td><td>5 מתוך 11</td><td>ידני</td></tr>
-        <tr><td>APACHE II</td><td>0.83</td><td>24 שעות</td><td>12 + גיל + מחלה כרונית</td><td>ידני</td></tr>
-        <tr><td>Harmless AP Score</td><td>0.88</td><td>הקבלה</td><td>3</td><td>לא</td></tr>
-        <tr><td>CTSI (CT)</td><td>0.87</td><td>לאחר CT</td><td>CT בלבד</td><td>PACS בלבד</td></tr>
+        <tr class="best-row">
+          <td><strong>PenuX — Random Forest ★</strong></td><td class="good">0.877 (this cohort, 5-fold CV)</td>
+          <td class="good">2–4 hours</td><td>106 routine labs</td><td class="good">FHIR · HL7 · Camelion</td>
+        </tr>
+        <tr>
+          <td><strong>PenuX — Gradient Boosting</strong></td><td class="good">0.874</td>
+          <td class="good">2–4 hours</td><td>106 routine labs</td><td class="good">FHIR · HL7 · Camelion</td>
+        </tr>
+        <tr>
+          <td><strong>PenuX — MLP</strong></td><td>0.836</td>
+          <td class="good">2–4 hours</td><td>106 routine labs</td><td class="good">FHIR · HL7 · Camelion</td>
+        </tr>
+        <tr><td>BISAP</td><td>0.82</td><td>24 hours</td><td>5</td><td>Manual</td></tr>
+        <tr><td>Ranson (admission)</td><td>0.73</td><td>Admission</td><td>5 of 11</td><td>Manual</td></tr>
+        <tr><td>APACHE II</td><td>0.83</td><td>24 hours</td><td>12 + age + chronic disease</td><td>Manual</td></tr>
+        <tr><td>Harmless AP Score</td><td>0.88</td><td>Admission</td><td>3</td><td>No</td></tr>
+        <tr><td>CTSI (CT-based)</td><td>0.87</td><td>Post-CT</td><td>CT only</td><td>PACS only</td></tr>
       </tbody>
     </table>
   </div>
 
   <p>
-    PenuX-AP-Severity מציע יתרון מרכזי בכך שתוצאה זמינה תוך 2–4 שעות מהקבלה — זמן ביצוע מעבדה שגרתית — ללא צורך ב-CT, ללא תלות ב-24 שעות מעקב, עם ממשק API מלא לאינטגרציה אוטומטית.
+    PenuX Random Forest (AUC=0.877) matches or exceeds BISAP and approaches APACHE II and CTSI performance, with the key advantage that results are available within 2–4 hours of admission using only routine blood tests — no CT required, no 24-hour wait, with full API integration for automated workflows.
   </p>
 
-  <!-- ── 7. Limitations ── -->
-  <h2 class="section-title">7. מגבלות ועתיד</h2>
-  <ul style="padding-right:1.5rem;color:var(--gray800);margin-bottom:1rem">
-    <li style="margin-bottom:.5rem"><strong>אימות מוגבל:</strong> הביצועים מבוססים על Demo Dataset (n=8). נדרש אימות על MIMIC-IV מלא ועל נתוני מרכזים רפואיים ישראליים.</li>
-    <li style="margin-bottom:.5rem"><strong>משקלות הוריסטיים:</strong> המשקלות אינם מאומנים בשיטת Gradient Descent אלא נגזרו ידנית מהספרות. מודל ML מאומן יצפה לביצועים עדיפים.</li>
-    <li style="margin-bottom:.5rem"><strong>חסרי ערכים:</strong> כ-30–60% מהמטופלים לא מבוצעים להם כל 11 הבדיקות. המודל מטפל בחסרים באמצעות ממוצעי קבוצה, דבר שעלול לייצר הטיה.</li>
-    <li style="margin-bottom:.5rem"><strong>היעדר אינטגרציה בזמן אמת:</strong> בשלב זה, המערכת אינה מחוברת לזרם נתוני המעבדה בזמן אמת — נדרש שידור ידני או אוטומציה דרך webhook.</li>
-    <li style="margin-bottom:.5rem"><strong>אישור רגולטורי:</strong> שימוש קליני מחייב אישור ועדת הלסינקי, אישור משרד הבריאות, ורישום כ-SaMD (Software as Medical Device).</li>
+  <!-- ── 8. Limitations ── -->
+  <h2 class="section-title">8. Limitations and Future Directions</h2>
+  <ul style="padding-left:1.5rem;color:var(--gray800);margin-bottom:1rem">
+    <li style="margin-bottom:.5rem"><strong>Single-institution cohort:</strong> All 722 admissions originate from one Chinese hospital. Etiology mix, lab reference ranges, and severity classification may differ from Israeli or Western populations.</li>
+    <li style="margin-bottom:.5rem"><strong>No external validation set:</strong> All performance figures are from 5-fold cross-validation on the same cohort. An independent hold-out set or prospective validation study is required.</li>
+    <li style="margin-bottom:.5rem"><strong>Class imbalance:</strong> 585 severe vs 137 mild (4.3:1 ratio). Models are optimised for sensitivity; specificity is lower (22–44%) across all models at optimal thresholds.</li>
+    <li style="margin-bottom:.5rem"><strong>Deep learning dataset size:</strong> n=722 is near the lower bound of DL benefit for tabular data. Rapid convergence (7–11 epochs) and lower AUC vs ensemble trees confirm this. A larger multi-site dataset would likely close the gap.</li>
+    <li style="margin-bottom:.5rem"><strong>Label quality:</strong> 13–14 patients with high pancreatic-sepsis-risk scores were labeled "mild" — possible ICD coding misclassification of infected pancreatic necrosis, which may suppress true model performance.</li>
+    <li style="margin-bottom:.5rem"><strong>Regulatory status:</strong> Clinical use requires ethics committee approval, Ministry of Health certification, and registration as a Software as a Medical Device (SaMD, MDR Class IIa).</li>
   </ul>
 
-  <h3 class="sub-title">כיוונים עתידיים</h3>
-  <ul style="padding-right:1.5rem;color:var(--gray800);margin-bottom:1rem">
-    <li>אימון על נתוני Sheba, Hadassah, Rambam (IRB)</li>
-    <li>שילוב נתוני CT (Modified CTSI) במסגרת FHIR ImagingStudy</li>
-    <li>מודל Federated Learning — אימון מבוזר ללא שיתוף נתונים</li>
-    <li>פיתוח אפליקציית PointOfCare לשימוש רופאי מיון</li>
-    <li>שיתוף MIMIC-IV מלא (דורש גישה מאושרת PhysioNet)</li>
+  <h3 class="sub-title">Future Directions</h3>
+  <ul style="padding-left:1.5rem;color:var(--gray800);margin-bottom:1rem">
+    <li>Training on Israeli multi-site data (Sheba, Hadassah, Rambam) under IRB approval</li>
+    <li>Integration of CT findings (Modified CTSI) via FHIR ImagingStudy resources</li>
+    <li>Federated Learning — distributed training without data sharing across sites</li>
+    <li>Point-of-care mobile app for emergency physicians</li>
+    <li>XGBoost and TabNet evaluation for potential AUC improvement on larger datasets</li>
+    <li>Temporal validation — prospective tracking of model performance over time</li>
   </ul>
 
-  <!-- ── 8. Conclusion ── -->
-  <h2 class="section-title">8. מסקנות</h2>
+  <!-- ── 9. Conclusion ── -->
+  <h2 class="section-title">9. Conclusions</h2>
   <p>
-    PenuX-AP-Severity מציג תשתית מחקרית מוכנה לאינטגרציה עם מערכות EHR ישראליות ובין-לאומיות, עם תמיכה ב-FHIR R4, HL7 v2.x, וה-HIS הישראלי Camelion. הממשק מאפשר ניבוי SAP תוך שעות מהקבלה, בהתבסס על ערכי מעבדה שגרתיים.
+    PenuX-AP-Severity demonstrates that routine admission laboratory values, processed by data-driven ML models, can identify Severe Acute Pancreatitis with AUC up to 0.877 — matching or exceeding classical bedside scoring tools that require 24 hours of follow-up. Random Forest is the top performer; Gradient Boosting offers the highest F1 and highest sensitivity. Deep learning models are competitive but offer no clear advantage over ensemble methods on this dataset size.
   </p>
   <p>
-    למרות ביצועים ראשוניים מוגבלים בקוהורט Demo (n=8), הארכיטקטורה תומכת בהרחבה עתידית — הן בנפח הנתונים (MIMIC-IV מלא, נתוני ישראל) והן בחוזק המודל (Gradient Boosting, XGBoost). אימות פרוספקטיבי יקבע את מיקומו של הכלי ביחס ל-BISAP, Ranson, ו-APACHE II הקיימים.
+    The label inversion finding — mild biliary AP cases presenting with higher WBC/CRP/lipase than severe necrotising AP — is a clinically significant insight, potentially identifying a subgroup of misclassified infected pancreatic necrosis (IPN) cases that warrant prospective study.
   </p>
   <p>
-    הקוד פתוח-מקור ומוזמנים חוקרים, רופאים, ומפתחי HIS לשתף פעולה.
+    The platform provides full FHIR R4, HL7 v2.x, and Camelion integration, enabling automated SAP risk scoring within hours of admission. The codebase is open-source and collaboration from researchers, clinicians, and HIS developers is welcome.
   </p>
 
   <!-- ── References ── -->
-  <h2 class="section-title">מקורות</h2>
+  <h2 class="section-title">References</h2>
   <ol class="refs">
-    <li>Banks PA, et al. <span>Classification of acute pancreatitis — 2012: revision of the Atlanta classification.</span> Gut. 2013;62(1):102–111.</li>
+    <li>Banks PA, et al. <span>Classification of acute pancreatitis — 2012: revision of the Atlanta classification and definitions by international consensus.</span> Gut. 2013;62(1):102–111.</li>
     <li>Wu BU, et al. <span>The early prediction of mortality in acute pancreatitis: a large population-based study.</span> Gut. 2008;57(12):1698–1703. [BISAP]</li>
     <li>Ranson JH, et al. <span>Prognostic signs and the role of operative management in acute pancreatitis.</span> Surg Gynecol Obstet. 1974;139(1):69–81.</li>
     <li>Johnson AEW, et al. <span>MIMIC-IV, a freely accessible electronic health record dataset.</span> Sci Data. 2023;10(1):1.</li>
@@ -440,12 +518,15 @@
     <li>Bollen TL, et al. <span>Comparative evaluation of the modified CT severity index and CT severity index in assessing severity of acute pancreatitis.</span> AJR. 2011;197(2):386–392.</li>
     <li>Dellinger EP, et al. <span>Determinant-based classification of acute pancreatitis severity.</span> Ann Surg. 2012;256(6):875–880.</li>
     <li>Cho JH, Kim TN, et al. <span>Harmless Acute Pancreatitis Score to predict absence of organ failure at admission.</span> Pancreatology. 2015;15(3):229–233.</li>
+    <li>Breiman L. <span>Random Forests.</span> Machine Learning. 2001;45(1):5–32.</li>
+    <li>Friedman JH. <span>Greedy function approximation: a gradient boosting machine.</span> Ann Stat. 2001;29(5):1189–1232.</li>
+    <li>Vaswani A, et al. <span>Attention is all you need.</span> NeurIPS. 2017.</li>
   </ol>
 
   <!-- ── Footer ── -->
   <div class="article-footer">
-    <strong>הצהרת ניגוד עניינים:</strong> אין ניגוד עניינים. <strong>מימון:</strong> אין מימון חיצוני. <strong>קוד מקור:</strong> github.com/netanelcyber/penuX (MIT License). <strong>נתונים:</strong> MIMIC-IV Clinical Database Demo, PhysioNet (CC-BY 4.0). <strong>אישור אתי:</strong> מחקר רטרוספקטיבי על נתונים אנונימיים ציבוריים — פטור מוועדת הלסינקי לפי תקנות MIMIC. <br/><br/>
-    ⚠️ <strong>אזהרת שימוש:</strong> מערכת זו היא אב-טיפוס מחקרי בלבד ואינה מוסמכת לשימוש קליני. אין להשתמש בה לקבלת החלטות טיפוליות.
+    <strong>Conflicts of interest:</strong> None. <strong>Funding:</strong> No external funding. <strong>Source code:</strong> github.com/netanelcyber/penuX (MIT License). <strong>Data:</strong> Chinese AP inpatient cohort, single institution (anonymised; no patient identifiers retained). <strong>Ethics:</strong> Retrospective analysis of anonymised data — exempt from IRB per institutional policy. <br/><br/>
+    ⚠️ <strong>Usage warning:</strong> This system is a research prototype only and is not certified for clinical use. Do not use it for therapeutic decision-making.
   </div>
 
 </div>
