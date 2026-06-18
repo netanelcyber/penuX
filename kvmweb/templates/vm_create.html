@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Create VM{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <a href="{{ url_for('index') }}" class="back-link">← Dashboard</a>
+  <h1>Create Virtual Machine</h1>
+</div>
+
+<div class="form-card">
+  <form method="post" action="{{ url_for('vm_create') }}" id="create-form">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="name">VM Name <span class="required">*</span></label>
+        <input type="text" id="name" name="name" class="form-control"
+               placeholder="e.g. ubuntu-server-01" required pattern="[a-zA-Z0-9_\-]+"
+               title="Letters, numbers, hyphens and underscores only">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="vcpus">vCPUs</label>
+        <input type="number" id="vcpus" name="vcpus" class="form-control"
+               value="1" min="1" max="64">
+      </div>
+      <div class="form-group">
+        <label for="ram_mb">RAM (MB)</label>
+        <input type="number" id="ram_mb" name="ram_mb" class="form-control"
+               value="1024" min="128" step="128">
+      </div>
+      <div class="form-group">
+        <label for="disk_gb">Disk (GB)</label>
+        <input type="number" id="disk_gb" name="disk_gb" class="form-control"
+               value="10" min="1" max="2000">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group form-group-wide">
+        <label for="iso">Boot ISO (optional)</label>
+        <select id="iso" name="iso" class="form-control">
+          <option value="">-- no ISO (import existing disk) --</option>
+          {% for iso in isos %}
+          <option value="{{ iso }}">{{ iso }}</option>
+          {% endfor %}
+        </select>
+        <div class="form-hint">Or place a .iso in /var/lib/libvirt/images/ and refresh.</div>
+      </div>
+      <div class="form-group">
+        <label for="network">Network</label>
+        <select id="network" name="network" class="form-control">
+          {% for net in networks %}
+          <option value="{{ net }}" {% if net == 'default' %}selected{% endif %}>{{ net }}</option>
+          {% else %}
+          <option value="default">default</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary btn-lg" id="create-btn">
+        ⚡ Create VM
+      </button>
+      <a href="{{ url_for('index') }}" class="btn btn-outline btn-lg">Cancel</a>
+    </div>
+  </form>
+
+  <div class="info-box">
+    <strong>Note:</strong> VM creation runs <code>virt-install</code> in the background.
+    The new VM will appear on the dashboard once defined. If you selected an ISO,
+    the VM will start and boot from it — connect via VNC to complete the OS install.
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('create-form').addEventListener('submit', function() {
+  document.getElementById('create-btn').textContent = '⏳ Creating...';
+  document.getElementById('create-btn').disabled = true;
+});
+</script>
+{% endblock %}

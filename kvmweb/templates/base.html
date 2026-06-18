@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ host }}{% endblock %} — kvmweb</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+{% if session.user is defined %}
+<nav class="navbar">
+  <div class="nav-brand">
+    <span class="icon">⚡</span> kvmweb
+    <small>{{ host }}</small>
+  </div>
+  <div class="nav-links">
+    <a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}">Dashboard</a>
+    <a href="{{ url_for('vm_create') }}" class="btn btn-sm btn-primary">+ New VM</a>
+    <span class="nav-user">{{ session.user }}</span>
+    <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline">Logout</a>
+  </div>
+</nav>
+{% endif %}
+
+<main class="container">
+  {% for cat in ['success','danger','warning','info'] %}
+    {% for msg in get_flashed_messages(category_filter=[cat]) %}
+      <div class="alert alert-{{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endfor %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+  kvmweb &mdash; lightweight KVM management &mdash; <a href="https://libvirt.org" target="_blank">libvirt</a>
+</footer>
+
+<div id="toast-container"></div>
+<div id="spinner-overlay" class="spinner-overlay">
+  <div class="spinner"></div>
+  <span>Working…</span>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

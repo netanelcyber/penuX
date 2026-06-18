@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<!-- Host summary -->
+{% if hinfo %}
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-label">Host</div>
+    <div class="stat-value">{{ hinfo.hostname }}</div>
+    <div class="stat-sub">{{ hinfo.arch }} &bull; {{ hinfo.cpus }} CPUs @ {{ hinfo.mhz }} MHz</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Memory</div>
+    <div class="stat-value" id="stat-mem-free">{{ hinfo.free_mb }} MB free</div>
+    <div class="stat-sub">of {{ hinfo.mem_mb }} MB total</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="stat-mem-bar" style="width:{{ ((hinfo.mem_mb - hinfo.free_mb) / hinfo.mem_mb * 100)|int }}%"></div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">VMs</div>
+    <div class="stat-value" id="stat-vm-active">{{ hinfo.active_vms }} running</div>
+    <div class="stat-sub" id="stat-vm-inactive">{{ hinfo.inactive_vms }} stopped</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">libvirt</div>
+    <div class="stat-value">{{ hinfo.libvirt_ver }}</div>
+    <div class="stat-sub">QEMU/KVM</div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Virtual Machines -->
+<section class="section">
+  <div class="section-header">
+    <h2>Virtual Machines</h2>
+    <a href="{{ url_for('vm_create') }}" class="btn btn-primary">+ New VM</a>
+  </div>
+
+  {% if domains %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>State</th>
+          <th>vCPUs</th>
+          <th>Memory</th>
+          <th>Network</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for vm in domains %}
+        <tr id="row-{{ vm.name }}">
+          <td>
+            <a href="{{ url_for('vm_detail', name=vm.name) }}" class="vm-name">{{ vm.name }}</a>
+            {% if vm.autostart %}<span class="badge badge-info" title="Autostart">auto</span>{% endif %}
+          </td>
+          <td>
+            <span class="badge badge-{{ vm.state_class }} state-badge" data-vm="{{ vm.name }}">
+              {{ vm.state }}
+            </span>
+          </td>
+          <td>{{ vm.vcpus }}</td>
+          <td>{{ vm.mem_mb }} MB</td>
+          <td>
+            {% for iface in vm.ifaces %}
+              <span class="iface-tag">{{ iface.type }}:{{ iface.source }}</span>
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endfor %}
+          </td>
+          <td class="actions">
+            {% if vm.state == 'running' %}
+              <button class="btn btn-sm btn-warning vm-action" data-vm="{{ vm.name }}" data-action="shutdown" title="Shutdown">⏹ Shutdown</button>
+              <button class="btn btn-sm btn-danger  vm-action" data-vm="{{ vm.name }}" data-action="destroy"  title="Force off">✕ Force off</button>
+              <button class="btn btn-sm btn-outline vm-action" data-vm="{{ vm.name }}" data-action="reboot"   title="Reboot">↺ Reboot</button>
+            {% elif vm.state == 'paused' %}
+              <button class="btn btn-sm btn-success vm-action" data-vm="{{ vm.name }}" data-action="resume"   title="Resume">▶ Resume</button>
+            {% else %}
+              <button class="btn btn-sm btn-success vm-action" data-vm="{{ vm.name }}" data-action="start"    title="Start">▶ Start</button>
+            {% endif %}
+            <a href="{{ url_for('vm_detail', name=vm.name) }}" class="btn btn-sm btn-outline">Details</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">🖥️</div>
+    <p>No virtual machines defined yet.</p>
+    <a href="{{ url_for('vm_create') }}" class="btn btn-primary">Create your first VM</a>
+  </div>
+  {% endif %}
+</section>
+
+<!-- Storage Pools -->
+{% if pools %}
+<section class="section">
+  <h2>Storage Pools</h2>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr><th>Name</th><th>State</th><th>Capacity</th><th>Used</th><th>Free</th></tr>
+      </thead>
+      <tbody>
+        {% for p in pools %}
+        <tr>
+          <td>{{ p.name }}</td>
+          <td><span class="badge badge-{{ 'success' if p.state == 'running' else 'secondary' }}">{{ p.state }}</span></td>
+          <td>{{ p.capacity_gb }} GB</td>
+          <td>{{ p.allocation_gb }} GB</td>
+          <td>{{ p.available_gb }} GB</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+
+<!-- Networks -->
+{% if networks %}
+<section class="section">
+  <h2>Networks</h2>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr><th>Name</th><th>State</th><th>Bridge</th><th>Autostart</th></tr>
+      </thead>
+      <tbody>
+        {% for n in networks %}
+        <tr>
+          <td>{{ n.name }}</td>
+          <td><span class="badge badge-{{ 'success' if n.active else 'secondary' }}">{{ 'active' if n.active else 'inactive' }}</span></td>
+          <td>{{ n.bridge or '—' }}</td>
+          <td>{{ '✓' if n.autostart else '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-refresh stats every 10 seconds
+setInterval(refreshStats, 10000);
+</script>
+{% endblock %}

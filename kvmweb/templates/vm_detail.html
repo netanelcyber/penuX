@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}{{ vm.name }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <a href="{{ url_for('index') }}" class="back-link">← Dashboard</a>
+  <h1>{{ vm.name }}</h1>
+  <span class="badge badge-{{ vm.state_class }} badge-lg">{{ vm.state }}</span>
+</div>
+
+<!-- Quick actions -->
+<div class="action-bar">
+  {% if vm.state == 'running' %}
+    <button class="btn btn-warning vm-action" data-vm="{{ vm.name }}" data-action="shutdown">⏹ Shutdown</button>
+    <button class="btn btn-danger  vm-action" data-vm="{{ vm.name }}" data-action="destroy">✕ Force off</button>
+    <button class="btn btn-outline vm-action" data-vm="{{ vm.name }}" data-action="reboot">↺ Reboot</button>
+    <button class="btn btn-outline vm-action" data-vm="{{ vm.name }}" data-action="suspend">⏸ Suspend</button>
+  {% elif vm.state == 'paused' %}
+    <button class="btn btn-success vm-action" data-vm="{{ vm.name }}" data-action="resume">▶ Resume</button>
+  {% else %}
+    <button class="btn btn-success vm-action" data-vm="{{ vm.name }}" data-action="start">▶ Start</button>
+    {% if vm.persistent %}
+    <button class="btn btn-danger vm-action" data-vm="{{ vm.name }}" data-action="undefine"
+            data-confirm="Delete VM definition for '{{ vm.name }}'? This cannot be undone.">🗑 Delete</button>
+    {% endif %}
+  {% endif %}
+
+  {% if vm.autostart %}
+    <button class="btn btn-outline vm-action" data-vm="{{ vm.name }}" data-action="autostart_off">Disable autostart</button>
+  {% else %}
+    <button class="btn btn-outline vm-action" data-vm="{{ vm.name }}" data-action="autostart_on">Enable autostart</button>
+  {% endif %}
+</div>
+
+<!-- Info grid -->
+<div class="detail-grid">
+  <div class="detail-card">
+    <h3>Overview</h3>
+    <dl>
+      <dt>UUID</dt>        <dd class="monospace">{{ vm.uuid }}</dd>
+      <dt>OS type</dt>     <dd>{{ vm.os_type }}</dd>
+      <dt>vCPUs</dt>       <dd>{{ vm.vcpus }}</dd>
+      <dt>Memory</dt>      <dd>{{ vm.mem_mb }} MB / {{ vm.max_mem_mb }} MB max</dd>
+      <dt>Persistent</dt>  <dd>{{ '✓' if vm.persistent else '—' }}</dd>
+      <dt>Autostart</dt>   <dd>{{ '✓' if vm.autostart else '—' }}</dd>
+    </dl>
+  </div>
+
+  <div class="detail-card">
+    <h3>Disks</h3>
+    {% if vm.disks %}
+    <ul class="disk-list">
+      {% for disk in vm.disks %}
+      <li class="monospace">{{ disk }}</li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted">No disk images.</p>
+    {% endif %}
+  </div>
+
+  <div class="detail-card">
+    <h3>Network Interfaces</h3>
+    {% if vm.ifaces %}
+    <table class="table table-sm">
+      <thead><tr><th>MAC</th><th>Type</th><th>Source</th></tr></thead>
+      <tbody>
+        {% for iface in vm.ifaces %}
+        <tr>
+          <td class="monospace">{{ iface.mac }}</td>
+          <td>{{ iface.type }}</td>
+          <td>{{ iface.source }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">No network interfaces.</p>
+    {% endif %}
+  </div>
+
+  <div class="detail-card detail-card-wide">
+    <h3>XML Definition</h3>
+    <pre class="xml-dump"><code>{{ xml }}</code></pre>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.vm-action').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const confirm_msg = this.dataset.confirm;
+    if (confirm_msg && !confirm(confirm_msg)) return;
+    vmAction(this.dataset.vm, this.dataset.action, () => {
+      window.location.href = '/';
+    });
+  });
+});
+</script>
+{% endblock %}

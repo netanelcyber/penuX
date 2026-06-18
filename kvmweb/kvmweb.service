@@ -1,0 +1,23 @@
+[Unit]
+Description=kvmweb - KVM Web Management Interface
+After=network.target libvirtd.service
+Wants=libvirtd.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/kvmweb
+ExecStart=/usr/bin/python3 /opt/kvmweb/app.py \
+    --host 0.0.0.0 \
+    --port 8080 \
+    --cert /etc/kvmweb/ssl/cert.pem \
+    --key  /etc/kvmweb/ssl/key.pem
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=kvmweb
+Environment=KVMWEB_SESSION_MINS=60
+
+[Install]
+WantedBy=multi-user.target
