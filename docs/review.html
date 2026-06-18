@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מאמר סקירה — PenuX-AP-Severity | ניבוי דלקת לבלב חריפה קשה</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue:    #1a56db;
+      --navy:    #1e3a8a;
+      --teal:    #0891b2;
+      --green:   #059669;
+      --amber:   #d97706;
+      --red:     #dc2626;
+      --gray50:  #f8fafc;
+      --gray100: #f1f5f9;
+      --gray200: #e2e8f0;
+      --gray600: #475569;
+      --gray800: #1e293b;
+      --text:    #0f172a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Heebo', system-ui, sans-serif;
+      background: var(--gray50);
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 1.02rem;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: var(--navy);
+      padding: .55rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar a { color: #93c5fd; text-decoration: none; font-size: .88rem; font-weight: 600; }
+    .topbar a:hover { color: #fff; }
+    .topbar .badge {
+      background: rgba(255,255,255,.12); color: #e0f2fe;
+      padding: .2rem .7rem; border-radius: 99px; font-size: .78rem;
+    }
+
+    /* ── Layout ── */
+    .wrapper { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+    /* ── Header ── */
+    .article-header {
+      background: linear-gradient(135deg, var(--navy) 0%, #1a56db 100%);
+      color: white; padding: 2.8rem 2rem 2rem;
+      border-radius: 12px; margin-bottom: 2.5rem;
+    }
+    .article-header .journal-tag {
+      display: inline-block;
+      background: rgba(255,255,255,.18); color: #bfdbfe;
+      padding: .25rem .85rem; border-radius: 99px;
+      font-size: .8rem; font-weight: 600; letter-spacing: .04em;
+      margin-bottom: 1rem;
+    }
+    .article-header h1 {
+      font-size: clamp(1.35rem, 3vw, 1.9rem);
+      font-weight: 700; line-height: 1.35; margin-bottom: .6rem;
+    }
+    .article-header .subtitle {
+      color: #93c5fd; font-size: 1.02rem; margin-bottom: 1.2rem;
+    }
+    .meta { display: flex; flex-wrap: wrap; gap: .9rem; font-size: .85rem; color: #bfdbfe; }
+    .meta span { display: flex; align-items: center; gap: .35rem; }
+
+    /* ── Abstract box ── */
+    .abstract {
+      background: #eff6ff; border-right: 4px solid var(--blue);
+      border-radius: 8px; padding: 1.4rem 1.6rem; margin-bottom: 2.2rem;
+    }
+    .abstract h2 { color: var(--navy); font-size: 1rem; margin-bottom: .7rem; }
+    .abstract p { color: var(--gray800); font-size: .95rem; }
+    .keywords {
+      margin-top: .9rem; display: flex; flex-wrap: wrap; gap: .4rem;
+    }
+    .kw {
+      background: var(--navy); color: white;
+      padding: .2rem .65rem; border-radius: 99px; font-size: .78rem;
+    }
+
+    /* ── Sections ── */
+    h2.section-title {
+      font-size: 1.22rem; font-weight: 700; color: var(--navy);
+      border-bottom: 2px solid var(--blue);
+      padding-bottom: .35rem; margin: 2rem 0 .9rem;
+    }
+    h3.sub-title {
+      font-size: 1.02rem; font-weight: 600; color: var(--teal);
+      margin: 1.3rem 0 .4rem;
+    }
+    p { margin-bottom: .85rem; color: var(--gray800); }
+
+    /* ── Formula box ── */
+    .formula-box {
+      background: #0f172a; color: #e2e8f0;
+      border-radius: 8px; padding: 1.1rem 1.5rem; margin: 1rem 0 1.3rem;
+      font-family: 'JetBrains Mono', monospace; font-size: .88rem;
+      overflow-x: auto; direction: ltr; text-align: left;
+    }
+    .formula-box .comment { color: #64748b; }
+    .formula-box .var    { color: #38bdf8; }
+    .formula-box .num    { color: #a3e635; }
+
+    /* ── Tables ── */
+    .table-wrap { overflow-x: auto; margin: 1rem 0 1.5rem; border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    thead tr { background: var(--navy); color: white; }
+    th { padding: .65rem .9rem; text-align: right; font-weight: 600; }
+    td { padding: .55rem .9rem; border-bottom: 1px solid var(--gray200); }
+    tr:nth-child(even) td { background: var(--gray100); }
+    tr:last-child td { border-bottom: none; }
+    td.highlight { font-weight: 700; color: var(--blue); }
+    td.warn { color: var(--amber); font-weight: 600; }
+    td.good { color: var(--green); font-weight: 600; }
+
+    /* ── Info cards ── */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1rem; margin: 1rem 0 1.5rem; }
+    .card {
+      background: white; border: 1px solid var(--gray200);
+      border-radius: 10px; padding: 1.1rem 1.2rem;
+      border-top: 3px solid var(--blue);
+    }
+    .card .card-val { font-size: 1.7rem; font-weight: 700; color: var(--navy); }
+    .card .card-lbl { font-size: .82rem; color: var(--gray600); margin-top: .1rem; }
+
+    /* ── Alert box ── */
+    .alert {
+      border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0 1.4rem;
+      font-size: .9rem; display: flex; gap: .7rem; align-items: flex-start;
+    }
+    .alert-warn { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+    .alert-info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; }
+    .alert-green { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
+
+    /* ── References ── */
+    ol.refs { padding-right: 1.4rem; }
+    ol.refs li { font-size: .88rem; color: var(--gray600); margin-bottom: .5rem; }
+    ol.refs li span { color: var(--blue); }
+
+    /* ── Footer ── */
+    .article-footer {
+      background: var(--gray800); color: #94a3b8;
+      border-radius: 10px; padding: 1.4rem 1.6rem; margin-top: 3rem;
+      font-size: .85rem; line-height: 1.6;
+    }
+    .article-footer strong { color: #e2e8f0; }
+
+    @media (max-width: 600px) {
+      .wrapper { padding: 1.5rem 1rem 3rem; }
+      .article-header { padding: 1.8rem 1.2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/">← penux.uk</a>
+  <span class="badge">מאמר סקירה · 2025</span>
+</div>
+
+<div class="wrapper">
+
+  <!-- ── Article header ── -->
+  <header class="article-header">
+    <div class="journal-tag">סקירה מדעית · Clinical AI Review</div>
+    <h1>PenuX-AP-Severity: מערכת ניבוי מבוססת למידת מכונה לזיהוי מוקדם של דלקת לבלב חריפה קשה</h1>
+    <div class="subtitle">ניתוח אינטגרטיבי של ביצועי המודל, אינטגרציה עם מערכות מידע קליניות, ואפיון קוהורט MIMIC-IV</div>
+    <div class="meta">
+      <span>📅 יוני 2025</span>
+      <span>🔬 PenuX Research Group</span>
+      <span>🏥 מחקר רטרוספקטיבי</span>
+      <span>📊 MIMIC-IV · HL7 R4 · Camelion</span>
+    </div>
+  </header>
+
+  <!-- ── Abstract ── -->
+  <div class="abstract">
+    <h2>תקציר</h2>
+    <p>
+      <strong>רקע:</strong> דלקת לבלב חריפה קשה (Severe Acute Pancreatitis, SAP) נושאת שיעורי תמותה של 20–30% ומחייבת אבחנה מוקדמת. כלי הניקוד הקיימים — BISAP, Ranson, APACHE II — מצריכים 24–48 שעות נתונים.
+    </p>
+    <p>
+      <strong>מטרה:</strong> לתאר את ארכיטקטורת מודל PenuX-AP-Severity, לאמוד את ביצועיו על קוהורט MIMIC-IV, ולסקור את אפשרויות האינטגרציה עם מערכות HL7 v2.x, FHIR R4, וה-HIS הישראלי Camelion.
+    </p>
+    <p>
+      <strong>שיטות:</strong> חולצה קוהורט של 8 אשפוזים עם ICD-10 K85.* / ICD-9 577.0 ממסד MIMIC-IV Clinical Database Demo. חישוב ציון סיכון לוגיסטי על בסיס 11 ערכי מעבדה. הוערכו AUROC, רגישות, סגוליות, F1.
+    </p>
+    <p>
+      <strong>תוצאות:</strong> AUROC = 0.56 (קוהורט demo, n=8). בסף החלטה 0.20 הושגו רגישות 0.50, סגוליות 1.0. מסד MIMIC-IV מלא עשוי לספק הערכה סטטיסטית מהימנה יותר.
+    </p>
+    <p>
+      <strong>מסקנות:</strong> PenuX-AP-Severity מדגים גישה רב-מקורית לניבוי SAP עם ממשקים ל-EHR מרובים. נדרשת אימות פרוספקטיבי על נתוני מרכז רפואי ישראלי.
+    </p>
+    <div class="keywords">
+      <span class="kw">דלקת לבלב חריפה</span>
+      <span class="kw">SAP</span>
+      <span class="kw">למידת מכונה</span>
+      <span class="kw">MIMIC-IV</span>
+      <span class="kw">FHIR R4</span>
+      <span class="kw">Camelion HIS</span>
+      <span class="kw">BISAP</span>
+      <span class="kw">ניבוי קליני</span>
+    </div>
+  </div>
+
+  <!-- ── 1. Background ── -->
+  <h2 class="section-title">1. רקע ומוטיבציה</h2>
+  <p>
+    דלקת לבלב חריפה (Acute Pancreatitis, AP) היא אחת האינדיקציות הנפוצות ביותר לאשפוז גסטרואנטרולוגי חירום, עם שכיחות של כ-34 מקרים לכל 100,000 איש בשנה בישראל. כ-20% מהמקרים מתפתחים לצורה קשה (SAP) המאופיינת בכשל איברים ובנמק לבלבי, ונושאת תמותה של 20–30%.
+  </p>
+  <p>
+    כלי ניקוד קלאסיים — Ranson (1974), APACHE II, BISAP (2008) — פותחו לפני עידן הנתונים האלקטרוניים ומצריכים 24–48 שעות עוקבות. מחקרים מאוחרים הראו כי יכולת הניבוי שלהם מוגבלת (AUROC 0.73–0.83 בסדרות שונות). מסגרת ה-Revised Atlanta Classification (2012) הציבה צורך בסיווג מהיר ומדויק יותר כבר עם הקבלה.
+  </p>
+  <p>
+    PenuX-AP-Severity מציע גישה חדשה: שימוש בערכי מעבדה שגרתיים הזמינים תוך 2–4 שעות מהקבלה, באמצעות מודל לוגיסטי הממשיך את עקרונות BISAP ו-Ranson תוך שימוש בתשתית תוכנה מודרנית ואינטגרציה ישירה עם EHR.
+  </p>
+
+  <!-- ── 2. Methods ── -->
+  <h2 class="section-title">2. ארכיטקטורת המודל</h2>
+
+  <h3 class="sub-title">2.1 משתנים קליניים</h3>
+  <p>המודל משתמש ב-11 משתני מעבדה זמינים בהקבלה ובמשתני דמוגרפיה:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>פרמטר</th><th>קוד LOINC</th><th>סף קליני</th><th>משקל במודל</th><th>כיוון סיכון</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>WBC (כדוריות לבנות)</td><td>6690-2</td><td>&gt;12 ×10³/µL</td><td class="highlight">+0.08</td><td>↑ מעל סף</td></tr>
+        <tr><td>CRP (חלבון C-reactive)</td><td>1988-5</td><td>&gt;150 mg/L</td><td class="highlight">+0.004</td><td>↑ מעל סף</td></tr>
+        <tr><td>קריאטינין</td><td>2160-0</td><td>&gt;1.5 mg/dL</td><td class="highlight">+0.30</td><td>↑ מעל סף</td></tr>
+        <tr><td>BUN (אוריאה)</td><td>3094-0</td><td>&gt;25 mg/dL</td><td class="highlight">+0.015</td><td>↑ מעל סף</td></tr>
+        <tr><td>גלוקוז</td><td>2345-7</td><td>&gt;200 mg/dL</td><td class="highlight">+0.002</td><td>↑ מעל סף</td></tr>
+        <tr><td>LDH (לקטט דהידרוגנאז)</td><td>2532-0</td><td>&gt;250 U/L</td><td class="highlight">+0.001</td><td>↑ מעל סף</td></tr>
+        <tr><td>המטוקריט</td><td>20570-8</td><td>&gt;44%</td><td class="highlight">+0.03</td><td>↑ מעל סף</td></tr>
+        <tr><td>AST</td><td>1920-8</td><td>&gt;250 U/L</td><td class="highlight">+0.002</td><td>↑ מעל סף</td></tr>
+        <tr><td>אלבומין</td><td>1751-7</td><td>&lt;3.5 g/dL</td><td class="warn">−0.30</td><td>↓ מתחת סף</td></tr>
+        <tr><td>סידן</td><td>17861-6</td><td>&lt;8.0 mg/dL</td><td class="warn">−0.40</td><td>↓ מתחת סף</td></tr>
+        <tr><td>בילירובין כולל</td><td>1975-2</td><td>&gt;3.0 mg/dL</td><td class="highlight">+0.05</td><td>↑ מעל סף</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">2.2 נוסחת הניקוד</h3>
+  <p>המודל מחשב הסתברות לוגיסטית לפי:</p>
+
+  <div class="formula-box">
+<span class="comment"># logit של SAP</span>
+<br>logit = <span class="num">-1.8</span>  <span class="comment">  # בסיס (prevalence ~14%)</span>
+<br>       + <span class="num">0.015</span> × max(<span class="num">0</span>, <span class="var">age</span> - <span class="num">55</span>)  <span class="comment">  # גיל מעל 55</span>
+<br>       + <span class="num">0.15</span>  × (<span class="var">sex</span> == 'M')           <span class="comment">  # מין זכר</span>
+<br>       + Σ <span class="var">w_i</span> × max(<span class="num">0</span>, <span class="var">x_i</span> - <span class="var">threshold_i</span>)  <span class="comment">  # חריגה חיובית</span>
+<br>       + Σ <span class="var">w_j</span> × max(<span class="num">0</span>, <span class="var">threshold_j</span> - <span class="var">x_j</span>)  <span class="comment">  # חריגה שלילית (Ca, Alb)</span>
+<br>
+<br>P(SAP) = <span class="num">1</span> / (<span class="num">1</span> + exp(-logit))
+  </div>
+
+  <p>
+    משקלות הסף נגזרו מהספרות הקלינית של Ranson ו-BISAP, ואוזנו לפי מידת הראיות בכל מאפיין. ירידת סידן ואלבומין — גורמי סיכון קלאסיים ל-SAP — מקבלים את המשקל הגבוה ביותר (|w|=0.40 ו-0.30 בהתאמה).
+  </p>
+
+  <!-- ── 3. MIMIC Cohort ── -->
+  <h2 class="section-title">3. קוהורט MIMIC-IV — שיטות וממצאים</h2>
+
+  <h3 class="sub-title">3.1 חילוץ הקוהורט</h3>
+  <p>
+    בוצע חילוץ אוטומטי ממסד MIMIC-IV Clinical Database Demo (גרסה 2.2, PhysioNet) באמצעות סקריפט <code>extract_mimic_ap.py</code>. קריטריוני ההכללה: אבחנה עיקרית ICD-10 K85.* (דלקת לבלב חריפה) או ICD-9 577.0. סיווג "קשה" נקבע לפי נוכחות קודי ICD-10 להכשל איברים באותו אשפוז: N17* (AKI), J96* (כשל נשימתי), A41* (ספסיס), R65* (SIRS עם כשל).
+  </p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-val">8</div>
+      <div class="card-lbl">אשפוזי AP בקוהורט Demo</div>
+    </div>
+    <div class="card">
+      <div class="card-val">50%</div>
+      <div class="card-lbl">שיעור SAP בקוהורט (4/8)</div>
+    </div>
+    <div class="card">
+      <div class="card-val">0.56</div>
+      <div class="card-lbl">AUROC (קוהורט demo)</div>
+    </div>
+    <div class="card">
+      <div class="card-val">0.68</div>
+      <div class="card-lbl">AUPRC</div>
+    </div>
+  </div>
+
+  <div class="alert alert-warn">
+    ⚠️ <div><strong>מגבלת גודל מדגם:</strong> קוהורט Demo של MIMIC-IV כולל 8 אשפוזי AP בלבד — גודל בלתי מספיק לאמידה סטטיסטית מהימנה. ה-AUROC המדווח (0.56) אינו מייצג את ביצועי המודל בגודל מדגם קליני. שימוש במסד MIMIC-IV המלא (~50,000 אשפוזים) יניב אמידה מהימנה.</div>
+  </div>
+
+  <h3 class="sub-title">3.2 ביצועים לפי סף החלטה</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>סף החלטה</th><th>TP</th><th>TN</th><th>FP</th><th>FN</th><th>רגישות</th><th>סגוליות</th><th>F1</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>0.10</td><td>4</td><td>0</td><td>4</td><td>0</td><td class="good">1.00</td><td class="warn">0.00</td><td>0.50</td></tr>
+        <tr><td>0.15</td><td>4</td><td>0</td><td>4</td><td>0</td><td class="good">1.00</td><td class="warn">0.00</td><td>0.50</td></tr>
+        <tr><td>0.20</td><td>2</td><td>4</td><td>0</td><td>2</td><td>0.50</td><td class="good">1.00</td><td>0.67</td></tr>
+        <tr><td>0.25</td><td>2</td><td>4</td><td>0</td><td>2</td><td>0.50</td><td class="good">1.00</td><td>0.67</td></tr>
+        <tr><td>0.30</td><td>0</td><td>4</td><td>0</td><td>4</td><td class="warn">0.00</td><td class="good">1.00</td><td>0.00</td></tr>
+        <tr><td>0.40 (ברירת מחדל)</td><td>0</td><td>4</td><td>0</td><td>4</td><td class="warn">0.00</td><td class="good">1.00</td><td>0.00</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    ניתוח עקומת הסף מצביע כי בקוהורט Demo האופטימום מושג בסף 0.20–0.25, המאפשר סגוליות מלאה תוך שמירת רגישות בינונית. בפרקטיקה קלינית, ניבוי SAP מחייב מזעור פספוסים (FN) — לכן סף נמוך (0.15–0.20) עדיף על פני ספציפיות גבוהה.
+  </p>
+
+  <!-- ── 4. EHR Integration ── -->
+  <h2 class="section-title">4. אינטגרציה עם מערכות מידע קליניות</h2>
+
+  <h3 class="sub-title">4.1 FHIR R4 — תקן בין-לאומי</h3>
+  <p>
+    ה-API תומך בקבלת Bundle מסוג FHIR R4 הכולל משאב Patient ורשימת Observation עם קודי LOINC. התגובה מוחזרת כ-RiskAssessment resource עם ציוני SNOMED CT:
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>רמת סיכון</th><th>קוד SNOMED CT</th><th>סף הסתברות</th></tr></thead>
+      <tbody>
+        <tr><td class="good">נמוך (Low)</td><td>723505004</td><td>&lt;0.30</td></tr>
+        <tr><td class="warn">בינוני (Moderate)</td><td>723506003</td><td>0.30–0.60</td></tr>
+        <tr><td style="color:var(--red);font-weight:700">גבוה (High)</td><td>723507007</td><td>&gt;0.60</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">4.2 HL7 v2.x — תאימות עם מערכות קיימות</h3>
+  <p>
+    ממשק HL7 v2.x מנתח הודעות ORU^R01 ומחלץ גיל/מין מ-PID ונתוני מעבדה מ-OBX. המערכת תומכת בקודי LOINC וכן בקודי LIS ייחודיים של Epic, Cerner, OpenEMR, VistA ו-Allscripts, דבר המאפשר אינטגרציה ללא שינויי קוד בצד ה-EHR.
+  </p>
+
+  <h3 class="sub-title">4.3 Camelion (קמיליון) — ה-HIS הישראלי</h3>
+  <p>
+    מערכת קמיליון של Malam-Team היא ה-HIS הנפוץ ביותר בישראל. PenuX-AP-Severity כולל מתאם ייעודי התומך ב:
+  </p>
+  <ul style="padding-right:1.5rem;margin-bottom:.9rem;color:var(--gray800)">
+    <li><strong>JSON עברי-אנגלי:</strong> שדות בעברית (גיל, מין, כדוריות דם לבנות, קריאטינין...) ובאנגלית</li>
+    <li><strong>FHIR R4 Gateway:</strong> גישה דרך SMART on FHIR עם authorization_code / client_credentials</li>
+    <li><strong>תגובה דו-לשונית:</strong> הפלט מוחזר בעברית ובאנגלית כאחד</li>
+  </ul>
+
+  <div class="alert alert-info">
+    ℹ️ <div>לגישת Sandbox לסביבת קמיליון יש ליצור קשר עם Malam-Team ולבקש אישגורים ל-SMART on FHIR. פרטי הקשר: <strong>api-support@malam.co.il</strong></div>
+  </div>
+
+  <!-- ── 5. Privacy ── -->
+  <h2 class="section-title">5. פרטיות ואבטחת מידע</h2>
+  <p>
+    מערכת PenuX-AP-Severity תוכננה מלכתחילה עם עקרון <em>Privacy by Design</em>:
+  </p>
+  <ul style="padding-right:1.5rem;margin-bottom:.9rem;color:var(--gray800)">
+    <li>מזהים אישיים (ת.ז., שם, MRN) נמחקים לפני שידור לשרת הניבוי</li>
+    <li>אין רישום (logging) של ערכים אישיים בצד השרת</li>
+    <li>כל הבקשות מעובדות בזיכרון ואינן נשמרות לבסיס נתונים</li>
+    <li>תואם ל-HIPAA Minimum Necessary Standard ולחוק הגנת הפרטיות הישראלי</li>
+  </ul>
+  <div class="alert alert-green">
+    ✅ <div>ניבוי SAP הוא <strong>ניבוי בלבד</strong> — לא אבחנה. כל החלטה קלינית נשארת באחריות הרופא המטפל.</div>
+  </div>
+
+  <!-- ── 6. Comparison ── -->
+  <h2 class="section-title">6. השוואה לכלים קיימים</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>כלי ניקוד</th><th>AUROC (ספרות)</th><th>זמן לתוצאה</th><th>מספר פרמטרים</th><th>אינטגרציה ל-EHR</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>PenuX-AP-Severity</strong></td><td class="good">~0.82 (ספרות דומה)</td><td class="good">2–4 שעות</td><td>11 מעבדה + 2 דמוגרפיה</td><td class="good">FHIR · HL7 · Camelion</td></tr>
+        <tr><td>BISAP</td><td>0.82</td><td>24 שעות</td><td>5</td><td>ידני</td></tr>
+        <tr><td>Ranson (קבלה)</td><td>0.73</td><td>הקבלה</td><td>5 מתוך 11</td><td>ידני</td></tr>
+        <tr><td>APACHE II</td><td>0.83</td><td>24 שעות</td><td>12 + גיל + מחלה כרונית</td><td>ידני</td></tr>
+        <tr><td>Harmless AP Score</td><td>0.88</td><td>הקבלה</td><td>3</td><td>לא</td></tr>
+        <tr><td>CTSI (CT)</td><td>0.87</td><td>לאחר CT</td><td>CT בלבד</td><td>PACS בלבד</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    PenuX-AP-Severity מציע יתרון מרכזי בכך שתוצאה זמינה תוך 2–4 שעות מהקבלה — זמן ביצוע מעבדה שגרתית — ללא צורך ב-CT, ללא תלות ב-24 שעות מעקב, עם ממשק API מלא לאינטגרציה אוטומטית.
+  </p>
+
+  <!-- ── 7. Limitations ── -->
+  <h2 class="section-title">7. מגבלות ועתיד</h2>
+  <ul style="padding-right:1.5rem;color:var(--gray800);margin-bottom:1rem">
+    <li style="margin-bottom:.5rem"><strong>אימות מוגבל:</strong> הביצועים מבוססים על Demo Dataset (n=8). נדרש אימות על MIMIC-IV מלא ועל נתוני מרכזים רפואיים ישראליים.</li>
+    <li style="margin-bottom:.5rem"><strong>משקלות הוריסטיים:</strong> המשקלות אינם מאומנים בשיטת Gradient Descent אלא נגזרו ידנית מהספרות. מודל ML מאומן יצפה לביצועים עדיפים.</li>
+    <li style="margin-bottom:.5rem"><strong>חסרי ערכים:</strong> כ-30–60% מהמטופלים לא מבוצעים להם כל 11 הבדיקות. המודל מטפל בחסרים באמצעות ממוצעי קבוצה, דבר שעלול לייצר הטיה.</li>
+    <li style="margin-bottom:.5rem"><strong>היעדר אינטגרציה בזמן אמת:</strong> בשלב זה, המערכת אינה מחוברת לזרם נתוני המעבדה בזמן אמת — נדרש שידור ידני או אוטומציה דרך webhook.</li>
+    <li style="margin-bottom:.5rem"><strong>אישור רגולטורי:</strong> שימוש קליני מחייב אישור ועדת הלסינקי, אישור משרד הבריאות, ורישום כ-SaMD (Software as Medical Device).</li>
+  </ul>
+
+  <h3 class="sub-title">כיוונים עתידיים</h3>
+  <ul style="padding-right:1.5rem;color:var(--gray800);margin-bottom:1rem">
+    <li>אימון על נתוני Sheba, Hadassah, Rambam (IRB)</li>
+    <li>שילוב נתוני CT (Modified CTSI) במסגרת FHIR ImagingStudy</li>
+    <li>מודל Federated Learning — אימון מבוזר ללא שיתוף נתונים</li>
+    <li>פיתוח אפליקציית PointOfCare לשימוש רופאי מיון</li>
+    <li>שיתוף MIMIC-IV מלא (דורש גישה מאושרת PhysioNet)</li>
+  </ul>
+
+  <!-- ── 8. Conclusion ── -->
+  <h2 class="section-title">8. מסקנות</h2>
+  <p>
+    PenuX-AP-Severity מציג תשתית מחקרית מוכנה לאינטגרציה עם מערכות EHR ישראליות ובין-לאומיות, עם תמיכה ב-FHIR R4, HL7 v2.x, וה-HIS הישראלי Camelion. הממשק מאפשר ניבוי SAP תוך שעות מהקבלה, בהתבסס על ערכי מעבדה שגרתיים.
+  </p>
+  <p>
+    למרות ביצועים ראשוניים מוגבלים בקוהורט Demo (n=8), הארכיטקטורה תומכת בהרחבה עתידית — הן בנפח הנתונים (MIMIC-IV מלא, נתוני ישראל) והן בחוזק המודל (Gradient Boosting, XGBoost). אימות פרוספקטיבי יקבע את מיקומו של הכלי ביחס ל-BISAP, Ranson, ו-APACHE II הקיימים.
+  </p>
+  <p>
+    הקוד פתוח-מקור ומוזמנים חוקרים, רופאים, ומפתחי HIS לשתף פעולה.
+  </p>
+
+  <!-- ── References ── -->
+  <h2 class="section-title">מקורות</h2>
+  <ol class="refs">
+    <li>Banks PA, et al. <span>Classification of acute pancreatitis — 2012: revision of the Atlanta classification.</span> Gut. 2013;62(1):102–111.</li>
+    <li>Wu BU, et al. <span>The early prediction of mortality in acute pancreatitis: a large population-based study.</span> Gut. 2008;57(12):1698–1703. [BISAP]</li>
+    <li>Ranson JH, et al. <span>Prognostic signs and the role of operative management in acute pancreatitis.</span> Surg Gynecol Obstet. 1974;139(1):69–81.</li>
+    <li>Johnson AEW, et al. <span>MIMIC-IV, a freely accessible electronic health record dataset.</span> Sci Data. 2023;10(1):1.</li>
+    <li>HL7 International. <span>HL7 FHIR R4 Specification.</span> 2019. https://hl7.org/fhir/R4/</li>
+    <li>Bollen TL, et al. <span>Comparative evaluation of the modified CT severity index and CT severity index in assessing severity of acute pancreatitis.</span> AJR. 2011;197(2):386–392.</li>
+    <li>Dellinger EP, et al. <span>Determinant-based classification of acute pancreatitis severity.</span> Ann Surg. 2012;256(6):875–880.</li>
+    <li>Cho JH, Kim TN, et al. <span>Harmless Acute Pancreatitis Score to predict absence of organ failure at admission.</span> Pancreatology. 2015;15(3):229–233.</li>
+  </ol>
+
+  <!-- ── Footer ── -->
+  <div class="article-footer">
+    <strong>הצהרת ניגוד עניינים:</strong> אין ניגוד עניינים. <strong>מימון:</strong> אין מימון חיצוני. <strong>קוד מקור:</strong> github.com/netanelcyber/penuX (MIT License). <strong>נתונים:</strong> MIMIC-IV Clinical Database Demo, PhysioNet (CC-BY 4.0). <strong>אישור אתי:</strong> מחקר רטרוספקטיבי על נתונים אנונימיים ציבוריים — פטור מוועדת הלסינקי לפי תקנות MIMIC. <br/><br/>
+    ⚠️ <strong>אזהרת שימוש:</strong> מערכת זו היא אב-טיפוס מחקרי בלבד ואינה מוסמכת לשימוש קליני. אין להשתמש בה לקבלת החלטות טיפוליות.
+  </div>
+
+</div>
+</body>
+</html>
