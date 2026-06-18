@@ -32,10 +32,17 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Assemble site
+        run: |
+          mkdir -p /tmp/site/apt-repo
+          cp -r apt-repo/. /tmp/site/apt-repo/
+          cp index.html /tmp/site/
+          touch /tmp/site/.nojekyll
+
       - name: Upload apt-repo as Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: '/tmp/site'
 
       - name: Deploy to GitHub Pages
         id: deployment
