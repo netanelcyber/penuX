@@ -1,0 +1,723 @@
+age,sap_label,panc_sepsis_prob,risk_group,criteria
+82,1,0.0787,low,Amylase↑ 522 U/L | Albumin↓↓ 28.4 g/L (third-spacing)
+54,0,0.0895,low,CRP↑mod 134 | Ca↓ 1.96 mmol/L | Albumin↓ 30.9 g/L | Fibrinogen↑ 6.6 g/L (acute phase)
+66,0,0.2279,moderate,Amylase↑ 612 U/L | CRP↑mod 130 | Ca↓↓ 1.52 mmol/L (saponification) | NLR↑↑ 55.6 (immune exhaustion) | Albumin↓ 31.0 g/L | Fibrinogen↑ 5.7 g/L (acute phase)
+70,1,0.0704,low,CRP↑mod 71 | NLR↑ 10.4
+42,0,0.0573,low,Lactate↑ 2.80 mmol/L
+66,1,0.063,low,Amylase↑ 337 U/L | CRP↑mod 83
+51,1,0.0573,low,Lactate↑ 2.20 mmol/L
+57,0,0.1034,low,Amylase↑↑ 2023 U/L | NLR↑↑ 21.5 (immune exhaustion)
+57,0,0.0552,low,Albumin↓ 34.9 g/L | Fibrinogen↑ 5.5 g/L (acute phase)
+28,1,0.0573,low,Lactate↑ 2.90 mmol/L
+58,1,0.0552,low,Amylase↑ 424 U/L | Fibrinogen↑ 5.2 g/L (acute phase)
+63,1,0.0392,low,—
+60,1,0.0392,low,—
+45,1,0.0573,low,Lactate↑ 3.30 mmol/L
+45,1,0.0691,low,Amylase↑ 375 U/L | Lactate↑ 3.30 mmol/L
+45,1,0.0392,low,—
+82,1,0.098,low,Amylase↑ 691 U/L | NLR↑ 10.3 | Lactate↑ 3.90 mmol/L
+34,0,0.1192,low,Amylase↑↑ 1002 U/L | NLR↑ 14.2 | Lactate↑ 3.00 mmol/L
+30,1,0.0392,low,—
+56,1,0.0392,low,—
+56,1,0.0392,low,—
+83,0,0.1091,low,Amylase↑↑ 2737 U/L | NLR↑↑ 18.0 (immune exhaustion)
+79,1,0.0704,low,Ca↓↓ 1.83 mmol/L (saponification)
+47,1,0.0392,low,—
+35,1,0.0691,low,Amylase↑ 441 U/L | Lactate↑ 2.10 mmol/L
+67,1,0.1885,moderate,Amylase↑↑ 1377 U/L | NLR↑ 10.3 | Fibrinogen↓ 2.0 g/L (DIC) | Lactate↑ 3.30 mmol/L
+40,1,0.0642,low,Amylase↑ 483 U/L | NLR↑ 12.9
+31,1,0.0474,low,Amylase↑ 317 U/L
+31,1,0.0392,low,—
+31,1,0.0392,low,—
+31,1,0.0392,low,—
+56,0,0.168,moderate,Amylase↑↑ 2644 U/L | NLR↑↑ 19.8 (immune exhaustion) | D-dimer↑ 4.2 | Lactate↑ 3.10 mmol/L
+77,0,0.265,moderate,Amylase↑ 540 U/L | CRP↑ 177 mg/L (necrosis marker) | NLR↑ 12.2 | Fibrinogen↑ 6.2 g/L (acute phase) | D-dimer↑↑ 6.3 | Lactate↑ 3.80 mmol/L
+53,1,0.0392,low,—
+62,0,0.0573,low,Lactate↑ 2.40 mmol/L
+69,1,0.1091,low,Amylase↑↑ 2274 U/L | NLR↑↑ 29.9 (immune exhaustion)
+70,1,0.1016,low,NLR↑↑ 15.9 (immune exhaustion) | Lactate↑ 2.60 mmol/L
+32,1,0.0493,low,CRP↑mod 68
+43,1,0.0392,low,—
+51,1,0.0532,low,NLR↑ 11.4
+52,1,0.0392,low,—
+40,1,0.2769,moderate,Amylase↑↑ 1509 U/L | NLR↑↑ 22.2 (immune exhaustion) | Albumin↓↓ 28.2 g/L (third-spacing) | Lactate↑ 4.80 mmol/L | Acidosis pH 7.327
+56,1,0.0618,low,Fibrinogen↓ 1.9 g/L (DIC)
+56,1,0.0474,low,Amylase↑ 593 U/L
+45,1,0.0573,low,CRP↑mod 140 | Fibrinogen↑ 5.6 g/L (acute phase)
+31,1,0.0573,low,CRP↑mod 98 | Fibrinogen↑ 6.7 g/L (acute phase)
+62,1,0.1468,low,Amylase↑↑ 1884 U/L | CRP↑mod 109 | NLR↑↑ 15.4 (immune exhaustion) | Fibrinogen↑ 5.4 g/L (acute phase)
+56,1,0.0618,low,Amylase↑↑ 1011 U/L
+53,1,0.0573,low,Lactate↑ 2.60 mmol/L
+63,1,0.0392,low,—
+61,0,0.2042,moderate,CRP↑ 164 mg/L (necrosis marker) | NLR↑ 10.6 | Albumin↓↓ 29.1 g/L (third-spacing) | Creat↑ 2.2 mg/dL
+44,1,0.0642,low,Amylase↑ 357 U/L | Acidosis pH 7.323
+46,0,0.246,moderate,Amylase↑↑ 1125 U/L | Ca↓↓ 1.67 mmol/L (saponification) | NLR↑ 10.3 | Lactate↑ 3.50 mmol/L | Acidosis pH 7.319
+47,1,0.0392,low,—
+39,1,0.0457,low,Fibrinogen↑ 5.5 g/L (acute phase)
+23,1,0.0392,low,—
+55,1,0.1324,low,Amylase↑ 594 U/L | NLR↑ 14.8 | Albumin↓↓ 29.1 g/L (third-spacing) | D-dimer↑↑ 7.0
+28,1,0.0618,low,Amylase↑↑ 1231 U/L
+28,1,0.1034,low,Amylase↑↑ 2202 U/L | NLR↑↑ 20.1 (immune exhaustion)
+81,0,0.0847,low,Amylase↑ 871 U/L | NLR↑↑ 20.9 (immune exhaustion)
+60,0,0.3823,moderate,Amylase↑ 719 U/L | CRP↑ 199 mg/L (necrosis marker) | Ca↓ 1.90 mmol/L | NLR↑↑ 21.7 (immune exhaustion) | Albumin↓↓ 26.9 g/L (third-spacing) | Fibrinogen↑ 5.4 g/L (acute phase) | D-dimer↑↑ 7.3
+35,1,0.0474,low,Amylase↑ 989 U/L
+37,1,0.0802,low,Amylase↑ 399 U/L | NLR↑↑ 21.1 (immune exhaustion)
+48,1,0.0573,low,CRP↑mod 115 | Fibrinogen↑ 6.3 g/L (acute phase)
+57,1,0.3274,moderate,CRP↑ 150 mg/L (necrosis marker) | Ca↓↓ 1.63 mmol/L (saponification) | Albumin↓↓ 28.7 g/L (third-spacing) | Fibrinogen↑ 7.1 g/L (acute phase) | D-dimer↑ 4.0 | Lactate↑ 2.60 mmol/L
+49,1,0.1111,low,Amylase↑ 812 U/L | CRP↑mod 56 | Ca↓ 1.92 mmol/L | Lactate↑ 3.70 mmol/L
+64,1,0.4305,high,CRP↑ 189 mg/L (necrosis marker) | Ca↓↓ 1.36 mmol/L (saponification) | NLR↑↑ 21.4 (immune exhaustion) | Albumin↓ 34.0 g/L | Fibrinogen↑ 8.8 g/L (acute phase) | D-dimer↑↑ 11.4 | Lactate↑ 2.80 mmol/L
+76,1,0.1765,moderate,Amylase↑ 878 U/L | NLR↑ 14.1 | Albumin↓ 34.4 g/L | Fibrinogen↑ 6.8 g/L (acute phase) | Creat↑ 2.4 mg/dL | Lactate↑ 2.50 mmol/L
+60,1,0.0474,low,Albumin↓ 33.9 g/L
+32,1,0.0895,low,CRP↑ 190 mg/L (necrosis marker) | Fibrinogen↑ 10.8 g/L (acute phase)
+30,1,0.0392,low,—
+69,1,0.1016,low,Amylase↑↑ 2889 U/L | NLR↑ 12.2 | D-dimer↑ 3.6
+69,1,0.2423,moderate,Amylase↑ 761 U/L | CRP↑ 204 mg/L (necrosis marker) | Albumin↓ 31.6 g/L | D-dimer↑ 4.2 | Lactate↑ 2.30 mmol/L | Acidosis pH 7.207
+62,1,0.0618,low,Amylase↑↑ 1726 U/L
+62,1,0.0392,low,—
+91,1,0.0879,low,Amylase↑ 333 U/L | Ca↓ 1.94 mmol/L | NLR↑ 14.7
+57,1,0.0493,low,CRP↑mod 93
+65,1,0.0573,low,Lactate↑ 2.40 mmol/L
+51,1,0.0493,low,CRP↑mod 55
+53,1,0.1468,low,Amylase↑↑ 1444 U/L | NLR↑↑ 25.4 (immune exhaustion) | Lactate↑ 2.90 mmol/L
+58,1,0.1468,low,Amylase↑↑ 4854 U/L | CRP↑mod 84 | NLR↑↑ 22.7 (immune exhaustion) | Fibrinogen↑ 7.7 g/L (acute phase)
+40,0,0.0895,low,Amylase↑ 467 U/L | Ca↓ 1.98 mmol/L | Lactate↑ 2.40 mmol/L
+40,1,0.0392,low,—
+65,1,0.1151,low,Amylase↑ 346 U/L | NLR↑↑ 18.3 (immune exhaustion) | Lactate↑ 3.00 mmol/L
+66,1,0.1171,low,Amylase↑↑ 1194 U/L | Creat↑ 5.4 mg/dL | Acidosis pH 7.345
+39,1,0.0392,low,—
+29,1,0.1915,moderate,CRP↑ 198 mg/L (necrosis marker) | NLR↑↑ 15.9 (immune exhaustion) | Fibrinogen↑ 9.8 g/L (acute phase) | Acidosis pH 7.273
+43,0,0.1854,moderate,Amylase↑↑ 1074 U/L | Ca↓ 1.99 mmol/L | NLR↑↑ 24.7 (immune exhaustion) | Lactate↑ 2.60 mmol/L
+36,0,0.1795,moderate,CRP↑ 266 mg/L (necrosis marker) | Ca↓ 1.94 mmol/L | Albumin↓ 30.6 g/L | Fibrinogen↑ 8.4 g/L (acute phase) | D-dimer↑↑ 8.4
+29,1,0.0773,low,NLR↑ 10.4 | Lactate↑ 2.50 mmol/L
+29,1,0.0457,low,Fibrinogen↑ 8.1 g/L (acute phase)
+71,1,0.1598,moderate,Amylase↑ 701 U/L | NLR↑↑ 22.3 (immune exhaustion) | Lactate↑ 6.00 mmol/L | Acidosis pH 7.277
+48,1,0.0474,low,Amylase↑ 540 U/L
+42,0,0.0895,low,NLR↑ 11.6 | Fibrinogen↑ 5.5 g/L (acute phase) | Lactate↑ 2.50 mmol/L
+42,0,0.2244,moderate,CRP↑ 182 mg/L (necrosis marker) | Ca↓ 1.93 mmol/L | NLR↑↑ 17.5 (immune exhaustion) | Lactate↑ 2.40 mmol/L
+35,1,0.0474,low,Amylase↑ 547 U/L
+82,1,0.1545,moderate,Amylase↑↑ 2053 U/L | NLR↑↑ 24.6 (immune exhaustion) | Lactate↑ 3.40 mmol/L
+28,1,0.0573,low,Lactate↑ 2.10 mmol/L
+44,1,0.0392,low,—
+78,0,0.387,moderate,Amylase↑↑ 3235 U/L | CRP↑mod 85 | NLR↑↑ 16.6 (immune exhaustion) | Albumin↓ 34.7 g/L | Fibrinogen↑ 6.3 g/L (acute phase) | D-dimer↑↑ 14.5 | Creat↑ 2.4 mg/dL | Lactate↑ 4.20 mmol/L
+43,1,0.0773,low,Amylase↑↑ 1048 U/L | CRP↑mod 132
+31,0,0.1519,moderate,Amylase↑ 912 U/L | Ca↓↓ 1.81 mmol/L (saponification) | Lactate↑ 3.90 mmol/L | Acidosis pH 7.331
+45,0,0.0666,low,NLR↑↑ 19.1 (immune exhaustion)
+80,1,0.0787,low,Amylase↑ 815 U/L | Ca↓ 1.99 mmol/L | Albumin↓ 31.8 g/L
+37,1,0.0618,low,Amylase↑↑ 2424 U/L
+37,1,0.1072,low,Amylase↑ 614 U/L | Ca↓↓ 1.89 mmol/L (saponification) | NLR↑ 12.3
+37,1,0.1468,low,Amylase↑↑ 2483 U/L | NLR↑↑ 18.1 (immune exhaustion) | Lactate↑ 3.10 mmol/L
+77,1,0.2729,moderate,Amylase↑ 478 U/L | CRP↑ 241 mg/L (necrosis marker) | NLR↑↑ 29.1 (immune exhaustion) | Albumin↓ 34.2 g/L | Fibrinogen↑ 8.4 g/L (acute phase) | Acidosis pH 7.341
+57,0,0.1235,low,Amylase↑ 745 U/L | Ca↓ 1.94 mmol/L | NLR↑↑ 17.0 (immune exhaustion) | Albumin↓ 30.9 g/L
+44,0,0.1519,moderate,CRP↑mod 70 | NLR↑ 13.8 | Albumin↓ 31.7 g/L | Fibrinogen↑ 8.3 g/L (acute phase) | D-dimer↑ 2.8 | Lactate↑ 2.40 mmol/L
+28,1,0.2387,moderate,CRP↑ 178 mg/L (necrosis marker) | NLR↑↑ 27.2 (immune exhaustion) | Albumin↓ 34.3 g/L | Fibrinogen↑ 7.9 g/L (acute phase) | Lactate↑ 5.20 mmol/L
+28,1,0.0962,low,NLR↑↑ 18.4 (immune exhaustion) | Lactate↑ 2.10 mmol/L
+38,1,0.0392,low,—
+41,1,0.0474,low,Amylase↑ 431 U/L
+63,1,0.0573,low,Lactate↑ 2.10 mmol/L
+56,1,0.0718,low,CRP↑mod 126 | Lactate↑ 4.20 mmol/L
+30,1,0.0773,low,CRP↑mod 133 | Fibrinogen↑ 7.9 g/L (acute phase) | Acidosis pH 7.347
+26,1,0.1519,moderate,Amylase↑↑ 1473 U/L | CRP↑mod 72 | Ca↓↓ 1.51 mmol/L (saponification) | Albumin↓ 31.6 g/L
+79,1,0.2142,moderate,Amylase↑ 594 U/L | CRP↑ 188 mg/L (necrosis marker) | NLR↑↑ 20.7 (immune exhaustion) | Albumin↓ 30.2 g/L | Fibrinogen↑ 6.1 g/L (acute phase)
+37,0,0.285,moderate,Amylase↑ 815 U/L | CRP↑ 163 mg/L (necrosis marker) | Ca↓↓ 1.52 mmol/L (saponification) | Albumin↓↓ 28.9 g/L (third-spacing) | Fibrinogen↑ 6.5 g/L (acute phase) | D-dimer↑ 2.1
+72,1,0.1598,moderate,Amylase↑ 961 U/L | CRP↑mod 85 | Albumin↓↓ 28.2 g/L (third-spacing) | Fibrinogen↑ 6.3 g/L (acute phase) | Lactate↑ 2.50 mmol/L
+53,1,0.0392,low,—
+47,1,0.0573,low,Lactate↑ 2.10 mmol/L
+72,1,0.1256,low,CRP↑mod 84 | Ca↓ 1.91 mmol/L | NLR↑ 13.9 | Albumin↓ 31.1 g/L | Fibrinogen↑ 5.4 g/L (acute phase)
+26,0,0.1111,low,CRP↑mod 68 | Ca↓↓ 1.72 mmol/L (saponification) | Fibrinogen↑ 7.3 g/L (acute phase) | D-dimer↑ 3.3
+26,0,0.0998,low,CRP↑mod 81 | Ca↓ 1.99 mmol/L | Albumin↓↓ 29.6 g/L (third-spacing)
+59,1,0.0532,low,Acidosis pH 7.321
+33,0,0.0618,low,Fibrinogen↑ 6.0 g/L (acute phase) | Acidosis pH 7.195
+48,1,0.0474,low,Amylase↑ 317 U/L
+69,1,0.0563,low,Acidosis pH 7.346
+35,1,0.1371,low,CRP↑ 330 mg/L (necrosis marker) | Albumin↓↓ 28.9 g/L (third-spacing) | Fibrinogen↑ 10.8 g/L (acute phase)
+89,0,0.2142,moderate,Amylase↑↑ 1218 U/L | CRP↑mod 99 | NLR↑↑ 98.8 (immune exhaustion) | D-dimer↑ 3.2 | Lactate↑ 2.80 mmol/L
+33,0,0.3186,moderate,Amylase↑ 361 U/L | CRP↑ 192 mg/L (necrosis marker) | Ca↓↓ 1.58 mmol/L (saponification) | Albumin↓↓ 28.0 g/L (third-spacing) | Fibrinogen↑ 7.8 g/L (acute phase) | D-dimer↑↑ 6.8
+26,0,0.0928,low,Amylase↑ 481 U/L | CRP↑mod 67 | Fibrinogen↑ 8.5 g/L (acute phase) | Acidosis pH 7.175
+36,1,0.0457,low,Fibrinogen↑ 5.7 g/L (acute phase)
+35,1,0.0474,low,Amylase↑ 471 U/L
+68,1,0.0415,low,—
+67,1,0.0522,low,CRP↑mod 72
+58,1,0.0666,low,NLR↑↑ 16.3 (immune exhaustion)
+66,1,0.0502,low,Albumin↓ 32.9 g/L
+28,1,0.0642,low,Amylase↑ 475 U/L | NLR↑ 10.2
+46,1,0.0691,low,Amylase↑ 683 U/L | Lactate↑ 3.20 mmol/L
+46,1,0.0392,low,—
+83,1,0.113,low,Amylase↑ 581 U/L | Lipase↑ 1530 U/L | NLR↑ 14.1 | D-dimer↑ 2.7
+59,1,0.0832,low,Amylase↑↑ 1382 U/L | Acidosis pH 7.345
+35,1,0.0392,low,—
+31,1,0.0832,low,CRP↑mod 86 | Fibrinogen↑ 6.0 g/L (acute phase) | Lactate↑ 2.20 mmol/L
+58,1,0.0457,low,Fibrinogen↑ 5.1 g/L (acute phase)
+57,1,0.0392,low,—
+57,1,0.0392,low,—
+37,0,0.1279,low,Ca↓↓ 1.75 mmol/L (saponification) | Lactate↑ 3.20 mmol/L | Acidosis pH 7.328
+32,1,0.0392,low,—
+39,0,0.1625,moderate,CRP↑mod 91 | Ca↓↓ 1.87 mmol/L (saponification) | Albumin↓ 31.3 g/L | Fibrinogen↑ 6.5 g/L (acute phase) | Lactate↑ 2.30 mmol/L
+32,1,0.0691,low,Amylase↑ 575 U/L | Lipase↑ 1540 U/L
+32,1,0.0392,low,—
+57,1,0.0474,low,Amylase↑ 594 U/L
+68,1,0.0817,low,NLR↑ 14.3 | Lactate↑ 2.73 mmol/L
+29,1,0.1279,low,CRP↑ 203 mg/L (necrosis marker) | Fibrinogen↑ 8.4 g/L (acute phase) | Lactate↑ 2.60 mmol/L
+73,0,0.1256,low,Amylase↑ 644 U/L | Ca↓ 1.91 mmol/L | NLR↑ 13.4 | Lactate↑ 2.10 mmol/L
+33,1,0.0392,low,—
+38,1,0.0773,low,CRP↑mod 72 | NLR↑ 12.4 | D-dimer↑ 3.6
+44,1,0.0532,low,Acidosis pH 7.325
+51,1,0.0573,low,Lactate↑ 2.10 mmol/L
+51,1,0.0392,low,—
+53,1,0.0493,low,CRP↑mod 59
+32,0,0.1111,low,Amylase↑ 884 U/L | CRP↑mod 82 | Ca↓ 1.94 mmol/L | Lactate↑ 4.30 mmol/L
+32,1,0.0474,low,Amylase↑ 542 U/L
+72,1,0.0759,low,Amylase↑↑ 1557 U/L | Fibrinogen↑ 5.1 g/L (acute phase)
+62,1,0.0392,low,—
+28,1,0.0457,low,Fibrinogen↑ 5.2 g/L (acute phase)
+69,1,0.0879,low,Amylase↑ 518 U/L | CRP↑mod 62 | Albumin↓ 33.9 g/L | Fibrinogen↑ 5.6 g/L (acute phase)
+36,1,0.0474,low,Amylase↑ 932 U/L
+67,1,0.0584,low,Amylase↑ 488 U/L | Fibrinogen↑ 5.0 g/L (acute phase)
+52,1,0.0573,low,CRP↑mod 107 | Fibrinogen↑ 6.0 g/L (acute phase)
+70,1,0.1091,low,Amylase↑↑ 1973 U/L | CRP↑mod 63 | NLR↑ 13.3
+46,1,0.0773,low,NLR↑ 10.4 | Lactate↑ 3.10 mmol/L
+78,1,0.1091,low,Amylase↑↑ 2387 U/L | NLR↑↑ 19.4 (immune exhaustion)
+58,1,0.0392,low,—
+57,1,0.0773,low,Amylase↑↑ 1686 U/L | CRP↑mod 149
+57,1,0.1795,moderate,Amylase↑↑ 1091 U/L | Lipase↑ 1784 U/L | CRP↑mod 87 | NLR↑↑ 21.4 (immune exhaustion)
+28,1,0.0532,low,Acidosis pH 7.348
+33,0,0.0392,low,—
+37,0,0.3015,moderate,Amylase↑ 721 U/L | CRP↑mod 103 | Ca↓↓ 1.18 mmol/L (saponification) | Albumin↓↓ 29.7 g/L (third-spacing) | Fibrinogen↑ 6.3 g/L (acute phase) | Lactate↑ 3.90 mmol/L | Acidosis pH 7.293
+37,1,0.1625,moderate,Amylase↑ 539 U/L | CRP↑mod 58 | Ca↓↓ 1.81 mmol/L (saponification) | Fibrinogen↑ 6.8 g/L (acute phase) | Lactate↑ 4.12 mmol/L
+31,1,0.2108,moderate,Amylase↑ 374 U/L | CRP↑ 235 mg/L (necrosis marker) | NLR↑↑ 19.0 (immune exhaustion) | Lactate↑ 2.10 mmol/L
+73,0,0.387,moderate,Amylase↑ 970 U/L | CRP↑ 202 mg/L (necrosis marker) | NLR↑↑ 20.9 (immune exhaustion) | Fibrinogen↑ 6.7 g/L (acute phase) | D-dimer↑↑ 12.1 | Creat↑ 3.3 mg/dL | Lactate↑ 3.20 mmol/L
+56,1,0.2176,moderate,CRP↑ 160 mg/L (necrosis marker) | NLR↑↑ 20.3 (immune exhaustion) | Albumin↓↓ 26.7 g/L (third-spacing) | Fibrinogen↑ 9.3 g/L (acute phase)
+36,1,0.0392,low,—
+65,1,0.0512,low,Ca↓ 1.93 mmol/L
+51,1,0.0745,low,Albumin↓ 33.8 g/L | Fibrinogen↑ 5.2 g/L (acute phase) | D-dimer↑↑ 6.4
+37,1,0.0392,low,—
+52,0,0.2315,moderate,Amylase↑↑ 1649 U/L | CRP↑mod 70 | Ca↓↓ 1.18 mmol/L (saponification) | NLR↑ 10.9 | Lactate↑ 2.10 mmol/L
+21,1,0.1468,low,CRP↑ 273 mg/L (necrosis marker) | Ca↓↓ 1.73 mmol/L (saponification) | Fibrinogen↑ 7.1 g/L (acute phase)
+45,0,0.411,high,Amylase↑ 425 U/L | CRP↑mod 144 | Ca↓↓ 1.21 mmol/L (saponification) | Albumin↓↓ 27.4 g/L (third-spacing) | Fibrinogen↑ 6.4 g/L (acute phase) | D-dimer↑ 3.0 | Creat↑ 2.3 mg/dL | Lactate↑ 4.60 mmol/L | Acidosis pH 7.227
+50,1,0.0392,low,—
+59,1,0.0392,low,—
+46,0,0.0802,low,Amylase↑ 839 U/L | Ca↓↓ 1.88 mmol/L (saponification)
+44,1,0.0718,low,CRP↑mod 60 | Lactate↑ 2.40 mmol/L
+44,1,0.0573,low,Lactate↑ 2.12 mmol/L
+34,1,0.0457,low,Fibrinogen↑ 6.9 g/L (acute phase)
+40,0,0.1571,moderate,CRP↑ 157 mg/L (necrosis marker) | NLR↑ 11.3 | Fibrinogen↑ 8.7 g/L (acute phase) | Acidosis pH 7.271
+51,0,0.0895,low,CRP↑ 201 mg/L (necrosis marker) | Fibrinogen↑ 11.4 g/L (acute phase)
+49,0,0.0802,low,Amylase↑ 595 U/L | Fibrinogen↑ 5.6 g/L (acute phase) | Lactate↑ 2.40 mmol/L
+46,1,0.0392,low,—
+40,1,0.0962,low,Ca↓↓ 1.87 mmol/L (saponification) | Lactate↑ 3.72 mmol/L
+41,1,0.0474,low,Albumin↓ 34.3 g/L
+34,1,0.0392,low,—
+45,0,0.1795,moderate,CRP↑ 201 mg/L (necrosis marker) | Ca↓↓ 1.53 mmol/L (saponification) | Lactate↑ 3.30 mmol/L
+52,1,0.0392,low,—
+62,1,0.0573,low,Lactate↑ 2.10 mmol/L
+26,0,0.31,moderate,Amylase↑↑ 2246 U/L | CRP↑ 208 mg/L (necrosis marker) | Ca↓↓ 1.31 mmol/L (saponification) | Albumin↓↓ 16.1 g/L (third-spacing) | D-dimer↑ 2.6
+31,0,0.0642,low,Amylase↑ 787 U/L | NLR↑ 14.1
+31,1,0.0573,low,Lactate↑ 2.18 mmol/L
+31,1,0.0392,low,—
+64,0,0.2315,moderate,CRP↑mod 105 | Ca↓↓ 1.80 mmol/L (saponification) | NLR↑↑ 15.1 (immune exhaustion) | Albumin↓↓ 28.6 g/L (third-spacing) | Fibrinogen↑ 6.2 g/L (acute phase)
+58,1,0.0928,low,CRP↑mod 78 | NLR↑ 10.3 | Albumin↓ 34.1 g/L | Fibrinogen↑ 5.3 g/L (acute phase)
+72,1,0.0502,low,Amylase↑ 826 U/L
+68,1,0.0879,low,CRP↑mod 70 | NLR↑↑ 24.1 (immune exhaustion)
+68,1,0.0415,low,—
+44,0,0.3015,moderate,Amylase↑ 571 U/L | CRP↑mod 109 | Ca↓↓ 1.60 mmol/L (saponification) | NLR↑↑ 20.7 (immune exhaustion) | Albumin↓↓ 26.5 g/L (third-spacing) | Creat↑ 2.6 mg/dL
+42,1,0.0928,low,CRP↑mod 123 | NLR↑ 13.0 | Albumin↓ 33.5 g/L | Fibrinogen↑ 8.3 g/L (acute phase)
+42,1,0.0392,low,—
+63,1,0.0802,low,CRP↑mod 122 | NLR↑ 11.6 | Albumin↓ 32.1 g/L
+32,1,0.0718,low,CRP↑mod 112 | Lactate↑ 2.10 mmol/L
+35,0,0.0691,low,CRP↑mod 81 | Albumin↓ 34.1 g/L | Fibrinogen↑ 8.0 g/L (acute phase)
+59,1,0.0573,low,Lactate↑ 2.10 mmol/L
+44,1,0.0392,low,—
+45,1,0.0392,low,—
+36,0,0.0832,low,Amylase↑↑ 1399 U/L | NLR↑ 13.7
+72,1,0.1598,moderate,CRP↑ 163 mg/L (necrosis marker) | NLR↑↑ 15.7 (immune exhaustion) | Albumin↓ 30.0 g/L
+58,1,0.0832,low,Amylase↑↑ 1753 U/L | NLR↑ 12.9
+59,1,0.0392,low,—
+45,0,0.3452,moderate,Amylase↑ 564 U/L | CRP↑ 197 mg/L (necrosis marker) | Ca↓↓ 1.49 mmol/L (saponification) | Albumin↓ 31.7 g/L | Fibrinogen↑ 8.0 g/L (acute phase) | Lactate↑ 3.90 mmol/L | Acidosis pH 7.335
+32,1,0.0573,low,CRP↑mod 135 | Fibrinogen↑ 7.0 g/L (acute phase)
+32,1,0.0392,low,—
+44,1,0.0493,low,CRP↑mod 93
+39,0,0.2932,moderate,Amylase↑↑ 1280 U/L | Lipase↑ 2446 U/L | CRP↑mod 61 | Ca↓↓ 1.80 mmol/L (saponification) | NLR↑ 11.7 | Fibrinogen↑ 5.1 g/L (acute phase) | D-dimer↑ 4.8
+75,0,0.1171,low,Amylase↑↑ 1283 U/L | NLR↑ 11.0 | D-dimer↑↑ 7.9
+73,0,0.2809,moderate,Amylase↑ 998 U/L | Lipase↑ 1485 U/L | NLR↑↑ 22.6 (immune exhaustion) | D-dimer↑↑ 9.8 | Lactate↑ 4.00 mmol/L | Acidosis pH 7.319
+68,1,0.1256,low,Amylase↑ 459 U/L | CRP↑mod 84 | NLR↑↑ 17.1 (immune exhaustion) | Albumin↓ 34.0 g/L
+43,1,0.0573,low,CRP↑mod 73 | Fibrinogen↑ 7.1 g/L (acute phase)
+26,1,0.0573,low,Lactate↑ 2.90 mmol/L
+32,1,0.0618,low,Amylase↑↑ 2131 U/L
+36,1,0.0457,low,Fibrinogen↑ 5.5 g/L (acute phase)
+43,0,0.1072,low,CRP↑ 321 mg/L (necrosis marker) | Albumin↓ 34.8 g/L | Fibrinogen↑ 9.0 g/L (acute phase)
+32,1,0.0392,low,—
+32,1,0.0392,low,—
+54,0,0.1978,moderate,Amylase↑ 861 U/L | CRP↑ 165 mg/L (necrosis marker) | Albumin↓↓ 29.2 g/L (third-spacing) | Lactate↑ 3.13 mmol/L
+70,1,0.1213,low,Amylase↑ 636 U/L | NLR↑↑ 36.6 (immune exhaustion) | Lactate↑ 3.88 mmol/L
+84,0,0.3682,moderate,Amylase↑↑ 1343 U/L | Lipase↑ 1353 U/L | CRP↑mod 128 | NLR↑↑ 63.8 (immune exhaustion) | Albumin↓ 32.0 g/L | Lactate↑ 12.51 mmol/L | Acidosis pH 7.292
+35,0,0.1279,low,CRP↑ 219 mg/L (necrosis marker) | NLR↑↑ 30.6 (immune exhaustion)
+84,1,0.0584,low,Albumin↓ 34.3 g/L | Fibrinogen↑ 6.6 g/L (acute phase)
+26,1,0.0802,low,Amylase↑ 454 U/L | NLR↑↑ 19.4 (immune exhaustion)
+99,1,0.0654,low,Fibrinogen↓ 0.5 g/L (DIC)
+38,1,0.0573,low,CRP↑mod 119 | Fibrinogen↑ 7.8 g/L (acute phase)
+72,1,0.1171,low,Amylase↑↑ 1016 U/L | CRP↑mod 59 | Lactate↑ 3.07 mmol/L
+58,1,0.0618,low,Amylase↑↑ 1450 U/L
+23,1,0.1279,low,CRP↑ 166 mg/L (necrosis marker) | Fibrinogen↑ 5.0 g/L (acute phase) | Lactate↑ 2.47 mmol/L
+57,1,0.246,moderate,CRP↑mod 129 | Ca↓↓ 1.79 mmol/L (saponification) | NLR↑↑ 18.2 (immune exhaustion) | D-dimer↑↑ 21.0 | Lactate↑ 2.13 mmol/L
+48,0,0.48,high,CRP↑ 182 mg/L (necrosis marker) | Ca↓↓ 1.79 mmol/L (saponification) | NLR↑↑ 22.9 (immune exhaustion) | Albumin↓↓ 25.1 g/L (third-spacing) | Fibrinogen↑ 5.2 g/L (acute phase) | D-dimer↑↑ 9.0 | Creat↑ 15.6 mg/dL
+55,1,0.0552,low,Albumin↓ 34.2 g/L | Fibrinogen↑ 5.1 g/L (acute phase)
+68,1,0.2142,moderate,Amylase↑↑ 1914 U/L | Lipase↑ 2693 U/L | NLR↑↑ 25.0 (immune exhaustion) | Lactate↑ 3.11 mmol/L
+39,1,0.0392,low,—
+46,0,0.3452,moderate,CRP↑ 223 mg/L (necrosis marker) | Ca↓↓ 0.75 mmol/L (saponification) | NLR↑ 12.3 | Albumin↓↓ 26.4 g/L (third-spacing) | Fibrinogen↑ 7.3 g/L (acute phase) | Creat↑ 6.3 mg/dL
+57,1,0.1151,low,Amylase↑ 480 U/L | Lipase↑ 706 U/L | NLR↑↑ 28.7 (immune exhaustion)
+56,1,0.0392,low,—
+30,0,0.0392,low,—
+44,1,0.0802,low,Amylase↑ 635 U/L | NLR↑↑ 20.6 (immune exhaustion)
+83,0,0.1091,low,Amylase↑↑ 1550 U/L | NLR↑↑ 24.3 (immune exhaustion)
+72,0,0.2351,moderate,CRP↑ 235 mg/L (necrosis marker) | NLR↑↑ 28.1 (immune exhaustion) | Albumin↓ 34.4 g/L | Fibrinogen↑ 7.9 g/L (acute phase) | D-dimer↑↑ 17.1
+63,1,0.0895,low,CRP↑ 151 mg/L (necrosis marker) | Fibrinogen↑ 8.5 g/L (acute phase)
+54,1,0.0474,low,Amylase↑ 955 U/L
+25,1,0.0392,low,—
+36,1,0.1625,moderate,Amylase↑ 433 U/L | Lipase↑ 648 U/L | NLR↑↑ 21.0 (immune exhaustion) | Lactate↑ 2.28 mmol/L
+36,1,0.3274,moderate,CRP↑ 179 mg/L (necrosis marker) | Ca↓↓ 1.41 mmol/L (saponification) | NLR↑↑ 24.5 (immune exhaustion) | Albumin↓↓ 28.7 g/L (third-spacing) | Fibrinogen↑ 8.8 g/L (acute phase)
+32,1,0.0832,low,CRP↑mod 87 | NLR↑↑ 16.5 (immune exhaustion)
+57,1,0.1519,moderate,Amylase↑ 333 U/L | Lipase↑ 819 U/L | NLR↑↑ 32.2 (immune exhaustion) | Creat↑ 9.0 mg/dL
+55,0,0.1854,moderate,Amylase↑↑ 1678 U/L | Ca↓↓ 1.51 mmol/L (saponification) | Albumin↓ 34.8 g/L | D-dimer↑ 3.7 | Creat↑ 2.6 mg/dL
+49,0,0.168,moderate,Amylase↑ 725 U/L | Ca↓ 1.96 mmol/L | NLR↑↑ 32.6 (immune exhaustion) | D-dimer↑ 2.5 | Lactate↑ 2.40 mmol/L
+52,1,0.0392,low,—
+79,1,0.1213,low,Amylase↑ 489 U/L | NLR↑↑ 16.2 (immune exhaustion) | Lactate↑ 2.92 mmol/L
+71,0,0.475,high,Amylase↑↑ 2352 U/L | CRP↑ 187 mg/L (necrosis marker) | Ca↓↓ 1.63 mmol/L (saponification) | Albumin↓↓ 23.0 g/L (third-spacing) | Fibrinogen↑ 5.3 g/L (acute phase) | D-dimer↑↑ 21.0 | Creat↑ 2.8 mg/dL
+79,1,0.0945,low,Amylase↑↑ 1138 U/L | Lipase↑ 1030 U/L
+79,1,0.1171,low,Lipase↑ 663 U/L | NLR↑↑ 16.4 (immune exhaustion) | Fibrinogen↑ 6.3 g/L (acute phase)
+57,1,0.2315,moderate,Amylase↑↑ 2502 U/L | Lipase↑ 2760 U/L | CRP↑mod 127 | NLR↑ 10.9 | Fibrinogen↑ 5.7 g/L (acute phase) | Lactate↑ 2.17 mmol/L
+44,1,0.0962,low,Ca↓↓ 1.88 mmol/L (saponification) | Lactate↑ 2.39 mmol/L
+70,1,0.0415,low,—
+68,1,0.1091,low,Amylase↑ 868 U/L | Lipase↑ 655 U/L | CRP↑mod 109 | Albumin↓ 30.7 g/L
+66,1,0.0415,low,—
+47,1,0.0474,low,Amylase↑ 316 U/L
+85,0,0.1053,low,Amylase↑ 706 U/L | CRP↑mod 129 | NLR↑↑ 22.1 (immune exhaustion)
+69,1,0.0522,low,CRP↑mod 72
+50,0,0.285,moderate,Amylase↑ 468 U/L | CRP↑ 169 mg/L (necrosis marker) | Ca↓↓ 1.54 mmol/L (saponification) | NLR↑ 13.1 | Albumin↓↓ 28.1 g/L (third-spacing)
+33,1,0.0392,low,—
+45,1,0.0474,low,Amylase↑ 369 U/L
+44,1,0.3452,moderate,Amylase↑ 367 U/L | Ca↓↓ 1.85 mmol/L (saponification) | NLR↑↑ 16.1 (immune exhaustion) | Albumin↓ 34.8 g/L | D-dimer↑↑ 17.6 | Lactate↑ 5.24 mmol/L | Acidosis pH 7.327
+58,1,0.0691,low,Amylase↑ 301 U/L | Lipase↑ 606 U/L
+58,1,0.0474,low,Albumin↓ 33.8 g/L
+58,1,0.0691,low,Amylase↑ 658 U/L | Lipase↑ 980 U/L
+33,1,0.1571,moderate,Lipase↑ 627 U/L | CRP↑mod 140 | NLR↑ 14.9 | Fibrinogen↑ 6.8 g/L (acute phase) | Lactate↑ 2.14 mmol/L
+86,1,0.0415,low,—
+86,1,0.0563,low,Fibrinogen↑ 5.3 g/L (acute phase) | D-dimer↑ 3.0
+34,1,0.0392,low,—
+39,1,0.0802,low,Amylase↑ 306 U/L | CRP↑mod 118 | NLR↑ 12.8
+45,1,0.0773,low,Lipase↑ 828 U/L | Acidosis pH 7.299
+52,1,0.0691,low,Amylase↑ 413 U/L | Lipase↑ 1299 U/L
+54,1,0.0457,low,Fibrinogen↑ 5.4 g/L (acute phase)
+82,1,0.0654,low,Albumin↓↓ 26.5 g/L (third-spacing)
+39,1,0.0773,low,NLR↑ 12.5 | Lactate↑ 3.50 mmol/L
+33,1,0.0573,low,CRP↑mod 104 | Fibrinogen↑ 5.6 g/L (acute phase)
+72,1,0.1091,low,Amylase↑ 359 U/L | CRP↑mod 66 | Albumin↓ 32.0 g/L | Lactate↑ 7.28 mmol/L
+36,1,0.0392,low,—
+66,1,0.0787,low,NLR↑ 14.4 | Albumin↓ 30.9 g/L | Fibrinogen↑ 8.4 g/L (acute phase)
+69,0,0.0704,low,CRP↑mod 80 | NLR↑ 12.3
+44,0,0.1978,moderate,Amylase↑ 626 U/L | CRP↑ 179 mg/L (necrosis marker) | Ca↓↓ 1.58 mmol/L (saponification) | Fibrinogen↑ 6.6 g/L (acute phase) | D-dimer↑ 2.1
+30,1,0.2244,moderate,Amylase↑ 528 U/L | Lipase↑ 830 U/L | CRP↑ 186 mg/L (necrosis marker) | Fibrinogen↑ 10.0 g/L (acute phase) | D-dimer↑ 2.0 | Creat↑ 2.2 mg/dL
+30,1,0.1371,low,Amylase↑↑ 1190 U/L | Lipase↑ 1999 U/L | NLR↑ 14.6 | Fibrinogen↑ 5.2 g/L (acute phase)
+43,1,0.0493,low,CRP↑mod 120
+46,1,0.0573,low,CRP↑mod 129 | Fibrinogen↑ 10.3 g/L (acute phase)
+38,0,0.5597,high,Amylase↑↑ 1462 U/L | Lipase↑ 1511 U/L | Ca↓↓ 1.14 mmol/L (saponification) | Albumin↓↓ 26.5 g/L (third-spacing) | Fibrinogen↑ 5.6 g/L (acute phase) | D-dimer↑↑ 7.7 | Creat↑ 2.3 mg/dL | Lactate↑ 4.18 mmol/L | Acidosis pH 7.289
+32,1,0.0573,low,Lactate↑ 3.66 mmol/L
+32,1,0.0392,low,—
+74,1,0.0607,low,Lactate↑ 2.05 mmol/L
+74,0,0.0911,low,Amylase↑ 570 U/L | NLR↑ 11.4 | D-dimer↑↑ 5.4
+74,1,0.098,low,Amylase↑ 828 U/L | Lipase↑↑ 4886 U/L
+74,1,0.0731,low,Amylase↑ 421 U/L | Lipase↑ 1454 U/L
+27,1,0.0392,low,—
+46,1,0.0642,low,Amylase↑ 351 U/L | NLR↑ 11.2
+58,0,0.3543,moderate,Lipase↑ 910 U/L | CRP↑ 183 mg/L (necrosis marker) | Ca↓↓ 1.51 mmol/L (saponification) | NLR↑ 10.5 | Albumin↓ 33.6 g/L | Lactate↑ 2.47 mmol/L
+33,1,0.0928,low,Amylase↑ 724 U/L | Lipase↑ 1771 U/L | NLR↑ 14.6
+57,1,0.0392,low,—
+58,1,0.0474,low,Albumin↓ 32.1 g/L
+77,0,0.1016,low,Amylase↑ 601 U/L | NLR↑↑ 53.2 (immune exhaustion) | Albumin↓ 31.2 g/L
+77,1,0.1347,low,Amylase↑↑ 1222 U/L | Lipase↑ 1742 U/L | CRP↑mod 65 | D-dimer↑ 4.1
+37,1,0.0392,low,—
+55,0,0.0392,low,—
+49,0,0.0745,low,NLR↑ 11.1 | Albumin↓ 31.9 g/L | D-dimer↑ 3.8
+49,1,0.0392,low,—
+50,1,0.0457,low,D-dimer↑ 4.4
+50,1,0.0573,low,Lactate↑ 2.16 mmol/L
+59,0,0.3274,moderate,Amylase↑↑ 1099 U/L | Lipase↑ 2024 U/L | NLR↑↑ 17.0 (immune exhaustion) | D-dimer↑↑ 9.3 | Lactate↑ 4.69 mmol/L | Acidosis pH 7.273
+35,1,0.0532,low,Acidosis pH 7.349
+43,1,0.1571,moderate,Amylase↑↑ 1344 U/L | Lipase↑ 2091 U/L | CRP↑mod 54 | Lactate↑ 3.06 mmol/L
+59,1,0.1468,low,Amylase↑↑ 1395 U/L | Lipase↑ 2574 U/L | NLR↑↑ 21.8 (immune exhaustion)
+46,1,0.1151,low,Amylase↑ 458 U/L | Lipase↑ 941 U/L | NLR↑↑ 15.5 (immune exhaustion)
+50,1,0.0392,low,—
+62,1,0.0618,low,Fibrinogen↓ 1.1 g/L (DIC)
+29,1,0.0392,low,—
+69,1,0.0945,low,Ca↓↓ 1.83 mmol/L (saponification) | Creat↑ 6.0 mg/dL
+57,1,0.2108,moderate,Amylase↑ 553 U/L | Lipase↑ 962 U/L | NLR↑↑ 29.3 (immune exhaustion) | Lactate↑ 5.88 mmol/L | Acidosis pH 7.258
+28,1,0.0773,low,CRP↑mod 130 | NLR↑ 10.9 | Fibrinogen↑ 10.0 g/L (acute phase)
+42,1,0.0895,low,CRP↑ 184 mg/L (necrosis marker) | Fibrinogen↑ 6.3 g/L (acute phase)
+30,0,0.1978,moderate,Amylase↑ 331 U/L | Lipase↑ 821 U/L | CRP↑mod 133 | Ca↓↓ 1.66 mmol/L (saponification) | Lactate↑ 3.40 mmol/L
+69,1,0.201,moderate,CRP↑mod 148 | Ca↓↓ 1.89 mmol/L (saponification) | Albumin↓↓ 27.0 g/L (third-spacing) | Fibrinogen↑ 6.0 g/L (acute phase) | D-dimer↑↑ 7.9
+29,1,0.1625,moderate,CRP↑mod 138 | Ca↓ 1.94 mmol/L | Albumin↓↓ 26.1 g/L (third-spacing) | D-dimer↑ 2.3 | Lactate↑ 3.93 mmol/L
+41,1,0.0773,low,CRP↑mod 69 | NLR↑ 12.7 | Fibrinogen↑ 6.7 g/L (acute phase)
+28,1,0.1151,low,Amylase↑ 666 U/L | CRP↑mod 93 | NLR↑ 12.3 | Lactate↑ 2.12 mmol/L
+35,0,0.168,moderate,CRP↑ 152 mg/L (necrosis marker) | NLR↑↑ 21.0 (immune exhaustion) | Fibrinogen↑ 8.5 g/L (acute phase) | D-dimer↑ 3.4
+47,1,0.0691,low,Amylase↑ 793 U/L | CRP↑mod 67 | Fibrinogen↑ 5.3 g/L (acute phase)
+33,1,0.0895,low,CRP↑mod 135 | Albumin↓↓ 27.5 g/L (third-spacing) | Fibrinogen↑ 7.1 g/L (acute phase)
+33,0,0.3452,moderate,CRP↑ 192 mg/L (necrosis marker) | Ca↓↓ 1.87 mmol/L (saponification) | Albumin↓↓ 23.3 g/L (third-spacing) | Fibrinogen↑ 9.2 g/L (acute phase) | D-dimer↑↑ 21.0 | Creat↑ 7.9 mg/dL
+57,1,0.0962,low,CRP↑mod 97 | NLR↑ 11.9 | Lactate↑ 2.04 mmol/L
+45,1,0.0928,low,CRP↑mod 91 | Albumin↓ 31.2 g/L | Fibrinogen↑ 6.7 g/L (acute phase) | D-dimer↑↑ 10.8
+53,1,0.0392,low,—
+53,1,0.0573,low,Lipase↑ 600 U/L
+79,1,0.0945,low,Amylase↑↑ 1595 U/L | Lipase↑ 2511 U/L
+33,1,0.0392,low,—
+41,1,0.1468,low,Amylase↑↑ 1007 U/L | Lipase↑ 1120 U/L | NLR↑↑ 15.1 (immune exhaustion)
+72,1,0.0415,low,—
+78,0,0.2423,moderate,Amylase↑↑ 1372 U/L | Lipase↑ 2238 U/L | NLR↑↑ 16.5 (immune exhaustion) | D-dimer↑ 4.7 | Lactate↑ 2.60 mmol/L
+60,1,0.1795,moderate,Amylase↑ 328 U/L | CRP↑ 199 mg/L (necrosis marker) | Ca↓ 1.98 mmol/L | NLR↑ 11.8 | Fibrinogen↑ 7.1 g/L (acute phase)
+39,1,0.1371,low,CRP↑ 257 mg/L (necrosis marker) | Ca↓ 1.96 mmol/L | Albumin↓ 30.7 g/L | Fibrinogen↑ 8.4 g/L (acute phase)
+45,1,0.0802,low,Amylase↑ 363 U/L | Lipase↑ 1450 U/L | D-dimer↑ 3.9
+20,1,0.0532,low,NLR↑ 13.2
+55,1,0.2176,moderate,Amylase↑↑ 2289 U/L | Lipase↑↑ 6240 U/L | NLR↑↑ 18.1 (immune exhaustion) | Fibrinogen↑ 5.5 g/L (acute phase)
+31,0,0.1192,low,CRP↑ 233 mg/L (necrosis marker) | Fibrinogen↑ 8.5 g/L (acute phase) | Acidosis pH 7.321
+72,1,0.2573,moderate,Amylase↑↑ 1787 U/L | Lipase↑↑ 4051 U/L | NLR↑↑ 39.5 (immune exhaustion) | D-dimer↑↑ 5.2
+18,1,0.0474,low,Amylase↑ 385 U/L
+66,0,0.3058,moderate,Amylase↑↑ 1524 U/L | Lipase↑↑ 4197 U/L | NLR↑↑ 50.9 (immune exhaustion) | D-dimer↑ 3.6 | Lactate↑ 2.14 mmol/L
+72,1,0.1545,moderate,Amylase↑↑ 1297 U/L | Lipase↑ 1718 U/L | NLR↑↑ 25.5 (immune exhaustion)
+72,1,0.1053,low,Amylase↑ 860 U/L | Lipase↑ 1181 U/L | Lactate↑ 2.49 mmol/L
+70,0,0.475,high,Amylase↑↑ 2700 U/L | Lipase↑↑ 6522 U/L | Ca↓ 1.95 mmol/L | NLR↑↑ 15.6 (immune exhaustion) | Albumin↓ 33.7 g/L | Fibrinogen↑ 6.0 g/L (acute phase) | D-dimer↑↑ 6.9 | Creat↑ 10.2 mg/dL
+45,1,0.0573,low,Lactate↑ 2.16 mmol/L
+31,1,0.2244,moderate,Amylase↑ 421 U/L | CRP↑ 210 mg/L (necrosis marker) | Ca↓ 1.91 mmol/L | Albumin↓ 32.9 g/L | Fibrinogen↑ 10.8 g/L (acute phase) | Lactate↑ 2.06 mmol/L
+61,1,0.1519,moderate,CRP↑mod 129 | Ca↓↓ 1.77 mmol/L (saponification) | NLR↑ 11.5 | Albumin↓ 33.8 g/L | Fibrinogen↑ 6.5 g/L (acute phase)
+60,1,0.2611,moderate,Amylase↑↑ 1806 U/L | Lipase↑↑ 3092 U/L | NLR↑↑ 33.4 (immune exhaustion) | Lactate↑ 2.63 mmol/L
+85,1,0.201,moderate,Amylase↑↑ 3180 U/L | Lipase↑↑ 5629 U/L | NLR↑↑ 29.1 (immune exhaustion)
+26,0,0.0532,low,Fibrinogen↑ 5.3 g/L (acute phase) | D-dimer↑ 3.4
+31,1,0.0392,low,—
+43,1,0.2932,moderate,CRP↑ 195 mg/L (necrosis marker) | Ca↓↓ 1.37 mmol/L (saponification) | Albumin↓↓ 29.4 g/L (third-spacing) | Fibrinogen↑ 6.0 g/L (acute phase) | Lactate↑ 2.48 mmol/L
+31,1,0.0392,low,—
+52,1,0.1192,low,Lipase↑ 900 U/L | CRP↑mod 81 | NLR↑↑ 15.6 (immune exhaustion)
+47,0,0.0802,low,CRP↑mod 131 | Albumin↓ 31.4 g/L | Fibrinogen↑ 10.0 g/L (acute phase) | D-dimer↑ 3.0
+87,1,0.1016,low,CRP↑mod 131 | NLR↑↑ 35.0 (immune exhaustion) | Fibrinogen↑ 5.9 g/L (acute phase)
+83,1,0.1947,moderate,Amylase↑ 339 U/L | CRP↑ 171 mg/L (necrosis marker) | NLR↑ 13.8 | Fibrinogen↑ 10.4 g/L (acute phase) | Creat↑ 4.8 mg/dL
+25,1,0.0666,low,CRP↑mod 58 | Fibrinogen↑ 6.0 g/L (acute phase) | D-dimer↑ 4.2
+25,0,0.1192,low,CRP↑ 219 mg/L (necrosis marker) | Fibrinogen↑ 6.8 g/L (acute phase) | D-dimer↑↑ 5.2
+44,1,0.0691,low,Amylase↑ 781 U/L | Lipase↑ 1690 U/L
+72,0,0.1947,moderate,Amylase↑ 735 U/L | Lipase↑ 892 U/L | NLR↑↑ 25.3 (immune exhaustion) | D-dimer↑ 3.9 | Lactate↑ 2.97 mmol/L
+24,1,0.0832,low,CRP↑mod 140 | Fibrinogen↑ 7.6 g/L (acute phase) | Lactate↑ 2.05 mmol/L
+58,1,0.0474,low,Amylase↑ 323 U/L
+36,0,0.0998,low,Amylase↑ 440 U/L | Lipase↑ 1518 U/L | Lactate↑ 2.22 mmol/L
+69,1,0.1171,low,Amylase↑ 464 U/L | CRP↑ 151 mg/L (necrosis marker) | Albumin↓ 34.0 g/L
+81,1,0.1256,low,Amylase↑↑ 1601 U/L | Lipase↑↑ 3317 U/L
+47,1,0.0691,low,Amylase↑ 461 U/L | Lipase↑ 662 U/L
+79,0,0.1765,moderate,CRP↑mod 96 | NLR↑↑ 32.1 (immune exhaustion) | Albumin↓↓ 29.3 g/L (third-spacing) | Fibrinogen↑ 8.0 g/L (acute phase) | D-dimer↑ 4.6
+24,1,0.1034,low,Amylase↑↑ 1281 U/L | NLR↑↑ 23.0 (immune exhaustion)
+85,0,0.1016,low,Amylase↑ 866 U/L | NLR↑↑ 22.5 (immune exhaustion) | Albumin↓ 31.9 g/L
+54,1,0.0745,low,CRP↑mod 119 | Ca↓ 1.90 mmol/L | Fibrinogen↑ 7.7 g/L (acute phase)
+25,1,0.0457,low,Fibrinogen↑ 5.7 g/L (acute phase)
+53,1,0.1192,low,CRP↑ 280 mg/L (necrosis marker) | NLR↑ 12.2 | Fibrinogen↑ 6.3 g/L (acute phase)
+73,1,0.098,low,Amylase↑ 826 U/L | Lipase↑↑ 3020 U/L
+36,1,0.0493,low,CRP↑mod 66
+79,1,0.1016,low,NLR↑↑ 22.9 (immune exhaustion) | Lactate↑ 4.10 mmol/L
+40,1,0.2689,moderate,Amylase↑ 585 U/L | Lipase↑ 1889 U/L | Ca↓↓ 1.85 mmol/L (saponification) | NLR↑↑ 15.6 (immune exhaustion) | D-dimer↑ 2.1 | Acidosis pH 7.348
+73,1,0.0731,low,Amylase↑ 776 U/L | Lipase↑ 1453 U/L
+84,1,0.098,low,CRP↑mod 73 | NLR↑ 11.6 | Albumin↓ 30.2 g/L | Fibrinogen↑ 5.5 g/L (acute phase)
+51,1,0.0802,low,CRP↑mod 103 | Albumin↓ 31.6 g/L | Fibrinogen↑ 10.8 g/L (acute phase) | D-dimer↑ 3.3
+38,1,0.1854,moderate,Amylase↑ 334 U/L | Albumin↓↓ 24.7 g/L (third-spacing) | Fibrinogen↑ 7.2 g/L (acute phase) | D-dimer↑ 2.7 | Lactate↑ 2.28 mmol/L | Acidosis pH 7.348
+69,1,0.0415,low,—
+33,1,0.0392,low,—
+64,1,0.0691,low,CRP↑mod 63 | Albumin↓ 30.9 g/L | Fibrinogen↑ 6.6 g/L (acute phase)
+72,1,0.1708,moderate,Amylase↑ 557 U/L | Lipase↑ 615 U/L | CRP↑mod 85 | NLR↑↑ 27.2 (immune exhaustion) | Fibrinogen↑ 6.1 g/L (acute phase)
+73,1,0.0415,low,—
+40,1,0.1034,low,CRP↑mod 104 | NLR↑ 13.7 | Fibrinogen↑ 8.2 g/L (acute phase) | D-dimer↑↑ 7.2
+36,1,0.0573,low,Lactate↑ 2.60 mmol/L
+84,1,0.0415,low,—
+37,1,0.0573,low,Lactate↑ 2.74 mmol/L
+32,1,0.1235,low,CRP↑ 202 mg/L (necrosis marker) | Albumin↓ 30.9 g/L | Fibrinogen↑ 9.8 g/L (acute phase) | D-dimer↑ 2.1
+43,1,0.0832,low,CRP↑mod 72 | Fibrinogen↑ 5.4 g/L (acute phase) | Lactate↑ 2.01 mmol/L
+21,1,0.1192,low,Amylase↑↑ 5017 U/L | Lipase↑↑ 8320 U/L
+29,0,0.2108,moderate,CRP↑mod 112 | Ca↓ 1.92 mmol/L | Albumin↓↓ 25.1 g/L (third-spacing) | Fibrinogen↑ 8.4 g/L (acute phase) | Creat↑ 4.9 mg/dL | Lactate↑ 2.37 mmol/L
+35,1,0.0392,low,—
+44,0,0.1736,moderate,Amylase↑↑ 1478 U/L | CRP↑mod 68 | Ca↓↓ 1.46 mmol/L (saponification) | Albumin↓ 34.9 g/L | D-dimer↑ 3.5
+45,1,0.0773,low,NLR↑ 10.4 | Lactate↑ 2.10 mmol/L
+50,1,0.1468,low,Amylase↑↑ 1328 U/L | Lipase↑ 1550 U/L | NLR↑↑ 26.9 (immune exhaustion)
+66,1,0.0945,low,Amylase↑↑ 1610 U/L | Lipase↑ 1766 U/L
+57,1,0.1279,low,Amylase↑↑ 1005 U/L | Lipase↑ 1531 U/L | Lactate↑ 2.49 mmol/L
+79,1,0.201,moderate,CRP↑mod 60 | Ca↓↓ 1.87 mmol/L (saponification) | Albumin↓↓ 24.4 g/L (third-spacing) | Fibrinogen↑ 8.2 g/L (acute phase) | D-dimer↑↑ 7.9
+55,1,0.0691,low,Amylase↑ 501 U/L | Lipase↑ 771 U/L
+54,1,0.1468,low,Amylase↑↑ 1606 U/L | Lipase↑ 2728 U/L | NLR↑↑ 28.6 (immune exhaustion)
+57,1,0.0802,low,Amylase↑ 789 U/L | Lipase↑ 1328 U/L | Fibrinogen↑ 5.2 g/L (acute phase)
+44,1,0.0392,low,—
+49,0,0.2689,moderate,Amylase↑↑ 1765 U/L | Lipase↑ 1578 U/L | CRP↑mod 75 | Albumin↓ 31.4 g/L | Fibrinogen↑ 9.6 g/L (acute phase) | D-dimer↑↑ 12.2 | Lactate↑ 2.25 mmol/L
+49,0,0.2244,moderate,Amylase↑↑ 1750 U/L | Lipase↑ 664 U/L | Ca↓ 1.99 mmol/L | Albumin↓↓ 26.2 g/L (third-spacing) | D-dimer↑↑ 21.0
+25,1,0.1235,low,Amylase↑ 391 U/L | CRP↑ 174 mg/L (necrosis marker) | NLR↑ 10.5
+65,1,0.0773,low,CRP↑mod 74 | NLR↑ 12.3 | Fibrinogen↑ 7.0 g/L (acute phase)
+20,1,0.0895,low,Amylase↑↑ 1267 U/L | Lipase↑ 1416 U/L
+51,1,0.0474,low,Amylase↑ 344 U/L
+41,1,0.0392,low,—
+42,1,0.1192,low,CRP↑ 192 mg/L (necrosis marker) | NLR↑ 10.5 | Fibrinogen↑ 9.8 g/L (acute phase)
+69,1,0.0415,low,—
+71,0,0.2142,moderate,Amylase↑↑ 2426 U/L | Lipase↑ 2962 U/L | NLR↑↑ 15.7 (immune exhaustion) | Lactate↑ 4.03 mmol/L
+76,1,0.1301,low,Amylase↑↑ 2029 U/L | NLR↑↑ 20.5 (immune exhaustion) | Albumin↓ 30.9 g/L
+30,1,0.0928,low,Amylase↑ 370 U/L | Lipase↑ 755 U/L | NLR↑ 11.2
+48,1,0.0392,low,—
+54,1,0.0392,low,—
+62,1,0.0474,low,Amylase↑ 359 U/L
+62,1,0.0392,low,—
+76,1,0.1708,moderate,CRP↑mod 112 | NLR↑↑ 53.7 (immune exhaustion) | Albumin↓ 33.6 g/L | Fibrinogen↑ 5.4 g/L (acute phase) | Lactate↑ 4.40 mmol/L
+48,1,0.0493,low,CRP↑mod 102
+34,1,0.0392,low,—
+31,1,0.0392,low,—
+37,1,0.0392,low,—
+61,1,0.0552,low,Albumin↓ 34.7 g/L | D-dimer↑ 2.3
+60,1,0.2932,moderate,Amylase↑↑ 1370 U/L | Lipase↑ 2291 U/L | CRP↑ 186 mg/L (necrosis marker) | NLR↑ 14.8 | Lactate↑ 6.74 mmol/L
+46,1,0.0392,low,—
+61,1,0.1072,low,CRP↑mod 99 | Albumin↓ 34.5 g/L | Fibrinogen↑ 8.5 g/L (acute phase) | D-dimer↑ 4.6 | Creat↑ 2.5 mg/dL
+40,1,0.0895,low,Fibrinogen↓ 1.9 g/L (DIC) | Lactate↑ 2.86 mmol/L
+41,1,0.0512,low,Ca↓ 1.98 mmol/L
+65,1,0.0392,low,—
+65,1,0.0392,low,—
+40,1,0.0392,low,—
+79,1,0.1824,moderate,Amylase↑↑ 1485 U/L | Lipase↑ 2662 U/L | NLR↑↑ 43.0 (immune exhaustion) | Albumin↓ 33.0 g/L
+45,1,0.0392,low,—
+34,1,0.0392,low,—
+34,1,0.0392,low,—
+34,1,0.0392,low,—
+41,1,0.0392,low,—
+32,1,0.0532,low,D-dimer↑↑ 8.6
+33,1,0.0392,low,—
+33,1,0.0493,low,CRP↑mod 103
+56,1,0.0691,low,Amylase↑ 798 U/L | Lipase↑ 1477 U/L
+28,1,0.0618,low,Fibrinogen↑ 5.6 g/L (acute phase) | Acidosis pH 7.339
+70,1,0.0415,low,—
+38,1,0.0392,low,—
+29,0,0.3015,moderate,Amylase↑ 779 U/L | Lipase↑ 2669 U/L | Ca↓↓ 1.69 mmol/L (saponification) | NLR↑ 12.0 | D-dimer↑ 2.7 | Lactate↑ 2.48 mmol/L | Acidosis pH 7.338
+52,1,0.0392,low,—
+38,1,0.2769,moderate,CRP↑ 226 mg/L (necrosis marker) | Ca↓↓ 1.65 mmol/L (saponification) | Albumin↓↓ 27.7 g/L (third-spacing) | Fibrinogen↑ 8.3 g/L (acute phase) | D-dimer↑↑ 7.5
+51,1,0.0691,low,Amylase↑ 601 U/L | Lipase↑ 899 U/L
+51,1,0.0457,low,D-dimer↑ 2.4
+86,1,0.201,moderate,CRP↑ 245 mg/L (necrosis marker) | NLR↑↑ 15.5 (immune exhaustion) | Fibrinogen↑ 9.1 g/L (acute phase) | Creat↑ 2.2 mg/dL
+30,1,0.0928,low,Amylase↑ 390 U/L | Lipase↑ 741 U/L | NLR↑ 11.6
+43,1,0.0573,low,CRP↑mod 105 | Fibrinogen↑ 6.6 g/L (acute phase)
+49,1,0.0573,low,CRP↑mod 109 | Fibrinogen↑ 6.0 g/L (acute phase)
+32,0,0.1795,moderate,Amylase↑↑ 1129 U/L | Lipase↑ 1310 U/L | CRP↑mod 84 | NLR↑↑ 15.7 (immune exhaustion)
+72,1,0.1598,moderate,CRP↑ 179 mg/L (necrosis marker) | Albumin↓ 33.7 g/L | Fibrinogen↑ 5.3 g/L (acute phase) | Lactate↑ 4.27 mmol/L
+66,1,0.1885,moderate,Amylase↑ 402 U/L | Lipase↑ 1054 U/L | Ca↓ 1.92 mmol/L | Albumin↓↓ 27.2 g/L (third-spacing) | D-dimer↑↑ 7.0
+65,1,0.1468,low,Amylase↑↑ 1206 U/L | Lipase↑ 1460 U/L | NLR↑↑ 15.5 (immune exhaustion)
+29,0,0.0392,low,—
+65,1,0.1279,low,Amylase↑ 594 U/L | Ca↓↓ 1.23 mmol/L (saponification) | Albumin↓ 31.8 g/L | Creat↑ 8.7 mg/dL
+38,1,0.0392,low,—
+50,1,0.1519,moderate,Amylase↑↑ 2644 U/L | Lipase↑ 1976 U/L | CRP↑mod 109 | Albumin↓ 32.4 g/L | Fibrinogen↑ 5.9 g/L (acute phase)
+58,0,0.1519,moderate,Amylase↑ 981 U/L | Lipase↑ 1518 U/L | NLR↑ 13.5 | D-dimer↑ 4.5 | Lactate↑ 2.03 mmol/L
+26,1,0.0474,low,Amylase↑ 371 U/L
+66,1,0.0415,low,—
+81,1,0.0704,low,NLR↑↑ 17.6 (immune exhaustion)
+60,1,0.0595,low,CRP↑mod 72 | Albumin↓ 33.7 g/L
+31,1,0.0895,low,CRP↑ 162 mg/L (necrosis marker) | Fibrinogen↑ 6.0 g/L (acute phase)
+69,1,0.2809,moderate,Amylase↑↑ 1741 U/L | Lipase↑↑ 5163 U/L | CRP↑mod 86 | NLR↑↑ 31.3 (immune exhaustion) | Albumin↓ 34.6 g/L
+45,1,0.2176,moderate,Amylase↑ 653 U/L | CRP↑ 178 mg/L (necrosis marker) | Ca↓ 1.95 mmol/L | NLR↑ 11.6 | Lactate↑ 2.33 mmol/L
+40,1,0.0457,low,Fibrinogen↑ 6.8 g/L (acute phase)
+40,1,0.0392,low,—
+36,1,0.0928,low,Amylase↑ 332 U/L | Lipase↑ 1268 U/L | NLR↑ 11.0
+36,1,0.0392,low,—
+44,1,0.0573,low,CRP↑mod 114 | Fibrinogen↑ 6.0 g/L (acute phase)
+81,1,0.3407,moderate,Amylase↑↑ 1424 U/L | Lipase↑ 1789 U/L | Ca↓ 1.90 mmol/L | NLR↑↑ 28.7 (immune exhaustion) | Albumin↓ 34.6 g/L | D-dimer↑ 2.6 | Lactate↑ 3.72 mmol/L
+81,1,0.1708,moderate,Amylase↑ 952 U/L | Lipase↑ 1712 U/L | NLR↑↑ 38.0 (immune exhaustion) | Lactate↑ 2.55 mmol/L
+69,0,0.2075,moderate,Amylase↑ 623 U/L | NLR↑↑ 26.0 (immune exhaustion) | Fibrinogen↑ 5.1 g/L (acute phase) | D-dimer↑ 2.2 | Lactate↑ 2.57 mmol/L | Acidosis pH 7.305
+49,1,0.0457,low,Fibrinogen↑ 7.7 g/L (acute phase)
+44,1,0.0691,low,CRP↑mod 88 | Albumin↓ 34.5 g/L | Fibrinogen↑ 5.6 g/L (acute phase)
+57,0,0.0457,low,Fibrinogen↑ 6.4 g/L (acute phase)
+73,1,0.0563,low,Acidosis pH 7.309
+32,1,0.0928,low,Amylase↑ 912 U/L | Lipase↑↑ 3190 U/L
+37,1,0.0573,low,Lipase↑ 762 U/L
+45,1,0.1235,low,CRP↑ 202 mg/L (necrosis marker) | Albumin↓ 34.5 g/L | Fibrinogen↑ 11.4 g/L (acute phase) | D-dimer↑ 4.2
+23,1,0.0392,low,—
+82,1,0.113,low,Amylase↑ 377 U/L | CRP↑mod 103 | Albumin↓↓ 17.7 g/L (third-spacing) | Fibrinogen↑ 6.6 g/L (acute phase)
+47,1,0.0962,low,CRP↑mod 60 | NLR↑ 10.5 | Lactate↑ 2.74 mmol/L
+57,0,0.1235,low,CRP↑ 171 mg/L (necrosis marker) | Albumin↓ 32.2 g/L | Fibrinogen↑ 7.5 g/L (acute phase) | D-dimer↑ 3.5
+47,1,0.1192,low,CRP↑ 173 mg/L (necrosis marker) | NLR↑ 10.6 | Fibrinogen↑ 7.7 g/L (acute phase)
+31,1,0.0962,low,NLR↑↑ 19.0 (immune exhaustion) | Lactate↑ 4.51 mmol/L
+39,1,0.0691,low,Amylase↑ 490 U/L | Lipase↑ 1275 U/L
+60,1,0.0718,low,CRP↑mod 59 | Lactate↑ 2.68 mmol/L
+44,0,0.2689,moderate,Amylase↑ 614 U/L | Lipase↑ 1848 U/L | NLR↑↑ 15.7 (immune exhaustion) | D-dimer↑↑ 7.3 | Lactate↑ 3.42 mmol/L | Acidosis pH 7.278
+55,1,0.0392,low,—
+70,0,0.5449,high,Amylase↑ 370 U/L | Lipase↑ 707 U/L | CRP↑ 220 mg/L (necrosis marker) | Ca↓↓ 1.57 mmol/L (saponification) | NLR↑↑ 16.4 (immune exhaustion) | Fibrinogen↑ 8.3 g/L (acute phase) | Lactate↑ 2.09 mmol/L | Acidosis pH 7.339
+37,1,0.0392,low,—
+67,1,0.0607,low,Lactate↑ 2.71 mmol/L
+34,1,0.0392,low,—
+60,1,0.0573,low,Lactate↑ 2.48 mmol/L
+60,1,0.1192,low,Amylase↑↑ 1070 U/L | Lipase↑ 1052 U/L | NLR↑ 13.3
+21,1,0.0392,low,—
+64,1,0.0392,low,—
+42,0,0.0962,low,CRP↑mod 132 | Fibrinogen↑ 6.0 g/L (acute phase) | D-dimer↑ 3.2 | Lactate↑ 2.15 mmol/L
+42,1,0.0392,low,—
+50,1,0.1571,moderate,Amylase↑↑ 1491 U/L | Lipase↑↑ 3783 U/L | NLR↑ 12.1
+51,1,0.1072,low,Amylase↑ 732 U/L | NLR↑↑ 21.2 (immune exhaustion) | Acidosis pH 7.341
+37,1,0.1279,low,CRP↑ 215 mg/L (necrosis marker) | Ca↓↓ 1.81 mmol/L (saponification)
+71,1,0.2279,moderate,Amylase↑↑ 1804 U/L | Lipase↑ 2610 U/L | NLR↑ 14.3 | D-dimer↑↑ 5.3 | Lactate↑ 2.07 mmol/L
+24,0,0.5597,high,Amylase↑ 705 U/L | Lipase↑ 1324 U/L | CRP↑ 221 mg/L (necrosis marker) | Ca↓↓ 1.53 mmol/L (saponification) | Albumin↓ 32.9 g/L | Fibrinogen↑ 8.2 g/L (acute phase) | D-dimer↑ 4.7 | Creat↑ 2.1 mg/dL | Lactate↑ 2.15 mmol/L | Acidosis pH 7.190
+58,1,0.1034,low,Amylase↑↑ 1022 U/L | NLR↑↑ 16.9 (immune exhaustion)
+88,1,0.1824,moderate,Amylase↑↑ 2504 U/L | Lipase↑ 2768 U/L | NLR↑↑ 30.2 (immune exhaustion) | Albumin↓ 34.9 g/L
+57,1,0.0392,low,—
+43,1,0.0392,low,—
+56,0,0.1324,low,Amylase↑ 724 U/L | Lipase↑ 1836 U/L | Lactate↑ 2.57 mmol/L | Acidosis pH 7.347
+29,1,0.0642,low,Amylase↑ 394 U/L | NLR↑ 11.2
+36,1,0.0573,low,Lactate↑ 2.35 mmol/L
+52,1,0.0457,low,Fibrinogen↑ 6.6 g/L (acute phase)
+75,1,0.0415,low,—
+66,0,0.475,high,Amylase↑ 922 U/L | CRP↑mod 137 | Ca↓↓ 1.34 mmol/L (saponification) | NLR↑ 11.7 | Albumin↓ 31.4 g/L | Fibrinogen↑ 5.2 g/L (acute phase) | D-dimer↑↑ 11.4 | Creat↑ 3.9 mg/dL | Lactate↑ 3.65 mmol/L | Acidosis pH 7.341
+66,1,0.0817,low,CRP↑mod 149 | Albumin↓↓ 25.6 g/L (third-spacing)
+47,1,0.0392,low,—
+24,1,0.2387,moderate,Amylase↑ 413 U/L | CRP↑ 201 mg/L (necrosis marker) | Ca↓ 1.99 mmol/L | NLR↑ 11.5 | Albumin↓ 34.7 g/L | Fibrinogen↑ 8.4 g/L (acute phase) | D-dimer↑ 3.0
+46,1,0.0773,low,CRP↑ 248 mg/L (necrosis marker)
+74,1,0.0731,low,Amylase↑ 731 U/L | Lactate↑ 2.06 mmol/L
+37,0,0.0802,low,Albumin↓ 32.8 g/L | Fibrinogen↑ 10.0 g/L (acute phase) | Lactate↑ 2.49 mmol/L
+69,1,0.0502,low,Amylase↑ 401 U/L
+65,1,0.1279,low,Amylase↑↑ 1073 U/L | Fibrinogen↓ 1.6 g/L (DIC) | D-dimer↑↑ 20.0
+47,1,0.0962,low,NLR↑↑ 17.1 (immune exhaustion) | Lactate↑ 2.24 mmol/L
+21,1,0.0718,low,CRP↑mod 142 | Lactate↑ 4.52 mmol/L
+32,1,0.0573,low,Lactate↑ 2.01 mmol/L
+42,0,0.1151,low,Amylase↑ 494 U/L | NLR↑↑ 17.9 (immune exhaustion) | Lactate↑ 3.23 mmol/L
+42,1,0.0392,low,—
+64,0,0.1192,low,Amylase↑ 572 U/L | CRP↑mod 75 | NLR↑↑ 17.9 (immune exhaustion) | Albumin↓ 32.8 g/L
+39,1,0.0392,low,—
+64,1,0.0666,low,Fibrinogen↑ 5.7 g/L (acute phase) | Lactate↑ 2.11 mmol/L
+77,1,0.2142,moderate,Amylase↑↑ 1633 U/L | Lipase↑↑ 3287 U/L | CRP↑mod 123 | Lactate↑ 2.42 mmol/L
+35,1,0.1192,low,CRP↑ 164 mg/L (necrosis marker) | Fibrinogen↑ 10.3 g/L (acute phase) | Acidosis pH 7.275
+65,1,0.0532,low,NLR↑ 10.6
+33,1,0.0895,low,NLR↑ 11.6 | D-dimer↑ 3.4 | Lactate↑ 2.38 mmol/L
+41,1,0.1072,low,Albumin↓ 33.3 g/L | Fibrinogen↑ 8.8 g/L (acute phase) | Lactate↑ 2.02 mmol/L | Acidosis pH 7.340
+23,1,0.1736,moderate,Amylase↑ 524 U/L | Lipase↑ 1327 U/L | NLR↑↑ 20.2 (immune exhaustion) | Fibrinogen↓ 1.9 g/L (DIC)
+23,1,0.0392,low,—
+44,1,0.2611,moderate,Amylase↑↑ 1576 U/L | Lipase↑↑ 4124 U/L | NLR↑↑ 23.9 (immune exhaustion) | Lactate↑ 2.88 mmol/L
+61,1,0.1111,low,Amylase↑↑ 1755 U/L | Lipase↑ 1962 U/L | CRP↑mod 86
+87,1,0.113,low,CRP↑ 197 mg/L (necrosis marker) | Albumin↓ 32.3 g/L | Fibrinogen↑ 6.8 g/L (acute phase)
+77,0,0.6682,high,Amylase↑↑ 2333 U/L | Lipase↑ 2609 U/L | CRP↑ 176 mg/L (necrosis marker) | Ca↓ 1.97 mmol/L | NLR↑↑ 22.4 (immune exhaustion) | Albumin↓ 33.6 g/L | Fibrinogen↑ 5.4 g/L (acute phase) | D-dimer↑↑ 14.3 | Creat↑ 3.4 mg/dL | Lactate↑ 4.12 mmol/L
+85,1,0.098,low,Amylase↑ 439 U/L | NLR↑ 14.9 | Lactate↑ 3.86 mmol/L
+35,0,0.2535,moderate,Amylase↑ 855 U/L | CRP↑ 343 mg/L (necrosis marker) | Ca↓ 1.92 mmol/L | NLR↑↑ 23.7 (immune exhaustion) | Albumin↓ 30.6 g/L | Fibrinogen↑ 7.2 g/L (acute phase)
+69,1,0.1053,low,Amylase↑ 533 U/L | Lipase↑ 1030 U/L | CRP↑mod 56 | Fibrinogen↑ 6.9 g/L (acute phase)
+40,1,0.0573,low,Lactate↑ 3.46 mmol/L
+53,1,0.168,moderate,Amylase↑↑ 2151 U/L | Lipase↑↑ 3499 U/L | Lactate↑ 2.95 mmol/L
+26,1,0.1192,low,Amylase↑↑ 3109 U/L | Lactate↑ 2.83 mmol/L | Acidosis pH 7.342
+46,1,0.0691,low,Amylase↑ 756 U/L | Lipase↑ 1784 U/L
+45,0,0.6985,high,Amylase↑ 411 U/L | Lipase↑ 740 U/L | CRP↑ 228 mg/L (necrosis marker) | Ca↓↓ 1.36 mmol/L (saponification) | NLR↑ 11.8 | Albumin↓↓ 28.5 g/L (third-spacing) | Fibrinogen↑ 9.7 g/L (acute phase) | D-dimer↑ 4.6 | Creat↑ 2.3 mg/dL | Lactate↑ 3.05 mmol/L | Acidosis pH 7.299
+48,0,0.1736,moderate,CRP↑ 203 mg/L (necrosis marker) | Ca↓ 1.90 mmol/L | Albumin↓↓ 29.2 g/L (third-spacing) | Fibrinogen↑ 9.5 g/L (acute phase)
+54,1,0.0895,low,Amylase↑↑ 1283 U/L | Lipase↑ 1885 U/L
+65,1,0.0392,low,—
+39,1,0.1519,moderate,Amylase↑ 571 U/L | Lipase↑ 1760 U/L | NLR↑↑ 30.3 (immune exhaustion) | Acidosis pH 7.347
+79,1,0.2075,moderate,CRP↑ 251 mg/L (necrosis marker) | NLR↑↑ 47.7 (immune exhaustion) | Albumin↓ 30.4 g/L | Fibrinogen↑ 5.6 g/L (acute phase) | D-dimer↑ 3.8
+42,1,0.0773,low,Lipase↑ 666 U/L | NLR↑ 10.0
+45,1,0.0457,low,D-dimer↑ 2.5
+61,0,0.2042,moderate,Amylase↑↑ 1208 U/L | Lipase↑ 1437 U/L | NLR↑↑ 17.8 (immune exhaustion) | Lactate↑ 3.37 mmol/L
+38,1,0.0573,low,CRP↑mod 65 | Fibrinogen↑ 5.6 g/L (acute phase)
+72,0,0.2351,moderate,CRP↑ 251 mg/L (necrosis marker) | NLR↑↑ 19.1 (immune exhaustion) | Albumin↓ 32.1 g/L | Fibrinogen↑ 10.0 g/L (acute phase) | Creat↑ 2.9 mg/dL
+89,1,0.0911,low,Amylase↑ 472 U/L | Lipase↑ 845 U/L | CRP↑mod 75
+36,1,0.0802,low,Amylase↑ 362 U/L | Lipase↑ 1080 U/L | D-dimer↑ 3.9
+62,1,0.0691,low,Amylase↑ 913 U/L | Lipase↑ 1920 U/L
+62,1,0.0691,low,Amylase↑ 728 U/L | Lipase↑ 1269 U/L
+34,1,0.0691,low,Amylase↑ 327 U/L | Lipase↑ 836 U/L
+88,1,0.1091,low,Amylase↑↑ 1508 U/L | NLR↑↑ 15.4 (immune exhaustion)
+86,1,0.2142,moderate,Amylase↑↑ 2371 U/L | Lipase↑ 2144 U/L | NLR↑↑ 26.5 (immune exhaustion) | Lactate↑ 2.71 mmol/L
+34,1,0.0392,low,—
+70,1,0.201,moderate,Amylase↑↑ 2405 U/L | Lipase↑↑ 3229 U/L | NLR↑↑ 22.7 (immune exhaustion)
+34,1,0.1192,low,CRP↑ 188 mg/L (necrosis marker) | NLR↑ 11.4 | Fibrinogen↑ 7.8 g/L (acute phase)
+51,1,0.1571,moderate,Amylase↑↑ 1430 U/L | Lipase↑↑ 3308 U/L | NLR↑ 10.9
+45,1,0.0512,low,Ca↓ 1.97 mmol/L
+53,1,0.1192,low,Amylase↑↑ 2931 U/L | Lipase↑↑ 15754 U/L
+60,1,0.1795,moderate,Amylase↑ 555 U/L | Lipase↑ 690 U/L | CRP↑ 181 mg/L (necrosis marker) | Albumin↓ 30.5 g/L | Fibrinogen↑ 8.3 g/L (acute phase)
+46,0,0.2244,moderate,Amylase↑ 652 U/L | Lipase↑ 1734 U/L | CRP↑mod 60 | NLR↑↑ 28.1 (immune exhaustion) | D-dimer↑ 2.0 | Lactate↑ 4.37 mmol/L
+77,1,0.1443,low,Amylase↑↑ 1166 U/L | Lipase↑↑ 6665 U/L | Fibrinogen↑ 5.5 g/L (acute phase)
+43,1,0.0573,low,CRP↑mod 99 | Fibrinogen↑ 6.9 g/L (acute phase)
+47,1,0.0392,low,—
+58,1,0.0895,low,CRP↑mod 74 | Albumin↓↓ 28.9 g/L (third-spacing) | D-dimer↑ 3.5
+80,1,0.0607,low,CRP↑mod 64 | Fibrinogen↑ 5.1 g/L (acute phase)
+71,0,0.1443,low,Amylase↑↑ 4194 U/L | Lipase↑↑ 8435 U/L | D-dimer↑ 3.3
+30,1,0.0457,low,D-dimer↑ 3.2
+52,1,0.1736,moderate,Amylase↑ 644 U/L | Lipase↑ 2559 U/L | Fibrinogen↑ 5.1 g/L (acute phase) | D-dimer↑ 2.5 | Lactate↑ 2.56 mmol/L | Acidosis pH 7.341
+34,1,0.0895,low,Fibrinogen↓ 1.9 g/L (DIC) | Lactate↑ 2.25 mmol/L
+26,1,0.1279,low,Ca↓↓ 1.87 mmol/L (saponification) | NLR↑ 10.6 | Lactate↑ 2.19 mmol/L
+33,1,0.0392,low,—
+33,1,0.0392,low,—
+32,1,0.0618,low,D-dimer↑ 2.1 | Acidosis pH 7.185
+60,1,0.0691,low,Amylase↑ 301 U/L | Lipase↑ 750 U/L
+51,1,0.1151,low,Amylase↑ 495 U/L | Lipase↑ 1192 U/L | NLR↑↑ 23.1 (immune exhaustion)
+37,1,0.0392,low,—
+34,1,0.0928,low,Amylase↑ 965 U/L | Lipase↑ 1872 U/L | NLR↑ 12.5
+78,1,0.1256,low,Amylase↑↑ 1355 U/L | Lipase↑ 927 U/L | Fibrinogen↑ 5.7 g/L (acute phase) | D-dimer↑ 2.3
+47,1,0.2611,moderate,Amylase↑↑ 1925 U/L | Lipase↑↑ 4154 U/L | NLR↑↑ 20.5 (immune exhaustion) | Lactate↑ 3.15 mmol/L
+47,1,0.2042,moderate,Amylase↑↑ 1319 U/L | Lipase↑ 2059 U/L | NLR↑↑ 17.7 (immune exhaustion) | Lactate↑ 2.86 mmol/L
+32,0,0.1854,moderate,Amylase↑ 907 U/L | Lipase↑ 980 U/L | NLR↑↑ 23.9 (immune exhaustion) | D-dimer↑ 3.9 | Lactate↑ 3.12 mmol/L
+32,0,0.1978,moderate,Amylase↑ 397 U/L | CRP↑ 178 mg/L (necrosis marker) | NLR↑ 14.6 | Fibrinogen↑ 5.1 g/L (acute phase) | Lactate↑ 3.60 mmol/L
+86,1,0.2573,moderate,Amylase↑↑ 3022 U/L | Lipase↑↑ 4021 U/L | D-dimer↑ 3.1 | Lactate↑ 6.35 mmol/L | Acidosis pH 7.347
+74,1,0.0731,low,Amylase↑ 406 U/L | Lipase↑ 1104 U/L
+26,1,0.1235,low,Amylase↑ 880 U/L | Lipase↑↑ 3550 U/L | NLR↑ 10.1
+26,1,0.0392,low,—
+38,1,0.0392,low,—
+45,1,0.0928,low,Amylase↑ 345 U/L | NLR↑ 10.3 | Lactate↑ 2.01 mmol/L
+44,1,0.0802,low,Amylase↑ 377 U/L | Lipase↑ 796 U/L | Fibrinogen↑ 5.5 g/L (acute phase)
+44,1,0.1192,low,Amylase↑↑ 2120 U/L | Lipase↑↑ 3399 U/L
+45,1,0.0457,low,D-dimer↑ 2.6
+67,1,0.1545,moderate,Amylase↑↑ 1702 U/L | Lipase↑ 2282 U/L | D-dimer↑ 2.9 | Lactate↑ 2.68 mmol/L
+27,1,0.0863,low,Amylase↑ 396 U/L | Lipase↑ 786 U/L | CRP↑mod 54
+37,0,0.2689,moderate,Amylase↑↑ 1527 U/L | Lipase↑↑ 5469 U/L | Ca↓ 1.91 mmol/L | Lactate↑ 2.55 mmol/L | Acidosis pH 7.325
+80,1,0.1256,low,Amylase↑↑ 1591 U/L | Lipase↑↑ 3524 U/L
+32,1,0.0773,low,NLR↑ 13.9 | Lactate↑ 4.36 mmol/L
+69,1,0.0945,low,Amylase↑↑ 1517 U/L | Lipase↑ 1530 U/L
+33,1,0.0392,low,—
+42,0,0.1915,moderate,Amylase↑↑ 3526 U/L | Lipase↑↑ 9998 U/L | D-dimer↑ 3.2 | Lactate↑ 4.00 mmol/L
+64,0,0.1854,moderate,Amylase↑ 926 U/L | Lipase↑ 806 U/L | CRP↑mod 137 | NLR↑↑ 20.3 (immune exhaustion) | Fibrinogen↑ 5.1 g/L (acute phase) | D-dimer↑ 2.8
+23,1,0.1324,low,Amylase↑ 522 U/L | Lipase↑ 923 U/L | NLR↑↑ 32.6 (immune exhaustion) | D-dimer↑ 2.6
+44,1,0.1279,low,Amylase↑↑ 1364 U/L | Lipase↑ 2922 U/L | Lactate↑ 3.94 mmol/L
+33,1,0.0392,low,—
+50,1,0.285,moderate,Amylase↑↑ 2576 U/L | Lipase↑ 2614 U/L | Ca↓ 1.90 mmol/L | NLR↑↑ 18.8 (immune exhaustion) | Fibrinogen↑ 5.4 g/L (acute phase) | Lactate↑ 2.60 mmol/L
+55,1,0.0895,low,Amylase↑↑ 1041 U/L | Lipase↑ 1823 U/L
+43,0,0.3274,moderate,Amylase↑↑ 2800 U/L | Lipase↑↑ 6314 U/L | NLR↑↑ 18.7 (immune exhaustion) | Lactate↑ 2.35 mmol/L | Acidosis pH 7.341
+38,1,0.168,moderate,Amylase↑↑ 1177 U/L | Lipase↑↑ 3032 U/L | Lactate↑ 3.47 mmol/L
+50,1,0.0573,low,CRP↑mod 56 | Fibrinogen↑ 7.6 g/L (acute phase)
+74,1,0.1256,low,Amylase↑↑ 2057 U/L | Lipase↑ 2128 U/L | NLR↑ 10.9
+50,1,0.0895,low,Lipase↑ 646 U/L | Fibrinogen↓ 1.7 g/L (DIC)
+61,1,0.1324,low,Amylase↑ 362 U/L | Lipase↑ 910 U/L | NLR↑ 12.4 | Lactate↑ 2.71 mmol/L
+28,1,0.1915,moderate,CRP↑ 201 mg/L (necrosis marker) | NLR↑↑ 21.6 (immune exhaustion) | Fibrinogen↑ 9.5 g/L (acute phase) | D-dimer↑↑ 15.5
+27,1,0.0392,low,—
+39,1,0.1468,low,CRP↑ 152 mg/L (necrosis marker) | Ca↓↓ 1.81 mmol/L (saponification) | Fibrinogen↑ 10.7 g/L (acute phase)
+48,1,0.0998,low,Amylase↑ 435 U/L | Lipase↑ 1284 U/L | Lactate↑ 2.04 mmol/L
+53,1,0.2176,moderate,Amylase↑↑ 3323 U/L | Lipase↑↑ 3718 U/L | Fibrinogen↑ 5.4 g/L (acute phase) | D-dimer↑ 4.0 | Lactate↑ 2.08 mmol/L
+47,1,0.0666,low,CRP↑mod 101 | Fibrinogen↑ 5.8 g/L (acute phase) | D-dimer↑ 3.3
+72,1,0.1708,moderate,Amylase↑ 787 U/L | Lipase↑ 851 U/L | NLR↑↑ 26.7 (immune exhaustion) | Lactate↑ 2.28 mmol/L
+80,1,0.2729,moderate,Amylase↑↑ 1504 U/L | CRP↑mod 126 | NLR↑↑ 20.5 (immune exhaustion) | D-dimer↑ 4.1 | Creat↑ 3.1 mg/dL | Lactate↑ 6.66 mmol/L
+39,1,0.1192,low,Amylase↑↑ 1935 U/L | Lipase↑↑ 3686 U/L
+41,1,0.0392,low,—
+43,1,0.0392,low,—
+37,1,0.0928,low,Amylase↑ 557 U/L | Lipase↑ 1557 U/L | NLR↑ 12.6
+44,1,0.168,moderate,Amylase↑↑ 1448 U/L | Lipase↑ 2782 U/L | NLR↑ 14.4 | Lactate↑ 3.20 mmol/L
+77,0,0.1652,moderate,Amylase↑↑ 2065 U/L | Lipase↑↑ 6149 U/L | Fibrinogen↑ 5.4 g/L (acute phase) | D-dimer↑ 3.7
+39,1,0.0392,low,—
+55,1,0.0832,low,CRP↑mod 51 | Fibrinogen↑ 5.5 g/L (acute phase) | Lactate↑ 2.13 mmol/L
+40,0,0.3015,moderate,Amylase↑ 459 U/L | Lipase↑ 699 U/L | CRP↑mod 59 | Ca↓↓ 1.59 mmol/L (saponification) | NLR↑↑ 22.7 (immune exhaustion) | Lactate↑ 3.29 mmol/L
+39,1,0.0573,low,CRP↑mod 58 | Fibrinogen↑ 7.9 g/L (acute phase)
+38,1,0.1192,low,CRP↑ 191 mg/L (necrosis marker) | NLR↑ 11.6 | Fibrinogen↑ 7.8 g/L (acute phase)
+41,0,0.1324,low,Ca↓ 1.97 mmol/L | Fibrinogen↑ 5.2 g/L (acute phase) | D-dimer↑ 2.3 | Lactate↑ 2.47 mmol/L | Acidosis pH 7.341
+39,0,0.1571,moderate,Lipase↑ 711 U/L | NLR↑↑ 26.1 (immune exhaustion) | D-dimer↑ 2.1 | Lactate↑ 3.71 mmol/L
+48,1,0.0392,low,—
+74,0,0.4551,high,Amylase↑↑ 1442 U/L | CRP↑mod 133 | Ca↓↓ 1.37 mmol/L (saponification) | Albumin↓↓ 29.2 g/L (third-spacing) | Fibrinogen↑ 5.3 g/L (acute phase) | Creat↑ 2.5 mg/dL | Lactate↑ 8.58 mmol/L | Acidosis pH 7.201
+46,1,0.0457,low,Fibrinogen↑ 6.0 g/L (acute phase)
+38,1,0.1795,moderate,Lipase↑ 2131 U/L | NLR↑↑ 16.2 (immune exhaustion) | Lactate↑ 2.10 mmol/L | Acidosis pH 7.089
+51,1,0.168,moderate,Amylase↑↑ 1479 U/L | Lipase↑↑ 3947 U/L | Lactate↑ 2.70 mmol/L
+59,0,0.1571,moderate,Amylase↑ 777 U/L | Lipase↑ 1240 U/L | CRP↑mod 142 | Ca↓ 1.99 mmol/L | Lactate↑ 3.59 mmol/L
+32,1,0.0573,low,CRP↑mod 89 | Fibrinogen↑ 5.6 g/L (acute phase)
+39,1,0.0573,low,Lactate↑ 2.05 mmol/L
+77,1,0.1765,moderate,CRP↑ 188 mg/L (necrosis marker) | NLR↑↑ 22.6 (immune exhaustion) | Fibrinogen↑ 6.8 g/L (acute phase) | D-dimer↑ 2.9
+50,1,0.0691,low,Amylase↑ 744 U/L | Lipase↑ 1841 U/L
+22,1,0.0532,low,Acidosis pH 7.336
+22,1,0.0832,low,Lipase↑ 654 U/L | Lactate↑ 2.05 mmol/L
+50,1,0.1034,low,Amylase↑ 509 U/L | Lipase↑ 642 U/L | Ca↓ 1.92 mmol/L | Fibrinogen↑ 5.5 g/L (acute phase)
+31,0,0.0832,low,CRP↑mod 75 | D-dimer↑ 2.1 | Lactate↑ 3.17 mmol/L
+34,1,0.0863,low,Amylase↑ 521 U/L | Lipase↑ 1239 U/L | CRP↑mod 53
+36,1,0.0618,low,Fibrinogen↑ 6.9 g/L (acute phase) | D-dimer↑↑ 7.8
+69,1,0.0911,low,Ca↓ 1.94 mmol/L | NLR↑↑ 20.7 (immune exhaustion)
+59,1,0.0962,low,NLR↑↑ 16.6 (immune exhaustion) | Lactate↑ 4.49 mmol/L
+34,1,0.0573,low,Lactate↑ 2.13 mmol/L
+46,1,0.1279,low,Amylase↑↑ 1169 U/L | Lipase↑ 2692 U/L | Lactate↑ 3.23 mmol/L
+50,1,0.1324,low,Amylase↑ 998 U/L | Lipase↑ 1357 U/L | NLR↑ 10.8 | Lactate↑ 2.77 mmol/L
+78,1,0.0847,low,Amylase↑ 460 U/L | CRP↑mod 96 | NLR↑ 12.2
+73,0,0.1545,moderate,CRP↑mod 112 | NLR↑ 11.3 | Albumin↓↓ 28.7 g/L (third-spacing) | Lactate↑ 2.54 mmol/L
+42,1,0.0691,low,Amylase↑ 749 U/L | Lipase↑ 2761 U/L
+75,0,0.4452,high,Amylase↑ 542 U/L | Lipase↑ 1630 U/L | CRP↑ 251 mg/L (necrosis marker) | NLR↑↑ 22.9 (immune exhaustion) | D-dimer↑↑ 6.2 | Lactate↑ 3.19 mmol/L | Acidosis pH 7.317
+38,1,0.0493,low,CRP↑mod 68
+47,1,0.0998,low,Amylase↑ 939 U/L | Lipase↑ 2569 U/L | Lactate↑ 2.18 mmol/L
+37,1,0.0392,low,—
+53,0,0.4207,high,Amylase↑↑ 2244 U/L | Lipase↑↑ 8983 U/L | CRP↑mod 56 | NLR↑↑ 25.1 (immune exhaustion) | D-dimer↑ 2.1 | Lactate↑ 7.81 mmol/L | Acidosis pH 7.207
