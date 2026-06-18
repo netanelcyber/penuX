@@ -8,6 +8,7 @@ Integration endpoints:
   POST /fhir/predict     — FHIR R4 Bundle (Patient + Observations, LOINC coded)
   POST /camelion/predict — Camelion (קמיליון) HIS native JSON
 """
+import math
 import os
 import logging
 from pathlib import Path
@@ -112,22 +113,43 @@ def _load_model():
     return _model
 
 
+_HEURISTIC_WEIGHTS = {
+    "wbc": 0.08, "crp": 0.004, "creatinine": 0.30, "bun": 0.015,
+    "glucose": 0.002, "ldh": 0.001, "hematocrit": 0.03, "ast": 0.002,
+    "albumin": -0.30, "calcium": -0.40, "bilirubin_total": 0.05,
+}
+_HEURISTIC_THRESHOLDS = {
+    "wbc": 12.0, "crp": 150.0, "creatinine": 1.5, "bun": 25.0,
+    "glucose": 200.0, "ldh": 250.0, "hematocrit": 44.0, "ast": 250.0,
+    "albumin": 3.5, "calcium": 8.0, "bilirubin_total": 3.0,
+}
+
+def _heuristic_score(admission: AdmissionInput) -> float:
+    """Logistic heuristic (BISAP/Ranson-weighted) used when no ML model is loaded."""
+    logit = -1.8 + 0.015 * max(0, (admission.age or 55) - 55)
+    if str(admission.sex or "").upper() in ("M", "MALE", "זכר"):
+        logit += 0.15
+    data = admission.model_dump()
+    for feat, w in _HEURISTIC_WEIGHTS.items():
+        v = data.get(feat)
+        if v is None:
+            continue
+        t = _HEURISTIC_THRESHOLDS[feat]
+        logit += w * (max(0, t - v) if feat in ("albumin", "calcium") else max(0, v - t))
+    return round(1.0 / (1.0 + math.exp(-logit)), 4)
+
+
 def _run_prediction(admission: AdmissionInput) -> tuple[float, str]:
-    """Return (probability, risk_group). Raises HTTPException on failure."""
+    """Return (probability, risk_group). Falls back to heuristic when no ML model."""
     model = _model or _load_model()
-    if model is None:
-        raise HTTPException(
-            status_code=503,
-            detail=(
-                "No model loaded. Set the PENUX_AP_MODEL_PATH environment variable "
-                "to the path of a trained .joblib model file."
-            ),
-        )
-    row = pd.DataFrame([admission.model_dump()])
-    try:
-        proba = float(model.predict_proba(row)[0, 1])
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")
+    if model is not None:
+        row = pd.DataFrame([admission.model_dump()])
+        try:
+            proba = float(model.predict_proba(row)[0, 1])
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")
+    else:
+        proba = _heuristic_score(admission)
 
     if proba < RISK_THRESHOLDS["low"]:
         risk_group = "low"
@@ -208,29 +230,9 @@ def health():
     },
 )
 def predict(data: AdmissionInput):
-    model = _model or _load_model()
-    if model is None:
-        return PredictionOutput(
-            error=(
-                "No model loaded. Set the PENUX_AP_MODEL_PATH environment variable "
-                "to the path of a trained .joblib model file."
-            )
-        )
-    row = pd.DataFrame([data.model_dump()])
-    try:
-        proba = float(model.predict_proba(row)[0, 1])
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")
-
-    if proba < RISK_THRESHOLDS["low"]:
-        risk_group = "low"
-    elif proba < RISK_THRESHOLDS["intermediate"]:
-        risk_group = "intermediate"
-    else:
-        risk_group = "high"
-
+    proba, risk_group = _run_prediction(data)
     return PredictionOutput(
-        severe_ap_probability=round(proba, 4),
+        severe_ap_probability=proba,
         threshold_used=0.5,
         risk_group=risk_group,
     )
@@ -476,18 +478,6 @@ async def camelion_predict(request: Request):
     fields_used = [k for k, v in admission_dict.items() if v is not None]
     missing_fields = [k for k, v in admission_dict.items() if v is None]
 
-    model = _model or _load_model()
-    if model is None:
-        return CamelionPredictionResponse(
-            encounter_id=encounter_id,
-            fields_used=fields_used,
-            missing_fields=missing_fields,
-            error=(
-                "No model loaded. Set the PENUX_AP_MODEL_PATH environment variable "
-                "to the path of a trained .joblib model file."
-            ),
-        )
-
     try:
         proba, risk_group = _run_prediction(admission)
     except HTTPException as e:
@@ -598,15 +588,6 @@ async def hl7_predict(request: Request):
     admission_dict = admission.model_dump()
 
     fields_used = [k for k, v in admission_dict.items() if v is not None]
-
-    model = _model or _load_model()
-    if model is None:
-        return PredictionOutput(
-            error=(
-                "No model loaded. Set the PENUX_AP_MODEL_PATH environment variable "
-                "to the path of a trained .joblib model file."
-            )
-        )
 
     try:
         proba, risk_group = _run_prediction(admission)
