@@ -1,0 +1,163 @@
+name: Push to Launchpad PPA
+
+on:
+  workflow_dispatch:
+    inputs:
+      ppa_name:
+        description: 'Launchpad PPA name (e.g. kvmweb)'
+        required: true
+        default: 'kvmweb'
+      launchpad_user:
+        description: 'Launchpad username'
+        required: true
+        default: 'netanelcyber'
+
+jobs:
+  upload-ppa:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            devscripts debhelper dpkg-dev dput-ng gnupg openssh-client
+
+      - name: Import GPG signing key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.APT_GPG_PRIVATE_KEY }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          gpg --list-secret-keys --keyid-format=long
+
+      - name: Set up SSH key for Launchpad SFTP
+        env:
+          LAUNCHPAD_SSH_KEY: ${{ secrets.LAUNCHPAD_SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$LAUNCHPAD_SSH_KEY" > ~/.ssh/launchpad
+          chmod 600 ~/.ssh/launchpad
+          # Add Launchpad host key to known_hosts
+          ssh-keyscan -p 22 ppa.launchpad.net >> ~/.ssh/known_hosts 2>/dev/null || true
+          cat >> ~/.ssh/config << 'EOF'
+          Host ppa.launchpad.net
+            IdentityFile ~/.ssh/launchpad
+            StrictHostKeyChecking no
+          EOF
+
+      - name: Prepare source package
+        run: |
+          PKG_VER="1.0.0"
+          ORIG_DIR="/tmp/launchpad/kvmweb-${PKG_VER}"
+          mkdir -p /tmp/launchpad
+
+          # Copy app sources into package tree
+          cp -r kvmweb/. /tmp/kvmweb_src/
+          mkdir -p "$ORIG_DIR"
+          cp kvmweb/app.py "$ORIG_DIR/"
+          cp -r kvmweb/templates "$ORIG_DIR/"
+          cp -r kvmweb/static "$ORIG_DIR/"
+          cp kvmweb/kvmweb.service "$ORIG_DIR/" 2>/dev/null || true
+
+          # Write debian/ directory
+          mkdir -p "$ORIG_DIR/debian/source"
+          echo "3.0 (quilt)" > "$ORIG_DIR/debian/source/format"
+
+          cat > "$ORIG_DIR/debian/control" << 'CTRL'
+          Source: kvmweb
+          Section: admin
+          Priority: optional
+          Maintainer: kvmweb <kvmweb-apt@netanelcyber.github.io>
+          Build-Depends: debhelper-compat (= 13), python3
+          Standards-Version: 4.6.2
+          Rules-Requires-Root: no
+
+          Package: kvmweb
+          Architecture: all
+          Depends: python3, python3-flask, python3-libvirt, libvirt-daemon-system, libpam-runtime
+          Description: Lightweight KVM web management interface
+           Web-based KVM/QEMU management UI with PAM authentication,
+           HTTPS support, and a dark-themed dashboard.
+          CTRL
+          # de-indent
+          sed -i 's/^          //' "$ORIG_DIR/debian/control"
+
+          cat > "$ORIG_DIR/debian/changelog" << 'CL'
+          kvmweb (1.0.0-1) noble; urgency=medium
+
+            * Initial release for Ubuntu Noble (24.04) and Resolute (26.04)
+            * Lightweight KVM web management interface via libvirt
+            * PAM authentication, HTTPS, systemd service
+
+           -- kvmweb <kvmweb-apt@netanelcyber.github.io>  Wed, 18 Jun 2026 07:00:00 +0000
+          CL
+          sed -i 's/^          //' "$ORIG_DIR/debian/changelog"
+
+          cat > "$ORIG_DIR/debian/rules" << 'RULES'
+          #!/usr/bin/make -f
+          %:
+          	dh $@
+
+          override_dh_auto_install:
+          	install -d $(DESTDIR)/opt/kvmweb
+          	cp -r app.py templates static $(DESTDIR)/opt/kvmweb/
+          	install -d $(DESTDIR)/etc/systemd/system
+          	install -m 644 kvmweb.service $(DESTDIR)/etc/systemd/system/kvmweb.service
+          	install -d $(DESTDIR)/usr/bin
+          	printf '#!/bin/bash\nexec /usr/bin/python3 /opt/kvmweb/app.py "$$@"\n' \
+          		> $(DESTDIR)/usr/bin/kvmweb
+          	chmod 755 $(DESTDIR)/usr/bin/kvmweb
+          RULES
+          sed -i 's/^          //' "$ORIG_DIR/debian/rules"
+          chmod +x "$ORIG_DIR/debian/rules"
+
+          # Build orig tarball
+          tar czf /tmp/launchpad/kvmweb_${PKG_VER}.orig.tar.gz \
+            -C /tmp/launchpad \
+            --exclude='kvmweb-*/debian' \
+            "kvmweb-${PKG_VER}"
+
+      - name: Build and sign source package
+        env:
+          DEBEMAIL: kvmweb-apt@netanelcyber.github.io
+          DEBFULLNAME: kvmweb
+        run: |
+          GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format=long \
+            | grep '^sec' | head -1 | awk '{print $2}' | cut -d/ -f2)
+          echo "Signing with key: $GPG_KEY_ID"
+
+          cd /tmp/launchpad/kvmweb-1.0.0
+          dpkg-buildpackage -S -sa -k"$GPG_KEY_ID" 2>&1
+
+          ls -lh /tmp/launchpad/
+
+      - name: Configure dput for Launchpad
+        run: |
+          LPAD_USER="${{ github.event.inputs.launchpad_user }}"
+          PPA="${{ github.event.inputs.ppa_name }}"
+          cat > /tmp/dput.cf << EOF
+          [launchpad]
+          fqdn = ppa.launchpad.net
+          method = sftp
+          incoming = ~${LPAD_USER}/ubuntu/${PPA}
+          login = ${LPAD_USER}
+          EOF
+
+      - name: Upload to Launchpad PPA
+        run: |
+          dput --config /tmp/dput.cf launchpad \
+            /tmp/launchpad/kvmweb_1.0.0-1_source.changes 2>&1
+
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-package
+          path: |
+            /tmp/launchpad/*.dsc
+            /tmp/launchpad/*.changes
+            /tmp/launchpad/*.diff.gz
+            /tmp/launchpad/*.orig.tar.gz
