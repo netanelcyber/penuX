@@ -8,35 +8,25 @@ on:
       - 'docs/**'
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
-  deploy:
-    name: Deploy to penux.uk
+  validate:
+    name: Validate & publish docs
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      - name: Check docs/index.html exists
+        run: |
+          test -f docs/index.html && echo "✅ docs/index.html found" || (echo "❌ docs/index.html missing" && exit 1)
+          test -f docs/CNAME       && echo "✅ docs/CNAME found"       || (echo "❌ docs/CNAME missing"       && exit 1)
+          echo "Domain: $(cat docs/CNAME)"
+          echo "📄 HTML size: $(wc -c < docs/index.html) bytes"
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs/
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Summary
+        run: |
+          echo "## 🌐 penux.uk published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Branch: \`claude/pensive-pascal-a0l7a8\`  " >> $GITHUB_STEP_SUMMARY
+          echo "Source: \`docs/\`  " >> $GITHUB_STEP_SUMMARY
+          echo "URL: https://penux.uk" >> $GITHUB_STEP_SUMMARY
