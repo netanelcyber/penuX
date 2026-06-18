@@ -15,10 +15,10 @@ Maintainer: kvmweb <kvmweb@localhost>
 Priority: optional
 Section: admin
 Filename: pool/main/k/kvmweb/kvmweb_1.0.0_all.deb
-Size: 14634
-SHA256: ba7afc59a0bab6bb41d6ed753cbcdfd40f0af4566a396e45d7a51ab12c6fcc71
-SHA1: bff9c309dafdf8fa633bc603e8a050d79661793f
-MD5sum: 8b4e7557f55be61b43d86f2886fe9fb8
+Size: 14536
+SHA256: 025efd3f621472552b2b7070a5541210afdad346f68bffefde51aea24c0cec3d
+SHA1: f6c7d6879ae54b9c41d0dbc30f599f0655c8936e
+MD5sum: e13df0ed990d45e2900f1e75cbc7f85b
 Description: Lightweight KVM web management interface
  kvmweb is a self-hosted web UI for managing KVM/QEMU virtual machines
  via libvirt. Features include VM lifecycle control (start, stop, reboot,

@@ -5,44 +5,44 @@ Origin: kvmweb
 Label: kvmweb APT Repository
 Suite: stable
 Codename: stable
-Date: Thu, 18 Jun 2026 04:11:58 UTC
+Date: Thu, 18 Jun 2026 04:33:31 UTC
 Architectures: amd64 arm64
 Components: main
 Description: kvmweb KVM web management interface
 MD5Sum:
- 90419df2bda36882a816b54ad5c15cb9 1012 main/binary-amd64/Packages
- c3da719d8850c18cc9121b6f89c54a33 666 main/binary-amd64/Packages.gz
+ cd11af161df32d93bf1935c9576eeb1c 1012 main/binary-amd64/Packages
+ 7bbbe960f1b1dfea4b770b7da13f49f0 668 main/binary-amd64/Packages.gz
  285fe19f8de0bfe5f722c8fbed1ace3e 145 main/binary-amd64/Release
- 90419df2bda36882a816b54ad5c15cb9 1012 main/binary-arm64/Packages
- c3da719d8850c18cc9121b6f89c54a33 666 main/binary-arm64/Packages.gz
+ cd11af161df32d93bf1935c9576eeb1c 1012 main/binary-arm64/Packages
+ 7bbbe960f1b1dfea4b770b7da13f49f0 668 main/binary-arm64/Packages.gz
  4404ae37c096bfc3c19e1ab079cdd26d 145 main/binary-arm64/Release
 SHA1:
- 11d0e313d62f675ba830d642d186270ddc3cd397 1012 main/binary-amd64/Packages
- cc7cf49dcc6450a1fbd20777a426471dbf5ce07f 666 main/binary-amd64/Packages.gz
+ cb303030080f2f9bcd041954a6bd5968c6729918 1012 main/binary-amd64/Packages
+ 9efb56ef88e337bab63ea8ef22b7bc4b851ab133 668 main/binary-amd64/Packages.gz
  a59c58c47950bd1970d0b54ae7b76ef77f936d29 145 main/binary-amd64/Release
- 11d0e313d62f675ba830d642d186270ddc3cd397 1012 main/binary-arm64/Packages
- cc7cf49dcc6450a1fbd20777a426471dbf5ce07f 666 main/binary-arm64/Packages.gz
+ cb303030080f2f9bcd041954a6bd5968c6729918 1012 main/binary-arm64/Packages
+ 9efb56ef88e337bab63ea8ef22b7bc4b851ab133 668 main/binary-arm64/Packages.gz
  c2b5b46f677614e321d0680cc8a4e710a78e62ef 145 main/binary-arm64/Release
 SHA256:
- c1599ef1d474734f232d56e95dba11413909067f7eebc74d4013ecf5e844c7a6 1012 main/binary-amd64/Packages
- 42b29a2625c0b7e4ff19968d696c9915e14843932c58422ada4bd7eb35b028fe 666 main/binary-amd64/Packages.gz
+ a20ef5897cbddf805c9e53506d7979c41307a13b91d4493f9aac3439d6280d09 1012 main/binary-amd64/Packages
+ c319f1c9829e54b291a63deb07c680998dceb47428a6ffe4b461df265e514600 668 main/binary-amd64/Packages.gz
  d066951e47942b584d8ed6f4041f669113f76f5ba2de84b907b5e13f8a79824c 145 main/binary-amd64/Release
- c1599ef1d474734f232d56e95dba11413909067f7eebc74d4013ecf5e844c7a6 1012 main/binary-arm64/Packages
- 42b29a2625c0b7e4ff19968d696c9915e14843932c58422ada4bd7eb35b028fe 666 main/binary-arm64/Packages.gz
+ a20ef5897cbddf805c9e53506d7979c41307a13b91d4493f9aac3439d6280d09 1012 main/binary-arm64/Packages
+ c319f1c9829e54b291a63deb07c680998dceb47428a6ffe4b461df265e514600 668 main/binary-arm64/Packages.gz
  cc183ab79217d747e26878b84079e7a2424406decbd38262c0ddebfb448bd7c3 145 main/binary-arm64/Release
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCgAdFiEEt0jPr9LuysAEc7nUXJy3zxOIE/QFAmozcA8ACgkQXJy3zxOI
-E/QEDRAAljKj0IXQRjQsPYA6iDul2XOpK5FwxUzpH6G1PKj65x0W/NQxi1PYQPKm
-hW3DMIb3SuwOCqU2mZ1LM7SnVWla9sSl659KnmhBajC0thJdxJLI5g67RHGYEtrN
-thLIpAwEH+ezFYmUqLEmQnhFhY3MsJNAjMLBrGnw9ukdoorTQWHMp87KGNzwOjjw
-2uzV6O8+3C2q052/mRK1sWsYuR+1n9kISw/uKSfGZbK4v6GwPwH2DiIw2Zw0dzie
-uh5QPmZ2ayxvJ/YqmGjY+Qfm541BycWl9sBUNDZOgmxlAiPB3YRp8E2yUEvg2GBV
-enCmo2pXr41d/a+nU1UaaqfwloM+SyCucmUTmakaivXS5fUWV9vDESeT24fICyCn
-DJAiXs4KdtIDq5NbprZ4iirdhyapVA+znJdf+b/Gaea9iQkw60bf/vVAGWvN8RkX
-EWaDXc8SmcD+bsbLQQ+qvOUMz8M+uUpqZE/MwncWeawwUpwB647XCLaV6glt32fd
-KX5uAIeiHUqnGrvLGb4FpFsx71bfWfRXaIbA2A7stFS07pdLFct+12uYpGp7PTPQ
-AuUQ2K1jWM1cD4nFZbGbJ4ip8GwK+LnB+OU8edtZW59v36c+e5PZPuJL/sbM8H54
-/T+p277bvRVAaO07Sstydd/lA4b1zYnQDjSQxrl00EhfmwDuUZc=
-=ey4m
+iQIzBAEBCgAdFiEEt0jPr9LuysAEc7nUXJy3zxOIE/QFAmozdRsACgkQXJy3zxOI
+E/Rh5hAAsjaWMzdvyc9AL9nbQXzvMHxQiDmAV/NyMOPs3EmACcIXcqKoeMy5KUwC
+5SdEqhaoDtpc1uvNzln3no7Eerpb6DYm8m8+z8vGTp9zhrxFqFADqGvRgs3gy0bV
+gUO/0Lf9LRxYZb4J9TXEOn0FIYYGd8uj5QoMLmM1kLnlqAWC7DYf0bFnGmqsVsB4
+yuPJcOtFegtWP2I4vVhpJiE7OFFldx9EelkTATxd8LeYRlRApAlh3VoOK9yxv8gt
+Y0vgkeNYPFlbVnXApiFfTRqe3fLSoZ+fMZv7rFAChyjxvwWSXBYo2C/xQADgYYR9
+YbAPQQec+OsX7Vuy+Xct5+/mzu8x1RAPKHzkFaGG0fbNU5kchXN1u7hKyfTw5PiR
+F3ZUaZHq+QxYiZX/jp78OOoWnXM/LqiAavLRowzg1qDu3Z7Ca4swocIpHvfIib9u
+oMcK/GFMVPYkmNiODRRmgWjtUzcpWkC99jys9/Q5W3G9yfyJXx886qgC5TJVvx3l
+BYXmNcy2Fa4GSMUETodEezDCg3Zrl+1LeHcC78Fcq3sxPfgIwhFS8GwhR8RO3kx3
+eFFq42812DqBGqwzLnT/LBpbhE6Seajvb+c3mfIHdOjpFQk/sdJeA6fPseFPj0z3
+kwVi2Df5MlSeAxM72k3F0S46HCi0sOgPC69RmJ7br/oadmaXJrg=
+=6Jos
 -----END PGP SIGNATURE-----
