@@ -1,0 +1,156 @@
+[
+  {
+    "timestamp": "2026-06-18T01:59:01.248212",
+    "expert_name": "Prof. Marco J. Bruno",
+    "institution": "Erasmus Medical Center",
+    "country": "Netherlands",
+    "region": "Europe",
+    "email": "m.bruno@erasmusmc.nl",
+    "subject": "Research Collaboration: Early Prediction of Severe Acute Pancreatitis (PenuX-AP-Severity)",
+    "success": false,
+    "error": "[Errno 97] Address family not supported by protocol"
+  },
+  {
+    "timestamp": "2026-06-18T01:59:13.255848",
+    "expert_name": "Prof. Enrique de Madaria",
+    "institution": "Hospital General de Alicante",
+    "country": "Spain",
+    "region": "Europe",
+    "email": "e.demadaria@ua.es",
+    "subject": "Research Collaboration: Early Prediction of Severe Acute Pancreatitis (PenuX-AP-Severity)",
+    "success": false,
+    "error": "[Errno 97] Address family not supported by protocol"
+  },
+  {
+    "timestamp": "2026-06-18T01:59:25.268966",
+    "expert_name": "Prof. Stephen Pandol",
+    "institution": "Queen Mary University of London",
+    "country": "United Kingdom",
+    "region": "Europe",
+    "email": "s.pandol@qmul.ac.uk",
+    "subject": "Research Collaboration: Early Prediction of Severe Acute Pancreatitis (PenuX-AP-Severity)",
+    "success": false,
+    "error": "[Errno 97] Address family not supported by protocol"
+  },
+  {
+    "timestamp": "2026-06-18T01:59:37.283509",
+    "expert_name": "Prof. Markus M. Lerch",
+    "institution": "University Medicine Greifswald",
+    "country": "Germany",
+    "region": "Europe",
+    "email": "markus.lerch@uni-greifswald.de",
+    "subject": "Research Collaboration: Early Prediction of Severe Acute Pancreatitis (PenuX-AP-Severity)",
+    "success": false,
+    "error": "[Errno 97] Address family not supported by protocol"
+  },
+  {
+    "timestamp": "2026-06-18T01:59:49.293086",
+    "expert_name": "Prof. Olivier Ceyhan",
+    "institution": "Ghent University Hospital",
+    "country": "Belgium",
+    "region": "Europe",
+    "email": "olivier.ceyhan@ugent.be",
+    "subject": "Research Collaboration: Early Prediction of Severe Acute Pancreatitis (PenuX-AP-Severity)",
+    "success": false,
+    "error": "[Errno 97] Address family not supported by protocol"
+  },
+  {
+    "timestamp": "2026-06-18T02:00:01.309088",
+    "expert_name": "Prof. Patricia Moyer",
+    "institution": "University of Michigan Medical Center",
+    "country": "USA",
+    "region": "North America",
+    "email": "pmoyer@umich.edu",
+    "subject": "Research Collaboration: Early Prediction of Severe Acute Pancreatitis (PenuX-AP-Severity)",
+    "success": false,
+    "error": "[Errno 97] Address family not supported by protocol"
+  },
+  {
+    "timestamp": "2026-06-18T02:00:13.326235",
+    "expert_name": "Prof. David C. Whitcomb",
+    "institution": "University of Pittsburgh Medical Center",
+    "country": "USA",
+    "region": "North America",
+    "email": "whitcomb@pitt.edu",
+    "subject": "Research Collaboration: Early Prediction of Severe Acute Pancreatitis (PenuX-AP-Severity)",
+    "success": false,
+    "error": "[Errno 97] Address family not supported by protocol"
+  },
+  {
+    "timestamp": "2026-06-18T02:00:25.341389",
+    "expert_name": "Dr. Geoffrey Nguyen",
+    "institution": "Yale School of Medicine",
+    "country": "USA",
+    "region": "North America",
+    "email": "geoffrey.nguyen@yale.edu",
+    "subject": "Research Collaboration: Early Prediction of Severe Acute Pancreatitis (PenuX-AP-Severity)",
+    "success": false,
+    "error": "[Errno 97] Address family not supported by protocol"
+  },
+  {
+    "timestamp": "2026-06-18T02:00:37.356322",
+    "expert_name": "Prof. Christos Dervenis",
+    "institution": "Agia Sophia Hospital",
+    "country": "Greece",
+    "region": "Europe",
+    "email": "cdervenis@med.uoa.gr",
+    "subject": "Research Collaboration: Early Prediction of Severe Acute Pancreatitis (PenuX-AP-Severity)",
+    "success": false,
+    "error": "[Errno 97] Address family not supported by protocol"
+  },
+  {
+    "timestamp": "2026-06-18T02:00:49.370875",
+    "expert_name": "Prof. Valerie Korsgen",
+    "institution": "Royal London Hospital",
+    "country": "United Kingdom",
+    "region": "Europe",
+    "email": "v.korsgen@qmul.ac.uk",
+    "subject": "Research Collaboration: Early Prediction of Severe Acute Pancreatitis (PenuX-AP-Severity)",
+    "success": false,
+    "error": "[Errno 97] Address family not supported by protocol"
+  },
+  {
+    "timestamp": "2026-06-18T02:01:01.382572",
+    "expert_name": "Prof. Peter Layer",
+    "institution": "University Medical Center Hamburg",
+    "country": "Germany",
+    "region": "Europe",
+    "email": "layer@uke.de",
+    "subject": "Research Collaboration: Early Prediction of Severe Acute Pancreatitis (PenuX-AP-Severity)",
+    "success": false,
+    "error": "[Errno 97] Address family not supported by protocol"
+  },
+  {
+    "timestamp": "2026-06-18T02:01:13.398514",
+    "expert_name": "Prof. Ute Denzer",
+    "institution": "Goethe University Frankfurt",
+    "country": "Germany",
+    "region": "Europe",
+    "email": "u.denzer@em.uni-frankfurt.de",
+    "subject": "Research Collaboration: Early Prediction of Severe Acute Pancreatitis (PenuX-AP-Severity)",
+    "success": false,
+    "error": "[Errno 97] Address family not supported by protocol"
+  },
+  {
+    "timestamp": "2026-06-18T02:01:25.413515",
+    "expert_name": "Dr. Akif Uyar",
+    "institution": "Istanbul University Cerrahpasa",
+    "country": "Turkey",
+    "region": "Europe/Asia",
+    "email": "auyar@istanbul.edu.tr",
+    "subject": "Research Collaboration: Early Prediction of Severe Acute Pancreatitis (PenuX-AP-Severity)",
+    "success": false,
+    "error": "[Errno 97] Address family not supported by protocol"
+  },
+  {
+    "timestamp": "2026-06-18T02:01:37.428679",
+    "expert_name": "Prof. Vikram Vijayakumar",
+    "institution": "All India Institute of Medical Sciences",
+    "country": "India",
+    "region": "Asia",
+    "email": "vijay_gastro@aiims.ac.in",
+    "subject": "Research Collaboration: Early Prediction of Severe Acute Pancreatitis (PenuX-AP-Severity)",
+    "success": false,
+    "error": "[Errno 97] Address family not supported by protocol"
+  }
+]

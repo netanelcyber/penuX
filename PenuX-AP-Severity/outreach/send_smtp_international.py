@@ -112,27 +112,36 @@ def load_recipients():
     return recipients
 
 
-def send_email_smtp(smtp_server, smtp_port, sender_email, sender_password, recipient_email, subject, body):
-    """Send email via SMTP."""
+def send_email_smtp(smtp_server, smtp_port, sender_email, sender_password, recipient_email, subject, body, use_ssl=False):
+    """Send email via SMTP (STARTTLS on 587, SSL on 465)."""
+    import socket
     try:
-        # Create message
         message = MIMEMultipart("alternative")
         message["From"] = sender_email
         message["To"] = recipient_email
         message["Subject"] = subject
         message.attach(MIMEText(body, "plain"))
 
-        # Connect and send
-        with smtplib.SMTP(smtp_server, smtp_port, timeout=10) as server:
-            server.starttls()
-            server.login(sender_email, sender_password)
-            server.sendmail(sender_email, recipient_email, message.as_string())
+        if use_ssl:
+            ctx = smtplib.ssl.create_default_context()
+            with smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=15, context=ctx) as server:
+                server.login(sender_email, sender_password)
+                server.sendmail(sender_email, recipient_email, message.as_string())
+        else:
+            with smtplib.SMTP(smtp_server, smtp_port, timeout=15) as server:
+                server.ehlo()
+                server.starttls()
+                server.ehlo()
+                server.login(sender_email, sender_password)
+                server.sendmail(sender_email, recipient_email, message.as_string())
 
         return True, None
     except smtplib.SMTPAuthenticationError:
         return False, "Authentication failed (check email/password)"
     except smtplib.SMTPException as e:
         return False, f"SMTP error: {str(e)}"
+    except (OSError, socket.error) as e:
+        return False, f"Network error: {str(e)}"
     except Exception as e:
         return False, str(e)
 
@@ -171,7 +180,9 @@ def main():
     parser.add_argument("--password", required=True, help="Email password or app password")
     parser.add_argument("--smtp", default="smtp.gmail.com", help="SMTP server (default: smtp.gmail.com)")
     parser.add_argument("--port", type=int, default=587, help="SMTP port (default: 587)")
+    parser.add_argument("--ssl", action="store_true", help="Use SSL (port 465) instead of STARTTLS")
     parser.add_argument("--dry-run", action="store_true", help="Preview without sending")
+    parser.add_argument("--yes", action="store_true", help="Skip confirmation prompt")
 
     args = parser.parse_args()
 
@@ -202,10 +213,11 @@ def main():
 
     # Confirmation
     print(f"{YELLOW}[2/3] Ready to send {len(recipients)} emails{NC}")
-    confirm = input(f"\n{CYAN}Continue? (yes/no): {NC}").strip().lower()
-    if confirm != "yes":
-        print("Cancelled.")
-        return
+    if not args.yes:
+        confirm = input(f"\n{CYAN}Continue? (yes/no): {NC}").strip().lower()
+        if confirm != "yes":
+            print("Cancelled.")
+            return
 
     # Send emails
     print(f"\n{YELLOW}[3/3] Sending emails...{NC}\n")
@@ -227,7 +239,8 @@ def main():
         success, error = send_email_smtp(
             args.smtp, args.port,
             args.email, args.password,
-            email, subject, body
+            email, subject, body,
+            use_ssl=args.ssl
         )
 
         if success:
