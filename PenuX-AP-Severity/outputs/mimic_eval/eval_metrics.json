@@ -1,0 +1,22 @@
+{
+  "auroc": 0.5625,
+  "auprc": 0.6845238095238095,
+  "brier_score": 0.33059386375,
+  "accuracy": 0.5,
+  "sensitivity": 0.0,
+  "specificity": 1.0,
+  "ppv": NaN,
+  "npv": 0.5,
+  "f1": 0.0,
+  "threshold": 0.4,
+  "tp": 0,
+  "tn": 4,
+  "fp": 0,
+  "fn": 4,
+  "confusion_matrix": {
+    "TP": 0,
+    "TN": 4,
+    "FP": 0,
+    "FN": 4
+  }
+}

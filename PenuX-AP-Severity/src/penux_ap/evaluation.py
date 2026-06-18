@@ -20,6 +20,13 @@ from sklearn.metrics import (
 
 from penux_ap.config import DEFAULT_THRESHOLD, RANDOM_SEED
 
+try:
+    import matplotlib.pyplot as plt
+    import matplotlib.patches as mpatches
+    _HAS_MPL = True
+except ImportError:
+    _HAS_MPL = False
+
 log = logging.getLogger(__name__)
 
 
@@ -122,6 +129,152 @@ def confusion_matrix_at_thresholds(
             "npv":         round(m["npv"], 4) if not np.isnan(m["npv"]) else None,
         })
     return results
+
+
+def plot_confusion_matrix(
+    y_true: np.ndarray | pd.Series,
+    y_proba: np.ndarray,
+    threshold: float = DEFAULT_THRESHOLD,
+    title: str | None = None,
+    ax=None,
+    cmap: str = "Blues",
+) -> "plt.Axes":
+    """Plot a single annotated confusion matrix for SAP prediction.
+
+    Each cell shows raw count, row-percentage, and clinical label
+    (TP=Correctly flagged severe, TN=Correctly cleared, etc.).
+    """
+    if not _HAS_MPL:
+        raise ImportError("matplotlib is required for plotting")
+
+    y_true = np.asarray(y_true, dtype=int)
+    y_pred = (y_proba >= threshold).astype(int)
+    cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
+    tn, fp, fn, tp = cm.ravel()
+
+    if ax is None:
+        _, ax = plt.subplots(figsize=(5, 4))
+
+    mat = np.array([[tn, fp], [fn, tp]])
+    row_totals = mat.sum(axis=1, keepdims=True)
+    mat_pct = np.where(row_totals > 0, mat / row_totals * 100, 0)
+
+    im = ax.imshow(mat, cmap=cmap, vmin=0)
+    plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+
+    clinical_labels = [
+        ["TN\nCleared correctly", "FP\nFalse alarm"],
+        ["FN\nMissed severe",     "TP\nCaught severe"],
+    ]
+    thresh_color = mat.max() / 2.0
+    for i in range(2):
+        for j in range(2):
+            count = mat[i, j]
+            pct = mat_pct[i, j]
+            color = "white" if count > thresh_color else "black"
+            ax.text(j, i,
+                    f"{count}\n({pct:.1f}%)\n{clinical_labels[i][j]}",
+                    ha="center", va="center", color=color, fontsize=9)
+
+    ax.set_xticks([0, 1])
+    ax.set_yticks([0, 1])
+    ax.set_xticklabels(["Predicted\nNon-severe", "Predicted\nSevere"], fontsize=9)
+    ax.set_yticklabels(["Actual\nNon-severe", "Actual\nSevere"], fontsize=9)
+    ax.set_xlabel("Predicted label", fontsize=10)
+    ax.set_ylabel("Actual label", fontsize=10)
+    ax.set_title(title or f"Confusion Matrix  (threshold = {threshold:.2f})", fontsize=11)
+    return ax
+
+
+def plot_confusion_matrix_sweep(
+    y_true: np.ndarray | pd.Series,
+    y_proba: np.ndarray,
+    thresholds: list[float] | None = None,
+    figsize: tuple[int, int] | None = None,
+    save_path: str | None = None,
+) -> "plt.Figure":
+    """Plot a grid of confusion matrices across multiple decision thresholds.
+
+    Shows how TP/FP/FN/TN shift as the operating threshold changes —
+    useful for clinical decision-making (high sensitivity vs high specificity).
+    """
+    if not _HAS_MPL:
+        raise ImportError("matplotlib is required for plotting")
+
+    if thresholds is None:
+        thresholds = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+
+    ncols = 4
+    nrows = (len(thresholds) + ncols - 1) // ncols
+    fig, axes = plt.subplots(
+        nrows, ncols,
+        figsize=figsize or (ncols * 4.5, nrows * 4),
+    )
+    axes_flat = np.array(axes).flatten()
+
+    for i, t in enumerate(thresholds):
+        plot_confusion_matrix(y_true, y_proba, threshold=t, ax=axes_flat[i])
+
+    for j in range(len(thresholds), len(axes_flat)):
+        axes_flat[j].set_visible(False)
+
+    fig.suptitle(
+        "SAP Prediction — Confusion Matrices at Multiple Thresholds",
+        fontsize=13, fontweight="bold", y=1.01,
+    )
+    fig.tight_layout()
+
+    if save_path:
+        fig.savefig(save_path, dpi=150, bbox_inches="tight")
+        log.info("Saved confusion matrix figure → %s", save_path)
+
+    return fig
+
+
+def plot_metrics_vs_threshold(
+    y_true: np.ndarray | pd.Series,
+    y_proba: np.ndarray,
+    thresholds: list[float] | None = None,
+    highlight_threshold: float = DEFAULT_THRESHOLD,
+    save_path: str | None = None,
+) -> "plt.Figure":
+    """Line plot of Sensitivity, Specificity, PPV, NPV, F1 across thresholds.
+
+    Helps clinicians visually select an operating point that balances
+    sensitivity (catching all severe cases) and specificity (avoiding ICU overload).
+    """
+    if not _HAS_MPL:
+        raise ImportError("matplotlib is required for plotting")
+
+    df = threshold_table(y_true, y_proba, thresholds)
+
+    fig, ax = plt.subplots(figsize=(9, 5))
+    metrics = ["sensitivity", "specificity", "ppv", "npv", "f1"]
+    colors  = ["#e74c3c", "#2ecc71", "#3498db", "#9b59b6", "#f39c12"]
+    labels  = ["Sensitivity (Recall)", "Specificity", "PPV (Precision)", "NPV", "F1 Score"]
+
+    for metric, color, label in zip(metrics, colors, labels):
+        ax.plot(df["threshold"], df[metric], color=color, linewidth=2, label=label)
+
+    ax.axvline(highlight_threshold, color="gray", linestyle="--", linewidth=1.2,
+               label=f"Default threshold ({highlight_threshold})")
+    ax.fill_betweenx([0, 1], highlight_threshold - 0.005, highlight_threshold + 0.005,
+                     color="gray", alpha=0.15)
+
+    ax.set_xlabel("Decision Threshold", fontsize=11)
+    ax.set_ylabel("Metric Value", fontsize=11)
+    ax.set_title("SAP Prediction — Metrics vs. Decision Threshold", fontsize=12, fontweight="bold")
+    ax.set_xlim(df["threshold"].min(), df["threshold"].max())
+    ax.set_ylim(0, 1.05)
+    ax.legend(loc="lower left", fontsize=9)
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
+
+    if save_path:
+        fig.savefig(save_path, dpi=150, bbox_inches="tight")
+        log.info("Saved metrics figure → %s", save_path)
+
+    return fig
 
 
 def bootstrap_auc_ci(
