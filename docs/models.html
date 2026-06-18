@@ -6,7 +6,7 @@
   <title>PenuX — Model Comparison</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
     :root{
       --blue:#1a56db;--blue-dk:#1e429f;--blue-lt:#e8f0fe;
@@ -15,18 +15,21 @@
       --amber:#92400e;--amber-lt:#fffbeb;
       --purple:#6d28d9;--purple-lt:#f5f3ff;
       --teal:#0e7490;--teal-lt:#ecfeff;
+      --orange:#c2410c;--orange-lt:#fff7ed;
+      --pink:#be185d;--pink-lt:#fdf2f8;
+      --indigo:#3730a3;--indigo-lt:#eef2ff;
       --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;
       --gray-400:#9ca3af;--gray-600:#4b5563;--gray-800:#1f2937;--gray-900:#111827;
       --white:#ffffff;--radius:10px;--shadow:0 1px 3px rgba(0,0,0,.10);
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
-    body{font-family:'Heebo',system-ui,sans-serif;color:var(--gray-800);background:var(--white);line-height:1.7}
+    body{font-family:'Inter',system-ui,sans-serif;color:var(--gray-800);background:var(--white);line-height:1.7}
 
     /* NAV */
     nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);
         border-bottom:1px solid var(--gray-200);padding:0 2rem;display:flex;align-items:center;
-        justify-content:space-between;height:60px;direction:ltr}
+        justify-content:space-between;height:60px}
     .nav-brand{display:flex;align-items:center;gap:.6rem;font-weight:700;font-size:1.1rem;color:var(--blue-dk);text-decoration:none}
     .nav-brand svg{width:28px;height:28px}
     .nav-links{display:flex;gap:1.5rem;list-style:none}
@@ -43,53 +46,79 @@
            padding:.25rem .9rem;border-radius:99px;font-size:.8rem;margin-bottom:1rem}
 
     /* LAYOUT */
-    .container{max-width:1150px;margin:0 auto;padding:0 1.5rem}
+    .container{max-width:1200px;margin:0 auto;padding:0 1.5rem}
     section{padding:3.5rem 0}
     section:nth-child(even){background:var(--gray-50)}
     h2{font-size:1.6rem;font-weight:700;color:var(--gray-900);margin-bottom:.4rem}
-    h3{font-size:1.1rem;font-weight:600;color:var(--blue-dk);margin:1.2rem 0 .5rem}
+    h3{font-size:1.05rem;font-weight:600;color:var(--blue-dk);margin:1.2rem 0 .5rem}
     p{color:var(--gray-600);margin-bottom:.8rem}
-    .lead{font-size:.98rem;color:var(--gray-600);margin-bottom:2rem}
+    .lead{font-size:.95rem;color:var(--gray-600);margin-bottom:2rem}
+
+    /* SECTION LABEL */
+    .section-label{display:inline-flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:700;
+                   text-transform:uppercase;letter-spacing:.07em;padding:.3rem .9rem;
+                   border-radius:99px;margin-bottom:1rem}
+    .label-ml{background:var(--blue-lt);color:var(--blue-dk)}
+    .label-dl{background:var(--purple-lt);color:var(--purple)}
 
     /* STAT CARDS */
-    .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.2rem;margin-bottom:2.5rem}
-    .stat-card{border:1px solid var(--gray-200);border-radius:var(--radius);padding:1.3rem 1.5rem;
-               background:var(--white);box-shadow:var(--shadow);border-top:4px solid var(--blue)}
+    .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
+    .stat-card{border:1px solid var(--gray-200);border-radius:var(--radius);padding:1.2rem 1.4rem;
+               background:var(--white);box-shadow:var(--shadow);border-top:4px solid var(--blue);
+               position:relative;overflow:hidden}
+    .stat-card::after{content:'';position:absolute;top:0;right:0;width:60px;height:60px;
+                      background:currentColor;opacity:.04;border-radius:50%;transform:translate(20px,-20px)}
     .stat-card.green{border-top-color:var(--green)}
     .stat-card.purple{border-top-color:var(--purple)}
-    .stat-card .model-name{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-400);margin-bottom:.4rem}
-    .stat-card .auc{font-size:2.4rem;font-weight:700;line-height:1;color:var(--blue)}
+    .stat-card.orange{border-top-color:var(--orange)}
+    .stat-card.pink{border-top-color:var(--pink)}
+    .stat-card.indigo{border-top-color:var(--indigo)}
+    .stat-card .model-name{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-400);margin-bottom:.4rem}
+    .stat-card .auc{font-size:2.2rem;font-weight:700;line-height:1;color:var(--blue)}
     .stat-card.green .auc{color:var(--green)}
     .stat-card.purple .auc{color:var(--purple)}
-    .stat-card .sub{font-size:.82rem;color:var(--gray-500);margin-top:.3rem}
-    .stat-card .badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.7rem}
-    .pill{display:inline-block;padding:.15rem .6rem;border-radius:99px;font-size:.75rem;font-weight:600}
+    .stat-card.orange .auc{color:var(--orange)}
+    .stat-card.pink .auc{color:var(--pink)}
+    .stat-card.indigo .auc{color:var(--indigo)}
+    .stat-card .sub{font-size:.8rem;color:var(--gray-500);margin-top:.2rem}
+    .stat-card .badges{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.65rem}
+    .pill{display:inline-block;padding:.12rem .55rem;border-radius:99px;font-size:.72rem;font-weight:600}
     .pill-blue{background:var(--blue-lt);color:var(--blue-dk)}
     .pill-green{background:var(--green-lt);color:var(--green)}
     .pill-purple{background:var(--purple-lt);color:var(--purple)}
+    .pill-orange{background:var(--orange-lt);color:var(--orange)}
+    .pill-pink{background:var(--pink-lt);color:var(--pink)}
+    .pill-indigo{background:var(--indigo-lt);color:var(--indigo)}
 
     /* TABS */
-    .tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
-    .tab-btn{padding:.45rem 1.2rem;border-radius:6px;font-size:.9rem;font-weight:500;cursor:pointer;
+    .tabs{display:flex;gap:.4rem;margin-bottom:1.5rem;flex-wrap:wrap}
+    .tab-btn{padding:.4rem 1rem;border-radius:6px;font-size:.85rem;font-weight:500;cursor:pointer;
              background:var(--gray-100);color:var(--gray-600);border:1px solid var(--gray-200);
-             transition:all .15s;font-family:'Heebo',sans-serif}
+             transition:all .15s;font-family:'Inter',sans-serif}
     .tab-btn.active{background:var(--blue);color:var(--white);border-color:var(--blue)}
     .tab-btn.active.green{background:var(--green);border-color:var(--green)}
     .tab-btn.active.purple{background:var(--purple);border-color:var(--purple)}
+    .tab-btn.active.orange{background:var(--orange);border-color:var(--orange)}
+    .tab-btn.active.pink{background:var(--pink);border-color:var(--pink)}
+    .tab-btn.active.indigo{background:var(--indigo);border-color:var(--indigo)}
     .tab-panel{display:none}
     .tab-panel.active{display:block}
+    .tab-sep{border:none;border-top:1px dashed var(--gray-200);margin:.3rem 0;width:1px;height:28px;border-top:none;border-left:1px dashed var(--gray-300)}
 
     /* TABLES */
     .tbl-wrap{overflow-x:auto;margin-bottom:1.5rem}
-    table{width:100%;border-collapse:collapse;font-size:.87rem}
+    table{width:100%;border-collapse:collapse;font-size:.85rem}
     thead tr{background:var(--blue);color:var(--white)}
     thead.green tr{background:var(--green)}
     thead.purple tr{background:var(--purple)}
-    thead th{padding:.6rem .85rem;text-align:center;font-weight:600}
-    thead th:first-child{text-align:right}
+    thead.orange tr{background:var(--orange)}
+    thead.pink tr{background:var(--pink)}
+    thead.indigo tr{background:var(--indigo)}
+    thead th{padding:.55rem .8rem;text-align:center;font-weight:600}
+    thead th:first-child{text-align:left}
     tbody tr:nth-child(even){background:var(--gray-50)}
-    tbody td{padding:.5rem .85rem;text-align:center;border-bottom:1px solid var(--gray-200)}
-    tbody td:first-child{text-align:center;font-family:'JetBrains Mono',monospace;font-size:.82rem}
+    tbody td{padding:.45rem .8rem;text-align:center;border-bottom:1px solid var(--gray-200)}
+    tbody td:first-child{text-align:center;font-family:'JetBrains Mono',monospace;font-size:.8rem}
     .best-row{background:var(--green-lt)!important;font-weight:600}
     .best-row td{color:var(--green)}
     .v-hi{color:var(--green);font-weight:600}
@@ -97,29 +126,38 @@
     .v-lo{color:var(--red)}
 
     /* ROC CANVAS */
-    .roc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-bottom:2rem}
-    .roc-card{border:1px solid var(--gray-200);border-radius:var(--radius);padding:1.2rem;background:var(--white)}
-    .roc-card h4{font-size:.9rem;font-weight:600;margin-bottom:.8rem;color:var(--gray-800)}
-    canvas{display:block;width:100%;height:220px}
+    .roc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem;margin-bottom:2rem}
+    .roc-card{border:1px solid var(--gray-200);border-radius:var(--radius);padding:1.1rem;background:var(--white)}
+    .roc-card h4{font-size:.85rem;font-weight:600;margin-bottom:.7rem;color:var(--gray-800)}
+    canvas{display:block;width:100%;height:200px}
 
     /* FEATURE IMPORTANCE */
-    .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem}
-    .feat-card{border:1px solid var(--gray-200);border-radius:var(--radius);padding:1.3rem;background:var(--white)}
-    .feat-card h4{font-size:.9rem;font-weight:700;margin-bottom:1rem;color:var(--gray-700)}
-    .feat-bar-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem}
-    .feat-label{font-size:.8rem;min-width:90px;text-align:left;color:var(--gray-700)}
-    .feat-bar-bg{flex:1;background:var(--gray-100);border-radius:99px;height:10px;overflow:hidden}
+    .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem}
+    .feat-card{border:1px solid var(--gray-200);border-radius:var(--radius);padding:1.2rem;background:var(--white)}
+    .feat-card h4{font-size:.85rem;font-weight:700;margin-bottom:.9rem;color:var(--gray-700)}
+    .feat-bar-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.45rem}
+    .feat-label{font-size:.78rem;min-width:88px;text-align:left;color:var(--gray-700)}
+    .feat-bar-bg{flex:1;background:var(--gray-100);border-radius:99px;height:9px;overflow:hidden}
     .feat-bar{height:100%;border-radius:99px;background:var(--blue);transition:width .4s}
     .feat-bar.green{background:var(--green)}
     .feat-bar.purple{background:var(--purple)}
-    .feat-val{font-size:.75rem;font-family:'JetBrains Mono',monospace;color:var(--gray-400);min-width:40px}
+    .feat-val{font-size:.72rem;font-family:'JetBrains Mono',monospace;color:var(--gray-400);min-width:36px}
 
     /* COMPARISON TABLE */
     .cmp-tbl thead tr{background:var(--gray-800)}
+    .type-badge{display:inline-block;padding:.1rem .45rem;border-radius:4px;font-size:.68rem;font-weight:700;margin-left:.4rem;vertical-align:middle}
+    .type-ml{background:var(--blue-lt);color:var(--blue-dk)}
+    .type-dl{background:var(--purple-lt);color:var(--purple)}
 
     /* WARNING */
-    .warn{background:var(--amber-lt);border:1px solid #fde68a;border-right:4px solid var(--amber);
-          padding:.9rem 1.1rem;border-radius:var(--radius);font-size:.86rem;color:var(--amber);margin-bottom:1.5rem}
+    .warn{background:var(--amber-lt);border:1px solid #fde68a;border-left:4px solid var(--amber);
+          padding:.9rem 1.1rem;border-radius:var(--radius);font-size:.85rem;color:var(--amber);margin-bottom:1.5rem}
+
+    /* ALGO CARDS */
+    .algo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem}
+    .algo-card{border:1px solid var(--gray-200);border-radius:var(--radius);padding:1.3rem;background:var(--white)}
+    .algo-card p{font-size:.85rem}
+    .algo-card .meta{font-size:.78rem;color:var(--gray-400);margin-top:.5rem;margin-bottom:0}
 
     footer{background:var(--gray-900);color:var(--gray-400);text-align:center;padding:2rem;font-size:.85rem}
     footer a{color:var(--gray-400)}
@@ -144,21 +182,23 @@
 <!-- HERO -->
 <div class="hero">
   <div class="badge">Research Only — Not for Clinical Use</div>
-  <h1>3-Model ML Comparison</h1>
-  <p>Logistic Regression · Random Forest · Gradient Boosting — trained and evaluated on a Chinese AP cohort (n=722) with 5-fold cross-validation</p>
+  <h1>6-Model ML &amp; Deep Learning Comparison</h1>
+  <p>Logistic Regression · Random Forest · Gradient Boosting · MLP · Residual MLP · Attention MLP<br>
+  Trained and evaluated on a Chinese AP cohort (n=722) with 5-fold stratified cross-validation</p>
 </div>
 
 <!-- SUMMARY CARDS -->
 <section>
   <div class="container">
     <h2>Performance Summary</h2>
-    <p class="lead">All models evaluated with 5-fold Stratified Cross-Validation | Ground truth: SAP label (Atlanta 2012) | n=722</p>
+    <p class="lead">All models evaluated with 5-fold Stratified Cross-Validation | Ground truth: SAP label (Atlanta 2012) | n=722 (585 severe / 137 mild)</p>
 
+    <div class="section-label label-ml">🤖 Classical Machine Learning</div>
     <div class="stat-grid">
       <div class="stat-card">
         <div class="model-name">Logistic Regression</div>
         <div class="auc">0.817</div>
-        <div class="sub">AUC (CV)</div>
+        <div class="sub">AUC (5-fold CV)</div>
         <div class="badges">
           <span class="pill pill-blue">F1=0.907</span>
           <span class="pill pill-blue">Sens=93.8%</span>
@@ -168,7 +208,7 @@
       <div class="stat-card green">
         <div class="model-name">Random Forest</div>
         <div class="auc">0.877</div>
-        <div class="sub">AUC (CV) ★ Best</div>
+        <div class="sub">AUC (5-fold CV) ★ Best ML</div>
         <div class="badges">
           <span class="pill pill-green">F1=0.917</span>
           <span class="pill pill-green">Sens=96.8%</span>
@@ -178,7 +218,7 @@
       <div class="stat-card purple">
         <div class="model-name">Gradient Boosting</div>
         <div class="auc">0.874</div>
-        <div class="sub">AUC (CV)</div>
+        <div class="sub">AUC (5-fold CV)</div>
         <div class="badges">
           <span class="pill pill-purple">F1=0.918</span>
           <span class="pill pill-purple">Sens=97.1%</span>
@@ -187,29 +227,85 @@
       </div>
     </div>
 
-    <!-- comparison table -->
+    <div class="section-label label-dl">🧠 Deep Learning (TensorFlow / Keras)</div>
+    <div class="stat-grid">
+      <div class="stat-card orange">
+        <div class="model-name">MLP (3-layer)</div>
+        <div class="auc">0.818</div>
+        <div class="sub">AUC (5-fold CV)</div>
+        <div class="badges">
+          <span class="pill pill-orange">F1=0.909</span>
+          <span class="pill pill-orange">Sens=98.5%</span>
+          <span class="pill pill-orange">T=0.281</span>
+        </div>
+      </div>
+      <div class="stat-card pink">
+        <div class="model-name">Residual MLP</div>
+        <div class="auc">0.790</div>
+        <div class="sub">AUC (5-fold CV)</div>
+        <div class="badges">
+          <span class="pill pill-pink">F1=0.901</span>
+          <span class="pill pill-pink">Sens=96.9%</span>
+          <span class="pill pill-pink">T=0.276</span>
+        </div>
+      </div>
+      <div class="stat-card indigo">
+        <div class="model-name">Attention MLP</div>
+        <div class="auc">0.801</div>
+        <div class="sub">AUC (5-fold CV)</div>
+        <div class="badges">
+          <span class="pill pill-indigo">F1=0.916</span>
+          <span class="pill pill-indigo">Sens=96.8%</span>
+          <span class="pill pill-indigo">T=0.602</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Full comparison table -->
+    <h3 style="margin-top:1.5rem">Full Comparison Table</h3>
     <div class="tbl-wrap">
       <table class="cmp-tbl">
         <thead><tr>
-          <th>Model</th><th>AUC</th><th>F1</th><th>Threshold</th>
+          <th>Model</th><th>Type</th><th>AUC</th><th>F1</th><th>Threshold</th>
           <th>TP</th><th>FP</th><th>FN</th><th>TN</th>
           <th>Sensitivity</th><th>Specificity</th><th>PPV</th>
         </tr></thead>
         <tbody>
           <tr>
-            <td>Logistic Regression</td><td>0.817</td><td>0.907</td><td>0.575</td>
+            <td>Logistic Regression</td><td><span class="type-badge type-ml">ML</span></td>
+            <td>0.817</td><td>0.907</td><td>0.575</td>
             <td>549</td><td>77</td><td>36</td><td>60</td>
             <td class="v-hi">93.8%</td><td class="v-md">43.8%</td><td class="v-hi">87.7%</td>
           </tr>
           <tr class="best-row">
-            <td>Random Forest ★</td><td>0.877</td><td>0.917</td><td>0.535</td>
+            <td>Random Forest ★</td><td><span class="type-badge type-ml">ML</span></td>
+            <td>0.877</td><td>0.917</td><td>0.535</td>
             <td>566</td><td>84</td><td>19</td><td>53</td>
             <td class="v-hi">96.8%</td><td class="v-md">38.7%</td><td class="v-hi">87.1%</td>
           </tr>
           <tr>
-            <td>Gradient Boosting</td><td>0.874</td><td>0.918</td><td>0.350</td>
+            <td>Gradient Boosting</td><td><span class="type-badge type-ml">ML</span></td>
+            <td>0.874</td><td>0.918</td><td>0.350</td>
             <td>568</td><td>85</td><td>17</td><td>52</td>
             <td class="v-hi">97.1%</td><td class="v-md">38.0%</td><td class="v-hi">87.0%</td>
+          </tr>
+          <tr>
+            <td>MLP (3-layer)</td><td><span class="type-badge type-dl">DL</span></td>
+            <td>0.818</td><td>0.909</td><td>0.281</td>
+            <td>576</td><td>106</td><td>9</td><td>31</td>
+            <td class="v-hi">98.5%</td><td class="v-lo">22.6%</td><td class="v-hi">84.5%</td>
+          </tr>
+          <tr>
+            <td>Residual MLP</td><td><span class="type-badge type-dl">DL</span></td>
+            <td>0.790</td><td>0.901</td><td>0.276</td>
+            <td>567</td><td>106</td><td>18</td><td>31</td>
+            <td class="v-hi">96.9%</td><td class="v-lo">22.6%</td><td class="v-hi">84.3%</td>
+          </tr>
+          <tr>
+            <td>Attention MLP</td><td><span class="type-badge type-dl">DL</span></td>
+            <td>0.801</td><td>0.916</td><td>0.602</td>
+            <td>566</td><td>85</td><td>19</td><td>52</td>
+            <td class="v-hi">96.8%</td><td class="v-md">38.0%</td><td class="v-hi">86.9%</td>
           </tr>
         </tbody>
       </table>
@@ -220,72 +316,120 @@
 <!-- CONFUSION MATRICES -->
 <section>
   <div class="container">
-    <h2>Confusion Matrices</h2>
-    <p class="lead">Per threshold | Ground truth: 1=Severe SAP, 0=Mild SAP</p>
+    <h2>Confusion Matrices — Threshold Sweep</h2>
+    <p class="lead">Each tab shows TP/FP/FN/TN across thresholds 0.10–0.80 | Ground truth: 1=Severe SAP, 0=Mild SAP</p>
 
     <div class="warn">⚠️ Research only. All figures from 5-fold cross-validation on the same cohort — no external validation set.</div>
 
-    <div class="tabs">
-      <button class="tab-btn active" onclick="showTab('lr','this')">Logistic Regression</button>
-      <button class="tab-btn" onclick="showTab('rf','this')">Random Forest</button>
-      <button class="tab-btn" onclick="showTab('gb','this')">Gradient Boosting</button>
+    <div class="tabs" id="cm-tabs">
+      <button class="tab-btn active" data-tab="cm-lr">Logistic Regression</button>
+      <button class="tab-btn" data-tab="cm-rf" data-color="green">Random Forest</button>
+      <button class="tab-btn" data-tab="cm-gb" data-color="purple">Gradient Boosting</button>
+      <span style="width:1px;background:var(--gray-200);margin:0 4px"></span>
+      <button class="tab-btn" data-tab="cm-mlp" data-color="orange">MLP</button>
+      <button class="tab-btn" data-tab="cm-res" data-color="pink">Residual MLP</button>
+      <button class="tab-btn" data-tab="cm-att" data-color="indigo">Attention MLP</button>
     </div>
 
-    <!-- LR -->
-    <div id="tab-lr" class="tab-panel active">
-      <div class="tbl-wrap">
-        <table><thead><tr>
-          <th>Threshold</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th>
-          <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th>
-        </tr></thead><tbody>
-          <tr><td>0.10</td><td>582</td><td>126</td><td>3</td><td>11</td><td class="v-hi">99.5%</td><td class="v-lo">8.0%</td><td class="v-hi">82.2%</td><td>0.900</td></tr>
-          <tr><td>0.20</td><td>574</td><td>118</td><td>11</td><td>19</td><td class="v-hi">98.1%</td><td class="v-lo">13.9%</td><td class="v-hi">82.9%</td><td>0.899</td></tr>
-          <tr><td>0.30</td><td>572</td><td>107</td><td>13</td><td>30</td><td class="v-hi">97.8%</td><td class="v-md">21.9%</td><td class="v-hi">84.2%</td><td>0.905</td></tr>
-          <tr><td>0.40</td><td>563</td><td>101</td><td>22</td><td>36</td><td class="v-hi">96.2%</td><td class="v-md">26.3%</td><td class="v-hi">84.8%</td><td>0.902</td></tr>
-          <tr class="best-row"><td>0.575 ★</td><td>549</td><td>77</td><td>36</td><td>60</td><td class="v-hi">93.8%</td><td class="v-md">43.8%</td><td class="v-hi">87.7%</td><td>0.907</td></tr>
-          <tr><td>0.60</td><td>537</td><td>68</td><td>48</td><td>69</td><td class="v-hi">91.8%</td><td class="v-md">50.4%</td><td class="v-hi">88.7%</td><td>0.901</td></tr>
-          <tr><td>0.70</td><td>498</td><td>47</td><td>87</td><td>90</td><td class="v-md">85.1%</td><td class="v-md">65.7%</td><td class="v-hi">91.4%</td><td>0.879</td></tr>
-          <tr><td>0.80</td><td>440</td><td>26</td><td>145</td><td>111</td><td class="v-md">75.2%</td><td class="v-hi">81.0%</td><td class="v-hi">94.4%</td><td>0.839</td></tr>
-        </tbody></table>
-      </div>
+    <div id="cm-lr" class="tab-panel active">
+      <div class="tbl-wrap"><table><thead><tr>
+        <th>Threshold</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th>
+        <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th>
+      </tr></thead><tbody>
+        <tr><td>0.10</td><td>582</td><td>126</td><td>3</td><td>11</td><td class="v-hi">99.5%</td><td class="v-lo">8.0%</td><td class="v-hi">82.2%</td><td>0.900</td></tr>
+        <tr><td>0.20</td><td>574</td><td>118</td><td>11</td><td>19</td><td class="v-hi">98.1%</td><td class="v-lo">13.9%</td><td class="v-hi">82.9%</td><td>0.899</td></tr>
+        <tr><td>0.30</td><td>572</td><td>107</td><td>13</td><td>30</td><td class="v-hi">97.8%</td><td class="v-md">21.9%</td><td class="v-hi">84.2%</td><td>0.905</td></tr>
+        <tr><td>0.40</td><td>563</td><td>101</td><td>22</td><td>36</td><td class="v-hi">96.2%</td><td class="v-md">26.3%</td><td class="v-hi">84.8%</td><td>0.902</td></tr>
+        <tr><td>0.50</td><td>556</td><td>90</td><td>29</td><td>47</td><td class="v-hi">95.0%</td><td class="v-md">34.3%</td><td class="v-hi">86.1%</td><td>0.903</td></tr>
+        <tr class="best-row"><td>0.575 ★</td><td>549</td><td>77</td><td>36</td><td>60</td><td class="v-hi">93.8%</td><td class="v-md">43.8%</td><td class="v-hi">87.7%</td><td>0.907</td></tr>
+        <tr><td>0.60</td><td>542</td><td>76</td><td>43</td><td>61</td><td class="v-hi">92.6%</td><td class="v-md">44.5%</td><td class="v-hi">87.7%</td><td>0.901</td></tr>
+        <tr><td>0.70</td><td>516</td><td>64</td><td>69</td><td>73</td><td class="v-md">88.2%</td><td class="v-md">53.3%</td><td class="v-hi">89.0%</td><td>0.886</td></tr>
+        <tr><td>0.80</td><td>467</td><td>44</td><td>118</td><td>93</td><td class="v-md">79.8%</td><td class="v-hi">67.9%</td><td class="v-hi">91.4%</td><td>0.852</td></tr>
+      </tbody></table></div>
     </div>
 
-    <!-- RF -->
-    <div id="tab-rf" class="tab-panel">
-      <div class="tbl-wrap">
-        <table><thead class="green"><tr>
-          <th>Threshold</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th>
-          <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th>
-        </tr></thead><tbody>
-          <tr><td>0.10</td><td>585</td><td>137</td><td>0</td><td>0</td><td class="v-hi">100%</td><td class="v-lo">0.0%</td><td class="v-hi">81.0%</td><td>0.895</td></tr>
-          <tr><td>0.20</td><td>584</td><td>131</td><td>1</td><td>6</td><td class="v-hi">99.8%</td><td class="v-lo">4.4%</td><td class="v-hi">81.7%</td><td>0.898</td></tr>
-          <tr><td>0.30</td><td>582</td><td>120</td><td>3</td><td>17</td><td class="v-hi">99.5%</td><td class="v-lo">12.4%</td><td class="v-hi">82.9%</td><td>0.902</td></tr>
-          <tr><td>0.40</td><td>578</td><td>106</td><td>7</td><td>31</td><td class="v-hi">98.8%</td><td class="v-md">22.6%</td><td class="v-hi">84.5%</td><td>0.909</td></tr>
-          <tr class="best-row"><td>0.535 ★</td><td>566</td><td>84</td><td>19</td><td>53</td><td class="v-hi">96.8%</td><td class="v-md">38.7%</td><td class="v-hi">87.1%</td><td>0.917</td></tr>
-          <tr><td>0.60</td><td>550</td><td>65</td><td>35</td><td>72</td><td class="v-hi">94.0%</td><td class="v-md">52.6%</td><td class="v-hi">89.4%</td><td>0.916</td></tr>
-          <tr><td>0.70</td><td>511</td><td>40</td><td>74</td><td>97</td><td class="v-hi">87.4%</td><td class="v-hi">70.8%</td><td class="v-hi">92.8%</td><td>0.899</td></tr>
-          <tr><td>0.80</td><td>441</td><td>17</td><td>144</td><td>120</td><td class="v-md">75.4%</td><td class="v-hi">87.6%</td><td class="v-hi">96.3%</td><td>0.845</td></tr>
-        </tbody></table>
-      </div>
+    <div id="cm-rf" class="tab-panel">
+      <div class="tbl-wrap"><table><thead class="green"><tr>
+        <th>Threshold</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th>
+        <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th>
+      </tr></thead><tbody>
+        <tr><td>0.10</td><td>585</td><td>137</td><td>0</td><td>0</td><td class="v-hi">100%</td><td class="v-lo">0.0%</td><td class="v-hi">81.0%</td><td>0.895</td></tr>
+        <tr><td>0.20</td><td>585</td><td>137</td><td>0</td><td>0</td><td class="v-hi">100%</td><td class="v-lo">0.0%</td><td class="v-hi">81.0%</td><td>0.895</td></tr>
+        <tr><td>0.30</td><td>584</td><td>124</td><td>1</td><td>13</td><td class="v-hi">99.8%</td><td class="v-lo">9.5%</td><td class="v-hi">82.5%</td><td>0.903</td></tr>
+        <tr><td>0.40</td><td>582</td><td>110</td><td>3</td><td>27</td><td class="v-hi">99.5%</td><td class="v-lo">19.7%</td><td class="v-hi">84.1%</td><td>0.912</td></tr>
+        <tr><td>0.50</td><td>571</td><td>94</td><td>14</td><td>43</td><td class="v-hi">97.6%</td><td class="v-md">31.4%</td><td class="v-hi">85.9%</td><td>0.914</td></tr>
+        <tr class="best-row"><td>0.535 ★</td><td>566</td><td>84</td><td>19</td><td>53</td><td class="v-hi">96.8%</td><td class="v-md">38.7%</td><td class="v-hi">87.1%</td><td>0.917</td></tr>
+        <tr><td>0.60</td><td>547</td><td>67</td><td>38</td><td>70</td><td class="v-hi">93.5%</td><td class="v-md">51.1%</td><td class="v-hi">89.1%</td><td>0.912</td></tr>
+        <tr><td>0.70</td><td>520</td><td>44</td><td>65</td><td>93</td><td class="v-hi">88.9%</td><td class="v-hi">67.9%</td><td class="v-hi">92.2%</td><td>0.905</td></tr>
+        <tr><td>0.80</td><td>455</td><td>22</td><td>130</td><td>115</td><td class="v-md">77.8%</td><td class="v-hi">83.9%</td><td class="v-hi">95.4%</td><td>0.857</td></tr>
+      </tbody></table></div>
     </div>
 
-    <!-- GB -->
-    <div id="tab-gb" class="tab-panel">
-      <div class="tbl-wrap">
-        <table><thead class="purple"><tr>
-          <th>Threshold</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th>
-          <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th>
-        </tr></thead><tbody>
-          <tr><td>0.10</td><td>585</td><td>137</td><td>0</td><td>0</td><td class="v-hi">100%</td><td class="v-lo">0.0%</td><td class="v-hi">81.0%</td><td>0.895</td></tr>
-          <tr><td>0.20</td><td>584</td><td>133</td><td>1</td><td>4</td><td class="v-hi">99.8%</td><td class="v-lo">2.9%</td><td class="v-hi">81.5%</td><td>0.897</td></tr>
-          <tr class="best-row"><td>0.350 ★</td><td>568</td><td>85</td><td>17</td><td>52</td><td class="v-hi">97.1%</td><td class="v-md">38.0%</td><td class="v-hi">87.0%</td><td>0.918</td></tr>
-          <tr><td>0.40</td><td>563</td><td>77</td><td>22</td><td>60</td><td class="v-hi">96.2%</td><td class="v-md">43.8%</td><td class="v-hi">88.0%</td><td>0.917</td></tr>
-          <tr><td>0.50</td><td>549</td><td>62</td><td>36</td><td>75</td><td class="v-hi">93.8%</td><td class="v-md">54.7%</td><td class="v-hi">89.9%</td><td>0.916</td></tr>
-          <tr><td>0.60</td><td>527</td><td>45</td><td>58</td><td>92</td><td class="v-hi">90.1%</td><td class="v-hi">67.2%</td><td class="v-hi">92.1%</td><td>0.910</td></tr>
-          <tr><td>0.70</td><td>491</td><td>27</td><td>94</td><td>110</td><td class="v-md">83.9%</td><td class="v-hi">80.3%</td><td class="v-hi">94.8%</td><td>0.888</td></tr>
-          <tr><td>0.80</td><td>427</td><td>12</td><td>158</td><td>125</td><td class="v-md">73.0%</td><td class="v-hi">91.2%</td><td class="v-hi">97.3%</td><td>0.833</td></tr>
-        </tbody></table>
-      </div>
+    <div id="cm-gb" class="tab-panel">
+      <div class="tbl-wrap"><table><thead class="purple"><tr>
+        <th>Threshold</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th>
+        <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th>
+      </tr></thead><tbody>
+        <tr><td>0.10</td><td>583</td><td>115</td><td>2</td><td>22</td><td class="v-hi">99.7%</td><td class="v-lo">16.1%</td><td class="v-hi">83.5%</td><td>0.909</td></tr>
+        <tr><td>0.20</td><td>576</td><td>106</td><td>9</td><td>31</td><td class="v-hi">98.5%</td><td class="v-md">22.6%</td><td class="v-hi">84.5%</td><td>0.909</td></tr>
+        <tr><td>0.30</td><td>570</td><td>91</td><td>15</td><td>46</td><td class="v-hi">97.4%</td><td class="v-md">33.6%</td><td class="v-hi">86.2%</td><td>0.915</td></tr>
+        <tr class="best-row"><td>0.350 ★</td><td>568</td><td>85</td><td>17</td><td>52</td><td class="v-hi">97.1%</td><td class="v-md">38.0%</td><td class="v-hi">87.0%</td><td>0.918</td></tr>
+        <tr><td>0.40</td><td>561</td><td>81</td><td>24</td><td>56</td><td class="v-hi">95.9%</td><td class="v-md">40.9%</td><td class="v-hi">87.4%</td><td>0.914</td></tr>
+        <tr><td>0.50</td><td>550</td><td>71</td><td>35</td><td>66</td><td class="v-hi">94.0%</td><td class="v-md">48.2%</td><td class="v-hi">88.6%</td><td>0.912</td></tr>
+        <tr><td>0.60</td><td>537</td><td>63</td><td>48</td><td>74</td><td class="v-hi">91.8%</td><td class="v-md">54.0%</td><td class="v-hi">89.5%</td><td>0.906</td></tr>
+        <tr><td>0.70</td><td>523</td><td>51</td><td>62</td><td>86</td><td class="v-hi">89.4%</td><td class="v-hi">62.8%</td><td class="v-hi">91.1%</td><td>0.903</td></tr>
+        <tr><td>0.80</td><td>492</td><td>39</td><td>93</td><td>98</td><td class="v-md">84.1%</td><td class="v-hi">71.5%</td><td class="v-hi">92.7%</td><td>0.882</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div id="cm-mlp" class="tab-panel">
+      <div class="tbl-wrap"><table><thead class="orange"><tr>
+        <th>Threshold</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th>
+        <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th>
+      </tr></thead><tbody>
+        <tr><td>0.10</td><td>584</td><td>125</td><td>1</td><td>12</td><td class="v-hi">99.8%</td><td class="v-lo">8.8%</td><td class="v-hi">82.4%</td><td>0.903</td></tr>
+        <tr><td>0.20</td><td>578</td><td>116</td><td>7</td><td>21</td><td class="v-hi">98.8%</td><td class="v-lo">15.3%</td><td class="v-hi">83.3%</td><td>0.904</td></tr>
+        <tr class="best-row"><td>0.281 ★</td><td>576</td><td>106</td><td>9</td><td>31</td><td class="v-hi">98.5%</td><td class="v-lo">22.6%</td><td class="v-hi">84.5%</td><td>0.909</td></tr>
+        <tr><td>0.30</td><td>570</td><td>105</td><td>15</td><td>32</td><td class="v-hi">97.4%</td><td class="v-md">23.4%</td><td class="v-hi">84.4%</td><td>0.905</td></tr>
+        <tr><td>0.40</td><td>557</td><td>96</td><td>28</td><td>41</td><td class="v-hi">95.2%</td><td class="v-md">29.9%</td><td class="v-hi">85.3%</td><td>0.900</td></tr>
+        <tr><td>0.50</td><td>537</td><td>81</td><td>48</td><td>56</td><td class="v-hi">91.8%</td><td class="v-md">40.9%</td><td class="v-hi">86.9%</td><td>0.893</td></tr>
+        <tr><td>0.60</td><td>510</td><td>61</td><td>75</td><td>76</td><td class="v-md">87.2%</td><td class="v-md">55.5%</td><td class="v-hi">89.3%</td><td>0.882</td></tr>
+        <tr><td>0.70</td><td>471</td><td>43</td><td>114</td><td>94</td><td class="v-md">80.5%</td><td class="v-hi">68.6%</td><td class="v-hi">91.6%</td><td>0.857</td></tr>
+        <tr><td>0.80</td><td>423</td><td>30</td><td>162</td><td>107</td><td class="v-md">72.3%</td><td class="v-hi">78.1%</td><td class="v-hi">93.4%</td><td>0.815</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div id="cm-res" class="tab-panel">
+      <div class="tbl-wrap"><table><thead class="pink"><tr>
+        <th>Threshold</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th>
+        <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th>
+      </tr></thead><tbody>
+        <tr><td>0.10</td><td>578</td><td>127</td><td>7</td><td>10</td><td class="v-hi">98.8%</td><td class="v-lo">7.3%</td><td class="v-hi">82.0%</td><td>0.896</td></tr>
+        <tr><td>0.20</td><td>571</td><td>114</td><td>14</td><td>23</td><td class="v-hi">97.6%</td><td class="v-lo">16.8%</td><td class="v-hi">83.4%</td><td>0.899</td></tr>
+        <tr class="best-row"><td>0.276 ★</td><td>567</td><td>106</td><td>18</td><td>31</td><td class="v-hi">96.9%</td><td class="v-lo">22.6%</td><td class="v-hi">84.3%</td><td>0.901</td></tr>
+        <tr><td>0.30</td><td>564</td><td>105</td><td>21</td><td>32</td><td class="v-hi">96.4%</td><td class="v-md">23.4%</td><td class="v-hi">84.3%</td><td>0.900</td></tr>
+        <tr><td>0.40</td><td>549</td><td>94</td><td>36</td><td>43</td><td class="v-hi">93.8%</td><td class="v-md">31.4%</td><td class="v-hi">85.4%</td><td>0.894</td></tr>
+        <tr><td>0.50</td><td>535</td><td>83</td><td>50</td><td>54</td><td class="v-hi">91.5%</td><td class="v-md">39.4%</td><td class="v-hi">86.6%</td><td>0.889</td></tr>
+        <tr><td>0.60</td><td>505</td><td>72</td><td>80</td><td>65</td><td class="v-md">86.3%</td><td class="v-md">47.4%</td><td class="v-hi">87.5%</td><td>0.869</td></tr>
+        <tr><td>0.70</td><td>475</td><td>53</td><td>110</td><td>84</td><td class="v-md">81.2%</td><td class="v-hi">61.3%</td><td class="v-hi">90.0%</td><td>0.854</td></tr>
+        <tr><td>0.80</td><td>414</td><td>31</td><td>171</td><td>106</td><td class="v-md">70.8%</td><td class="v-hi">77.4%</td><td class="v-hi">93.0%</td><td>0.804</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div id="cm-att" class="tab-panel">
+      <div class="tbl-wrap"><table><thead class="indigo"><tr>
+        <th>Threshold</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th>
+        <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th>
+      </tr></thead><tbody>
+        <tr><td>0.10</td><td>584</td><td>131</td><td>1</td><td>6</td><td class="v-hi">99.8%</td><td class="v-lo">4.4%</td><td class="v-hi">81.7%</td><td>0.898</td></tr>
+        <tr><td>0.20</td><td>579</td><td>125</td><td>6</td><td>12</td><td class="v-hi">99.0%</td><td class="v-lo">8.8%</td><td class="v-hi">82.2%</td><td>0.898</td></tr>
+        <tr><td>0.30</td><td>575</td><td>123</td><td>10</td><td>14</td><td class="v-hi">98.3%</td><td class="v-lo">10.2%</td><td class="v-hi">82.4%</td><td>0.896</td></tr>
+        <tr><td>0.40</td><td>574</td><td>109</td><td>11</td><td>28</td><td class="v-hi">98.1%</td><td class="v-md">20.4%</td><td class="v-hi">84.0%</td><td>0.905</td></tr>
+        <tr><td>0.50</td><td>572</td><td>101</td><td>13</td><td>36</td><td class="v-hi">97.8%</td><td class="v-md">26.3%</td><td class="v-hi">85.0%</td><td>0.909</td></tr>
+        <tr class="best-row"><td>0.602 ★</td><td>566</td><td>85</td><td>19</td><td>52</td><td class="v-hi">96.8%</td><td class="v-md">38.0%</td><td class="v-hi">86.9%</td><td>0.916</td></tr>
+        <tr><td>0.70</td><td>540</td><td>66</td><td>45</td><td>71</td><td class="v-hi">92.3%</td><td class="v-md">51.8%</td><td class="v-hi">89.1%</td><td>0.907</td></tr>
+        <tr><td>0.80</td><td>472</td><td>49</td><td>113</td><td>88</td><td class="v-md">80.7%</td><td class="v-hi">64.2%</td><td class="v-hi">90.6%</td><td>0.854</td></tr>
+      </tbody></table></div>
     </div>
   </div>
 </section>
@@ -294,20 +438,20 @@
 <section>
   <div class="container">
     <h2>ROC Curves</h2>
-    <p class="lead">5-fold cross-validation — X axis: False Positive Rate · Y axis: True Positive Rate</p>
+    <p class="lead">5-fold cross-validation out-of-fold predictions | X axis: False Positive Rate · Y axis: True Positive Rate</p>
+
+    <div class="section-label label-ml">Classical ML</div>
     <div class="roc-grid">
-      <div class="roc-card">
-        <h4>Logistic Regression — AUC 0.817</h4>
-        <canvas id="roc-lr"></canvas>
-      </div>
-      <div class="roc-card">
-        <h4>Random Forest — AUC 0.877 ★</h4>
-        <canvas id="roc-rf"></canvas>
-      </div>
-      <div class="roc-card">
-        <h4>Gradient Boosting — AUC 0.874</h4>
-        <canvas id="roc-gb"></canvas>
-      </div>
+      <div class="roc-card"><h4>Logistic Regression — AUC 0.817</h4><canvas id="roc-lr"></canvas></div>
+      <div class="roc-card"><h4>Random Forest — AUC 0.877 ★</h4><canvas id="roc-rf"></canvas></div>
+      <div class="roc-card"><h4>Gradient Boosting — AUC 0.874</h4><canvas id="roc-gb"></canvas></div>
+    </div>
+
+    <div class="section-label label-dl">Deep Learning</div>
+    <div class="roc-grid">
+      <div class="roc-card"><h4>MLP (3-layer) — AUC 0.818</h4><canvas id="roc-mlp"></canvas></div>
+      <div class="roc-card"><h4>Residual MLP — AUC 0.790</h4><canvas id="roc-res"></canvas></div>
+      <div class="roc-card"><h4>Attention MLP — AUC 0.801</h4><canvas id="roc-att"></canvas></div>
     </div>
   </div>
 </section>
@@ -316,41 +460,63 @@
 <section>
   <div class="container">
     <h2>Feature Importance</h2>
-    <p class="lead">Top-10 features per model | LR: |coefficient| · RF/GB: feature_importance</p>
+    <p class="lead">Top-10 features per classical ML model | LR: |coefficient| · RF/GB: feature_importance score<br>
+    Deep learning models use all 106 features via learned attention — no single-feature ranking is available.</p>
     <div class="feat-grid" id="feat-container"></div>
   </div>
 </section>
 
-<!-- ALGORITHM NOTES -->
+<!-- ALGORITHM DESCRIPTIONS -->
 <section>
   <div class="container">
     <h2>Algorithm Descriptions</h2>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.4rem">
 
-      <div style="border:1px solid var(--gray-200);border-radius:var(--radius);padding:1.4rem;border-top:4px solid var(--blue)">
-        <h3 style="margin-top:0">Logistic Regression</h3>
-        <p style="font-size:.87rem">Linear model with L2 regularisation (C=0.5). Features scaled with StandardScaler. Optimal threshold: <strong>0.575</strong> by maximum F1.</p>
-        <p style="font-size:.87rem">Key features: Lymphocytes, Calcium, Creatinine, Lactate, LDH. Interprets all features simultaneously — fully interpretable.</p>
-        <p style="font-size:.82rem;color:var(--gray-400)">sklearn LogisticRegression · max_iter=1000 · random_state=42</p>
+    <div class="section-label label-ml">Classical Machine Learning</div>
+    <div class="algo-grid" style="margin-bottom:2rem">
+      <div class="algo-card" style="border-top:4px solid var(--blue)">
+        <h3 style="margin-top:0;color:var(--blue-dk)">Logistic Regression</h3>
+        <p>Linear model with L2 regularisation (C=0.5). Features scaled with StandardScaler. Optimal threshold <strong>0.575</strong> selected by maximum F1.</p>
+        <p>Key features: Lymphocytes, Calcium, Creatinine, Lactate, LDH. Fully interpretable — each coefficient directly quantifies feature contribution.</p>
+        <p class="meta">sklearn LogisticRegression · max_iter=1000 · random_state=42</p>
       </div>
-
-      <div style="border:1px solid var(--gray-200);border-radius:var(--radius);padding:1.4rem;border-top:4px solid var(--green)">
-        <h3 style="color:var(--green);margin-top:0">Random Forest ★</h3>
-        <p style="font-size:.87rem">200 decision trees, max_depth=6, min_samples_leaf=5. Averages predicted probabilities across trees. Highest AUC (0.877).</p>
-        <p style="font-size:.87rem">Robust to missing values (fillna=0), no normalisation required. Key features: Calcium, D-dimer, LDH, Lactate, Hematocrit.</p>
-        <p style="font-size:.82rem;color:var(--gray-400)">sklearn RandomForestClassifier · n_estimators=200 · max_depth=6</p>
+      <div class="algo-card" style="border-top:4px solid var(--green)">
+        <h3 style="margin-top:0;color:var(--green)">Random Forest ★ Best AUC</h3>
+        <p>Ensemble of 200 decision trees (max_depth=6, min_samples_leaf=5). Averages predicted probabilities across trees. Highest overall AUC (0.877).</p>
+        <p>Robust to missing values; no normalisation required. Key features: Calcium, D-dimer, LDH, Lactate, Hematocrit.</p>
+        <p class="meta">sklearn RandomForestClassifier · n_estimators=200 · max_depth=6</p>
       </div>
+      <div class="algo-card" style="border-top:4px solid var(--purple)">
+        <h3 style="margin-top:0;color:var(--purple)">Gradient Boosting</h3>
+        <p>150 shallow boosted trees (max_depth=3), learning_rate=0.05. Highest F1 score (0.918). Low threshold (0.35) achieves high sensitivity early on the ROC curve.</p>
+        <p>Key features: D-dimer, Calcium, LDH, Lactate, Hematocrit — nearly identical to RF, confirming feature stability.</p>
+        <p class="meta">sklearn GradientBoostingClassifier · n_estimators=150 · lr=0.05</p>
+      </div>
+    </div>
 
-      <div style="border:1px solid var(--gray-200);border-radius:var(--radius);padding:1.4rem;border-top:4px solid var(--purple)">
-        <h3 style="color:var(--purple);margin-top:0">Gradient Boosting</h3>
-        <p style="font-size:.87rem">150 shallow trees (max_depth=3), learning_rate=0.05. Highest F1 (0.918). Relatively low threshold (0.35) — achieves high sensitivity early.</p>
-        <p style="font-size:.87rem">Key features: D-dimer, Calcium, LDH, Lactate, Hematocrit — similar to RF, confirming stability.</p>
-        <p style="font-size:.82rem;color:var(--gray-400)">sklearn GradientBoostingClassifier · n_estimators=150 · lr=0.05</p>
+    <div class="section-label label-dl">Deep Learning (TensorFlow 2 / Keras)</div>
+    <div class="algo-grid">
+      <div class="algo-card" style="border-top:4px solid var(--orange)">
+        <h3 style="margin-top:0;color:var(--orange)">MLP — 3-Layer Feedforward</h3>
+        <p>Architecture: 256 → 128 → 64 → 1 sigmoid. Each hidden layer followed by BatchNormalization and Dropout (0.35/0.30/0.20). L2 regularisation on dense layers.</p>
+        <p>Trained with Adam (lr=1e-3), early stopping on val_AUC (patience=8). Matches LR in AUC (0.818) with higher sensitivity at the chosen threshold.</p>
+        <p class="meta">Input: 106 features · Epochs: up to 60 · Batch: 32 · 5-fold CV</p>
+      </div>
+      <div class="algo-card" style="border-top:4px solid var(--pink)">
+        <h3 style="margin-top:0;color:var(--pink)">Residual MLP</h3>
+        <p>Projection layer (128) followed by two residual blocks: each block applies Dense→BN→Dropout→Dense and adds the block input via a skip connection.</p>
+        <p>Skip connections reduce vanishing-gradient risk and allow the network to learn identity mappings, making depth additive rather than compulsory. AUC 0.790.</p>
+        <p class="meta">128-dim residual stream · 2 skip blocks · Adam lr=8e-4 · 5-fold CV</p>
+      </div>
+      <div class="algo-card" style="border-top:4px solid var(--indigo)">
+        <h3 style="margin-top:0;color:var(--indigo)">Attention MLP</h3>
+        <p>Feature-wise soft attention gate: a learned sigmoid mask over all 106 inputs selects which features are emphasised before the downstream MLP (256→128→64→1).</p>
+        <p>The attention gate is interpretable at inference — inspecting the mask reveals which lab values drove each prediction. AUC 0.801, F1 0.916.</p>
+        <p class="meta">Attention gate: Dense(106, sigmoid) · Multiply · 256→128→64 · 5-fold CV</p>
       </div>
     </div>
 
     <div class="warn" style="margin-top:1.5rem">
-      <strong>Limitations:</strong> No external test set — all figures from cross-validation on the same Chinese cohort (n=722). Class imbalance: 585 severe vs 137 mild. Not validated on Western cohorts.
+      <strong>Limitations:</strong> No external test set — all figures from cross-validation on the same Chinese cohort (n=722). Class imbalance: 585 severe vs 137 mild. Dataset sourced from a single institution and has not been validated on Western or multi-site cohorts. Deep learning models are sensitive to random seed and training variance; results may differ slightly on re-training.
     </div>
   </div>
 </section>
@@ -362,62 +528,44 @@
 <script>
 // ── DATA ──────────────────────────────────────────────────────
 const DATA = {
-  lr: {
-    roc: [[0,0],[0.0073,0.0632],[0.0219,0.2479],[0.0438,0.2564],[0.0584,0.4017],[0.073,0.4496],[0.0876,0.4769],[0.1095,0.5436],[0.1241,0.5726],[0.146,0.6051],[0.1606,0.653],[0.1752,0.6564],[0.2117,0.6786],[0.2336,0.6923],[0.2482,0.735],[0.2847,0.7453],[0.2993,0.7829],[0.3212,0.7897],[0.3358,0.8017],[0.3504,0.8085],[0.365,0.8462],[0.3942,0.8564],[0.4088,0.8701],[0.4453,0.8752],[0.4599,0.8803],[0.4818,0.8923],[0.5036,0.8991],[0.5255,0.906],[0.5547,0.9248],[0.5912,0.9402],[0.6204,0.9487],[0.6642,0.9521],[0.7007,0.9573],[0.7372,0.9624],[0.7737,0.9675],[0.8248,0.9778],[0.8613,0.9829],[0.8905,0.9863],[0.9197,0.9932],[1,1]],
-    color:'#1a56db', auc:0.817,
-    features:[['Lymphocytes',1.0],['Calcium',0.88],['Creatinine',0.82],['Lactate',0.78],['LDH',0.71],['D-dimer',0.68],['WBC',0.64],['Albumin',0.60],['Hematocrit',0.55],['Bilirubin',0.50]]
-  },
-  rf: {
-    roc: [[0,0],[0.0073,0.1026],[0.0219,0.2821],[0.0365,0.3385],[0.0584,0.4239],[0.073,0.5026],[0.0876,0.5333],[0.1022,0.5872],[0.1241,0.6308],[0.1387,0.6718],[0.1606,0.6923],[0.1752,0.7316],[0.2044,0.7556],[0.2263,0.7795],[0.2482,0.7915],[0.2774,0.8154],[0.2993,0.8444],[0.3212,0.8564],[0.3504,0.8615],[0.365,0.8701],[0.3869,0.8889],[0.4161,0.8974],[0.4526,0.906],[0.4745,0.9145],[0.5109,0.9248],[0.5401,0.9333],[0.5693,0.9436],[0.5985,0.9538],[0.6277,0.9590],[0.6642,0.9641],[0.6934,0.9709],[0.7153,0.9761],[0.7445,0.9795],[0.7737,0.9829],[0.8029,0.9880],[0.8321,0.9915],[0.8613,0.9949],[0.8978,0.9966],[0.9343,0.9983],[1,1]],
-    color:'#057a55', auc:0.877,
-    features:[['Calcium',1.0],['D-dimer',0.92],['LDH',0.85],['Lactate',0.80],['Hematocrit',0.76],['Creatinine',0.71],['WBC',0.68],['Albumin',0.64],['Amylase',0.60],['Lipase',0.55]]
-  },
-  gb: {
-    roc: [[0,0],[0.0073,0.0940],[0.0219,0.2735],[0.0438,0.3504],[0.0584,0.4291],[0.073,0.5094],[0.0876,0.5470],[0.1022,0.5983],[0.1241,0.6291],[0.1460,0.6821],[0.1679,0.7009],[0.1898,0.7350],[0.2044,0.7607],[0.2336,0.7863],[0.2555,0.8017],[0.2774,0.8171],[0.3066,0.8376],[0.3358,0.8530],[0.3577,0.8615],[0.3869,0.8701],[0.4088,0.8889],[0.4380,0.9009],[0.4672,0.9094],[0.4964,0.9179],[0.5255,0.9316],[0.5547,0.9402],[0.5839,0.9470],[0.6131,0.9538],[0.6423,0.9607],[0.6715,0.9658],[0.7007,0.9709],[0.7299,0.9761],[0.7591,0.9812],[0.7883,0.9863],[0.8175,0.9880],[0.8540,0.9915],[0.8832,0.9949],[0.9124,0.9966],[0.9489,0.9983],[1,1]],
-    color:'#6d28d9', auc:0.874,
-    features:[['D-dimer',1.0],['Calcium',0.93],['LDH',0.87],['Lactate',0.82],['Hematocrit',0.77],['Creatinine',0.73],['WBC',0.69],['Albumin',0.65],['Amylase',0.61],['Lipase',0.57]]
-  }
+  lr:  { roc:[[0.0,0.0],[0.0073,0.0632],[0.0219,0.2479],[0.0438,0.2564],[0.0584,0.4017],[0.073,0.4496],[0.0876,0.4769],[0.1095,0.5436],[0.1241,0.5726],[0.146,0.6051],[0.1606,0.653],[0.1752,0.6564],[0.2117,0.6786],[0.2336,0.6923],[0.2482,0.735],[0.2847,0.7453],[0.2993,0.7829],[0.3212,0.7897],[0.3358,0.8017],[0.3504,0.8085],[0.365,0.8462],[0.3942,0.8564],[0.4088,0.8701],[0.4453,0.8752],[0.4599,0.8803],[0.4818,0.8923],[0.5036,0.8991],[0.5255,0.906],[0.5547,0.9248],[0.5912,0.9402],[0.6204,0.9487],[0.6642,0.9521],[0.7007,0.9573],[0.7372,0.9624],[0.7737,0.9675],[0.8248,0.9778],[0.8613,0.9829],[0.8905,0.9863],[0.9197,0.9932],[1.0,1.0]], color:'#1a56db', auc:0.817, features:[['Lymphocytes',1.0],['Calcium',0.977],['Creatinine',0.918],['Lactate',0.906],['LDH',0.783],['Urea',0.764],['Neutrophils',0.708],['D-dimer',0.631],['Amylase',0.606],['CRP',0.505]] },
+  rf:  { roc:[[0.0,0.0],[0.0073,0.2838],[0.0219,0.4308],[0.0365,0.465],[0.0511,0.4786],[0.0584,0.4923],[0.0803,0.5265],[0.1022,0.6154],[0.1168,0.6479],[0.1314,0.6923],[0.146,0.7436],[0.1606,0.7675],[0.1752,0.7795],[0.1971,0.8017],[0.2117,0.8154],[0.2263,0.8205],[0.2409,0.8359],[0.2628,0.8581],[0.2774,0.865],[0.292,0.8752],[0.3139,0.8872],[0.3285,0.8906],[0.3577,0.8974],[0.3723,0.9128],[0.3942,0.9214],[0.4234,0.9265],[0.4599,0.9299],[0.4745,0.935],[0.5036,0.9385],[0.5255,0.9436],[0.562,0.9504],[0.5766,0.9607],[0.6058,0.9658],[0.6715,0.9692],[0.7153,0.9761],[0.7445,0.9795],[0.7591,0.9863],[0.781,0.9932],[0.8175,0.9966],[1.0,1.0]], color:'#057a55', auc:0.877, features:[['Calcium',1.0],['D-dimer',0.797],['LDH',0.662],['Lactate',0.546],['Hematocrit',0.519],['Neutrophils',0.498],['WBC',0.435],['CRP',0.428],['Creatinine',0.386],['Amylase',0.381]] },
+  gb:  { roc:[[0.0,0.0],[0.0073,0.1966],[0.0146,0.3043],[0.0365,0.3915],[0.0511,0.5692],[0.0657,0.5915],[0.0803,0.6239],[0.0949,0.6427],[0.1168,0.6786],[0.1387,0.694],[0.1533,0.7436],[0.1679,0.7607],[0.1971,0.7761],[0.2117,0.8137],[0.2263,0.8274],[0.2409,0.8342],[0.292,0.8427],[0.3066,0.853],[0.3212,0.865],[0.3358,0.8735],[0.365,0.8838],[0.3796,0.9043],[0.4161,0.9094],[0.4307,0.9128],[0.4526,0.9162],[0.4672,0.9214],[0.4964,0.9333],[0.5182,0.9402],[0.5328,0.9436],[0.562,0.9487],[0.5912,0.9556],[0.6131,0.9675],[0.6569,0.9726],[0.7007,0.9761],[0.7299,0.9812],[0.7664,0.9846],[0.7883,0.988],[0.8175,0.9932],[0.8394,0.9966],[1.0,1.0]], color:'#6d28d9', auc:0.874, features:[['D-dimer',1.0],['Calcium',0.957],['LDH',0.462],['Lactate',0.437],['Hematocrit',0.436],['WBC',0.411],['Amylase',0.332],['CRP',0.318],['Lipase',0.282],['Creatinine',0.272]] },
+  mlp: { roc:[[0.0,0.0],[0.0146,0.1487],[0.0292,0.2889],[0.0438,0.3487],[0.0584,0.3607],[0.0803,0.3983],[0.0949,0.4085],[0.1095,0.5419],[0.1241,0.5607],[0.1533,0.6222],[0.1752,0.653],[0.1898,0.6991],[0.2044,0.7145],[0.2263,0.7282],[0.2409,0.7504],[0.2555,0.7709],[0.2774,0.7744],[0.292,0.7949],[0.3066,0.8034],[0.3212,0.8103],[0.3577,0.8171],[0.3723,0.8359],[0.4015,0.8444],[0.4161,0.8547],[0.4453,0.8581],[0.4672,0.8769],[0.5109,0.9009],[0.5328,0.9043],[0.5693,0.9145],[0.5985,0.9231],[0.6131,0.935],[0.6496,0.9436],[0.6861,0.947],[0.7226,0.9573],[0.7445,0.9658],[0.7664,0.9709],[0.7956,0.9846],[0.854,0.9915],[0.8832,0.9966],[1.0,1.0]], color:'#c2410c', auc:0.818, features:[] },
+  res: { roc:[[0.0,0.0],[0.0146,0.0752],[0.0292,0.0923],[0.0365,0.188],[0.0657,0.2513],[0.0803,0.3436],[0.0949,0.4376],[0.1168,0.4564],[0.1314,0.5453],[0.1606,0.612],[0.1752,0.6598],[0.1971,0.6906],[0.219,0.6957],[0.2336,0.7128],[0.2482,0.7231],[0.2774,0.7641],[0.3139,0.7846],[0.3431,0.7983],[0.3577,0.8017],[0.3723,0.812],[0.4526,0.8256],[0.4745,0.8479],[0.4891,0.8547],[0.5255,0.8632],[0.5474,0.8906],[0.5766,0.8974],[0.5912,0.906],[0.6058,0.9162],[0.6423,0.9231],[0.6569,0.9333],[0.6934,0.9419],[0.7226,0.9504],[0.7372,0.9573],[0.7664,0.9624],[0.7956,0.9692],[0.8102,0.9744],[0.8832,0.9778],[0.9051,0.9846],[0.9343,0.9897],[1.0,1.0]], color:'#be185d', auc:0.790, features:[] },
+  att: { roc:[[0.0,0.0],[0.0073,0.0615],[0.0219,0.2068],[0.0365,0.2291],[0.0657,0.2444],[0.0876,0.2906],[0.0949,0.3897],[0.1095,0.5009],[0.1241,0.5094],[0.1387,0.547],[0.1606,0.5863],[0.1825,0.6068],[0.2117,0.612],[0.2263,0.641],[0.2482,0.6513],[0.2628,0.6684],[0.2774,0.7162],[0.292,0.7556],[0.3212,0.7795],[0.3358,0.7863],[0.3504,0.8017],[0.365,0.8325],[0.3796,0.841],[0.4088,0.8667],[0.4234,0.8838],[0.438,0.8906],[0.4526,0.9009],[0.4672,0.9094],[0.5182,0.9231],[0.5328,0.935],[0.5766,0.9521],[0.5912,0.9573],[0.6058,0.9641],[0.6204,0.9675],[0.6642,0.9726],[0.7153,0.9761],[0.8248,0.9812],[0.9124,0.9897],[0.9416,0.9966],[1.0,1.0]], color:'#3730a3', auc:0.801, features:[] }
 };
 
-// ── ROC CURVES ────────────────────────────────────────────────
-function drawROC(canvasId, pts, color, auc) {
-  const canvas = document.getElementById(canvasId);
+// ── ROC CANVAS ────────────────────────────────────────────────
+function drawROC(id, key) {
+  const d = DATA[key];
+  const canvas = document.getElementById(id);
   if (!canvas) return;
-  const W = canvas.parentElement.clientWidth - 32;
+  const W = canvas.parentElement.clientWidth - 24;
   canvas.width  = W * devicePixelRatio;
-  canvas.height = 220 * devicePixelRatio;
-  canvas.style.width  = W  + 'px';
-  canvas.style.height = '220px';
+  canvas.height = 200 * devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = '200px';
   const ctx = canvas.getContext('2d');
   ctx.scale(devicePixelRatio, devicePixelRatio);
-  const pad = {l:38,r:12,t:12,b:32};
-  const w = W - pad.l - pad.r, h = 220 - pad.t - pad.b;
-
-  // grid
-  ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
-  [0,.25,.5,.75,1].forEach(v => {
-    ctx.beginPath(); ctx.moveTo(pad.l, pad.t+h*(1-v)); ctx.lineTo(pad.l+w, pad.t+h*(1-v)); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(pad.l+w*v, pad.t); ctx.lineTo(pad.l+w*v, pad.t+h); ctx.stroke();
+  const pad = {l:36,r:10,t:10,b:28};
+  const w = W - pad.l - pad.r, h = 200 - pad.t - pad.b;
+  ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1;
+  [0,.25,.5,.75,1].forEach(v=>{
+    ctx.beginPath();ctx.moveTo(pad.l,pad.t+h*(1-v));ctx.lineTo(pad.l+w,pad.t+h*(1-v));ctx.stroke();
+    ctx.beginPath();ctx.moveTo(pad.l+w*v,pad.t);ctx.lineTo(pad.l+w*v,pad.t+h);ctx.stroke();
   });
-
-  // diagonal
-  ctx.strokeStyle='#d1d5db'; ctx.setLineDash([4,4]);
-  ctx.beginPath(); ctx.moveTo(pad.l,pad.t+h); ctx.lineTo(pad.l+w,pad.t); ctx.stroke();
+  ctx.strokeStyle='#d1d5db';ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(pad.l,pad.t+h);ctx.lineTo(pad.l+w,pad.t);ctx.stroke();
   ctx.setLineDash([]);
-
-  // fill
-  ctx.beginPath(); ctx.moveTo(pad.l, pad.t+h);
-  pts.forEach(([x,y]) => ctx.lineTo(pad.l+x*w, pad.t+h*(1-y)));
-  ctx.lineTo(pad.l+w, pad.t+h); ctx.closePath();
-  ctx.fillStyle = color+'22'; ctx.fill();
-
-  // line
-  ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=2.5;
-  pts.forEach(([x,y],i) => i===0 ? ctx.moveTo(pad.l+x*w,pad.t+h*(1-y)) : ctx.lineTo(pad.l+x*w,pad.t+h*(1-y)));
+  ctx.beginPath();ctx.moveTo(pad.l,pad.t+h);
+  d.roc.forEach(([x,y])=>ctx.lineTo(pad.l+x*w,pad.t+h*(1-y)));
+  ctx.lineTo(pad.l+w,pad.t+h);ctx.closePath();
+  ctx.fillStyle=d.color+'22';ctx.fill();
+  ctx.beginPath();ctx.strokeStyle=d.color;ctx.lineWidth=2.5;
+  d.roc.forEach(([x,y],i)=>i===0?ctx.moveTo(pad.l+x*w,pad.t+h*(1-y)):ctx.lineTo(pad.l+x*w,pad.t+h*(1-y)));
   ctx.stroke();
-
-  // axes labels
-  ctx.fillStyle='#9ca3af'; ctx.font='10px Heebo,sans-serif'; ctx.textAlign='center';
+  ctx.fillStyle='#9ca3af';ctx.font='10px Inter,sans-serif';ctx.textAlign='center';
   ['0','0.25','0.5','0.75','1'].forEach((v,i)=>ctx.fillText(v,pad.l+w*i/4,pad.t+h+18));
   ctx.textAlign='right';
   ['0','0.25','0.5','0.75','1'].forEach((v,i)=>ctx.fillText(v,pad.l-4,pad.t+h*(1-i/4)+4));
@@ -431,48 +579,48 @@ function buildFeatures() {
     {key:'rf',title:'Random Forest ★',cls:'green'},
     {key:'gb',title:'Gradient Boosting',cls:'purple'},
   ];
-  defs.forEach(({key,title,cls}) => {
+  defs.forEach(({key,title,cls})=>{
     const feats = DATA[key].features;
+    if (!feats.length) return;
     const max = feats[0][1];
     const card = document.createElement('div');
-    card.className = 'feat-card';
-    card.innerHTML = `<h4>${title}</h4>` + feats.map(([name,val]) =>
+    card.className='feat-card';
+    card.innerHTML=`<h4>${title}</h4>`+feats.map(([name,val])=>
       `<div class="feat-bar-row">
         <span class="feat-label">${name}</span>
         <div class="feat-bar-bg"><div class="feat-bar ${cls}" style="width:${(val/max*100).toFixed(1)}%"></div></div>
         <span class="feat-val">${val.toFixed(2)}</span>
-      </div>`
-    ).join('');
+      </div>`).join('');
     container.appendChild(card);
   });
+  // DL note
+  const note = document.createElement('div');
+  note.className='feat-card';
+  note.style.background='var(--gray-50)';
+  note.innerHTML=`<h4>Deep Learning Models</h4>
+    <p style="font-size:.85rem;color:var(--gray-600)">MLP, Residual MLP, and Attention MLP use all 106 input features simultaneously through learned non-linear transformations. No single-coefficient feature ranking is available. The Attention MLP's sigmoid gate weights can be inspected per-sample to identify which features were emphasised for each prediction.</p>`;
+  container.appendChild(note);
 }
 
-// ── TAB SWITCH ────────────────────────────────────────────────
-function showTab(id, btn) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  if (btn && btn !== 'this') btn.classList.add('active');
-  else { const btns=document.querySelectorAll('.tab-btn'); btns.forEach(b=>{ if(b.textContent.toLowerCase().includes(id==='lr'?'logistic':id==='rf'?'random':'gradient')) b.classList.add('active'); }); }
-}
-// fix onclick to use event
-document.querySelectorAll('.tab-btn').forEach((b,i) => {
-  const ids=['lr','rf','gb'];
-  b.addEventListener('click',function(){ showTab(ids[i]); document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active')); this.classList.add('active'); });
+// ── TABS ──────────────────────────────────────────────────────
+document.querySelectorAll('#cm-tabs .tab-btn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('#cm-tabs .tab-btn').forEach(b=>{
+      const c=b.dataset.color||'';
+      b.className='tab-btn';
+    });
+    const c=this.dataset.color||'';
+    this.className='tab-btn active'+(c?' '+c:'');
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById(this.dataset.tab).classList.add('active');
+  });
 });
 
 // ── INIT ──────────────────────────────────────────────────────
-window.addEventListener('load', () => {
-  drawROC('roc-lr', DATA.lr.roc, DATA.lr.color, DATA.lr.auc);
-  drawROC('roc-rf', DATA.rf.roc, DATA.rf.color, DATA.rf.auc);
-  drawROC('roc-gb', DATA.gb.roc, DATA.gb.color, DATA.gb.auc);
-  buildFeatures();
-});
-window.addEventListener('resize', () => {
-  drawROC('roc-lr', DATA.lr.roc, DATA.lr.color, DATA.lr.auc);
-  drawROC('roc-rf', DATA.rf.roc, DATA.rf.color, DATA.rf.auc);
-  drawROC('roc-gb', DATA.gb.roc, DATA.gb.color, DATA.gb.auc);
-});
+const ROC_MAP = [['roc-lr','lr'],['roc-rf','rf'],['roc-gb','gb'],['roc-mlp','mlp'],['roc-res','res'],['roc-att','att']];
+function drawAll(){ ROC_MAP.forEach(([id,k])=>drawROC(id,k)); }
+window.addEventListener('load',()=>{ buildFeatures(); drawAll(); });
+window.addEventListener('resize',drawAll);
 </script>
 </body>
 </html>
