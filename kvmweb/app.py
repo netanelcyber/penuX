@@ -294,7 +294,8 @@ def vm_detail(name):
 @app.route("/vm/<name>/action", methods=["POST"])
 @login_required
 def vm_action(name):
-    action = request.form.get("action")
+    data = request.get_json(silent=True) or {}
+    action = data.get("action") or request.form.get("action")
     allowed = {"start", "shutdown", "destroy", "reboot", "suspend", "resume",
                "autostart_on", "autostart_off", "undefine"}
     if action not in allowed:
