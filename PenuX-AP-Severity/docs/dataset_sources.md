@@ -24,7 +24,21 @@ For each dataset added to `data/public_sanitized/`, add an entry here:
 
 ## Currently Registered Datasets
 
-*(None — add your dataset here after sanitization)*
+### 1. ap_multiml_sanitized.csv
+- **Source**: https://github.com/longshike/Predicting-acute-pancreatitis-severity-with-multi-machine-learning-models
+- **License**: MIT
+- **N**: 1,289 patients | 204 SAP (15.8%)
+- **Target**: `Diagnostic Result` (0=non-SAP, 1=SAP)
+- **Features**: 60 clinical variables (labs + vitals)
+- **Identifiers removed**: `ID No.`, `Name`
+
+### 2. ap_lnn_sanitized.csv
+- **Source**: https://github.com/longshike/LNN-for-SAP-Prediction
+- **License**: Apache-2.0
+- **N**: 722 patients | 137 SAP (19.0%)
+- **Target**: `严重程度` (0=non-SAP, 1=SAP)
+- **Features**: 107 clinical variables (column names in Chinese)
+- **Identifiers removed**: `序号` (serial no.), `姓名` (name)
 
 ## Public AP Datasets (Known)
 
