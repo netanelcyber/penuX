@@ -27,6 +27,7 @@ from api.schemas import (
 )
 from api.fhir_schemas import FHIRBundle, RiskAssessmentResource, RiskAssessmentPrediction, CodeableConcept, Coding
 from api.camelion_adapter import bundle_to_admission_input, camelion_json_to_admission_input
+from api.hl7_adapter import hl7_message_to_admission_input
 from penux_ap.config import RISK_THRESHOLDS
 
 log = logging.getLogger(__name__)
@@ -258,4 +259,69 @@ async def camelion_predict(request: Request):
         risk_group=risk_group,
         fields_used=fields_used,
         missing_fields=missing_fields,
+    )
+
+
+# ---------------------------------------------------------------------------
+# HL7 v2.x endpoint — Epic, Cerner, OpenEMR, and other EHRs
+# ---------------------------------------------------------------------------
+
+@app.post("/hl7/predict", response_model=PredictionOutput)
+async def hl7_predict(request: Request):
+    """Accept an HL7 v2.x message from any EHR system and return prediction.
+
+    Supported EHR systems: Epic, Cerner, OpenEMR, Allscripts, VistA, etc.
+    Any system that exports OBX (observation) segments with LOINC codes.
+
+    Example HL7 v2.x message::
+
+        MSH|^~\\&|Epic|Hospital|Receiver||||20240618
+        PID|1||MRN123456||Doe^John||19640101|M
+        OBX|1|NM|2160-0^Creatinine||1.5|mg/dL|||F
+        OBX|2|NM|6690-2^WBC||18.2|10*9/L|||F
+        OBX|3|NM|1988-5^CRP||210|mg/L|||F
+        OBX|4|NM|14804-9^LDH||480|U/L|||F
+
+    Patient identifiers (MRN, name, account#) are extracted for encounter
+    routing but discarded immediately and never stored or logged.
+
+    Supports both LOINC (standard) and vendor-specific LIS codes (Epic WBC,
+    Cerner CREAT, etc). Unknown codes are logged and skipped.
+    """
+    # Accept raw HL7 message as plain text
+    try:
+        message = await request.body()
+        if isinstance(message, bytes):
+            message = message.decode("utf-8")
+    except Exception:
+        return PredictionOutput(
+            error="Could not parse request body as HL7 message (expected UTF-8 text)"
+        )
+
+    if not message.strip():
+        return PredictionOutput(error="Empty HL7 message")
+
+    admission = hl7_message_to_admission_input(message)
+    admission_dict = admission.model_dump()
+
+    fields_used = [k for k, v in admission_dict.items() if v is not None]
+
+    model = _model or _load_model()
+    if model is None:
+        return PredictionOutput(
+            error=(
+                "No model loaded. Set the PENUX_AP_MODEL_PATH environment variable "
+                "to the path of a trained .joblib model file."
+            )
+        )
+
+    try:
+        proba, risk_group = _run_prediction(admission)
+    except HTTPException as e:
+        return PredictionOutput(error=str(e.detail))
+
+    return PredictionOutput(
+        severe_ap_probability=round(proba, 4),
+        threshold_used=0.5,
+        risk_group=risk_group,
     )
