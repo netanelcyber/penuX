@@ -32,14 +32,67 @@ from penux_ap.config import RISK_THRESHOLDS
 
 log = logging.getLogger(__name__)
 
+_DESCRIPTION = """
+## PenuX-AP-Severity — Early Prediction of Severe Acute Pancreatitis
+
+> ⚠️ **RESEARCH PROTOTYPE ONLY** — not validated for clinical use, not for patient-care decisions.
+
+Uses routine admission laboratory values to estimate SAP risk within **4 hours of admission**,
+implementing the **2012 Revised Atlanta Classification**.
+
+---
+
+### Endpoints
+
+| Endpoint | Protocol | EHR |
+|---|---|---|
+| `POST /predict` | Plain JSON | Any |
+| `POST /fhir/predict` | **FHIR R4** Bundle | Camelion, Epic, Cerner |
+| `POST /camelion/predict` | Camelion native JSON | קמיליון HIS |
+| `POST /hl7/predict` | HL7 v2.x raw message | Epic, Cerner, OpenEMR |
+
+### FHIR Compliance
+
+- Resource type: **RiskAssessment** (FHIR R4)
+- Input: **Bundle** (Patient + Observation with LOINC codes)
+- Output SNOMED codes: `723505004` Low · `723506003` Moderate · `723507007` High
+- Condition SNOMED: `67630002` Severe acute pancreatitis
+
+### Privacy
+
+Patient identifiers (MRN, Teudat Zehut) are accepted for encounter correlation
+and **immediately discarded** — never stored, logged, or forwarded.
+
+### Resources
+
+- GitHub: [netanelcyber/penuX](https://github.com/netanelcyber/penuX)
+- Website: [penux.uk](https://penux.uk)
+- LOINC codes: see `/openapi.json`
+"""
+
 app = FastAPI(
-    title="PenuX-AP-Severity Research API",
-    description=(
-        "Research prototype for early prediction of Severe Acute Pancreatitis. "
-        "NOT validated for clinical use. NOT for patient-care decisions.\n\n"
-        "**Camelion (קמיליון) HIS integration**: POST /camelion/predict or POST /fhir/predict"
-    ),
-    version="0.1.0",
+    title="PenuX-AP-Severity API",
+    description=_DESCRIPTION,
+    version="1.0.0",
+    contact={
+        "name": "PenuX Research Team",
+        "url": "https://penux.uk",
+        "email": "nsh531@gmail.com",
+    },
+    license_info={
+        "name": "MIT",
+        "url": "https://github.com/netanelcyber/penuX/blob/main/PenuX-AP-Severity/LICENSE",
+    },
+    openapi_tags=[
+        {"name": "health",    "description": "Service health check"},
+        {"name": "predict",   "description": "Plain JSON prediction endpoint"},
+        {"name": "fhir",      "description": "FHIR R4 — RiskAssessment (Camelion / Epic / Cerner)"},
+        {"name": "camelion",  "description": "Camelion (קמיליון) HIS native JSON adapter"},
+        {"name": "hl7",       "description": "HL7 v2.x — any EHR (Epic, Cerner, OpenEMR)"},
+    ],
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
 )
 
 _model = None
@@ -94,7 +147,13 @@ def startup():
 # Standard health check
 # ---------------------------------------------------------------------------
 
-@app.get("/health", response_model=HealthResponse)
+@app.get(
+    "/health",
+    response_model=HealthResponse,
+    tags=["health"],
+    summary="Service health check",
+    responses={200: {"description": "Service is running"}},
+)
 def health():
     return HealthResponse()
 
@@ -103,7 +162,51 @@ def health():
 # Plain JSON endpoint (original)
 # ---------------------------------------------------------------------------
 
-@app.post("/predict", response_model=PredictionOutput)
+@app.post(
+    "/predict",
+    response_model=PredictionOutput,
+    tags=["predict"],
+    summary="Predict SAP risk — plain JSON",
+    description=(
+        "Accepts routine admission lab values and returns a SAP risk probability "
+        "with risk tier (low / intermediate / high).\n\n"
+        "All fields are optional — supply whatever is available at admission. "
+        "Prediction reliability increases with more fields provided."
+    ),
+    openapi_extra={
+        "requestBody": {
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "high_risk": {
+                            "summary": "High-risk patient",
+                            "value": {
+                                "age": 65, "sex": "M",
+                                "wbc": 18.5, "crp": 220, "creatinine": 1.8,
+                                "glucose": 180, "ldh": 450, "ast": 90,
+                                "hematocrit": 47, "bun": 32, "calcium": 7.8,
+                                "albumin": 2.9,
+                            },
+                        },
+                        "low_risk": {
+                            "summary": "Low-risk patient",
+                            "value": {
+                                "age": 42, "sex": "F",
+                                "wbc": 9.1, "crp": 45, "creatinine": 0.8,
+                                "glucose": 110, "ldh": 180, "ast": 38,
+                                "hematocrit": 38,
+                            },
+                        },
+                        "minimal": {
+                            "summary": "Minimal labs only",
+                            "value": {"age": 55, "sex": "M", "wbc": 14.0, "creatinine": 1.5},
+                        },
+                    }
+                }
+            }
+        }
+    },
+)
 def predict(data: AdmissionInput):
     model = _model or _load_model()
     if model is None:
@@ -137,7 +240,100 @@ def predict(data: AdmissionInput):
 # FHIR R4 endpoint — Camelion FHIR gateway
 # ---------------------------------------------------------------------------
 
-@app.post("/fhir/predict", response_model=RiskAssessmentResource)
+@app.post(
+    "/fhir/predict",
+    response_model=RiskAssessmentResource,
+    tags=["fhir"],
+    summary="FHIR R4 — RiskAssessment prediction",
+    description=(
+        "Accepts a **FHIR R4 Bundle** containing a Patient resource and Observation "
+        "resources coded with **LOINC codes**, and returns a **FHIR RiskAssessment** "
+        "resource.\n\n"
+        "This endpoint is the primary integration point for **Camelion (קמיליון) HIS**, "
+        "Epic SMART on FHIR, Cerner Millennium, and any FHIR R4-compliant system.\n\n"
+        "**Supported LOINC codes:**\n"
+        "- `6690-2` WBC · `1988-5` CRP · `2160-0` Creatinine\n"
+        "- `3094-0` BUN · `2345-7` Glucose · `2532-0` LDH\n"
+        "- `1920-8` AST · `1742-6` ALT · `20570-8` Hematocrit\n"
+        "- `17861-6` Calcium · `1751-7` Albumin · `1975-2` Bilirubin\n\n"
+        "Patient identifiers are accepted but **immediately discarded** and never stored."
+    ),
+    openapi_extra={
+        "requestBody": {
+            "content": {
+                "application/fhir+json": {
+                    "examples": {
+                        "fhir_bundle": {
+                            "summary": "FHIR R4 Bundle with Patient + CRP + WBC",
+                            "value": {
+                                "resourceType": "Bundle",
+                                "type": "collection",
+                                "entry": [
+                                    {
+                                        "resource": {
+                                            "resourceType": "Patient",
+                                            "birthDate": "1962-03-15",
+                                            "gender": "male",
+                                        }
+                                    },
+                                    {
+                                        "resource": {
+                                            "resourceType": "Observation",
+                                            "status": "final",
+                                            "code": {"coding": [{"system": "http://loinc.org", "code": "1988-5", "display": "CRP"}]},
+                                            "valueQuantity": {"value": 220, "unit": "mg/L"},
+                                        }
+                                    },
+                                    {
+                                        "resource": {
+                                            "resourceType": "Observation",
+                                            "status": "final",
+                                            "code": {"coding": [{"system": "http://loinc.org", "code": "6690-2", "display": "WBC"}]},
+                                            "valueQuantity": {"value": 18.5, "unit": "10*3/uL"},
+                                        }
+                                    },
+                                    {
+                                        "resource": {
+                                            "resourceType": "Observation",
+                                            "status": "final",
+                                            "code": {"coding": [{"system": "http://loinc.org", "code": "2160-0", "display": "Creatinine"}]},
+                                            "valueQuantity": {"value": 1.8, "unit": "mg/dL"},
+                                        }
+                                    },
+                                ],
+                            },
+                        }
+                    }
+                },
+                "application/json": {"schema": {"$ref": "#/components/schemas/FHIRBundle"}},
+            }
+        },
+        "responses": {
+            "200": {
+                "description": "FHIR RiskAssessment resource",
+                "content": {
+                    "application/fhir+json": {
+                        "example": {
+                            "resourceType": "RiskAssessment",
+                            "status": "final",
+                            "subject": {"reference": "Patient/anonymous"},
+                            "prediction": [{
+                                "outcome": {
+                                    "coding": [{"system": "http://snomed.info/sct", "code": "67630002", "display": "Severe acute pancreatitis"}],
+                                    "text": "Severe Acute Pancreatitis",
+                                },
+                                "probabilityDecimal": 0.782,
+                                "qualitativeRisk": {
+                                    "coding": [{"system": "http://snomed.info/sct", "code": "723507007", "display": "High risk"}]
+                                },
+                            }],
+                        }
+                    }
+                },
+            }
+        },
+    },
+)
 def fhir_predict(bundle: FHIRBundle):
     """Accept a FHIR R4 Bundle (Patient + Observation resources) and return
     a FHIR RiskAssessment.  Intended for the Camelion FHIR REST gateway.
@@ -186,7 +382,56 @@ def fhir_predict(bundle: FHIRBundle):
 # Camelion native JSON endpoint
 # ---------------------------------------------------------------------------
 
-@app.post("/camelion/predict", response_model=CamelionPredictionResponse)
+@app.post(
+    "/camelion/predict",
+    response_model=CamelionPredictionResponse,
+    tags=["camelion"],
+    summary="Camelion (קמיליון) HIS native JSON",
+    description=(
+        "Accepts a Camelion HIS flat JSON payload with Hebrew **or** English field names "
+        "and returns a structured SAP risk response for triage alerting.\n\n"
+        "**Hebrew keys supported:** `גיל` (age), `מין` (sex), `כדוריות_דם_לבנות` (WBC), "
+        "`CRP`, `קריאטינין` (creatinine), `גלוקוז` (glucose), `סידן` (calcium), "
+        "`ldh`, `ast`, `אוריאה` (BUN), `המטוקריט` (hematocrit)\n\n"
+        "Patient identifiers (`patient_id`, `תעודת_זהות`) are **never stored or logged**."
+    ),
+    openapi_extra={
+        "requestBody": {
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "hebrew": {
+                            "summary": "Hebrew field names (Camelion native)",
+                            "value": {
+                                "encounter_id": "ENC-2024-00123",
+                                "גיל": 65,
+                                "מין": "זכר",
+                                "כדוריות_דם_לבנות": 18.2,
+                                "CRP": 210,
+                                "קריאטינין": 1.4,
+                                "גלוקוז": 230,
+                                "סידן": 7.8,
+                                "ldh": 480,
+                                "ast": 310,
+                                "אוריאה": 30,
+                            },
+                        },
+                        "english": {
+                            "summary": "English field names",
+                            "value": {
+                                "encounter_id": "ENC-2024-00124",
+                                "age": 58, "sex": "F",
+                                "wbc": 14.5, "crp": 155,
+                                "creatinine": 1.2, "glucose": 190,
+                                "ldh": 310, "ast": 140, "bun": 28,
+                            },
+                        },
+                    }
+                }
+            }
+        }
+    },
+)
 async def camelion_predict(request: Request):
     """Accept a Camelion HIS native JSON payload and return a structured
     prediction response for triage alerting.
@@ -266,7 +511,55 @@ async def camelion_predict(request: Request):
 # HL7 v2.x endpoint — Epic, Cerner, OpenEMR, and other EHRs
 # ---------------------------------------------------------------------------
 
-@app.post("/hl7/predict", response_model=PredictionOutput)
+@app.post(
+    "/hl7/predict",
+    response_model=PredictionOutput,
+    tags=["hl7"],
+    summary="HL7 v2.x — Epic / Cerner / OpenEMR",
+    description=(
+        "Accepts a raw **HL7 v2.x** message (`text/plain`) and returns a SAP risk prediction.\n\n"
+        "Supported message types: `ORU^R01` (lab results).\n\n"
+        "Supported code systems:\n"
+        "- **LOINC** (standard): `2160-0`, `6690-2`, `1988-5`, etc.\n"
+        "- **Epic LIS codes**: `CREAT`, `WBC`, `CRP`, `LDH`, `AST`, `ALT`\n"
+        "- **Cerner codes**: `CREAT`, `GLUC`, `CA`, `BUN`\n\n"
+        "Patient identifiers (PID segment) are parsed for encounter routing and "
+        "**immediately discarded** — never stored or logged."
+    ),
+    openapi_extra={
+        "requestBody": {
+            "content": {
+                "text/plain": {
+                    "schema": {"type": "string"},
+                    "examples": {
+                        "hl7_orur01": {
+                            "summary": "HL7 ORU^R01 with LOINC codes",
+                            "value": (
+                                "MSH|^~\\&|LIS|HOSPITAL|PENUX|API|20240601||ORU^R01|001|P|2.5\r"
+                                "PID|1||MRN123||DOE^JOHN||19620315|M\r"
+                                "OBR|1|||AP_PANEL\r"
+                                "OBX|1|NM|1988-5^CRP^LN||220|mg/L|0-5||||F\r"
+                                "OBX|2|NM|6690-2^WBC^LN||18.5|10*3/uL|4-11||||F\r"
+                                "OBX|3|NM|2160-0^Creatinine^LN||1.8|mg/dL|0.7-1.2||||F\r"
+                                "OBX|4|NM|14804-9^LDH^LN||450|U/L|120-250||||F"
+                            ),
+                        },
+                        "epic_lis": {
+                            "summary": "Epic LIS vendor codes",
+                            "value": (
+                                "MSH|^~\\&|Epic|Hospital|PENUX|API|20240601||ORU^R01|002|P|2.5\r"
+                                "PID|1||MRN456||SMITH^JANE||19780520|F\r"
+                                "OBX|1|NM|CREAT^Creatinine||1.4|mg/dL|||F\r"
+                                "OBX|2|NM|WBC^White Blood Cells||16.2|K/uL|||F\r"
+                                "OBX|3|NM|LDH^LDH||380|IU/L|||F"
+                            ),
+                        },
+                    },
+                }
+            }
+        }
+    },
+)
 async def hl7_predict(request: Request):
     """Accept an HL7 v2.x message from any EHR system and return prediction.
 

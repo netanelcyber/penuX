@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PenuX API — Swagger UI</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+  <style>
+    body { margin: 0; background: #fafafa; }
+    .topbar { background: #1a56db !important; }
+    .topbar-wrapper img { display: none; }
+    .topbar-wrapper::before {
+      content: "🔬 PenuX-AP-Severity API — FHIR R4 · HL7 v2 · Camelion";
+      color: white; font-weight: 700; font-size: 1rem;
+      font-family: Inter, system-ui, sans-serif;
+    }
+    .swagger-ui .info .title { color: #1e3a8a; }
+    .swagger-ui .opblock-tag { font-size: 1rem; }
+    /* FHIR tag colour */
+    .swagger-ui .opblock-tag[data-tag="fhir"] { border-left: 4px solid #1a56db; }
+    .swagger-ui .opblock-tag[data-tag="camelion"] { border-left: 4px solid #7c3aed; }
+    .swagger-ui .opblock-tag[data-tag="hl7"] { border-left: 4px solid #059669; }
+    .back-link {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: #1a56db; color: white; text-decoration: none;
+      padding: .5rem 1.2rem; font-family: Inter, sans-serif;
+      font-size: .9rem; font-weight: 600;
+    }
+    .back-link:hover { background: #1e429f; }
+    .banner {
+      background: #fffbeb; border-bottom: 2px solid #f59e0b;
+      padding: .7rem 1.5rem; font-family: Inter, sans-serif;
+      font-size: .88rem; color: #92400e;
+      display: flex; align-items: center; gap: .6rem;
+    }
+  </style>
+</head>
+<body>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 1.5rem;background:#1e3a8a;">
+    <a href="/" class="back-link">← penux.uk</a>
+    <span style="color:rgba(255,255,255,.7);font-size:.82rem;font-family:Inter,sans-serif;">PenuX-AP-Severity · v1.0.0</span>
+  </div>
+  <div class="banner">
+    ⚠️ <strong>Research use only.</strong> This API is a research prototype.
+    Not validated for clinical use. Not for patient-care decisions.
+  </div>
+  <div id="swagger-ui"></div>
+
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script>
+    SwaggerUIBundle({
+      spec: {
+        "openapi": "3.1.0",
+        "info": {
+          "title": "PenuX-AP-Severity API",
+          "version": "1.0.0",
+          "description": "FHIR R4 · HL7 v2 · Camelion HIS — Early prediction of Severe Acute Pancreatitis.\n\n> ⚠️ Research prototype only. Not for clinical use.",
+          "contact": { "name": "PenuX Research", "url": "https://penux.uk", "email": "nsh531@gmail.com" },
+          "license": { "name": "MIT", "url": "https://github.com/netanelcyber/penuX/blob/main/PenuX-AP-Severity/LICENSE" }
+        },
+        "servers": [
+          { "url": "https://api.penux.uk", "description": "Production" },
+          { "url": "http://localhost:8000", "description": "Local dev" }
+        ],
+        "tags": [
+          { "name": "predict",  "description": "Plain JSON prediction" },
+          { "name": "fhir",     "description": "FHIR R4 RiskAssessment — Camelion / Epic / Cerner" },
+          { "name": "camelion", "description": "Camelion (קמיליון) HIS native JSON" },
+          { "name": "hl7",      "description": "HL7 v2.x — Epic, Cerner, OpenEMR" },
+          { "name": "health",   "description": "Service health" }
+        ],
+        "paths": {
+          "/health": {
+            "get": {
+              "tags": ["health"], "summary": "Health check",
+              "responses": { "200": { "description": "OK", "content": { "application/json": { "example": { "status": "ok", "version": "1.0.0" } } } } }
+            }
+          },
+          "/predict": {
+            "post": {
+              "tags": ["predict"], "summary": "Predict SAP risk — plain JSON",
+              "description": "Accepts routine admission labs and returns SAP probability + risk tier.",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": { "$ref": "#/components/schemas/AdmissionInput" },
+                    "examples": {
+                      "high_risk": {
+                        "summary": "High-risk patient",
+                        "value": { "age": 65, "sex": "M", "wbc": 18.5, "crp": 220, "creatinine": 1.8, "glucose": 180, "ldh": 450, "ast": 90, "hematocrit": 47, "bun": 32, "calcium": 7.8, "albumin": 2.9 }
+                      },
+                      "low_risk": {
+                        "summary": "Low-risk patient",
+                        "value": { "age": 42, "sex": "F", "wbc": 9.1, "crp": 45, "creatinine": 0.8, "glucose": 110, "ldh": 180, "ast": 38 }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": { "200": { "description": "Prediction result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PredictionOutput" } } } } }
+            }
+          },
+          "/fhir/predict": {
+            "post": {
+              "tags": ["fhir"], "summary": "FHIR R4 RiskAssessment",
+              "description": "Accepts a FHIR R4 Bundle (Patient + Observation with LOINC codes). Returns FHIR RiskAssessment.\n\n**LOINC codes:** `6690-2` WBC · `1988-5` CRP · `2160-0` Creatinine · `3094-0` BUN · `2345-7` Glucose · `2532-0` LDH · `1920-8` AST · `20570-8` Hematocrit · `17861-6` Calcium",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/fhir+json": {
+                    "schema": { "$ref": "#/components/schemas/FHIRBundle" },
+                    "example": {
+                      "resourceType": "Bundle", "type": "collection",
+                      "entry": [
+                        { "resource": { "resourceType": "Patient", "birthDate": "1962-03-15", "gender": "male" } },
+                        { "resource": { "resourceType": "Observation", "status": "final",
+                            "code": { "coding": [{ "system": "http://loinc.org", "code": "1988-5", "display": "CRP" }] },
+                            "valueQuantity": { "value": 220, "unit": "mg/L" } } },
+                        { "resource": { "resourceType": "Observation", "status": "final",
+                            "code": { "coding": [{ "system": "http://loinc.org", "code": "6690-2", "display": "WBC" }] },
+                            "valueQuantity": { "value": 18.5, "unit": "10*3/uL" } } },
+                        { "resource": { "resourceType": "Observation", "status": "final",
+                            "code": { "coding": [{ "system": "http://loinc.org", "code": "2160-0", "display": "Creatinine" }] },
+                            "valueQuantity": { "value": 1.8, "unit": "mg/dL" } } }
+                      ]
+                    }
+                  },
+                  "application/json": { "schema": { "$ref": "#/components/schemas/FHIRBundle" } }
+                }
+              },
+              "responses": {
+                "200": { "description": "FHIR RiskAssessment", "content": { "application/fhir+json": {
+                  "example": {
+                    "resourceType": "RiskAssessment", "status": "final",
+                    "subject": { "reference": "Patient/anonymous" },
+                    "prediction": [{ "outcome": { "coding": [{ "system": "http://snomed.info/sct", "code": "67630002", "display": "Severe acute pancreatitis" }], "text": "Severe Acute Pancreatitis" },
+                      "probabilityDecimal": 0.782,
+                      "qualitativeRisk": { "coding": [{ "system": "http://snomed.info/sct", "code": "723507007", "display": "High risk" }] }
+                    }]
+                  }
+                } } }
+              }
+            }
+          },
+          "/camelion/predict": {
+            "post": {
+              "tags": ["camelion"], "summary": "Camelion (קמיליון) HIS native JSON",
+              "description": "Accepts Camelion HIS flat JSON with Hebrew or English field names.",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "examples": {
+                      "hebrew": {
+                        "summary": "Hebrew field names",
+                        "value": { "encounter_id": "ENC-2024-00123", "גיל": 65, "מין": "זכר", "כדוריות_דם_לבנות": 18.2, "CRP": 210, "קריאטינין": 1.4, "גלוקוז": 230, "סידן": 7.8, "ldh": 480, "ast": 310, "אוריאה": 30 }
+                      },
+                      "english": {
+                        "summary": "English field names",
+                        "value": { "encounter_id": "ENC-2024-00124", "age": 58, "sex": "F", "wbc": 14.5, "crp": 155, "creatinine": 1.2, "glucose": 190, "ldh": 310, "ast": 140, "bun": 28 }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": { "200": { "description": "Camelion prediction response", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CamelionPredictionResponse" } } } } }
+            }
+          },
+          "/hl7/predict": {
+            "post": {
+              "tags": ["hl7"], "summary": "HL7 v2.x — Epic / Cerner / OpenEMR",
+              "description": "Accepts raw HL7 v2.x message (text/plain). Supports LOINC and Epic/Cerner LIS codes.",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "text/plain": {
+                    "schema": { "type": "string" },
+                    "examples": {
+                      "loinc": {
+                        "summary": "LOINC codes",
+                        "value": "MSH|^~\\&|LIS|HOSPITAL|PENUX|API|20240601||ORU^R01|001|P|2.5\rPID|1||MRN123||DOE^JOHN||19620315|M\rOBX|1|NM|1988-5^CRP^LN||220|mg/L||||F\rOBX|2|NM|6690-2^WBC^LN||18.5|10*3/uL||||F\rOBX|3|NM|2160-0^Creatinine^LN||1.8|mg/dL||||F"
+                      },
+                      "epic": {
+                        "summary": "Epic LIS codes",
+                        "value": "MSH|^~\\&|Epic|Hospital|PENUX|API|20240601||ORU^R01|002|P|2.5\rPID|1||MRN456||SMITH^JANE||19780520|F\rOBX|1|NM|CREAT^Creatinine||1.4|mg/dL|||F\rOBX|2|NM|WBC^WBC||16.2|K/uL|||F"
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": { "200": { "description": "Prediction result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PredictionOutput" } } } } }
+            }
+          }
+        },
+        "components": {
+          "schemas": {
+            "AdmissionInput": {
+              "type": "object", "title": "AdmissionInput",
+              "description": "Routine admission lab values. All fields optional.",
+              "properties": {
+                "age": { "type": "number", "description": "Age in years", "example": 65 },
+                "sex": { "type": "string", "enum": ["M", "F"], "description": "Sex", "example": "M" },
+                "wbc": { "type": "number", "description": "WBC ×10⁹/L (LOINC 6690-2)", "example": 18.5 },
+                "crp": { "type": "number", "description": "CRP mg/L (LOINC 1988-5)", "example": 220 },
+                "creatinine": { "type": "number", "description": "Creatinine mg/dL (LOINC 2160-0)", "example": 1.8 },
+                "bun": { "type": "number", "description": "BUN mg/dL (LOINC 3094-0)", "example": 32 },
+                "glucose": { "type": "number", "description": "Glucose mg/dL (LOINC 2345-7)", "example": 180 },
+                "ldh": { "type": "number", "description": "LDH U/L (LOINC 2532-0)", "example": 450 },
+                "ast": { "type": "number", "description": "AST U/L (LOINC 1920-8)", "example": 90 },
+                "alt": { "type": "number", "description": "ALT U/L (LOINC 1742-6)", "example": 45 },
+                "hematocrit": { "type": "number", "description": "Hematocrit % (LOINC 20570-8)", "example": 47 },
+                "calcium": { "type": "number", "description": "Calcium mg/dL (LOINC 17861-6)", "example": 7.8 },
+                "albumin": { "type": "number", "description": "Albumin g/dL (LOINC 1751-7)", "example": 2.9 },
+                "bilirubin_total": { "type": "number", "description": "Total bilirubin mg/dL (LOINC 1975-2)", "example": 2.1 },
+                "triglycerides": { "type": "number", "description": "Triglycerides mg/dL (LOINC 2571-8)", "example": 450 },
+                "heart_rate": { "type": "number", "description": "Heart rate bpm", "example": 102 },
+                "systolic_bp": { "type": "number", "description": "Systolic BP mmHg", "example": 95 },
+                "temperature": { "type": "number", "description": "Temperature °C", "example": 38.6 },
+                "spo2": { "type": "number", "description": "SpO₂ %", "example": 94 }
+              }
+            },
+            "PredictionOutput": {
+              "type": "object", "title": "PredictionOutput",
+              "properties": {
+                "severe_ap_probability": { "type": "number", "format": "float", "description": "P(SAP) ∈ [0,1]", "example": 0.782 },
+                "risk_group": { "type": "string", "enum": ["low", "intermediate", "high"], "example": "high" },
+                "threshold_used": { "type": "number", "example": 0.5 },
+                "model_version": { "type": "string", "example": "1.0.0" },
+                "warning": { "type": "string", "description": "Research disclaimer" },
+                "error": { "type": "string", "nullable": true }
+              }
+            },
+            "CamelionPredictionResponse": {
+              "type": "object", "title": "CamelionPredictionResponse",
+              "properties": {
+                "encounter_id": { "type": "string", "nullable": true, "example": "ENC-2024-00123" },
+                "severe_ap_probability": { "type": "number", "example": 0.74 },
+                "risk_group": { "type": "string", "enum": ["low", "intermediate", "high"], "example": "high" },
+                "fields_used": { "type": "array", "items": { "type": "string" }, "example": ["wbc", "crp", "creatinine"] },
+                "missing_fields": { "type": "array", "items": { "type": "string" }, "example": ["calcium", "albumin"] },
+                "model_version": { "type": "string", "example": "1.0.0" },
+                "warning": { "type": "string" },
+                "error": { "type": "string", "nullable": true }
+              }
+            },
+            "FHIRBundle": {
+              "type": "object", "title": "FHIRBundle",
+              "description": "FHIR R4 Bundle containing Patient and Observation resources",
+              "properties": {
+                "resourceType": { "type": "string", "enum": ["Bundle"], "example": "Bundle" },
+                "type": { "type": "string", "example": "collection" },
+                "entry": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "resource": { "type": "object", "description": "Patient or Observation resource" }
+                    }
+                  }
+                }
+              },
+              "required": ["resourceType", "entry"]
+            }
+          }
+        }
+      },
+      dom_id: '#swagger-ui',
+      presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
+      layout: "BaseLayout",
+      deepLinking: true,
+      defaultModelsExpandDepth: 1,
+      defaultModelExpandDepth: 2,
+      tryItOutEnabled: true,
+    });
+  </script>
+</body>
+</html>
