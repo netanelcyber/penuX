@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "penux-ap-severity"
+version = "0.1.0"
+description = "Research-grade early prediction model for Severe Acute Pancreatitis"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Netanel Stern"}]
+dependencies = [
+    "pandas>=1.5",
+    "numpy>=1.23",
+    "scikit-learn>=1.2",
+    "joblib>=1.2",
+    "pydantic>=2.0",
+    "fastapi>=0.100",
+    "uvicorn>=0.22",
+    "openpyxl>=3.0",
+]
+
+[project.optional-dependencies]
+xgboost = ["xgboost>=1.7"]
+lightgbm = ["lightgbm>=3.3"]
+shap = ["shap>=0.42"]
+torch = ["torch>=2.0"]
+dev = ["pytest>=7.0", "httpx>=0.24"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
