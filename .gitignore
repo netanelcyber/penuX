@@ -13,3 +13,4 @@ docs/examples/
 # Editor
 .vscode/
 .idea/
+.claude/
