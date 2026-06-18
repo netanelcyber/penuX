@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PenuX — מודלים ומטריצות בלבול</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue:    #1a56db;
+      --blue-dk: #1e429f;
+      --blue-lt: #e8f0fe;
+      --red:     #c81e1e;
+      --red-lt:  #fdf2f2;
+      --green:   #057a55;
+      --green-lt:#f0fdf4;
+      --amber:   #92400e;
+      --amber-lt:#fffbeb;
+      --purple:  #6d28d9;
+      --purple-lt:#f5f3ff;
+      --gray-50: #f9fafb;
+      --gray-100:#f3f4f6;
+      --gray-200:#e5e7eb;
+      --gray-400:#9ca3af;
+      --gray-600:#4b5563;
+      --gray-800:#1f2937;
+      --gray-900:#111827;
+      --white:   #ffffff;
+      --radius:  8px;
+      --shadow:  0 1px 3px rgba(0,0,0,.10);
+      --shadow-md:0 4px 6px rgba(0,0,0,.07);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Heebo', system-ui, sans-serif; color: var(--gray-800); background: var(--white); line-height: 1.7; }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,.95); backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px; direction: ltr;
+    }
+    .nav-brand { display: flex; align-items: center; gap: .6rem; font-weight: 700; font-size: 1.1rem; color: var(--blue-dk); text-decoration: none; }
+    .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+    .nav-links a { color: var(--gray-600); text-decoration: none; font-size: .9rem; font-weight: 500; transition: color .15s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--blue); }
+    .nav-cta { background: var(--blue); color: var(--white) !important; padding: .4rem 1rem; border-radius: 6px; }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1a56db 60%, #4f46e5 100%);
+      color: var(--white); padding: 4rem 2rem 3rem; text-align: center;
+    }
+    .hero h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: .75rem; }
+    .hero p  { font-size: 1.1rem; opacity: .85; max-width: 700px; margin: 0 auto; }
+    .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+             padding: .25rem .8rem; border-radius: 99px; font-size: .8rem; margin-bottom: 1rem; }
+
+    /* LAYOUT */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+    section { padding: 3.5rem 0; }
+    section:nth-child(even) { background: var(--gray-50); }
+    h2 { font-size: 1.6rem; font-weight: 700; color: var(--gray-900); margin-bottom: .4rem; }
+    h3 { font-size: 1.15rem; font-weight: 600; color: var(--blue-dk); margin: 1.5rem 0 .6rem; }
+    p  { color: var(--gray-600); margin-bottom: .9rem; }
+    .section-lead { font-size: 1rem; color: var(--gray-600); margin-bottom: 2rem; }
+
+    /* TABS */
+    .tabs { display: flex; gap: .5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .tab-btn { padding: .45rem 1.1rem; border-radius: 6px; font-size: .9rem; font-weight: 500;
+               cursor: pointer; background: var(--gray-100); color: var(--gray-600);
+               border: 1px solid var(--gray-200); transition: all .15s; font-family: 'Heebo', sans-serif; }
+    .tab-btn.active { background: var(--blue); color: var(--white); border-color: var(--blue); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* CONFUSION MATRIX TABLE */
+    .cm-wrap { overflow-x: auto; margin-bottom: 1.5rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    thead tr { background: var(--blue); color: var(--white); }
+    thead th { padding: .6rem .9rem; text-align: center; font-weight: 600; }
+    thead th:first-child { text-align: right; }
+    tbody tr:nth-child(even) { background: var(--gray-50); }
+    tbody td { padding: .55rem .9rem; text-align: center; border-bottom: 1px solid var(--gray-200); }
+    tbody td:first-child { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: .82rem; font-weight: 500; }
+    .best-row { background: var(--green-lt) !important; font-weight: 600; }
+    .best-row td { color: var(--green); }
+    .val-high  { color: var(--green);  font-weight: 600; }
+    .val-mid   { color: var(--amber);  font-weight: 500; }
+    .val-low   { color: var(--red);    font-weight: 400; }
+
+    /* ALGORITHM CARDS */
+    .algo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+    .algo-card {
+      border: 1px solid var(--gray-200); border-radius: var(--radius);
+      padding: 1.5rem; background: var(--white); box-shadow: var(--shadow);
+      border-top: 4px solid var(--blue);
+    }
+    .algo-card.green  { border-top-color: var(--green); }
+    .algo-card.purple { border-top-color: var(--purple); }
+    .algo-card h3 { margin-top: 0; }
+    .algo-card .tag { display: inline-block; background: var(--blue-lt); color: var(--blue-dk);
+                      border-radius: 99px; padding: .15rem .6rem; font-size: .75rem; font-weight: 600; margin-left: .3rem; }
+    .algo-card.green  .tag { background: var(--green-lt);  color: var(--green); }
+    .algo-card.purple .tag { background: var(--purple-lt); color: var(--purple); }
+    .formula { background: var(--gray-900); color: #a5f3fc; font-family: 'JetBrains Mono', monospace;
+               font-size: .78rem; padding: 1rem; border-radius: var(--radius); margin: .8rem 0;
+               overflow-x: auto; line-height: 1.7; white-space: pre; }
+    .feature-list { list-style: none; margin: .5rem 0; }
+    .feature-list li { padding: .3rem 0; border-bottom: 1px solid var(--gray-100); font-size: .88rem; color: var(--gray-600); }
+    .feature-list li:last-child { border-bottom: none; }
+    .feature-list .feat-name { font-weight: 600; color: var(--gray-800); }
+    .feature-list .feat-w { font-family: 'JetBrains Mono', monospace; font-size: .8rem;
+                             color: var(--blue); float: left; direction: ltr; }
+
+    /* FINDINGS */
+    .findings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; }
+    .finding-card { padding: 1.2rem 1.4rem; border-radius: var(--radius); border: 1px solid var(--gray-200); }
+    .finding-card.green  { background: var(--green-lt);  border-color: #bbf7d0; }
+    .finding-card.amber  { background: var(--amber-lt);  border-color: #fde68a; }
+    .finding-card.red    { background: var(--red-lt);    border-color: #fecaca; }
+    .finding-card.purple { background: var(--purple-lt); border-color: #ddd6fe; }
+    .finding-card .metric { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .finding-card.green  .metric { color: var(--green); }
+    .finding-card.amber  .metric { color: var(--amber); }
+    .finding-card.red    .metric { color: var(--red); }
+    .finding-card.purple .metric { color: var(--purple); }
+    .finding-card .label { font-size: .8rem; color: var(--gray-600); margin-top: .3rem; }
+
+    /* LEGEND */
+    .legend { display: flex; gap: 1.2rem; flex-wrap: wrap; margin-bottom: 1rem; font-size: .82rem; }
+    .legend-item { display: flex; align-items: center; gap: .4rem; }
+    .legend-dot  { width: 12px; height: 12px; border-radius: 3px; }
+
+    /* WARNING */
+    .warning-box { background: var(--amber-lt); border: 1px solid #fde68a; border-right: 4px solid var(--amber);
+                   padding: 1rem 1.2rem; border-radius: var(--radius); font-size: .88rem; color: var(--amber); margin-bottom: 1.5rem; }
+
+    /* FOOTER */
+    footer { background: var(--gray-900); color: var(--gray-400); text-align: center; padding: 2rem; font-size: .85rem; }
+    footer a { color: var(--gray-400); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-brand">
+    <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" fill="#1a56db"/><path d="M9 16c2-5 6-7 7-7s5 2 7 7c-2 5-6 7-7 7s-5-2-7-7z" fill="white" opacity=".25"/><ellipse cx="16" cy="16" rx="3.5" ry="3.5" fill="white"/></svg>
+    PenuX
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">בית</a></li>
+    <li><a href="review.html">מאמר סקירה</a></li>
+    <li><a href="models.html" class="active">מודלים</a></li>
+    <li><a href="api.html" class="nav-cta">Swagger UI</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge">מחקר בלבד — אין שימוש קליני</div>
+  <h1>מודלים ומטריצות בלבול</h1>
+  <p>תיאור אלגוריתמי מלא של שלושת המודלים: SAP Severity, General Sepsis Risk, ו-Pancreatic Sepsis Risk — עם ניתוח ביצועים על קוהורט AP (n=722)</p>
+</div>
+
+<!-- KEY FINDINGS -->
+<section>
+  <div class="container">
+    <h2>ממצאים עיקריים</h2>
+    <p class="section-lead">ניתוח קוהורט חולי לבלב חריף (n=722 · SAP קל: 137 · SAP חמור: 585)</p>
+    <div class="findings-grid">
+      <div class="finding-card green">
+        <div class="metric">0.897</div>
+        <div class="label">SAP Heuristic F1 בסף 0.10</div>
+      </div>
+      <div class="finding-card amber">
+        <div class="metric">14</div>
+        <div class="label">מקרי sepsis לבלבי high-risk שזוהו</div>
+      </div>
+      <div class="finding-card purple">
+        <div class="metric">56.2%</div>
+        <div class="label">חולי mild-AP עם ≥moderate sepsis risk</div>
+      </div>
+      <div class="finding-card red">
+        <div class="metric">13/14</div>
+        <div class="label">מקרי sepsis חמור מסווגים כ-mild בICD</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ALGORITHM DESCRIPTIONS -->
+<section>
+  <div class="container">
+    <h2>תיאור אלגוריתמי</h2>
+    <p class="section-lead">שלושה מודלים לוגיסטיים — כולם מבוססים על בדיקות שגרה בלבד, ללא תרבית, ללא הדמיה</p>
+
+    <div class="algo-grid">
+
+      <!-- SAP SEVERITY -->
+      <div class="algo-card">
+        <h3>SAP Severity Heuristic <span class="tag">BISAP / Ranson</span></h3>
+        <p style="font-size:.85rem">מודל לוגיסטי לניבוי לבלב חריף חמור. מיישם את <strong>Revised Atlanta Classification 2012</strong> עם משקלים מ-BISAP וקריטריוני Ranson.</p>
+        <div class="formula">logit = −1.8
+      + 0.015 × max(0, age − 55)
+      + 0.15  × [זכר]
+      + 0.08  × max(0, WBC − 12)
+      + 0.004 × max(0, CRP − 150)
+      + 0.30  × max(0, Creatinine − 1.5)
+      + 0.015 × max(0, BUN − 25)
+      + 0.002 × max(0, Glucose − 200)
+      + 0.001 × max(0, LDH − 250)
+      + 0.03  × max(0, Hematocrit − 44)
+      + 0.002 × max(0, AST − 250)
+      − 0.30  × max(0, 3.5 − Albumin)
+      − 0.40  × max(0, 8.0 − Calcium)
+      + 0.05  × max(0, Bilirubin − 3.0)
+
+p = 1 / (1 + e^−logit)</div>
+        <ul class="feature-list">
+          <li><span class="feat-name">WBC</span><span class="feat-w">w=+0.08, t=12×10⁹</span></li>
+          <li><span class="feat-name">CRP</span><span class="feat-w">w=+0.004, t=150 mg/L</span></li>
+          <li><span class="feat-name">Creatinine</span><span class="feat-w">w=+0.30, t=1.5 mg/dL</span></li>
+          <li><span class="feat-name">BUN</span><span class="feat-w">w=+0.015, t=25 mg/dL</span></li>
+          <li><span class="feat-name">Glucose</span><span class="feat-w">w=+0.002, t=200 mg/dL</span></li>
+          <li><span class="feat-name">LDH</span><span class="feat-w">w=+0.001, t=250 U/L</span></li>
+          <li><span class="feat-name">Hematocrit</span><span class="feat-w">w=+0.03, t=44%</span></li>
+          <li><span class="feat-name">AST</span><span class="feat-w">w=+0.002, t=250 U/L</span></li>
+          <li><span class="feat-name">Albumin ↓</span><span class="feat-w">w=−0.30, t=3.5 g/dL</span></li>
+          <li><span class="feat-name">Calcium ↓</span><span class="feat-w">w=−0.40, t=8.0 mg/dL</span></li>
+          <li><span class="feat-name">Bilirubin</span><span class="feat-w">w=+0.05, t=3.0 mg/dL</span></li>
+        </ul>
+        <p style="font-size:.78rem;margin-top:.6rem;color:var(--gray-400)">Endpoint: POST /predict &nbsp;|&nbsp; קוד: <a href="https://github.com/netanelcyber/penuX" target="_blank">GitHub</a></p>
+      </div>
+
+      <!-- GENERAL SEPSIS -->
+      <div class="algo-card green">
+        <h3>General Sepsis Risk <span class="tag">SIRS + Sepsis-3</span></h3>
+        <p style="font-size:.85rem">מודל לוגיסטי לאיתור סיכון ספסיס מבדיקות שגרה. משלב <strong>SIRS</strong> (White et al. 1992) ו-<strong>Sepsis-3</strong> (Singer et al. 2016) עם מרקרי תפקוד איברים.</p>
+        <div class="formula">SIRS_score =
+  +1 if WBC &gt; 12 or WBC &lt; 4   [לויקוציטוזיס/פניה]
+  +1 if HR  &gt; 90                [טכיקרדיה]
+  +1 if RR  &gt; 20                [טכיפניאה]
+  +1 if Temp &gt; 38.3 or &lt; 36    [חום/היפותרמיה]
+
+qSOFA_score =
+  +1 if RR ≥ 22
+  +1 if SBP ≤ 100
+
+organ_score (Sepsis-3):
+  +0.18  if Creatinine &gt; 2.0 mg/dL  [אי-ספיקת כליות]
+  +0.10  if Bilirubin  &gt; 2.0 mg/dL  [אי-ספיקת כבד]
+  +0.15  if Platelets  &lt; 100×10³    [תרומבוציטופניה]
+  +0.20  if Lactate    &gt; 2.0 mmol/L [חמצת לקטית]
+  +0.30  if Lactate    &gt; 4.0 mmol/L [הלם ספטי]
+  +0.08  if SpO2       &lt; 94%         [היפוקסיה]
+  +0.20  if MAP        &lt; 65 mmHg     [היפוטנסיה]
+
+logit = −2.9
+      + 0.55 × SIRS_score
+      + 0.65 × qSOFA_score
+      + 3.5  × organ_score
+      + 0.05 × [גיל &gt; 65]
+
+p = 1 / (1 + e^−logit)</div>
+        <p style="font-size:.78rem;margin-top:.6rem;color:var(--gray-400)">Endpoint: POST /predict/sepsis</p>
+      </div>
+
+      <!-- PANCREATIC SEPSIS -->
+      <div class="algo-card purple">
+        <h3>Pancreatic Sepsis Risk <span class="tag">נמק + DIC</span></h3>
+        <p style="font-size:.85rem">מודל לאיתור ספסיס שמקורו ספציפית בלבלב: נמק לבלבי מוגלתי (infected pancreatic necrosis). מבוסס על <strong>IAP/APA Guidelines 2013</strong> ו-<strong>Blamey 1984</strong>.</p>
+        <div class="formula">score (פיצ'רים ספציפיים ללבלב):
+  +0.18  if Lipase  &gt; 3000 U/L  [דליפת אנזים מנמק]
+  +0.10  if Lipase  &gt; 600  U/L
+  +0.12  if Amylase &gt; 1000 U/L  [נמק מתמשך]
+  +0.05  if Amylase &gt; 300  U/L
+  +0.18  if CRP     &gt; 150 mg/L  [מרקר נמק — Blamey]
+  +0.06  if CRP     &gt; 50  mg/L
+  +0.14  if Ca²⁺   &lt; 1.9 mmol/L [ספוניפיקציית שומן]
+  +0.07  if Ca²⁺   &lt; 2.0 mmol/L
+  +0.14  if NLR    &gt; 15         [תשישות חיסונית]
+  +0.08  if NLR    &gt; 10         [NLR = Neutrophils / Lymphocytes]
+  +0.12  if Albumin &lt; 30 g/L    [third-spacing מנמק]
+  +0.05  if Albumin &lt; 35 g/L
+  +0.12  if Fibrinogen &lt; 2 g/L  [DIC ממקור לבלבי]
+  +0.04  if Fibrinogen &gt; 5 g/L  [phase חריפה]
+  +0.08  if D-dimer &gt; 5         [DIC]
+  +0.04  if D-dimer &gt; 2
+
+organ_score (משקל נמוך יותר):
+  +0.08  if Creatinine &gt; 2.0 mg/dL
+  +0.10  if Lactate    &gt; 2.0 mmol/L
+  +0.08  if pH         &lt; 7.35
+
+logit = −3.2 + 4.0 × score + 0.06 × [גיל &gt; 65]
+
+p = 1 / (1 + e^−logit)</div>
+        <p style="font-size:.78rem;margin-top:.6rem;color:var(--gray-400)">Endpoint: POST /predict/sepsis (עתידי: /predict/pancreatic-sepsis)</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CONFUSION MATRICES -->
+<section>
+  <div class="container">
+    <h2>מטריצות בלבול</h2>
+    <p class="section-lead">Ground truth: תווית SAP (0=קל, 1=חמור) | n=722 | קוהורט ap_lnn_sanitized</p>
+
+    <div class="warning-box">
+      ⚠️ מחקר בלבד. Ground truth הוא תווית SAP לפי אטלנטה 2012 — לא תרבית/ספסיס מאושר. מודלי הספסיס תוכננו לאיתור מקביל, לא להחלפת SAP label.
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div><span>F1 ≥ 0.40 — ביצועים טובים</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div><span>F1 0.10–0.40 — ביצועים בינוניים</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div><span>F1 &lt; 0.10 — ביצועים נמוכים</span></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('sap')">SAP Severity Heuristic</button>
+      <button class="tab-btn" onclick="showTab('sep')">General Sepsis Risk</button>
+      <button class="tab-btn" onclick="showTab('panc')">Pancreatic Sepsis Risk</button>
+    </div>
+
+    <!-- SAP -->
+    <div id="tab-sap" class="tab-panel active">
+      <h3>SAP Severity Heuristic — מול SAP label</h3>
+      <p style="font-size:.88rem">המודל המיושר ישירות לתווית SAP. סף 0.10 מציג Sensitivity של 99.5% (כמעט כל החמורים מזוהים) עם F1=0.897.</p>
+      <div class="cm-wrap">
+        <table>
+          <thead>
+            <tr><th>סף</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th><th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th></tr>
+          </thead>
+          <tbody>
+            <tr class="best-row"><td>0.10</td><td>582</td><td>130</td><td>3</td><td>7</td><td class="val-high">99.5%</td><td class="val-low">5.1%</td><td class="val-mid">81.7%</td><td class="val-high">0.897</td></tr>
+            <tr><td>0.15</td><td>385</td><td>105</td><td>200</td><td>32</td><td class="val-mid">65.8%</td><td class="val-low">23.4%</td><td class="val-mid">78.6%</td><td class="val-mid">0.716</td></tr>
+            <tr><td>0.20</td><td>161</td><td>79</td><td>424</td><td>58</td><td class="val-mid">27.5%</td><td class="val-mid">42.3%</td><td class="val-mid">67.1%</td><td class="val-mid">0.390</td></tr>
+            <tr><td>0.30</td><td>52</td><td>38</td><td>533</td><td>99</td><td class="val-low">8.9%</td><td class="val-high">72.3%</td><td class="val-mid">57.8%</td><td class="val-low">0.154</td></tr>
+            <tr><td>0.40</td><td>26</td><td>14</td><td>559</td><td>123</td><td class="val-low">4.4%</td><td class="val-high">89.8%</td><td class="val-high">65.0%</td><td class="val-low">0.083</td></tr>
+            <tr><td>0.50</td><td>16</td><td>10</td><td>569</td><td>127</td><td class="val-low">2.7%</td><td class="val-high">92.7%</td><td class="val-high">61.5%</td><td class="val-low">0.052</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:.82rem;color:var(--gray-500)">הסבר: F1 גבוה בסף 0.10 כי האוכלוסייה מוטה לחומרה (585/722 חמורים). Specificity נמוכה בסף זה היא תוצאה אינהרנטית של class imbalance.</p>
+    </div>
+
+    <!-- GENERAL SEPSIS -->
+    <div id="tab-sep" class="tab-panel">
+      <h3>General Sepsis Risk — מול SAP label</h3>
+      <p style="font-size:.88rem">מודל זה לא מכוון לתווית SAP — הוא מאתר ספסיס כללי. ביצועים נמוכים מול SAP label הם צפויים ומצביעים על אוכלוסיות שונות.</p>
+      <div class="cm-wrap">
+        <table>
+          <thead>
+            <tr><th>סף</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th><th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th></tr>
+          </thead>
+          <tbody>
+            <tr class="best-row"><td>0.10</td><td>203</td><td>108</td><td>382</td><td>29</td><td class="val-mid">34.7%</td><td class="val-low">21.2%</td><td class="val-mid">65.3%</td><td class="val-mid">0.453</td></tr>
+            <tr><td>0.15</td><td>110</td><td>77</td><td>475</td><td>60</td><td class="val-low">18.8%</td><td class="val-mid">43.8%</td><td class="val-mid">58.8%</td><td class="val-low">0.285</td></tr>
+            <tr><td>0.20</td><td>39</td><td>48</td><td>546</td><td>89</td><td class="val-low">6.7%</td><td class="val-mid">65.0%</td><td class="val-mid">44.8%</td><td class="val-low">0.116</td></tr>
+            <tr><td>0.30</td><td>9</td><td>17</td><td>576</td><td>120</td><td class="val-low">1.5%</td><td class="val-high">87.6%</td><td class="val-mid">34.6%</td><td class="val-low">0.029</td></tr>
+            <tr><td>0.40</td><td>2</td><td>13</td><td>583</td><td>124</td><td class="val-low">0.3%</td><td class="val-high">90.5%</td><td class="val-low">13.3%</td><td class="val-low">0.007</td></tr>
+            <tr><td>0.50</td><td>1</td><td>6</td><td>584</td><td>131</td><td class="val-low">0.2%</td><td class="val-high">95.6%</td><td class="val-low">14.3%</td><td class="val-low">0.003</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:.82rem;color:var(--gray-500)">ממצא מעניין: 56.2% מחולי <em>mild AP</em> הציגו ≥moderate sepsis risk — ייתכן ספסיס שמקורו מחוץ ללבלב (cholangitis, UTI, גרם-שלילי ממקור מעיים).</p>
+    </div>
+
+    <!-- PANCREATIC SEPSIS -->
+    <div id="tab-panc" class="tab-panel">
+      <h3>Pancreatic Sepsis Risk — מול SAP label</h3>
+      <p style="font-size:.88rem">מכוון לנמק לבלבי מוגלתי. 13 מתוך 14 מקרי high-risk מסווגים כ-mild AP לפי ICD — ממצא המצביע על infected pancreatic necrosis שהוחמץ בסיווג.</p>
+      <div class="cm-wrap">
+        <table>
+          <thead>
+            <tr><th>סף</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th><th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th></tr>
+          </thead>
+          <tbody>
+            <tr class="best-row"><td>0.10</td><td>177</td><td>106</td><td>408</td><td>31</td><td class="val-mid">30.3%</td><td class="val-low">22.6%</td><td class="val-mid">62.5%</td><td class="val-mid">0.408</td></tr>
+            <tr><td>0.15</td><td>87</td><td>83</td><td>498</td><td>54</td><td class="val-low">14.9%</td><td class="val-mid">39.4%</td><td class="val-mid">51.2%</td><td class="val-low">0.230</td></tr>
+            <tr><td>0.20</td><td>44</td><td>55</td><td>541</td><td>82</td><td class="val-low">7.5%</td><td class="val-mid">59.9%</td><td class="val-mid">44.4%</td><td class="val-low">0.129</td></tr>
+            <tr><td>0.30</td><td>5</td><td>30</td><td>580</td><td>107</td><td class="val-low">0.9%</td><td class="val-high">78.1%</td><td class="val-low">14.3%</td><td class="val-low">0.016</td></tr>
+            <tr><td>0.40</td><td>1</td><td>13</td><td>584</td><td>124</td><td class="val-low">0.2%</td><td class="val-high">90.5%</td><td class="val-low">7.1%</td><td class="val-low">0.003</td></tr>
+            <tr><td>0.50</td><td>0</td><td>5</td><td>585</td><td>132</td><td class="val-low">0.0%</td><td class="val-high">96.4%</td><td class="val-low">0.0%</td><td class="val-low">0.000</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:.82rem;color:var(--gray-500)">הסבר: ביצועים נמוכים מול SAP label צפויים — infected necrosis הוא subset של SAP, לא כל SAP הוא septic. גרנד טרות נכון יהיה תרבית חיובית מנוזל/נמק פרי-לבלבי.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CLINICAL INTERPRETATION -->
+<section>
+  <div class="container">
+    <h2>פרשנות קלינית</h2>
+    <div class="algo-grid">
+      <div style="border:1px solid var(--gray-200);border-radius:var(--radius);padding:1.4rem;border-right:4px solid var(--green)">
+        <h3 style="color:var(--green)">ספסיס לבלבי vs. SAP: ההבדל</h3>
+        <p style="font-size:.88rem"><strong>SAP (Severe Acute Pancreatitis)</strong> מוגדר לפי Atlanta 2012 על ידי כשל איברים מתמשך (&gt;48 שעות). <strong>ספסיס לבלבי</strong> הוא זיהום ספציפי של הנמק — Infected Pancreatic Necrosis (IPN) — המופיע ב-20–40% מחולי SAP, בדרך כלל שבועיים מהאשפוז.</p>
+        <p style="font-size:.88rem">מרקרי IPN: CRP&gt;150, Ca²⁺&lt;1.9, NLR&gt;10, ליפאז&gt;3000 — אלה המרקרים שהמודל שלנו משתמש בהם.</p>
+      </div>
+      <div style="border:1px solid var(--gray-200);border-radius:var(--radius);padding:1.4rem;border-right:4px solid var(--purple)">
+        <h3 style="color:var(--purple)">ממצא: mild AP עם סיכון ספסיס גבוה</h3>
+        <p style="font-size:.88rem">13 מתוך 14 המקרים עם high pancreatic sepsis risk מסווגים כ-mild לפי ICD. פרופיל מעבדתי: ליפאז&gt;1000 + CRP&gt;150 + Ca&lt;1.5 + NLR&gt;15 + אלבומין&lt;30 + D-dimer&gt;5.</p>
+        <p style="font-size:.88rem">פרשנות: ייתכן שאלה חולים עם infected necrosis שלא זוהה בסיווג ה-ICD המקורי — מחייב validation עם תרביות.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>PenuX · <a href="https://github.com/netanelcyber/penuX" target="_blank">GitHub</a> · מחקר בלבד — לא לשימוש קליני · MIT License</p>
+</footer>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
