@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>kvmweb APT Repository</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 860px; margin: 60px auto; padding: 0 20px; background: #0f1117; color: #e2e8f0; }
+    h1 { font-size: 2rem; margin-bottom: 4px; }
+    h2 { font-size: 1.1rem; color: #8892a4; margin: 32px 0 8px; text-transform: uppercase; letter-spacing: .5px; }
+    pre { background: #1a1d27; border: 1px solid #2e3250; border-radius: 8px; padding: 16px; overflow-x: auto; font-size: 13px; line-height: 1.6; }
+    code { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+    .badge { display: inline-block; background: rgba(99,102,241,.2); color: #a5b4fc; border-radius: 20px; padding: 2px 12px; font-size: 12px; margin-left: 8px; }
+    a { color: #6366f1; }
+    p { color: #8892a4; line-height: 1.7; }
+    .pkg { background: #1a1d27; border: 1px solid #2e3250; border-radius: 8px; padding: 16px 20px; margin-top: 12px; }
+    .pkg-name { font-weight: 700; font-size: 18px; }
+    .pkg-meta { color: #8892a4; font-size: 12px; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <h1>⚡ kvmweb <span class="badge">APT Repository</span></h1>
+  <p>Lightweight KVM web management interface for Ubuntu and Debian.</p>
+
+  <h2>Quick Install</h2>
+  <pre><code># 1. Add the GPG key
+curl -fsSL https://netanelcyber.github.io/penuX/apt-repo/kvmweb.gpg.key | sudo gpg --dearmor -o /usr/share/keyrings/kvmweb.gpg
+
+# 2. Add the repository
+echo "deb [signed-by=/usr/share/keyrings/kvmweb.gpg] https://netanelcyber.github.io/penuX/apt-repo stable main" \
+  | sudo tee /etc/apt/sources.list.d/kvmweb.list
+
+# 3. Install
+sudo apt update && sudo apt install kvmweb</code></pre>
+
+  <h2>After Install</h2>
+  <pre><code># Open in browser
+https://&lt;your-server-ip&gt;:8080
+
+# Service management
+sudo systemctl status kvmweb
+sudo journalctl -u kvmweb -f</code></pre>
+
+  <h2>Manual Download</h2>
+  <div class="pkg">
+    <div class="pkg-name">kvmweb</div>
+    <div class="pkg-meta">Version 1.0.0 &bull; Architecture: all &bull; Section: admin</div>
+    <div class="pkg-meta" style="margin-top:8px">
+      <a href="pool/main/k/kvmweb/kvmweb_1.0.0_all.deb">kvmweb_1.0.0_all.deb</a>
+    </div>
+  </div>
+
+  <h2>Repository Files</h2>
+  <ul>
+    <li><a href="dists/stable/InRelease">dists/stable/InRelease</a> (signed index)</li>
+    <li><a href="kvmweb.gpg.key">kvmweb.gpg.key</a> (public signing key)</li>
+  </ul>
+
+  <h2>Supported Distributions</h2>
+  <p>Ubuntu 22.04 (Jammy), Ubuntu 24.04 (Noble), Debian 11 (Bullseye), Debian 12 (Bookworm)</p>
+
+  <p style="margin-top:48px;font-size:12px">
+    Source: <a href="https://github.com/netanelcyber/penuX">github.com/netanelcyber/penuX</a>
+  </p>
+</body>
+</html>

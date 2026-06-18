@@ -1,0 +1,29 @@
+Origin: kvmweb
+Label: kvmweb APT Repository
+Suite: stable
+Codename: stable
+Date: Thu, 18 Jun 2026 04:11:58 UTC
+Architectures: amd64 arm64
+Components: main
+Description: kvmweb KVM web management interface
+MD5Sum:
+ 90419df2bda36882a816b54ad5c15cb9 1012 main/binary-amd64/Packages
+ c3da719d8850c18cc9121b6f89c54a33 666 main/binary-amd64/Packages.gz
+ 285fe19f8de0bfe5f722c8fbed1ace3e 145 main/binary-amd64/Release
+ 90419df2bda36882a816b54ad5c15cb9 1012 main/binary-arm64/Packages
+ c3da719d8850c18cc9121b6f89c54a33 666 main/binary-arm64/Packages.gz
+ 4404ae37c096bfc3c19e1ab079cdd26d 145 main/binary-arm64/Release
+SHA1:
+ 11d0e313d62f675ba830d642d186270ddc3cd397 1012 main/binary-amd64/Packages
+ cc7cf49dcc6450a1fbd20777a426471dbf5ce07f 666 main/binary-amd64/Packages.gz
+ a59c58c47950bd1970d0b54ae7b76ef77f936d29 145 main/binary-amd64/Release
+ 11d0e313d62f675ba830d642d186270ddc3cd397 1012 main/binary-arm64/Packages
+ cc7cf49dcc6450a1fbd20777a426471dbf5ce07f 666 main/binary-arm64/Packages.gz
+ c2b5b46f677614e321d0680cc8a4e710a78e62ef 145 main/binary-arm64/Release
+SHA256:
+ c1599ef1d474734f232d56e95dba11413909067f7eebc74d4013ecf5e844c7a6 1012 main/binary-amd64/Packages
+ 42b29a2625c0b7e4ff19968d696c9915e14843932c58422ada4bd7eb35b028fe 666 main/binary-amd64/Packages.gz
+ d066951e47942b584d8ed6f4041f669113f76f5ba2de84b907b5e13f8a79824c 145 main/binary-amd64/Release
+ c1599ef1d474734f232d56e95dba11413909067f7eebc74d4013ecf5e844c7a6 1012 main/binary-arm64/Packages
+ 42b29a2625c0b7e4ff19968d696c9915e14843932c58422ada4bd7eb35b028fe 666 main/binary-arm64/Packages.gz
+ cc183ab79217d747e26878b84079e7a2424406decbd38262c0ddebfb448bd7c3 145 main/binary-arm64/Release

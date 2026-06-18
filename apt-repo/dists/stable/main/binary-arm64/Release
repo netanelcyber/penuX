@@ -1,0 +1,6 @@
+Archive: stable
+Component: main
+Origin: kvmweb
+Label: kvmweb APT Repository
+Architecture: arm64
+Description: kvmweb KVM web management interface
