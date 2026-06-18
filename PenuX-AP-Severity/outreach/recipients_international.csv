@@ -1,0 +1,30 @@
+expert_name,title,institution,department,email_address,research_focus,country,region
+Prof. Marco J. Bruno,Professor,Erasmus Medical Center,Gastroenterology & Hepatology,m.bruno@erasmusmc.nl,Pancreatitis classification & prediction,Netherlands,Europe
+Prof. Enrique de Madaria,Professor,Hospital General de Alicante,Gastroenterology,e.demadaria@ua.es,BISAP score & SAP prediction,Spain,Europe
+Prof. Stephen Pandol,Professor,Queen Mary University of London,Inflammation & Immunology,s.pandol@qmul.ac.uk,Pancreatitis pathophysiology,United Kingdom,Europe
+Prof. Markus M. Lerch,Professor,University Medicine Greifswald,Gastroenterology,markus.lerch@uni-greifswald.de,Acute pancreatitis pathology,Germany,Europe
+Prof. Olivier Ceyhan,Professor,Ghent University Hospital,Gastroenterology,olivier.ceyhan@ugent.be,SAP severity prediction,Belgium,Europe
+Prof. Patricia Moyer,Professor,University of Michigan Medical Center,Surgery & Pancreatology,pmoyer@umich.edu,Acute pancreatitis outcomes,USA,North America
+Prof. David C. Whitcomb,Professor,University of Pittsburgh Medical Center,Pancreatology,whitcomb@pitt.edu,Pancreatitis genetics & pathophysiology,USA,North America
+Dr. Geoffrey Nguyen,Associate Professor,Yale School of Medicine,Gastroenterology,geoffrey.nguyen@yale.edu,Pancreatic inflammation & prediction,USA,North America
+Prof. Christos Dervenis,Professor,Agia Sophia Hospital,Hepatobiliary Surgery,cdervenis@med.uoa.gr,Acute pancreatitis management,Greece,Europe
+Prof. Valerie Korsgen,Consultant,Royal London Hospital,Surgery,v.korsgen@qmul.ac.uk,Pancreatitis surgery & outcomes,United Kingdom,Europe
+Prof. Peter Layer,Professor,University Medical Center Hamburg,Gastroenterology,layer@uke.de,Chronic & acute pancreatitis,Germany,Europe
+Prof. Ute Denzer,Professor,Goethe University Frankfurt,Endoscopy & Gastroenterology,u.denzer@em.uni-frankfurt.de,Endoscopic therapy in pancreatitis,Germany,Europe
+Dr. Akif Uyar,Professor,Istanbul University Cerrahpasa,Gastroenterology,auyar@istanbul.edu.tr,SAP epidemiology,Turkey,Europe/Asia
+Prof. Vikram Vijayakumar,Professor,All India Institute of Medical Sciences,Gastroenterology,vijay_gastro@aiims.ac.in,Acute pancreatitis in developing countries,India,Asia
+Prof. Ashok Chari,Professor,Johns Hopkins University,Pancreatology,achari@jhmi.edu,Pancreatitis severity & prediction,USA,North America
+Prof. Kostas Koustenis,Professor,National University of Athens,Internal Medicine,kkoustenis@med.uoa.gr,Acute pancreatitis pathophysiology,Greece,Europe
+Prof. Mirko D'Onofrio,Professor,University of Padua,Radiology,mirko.donofrio@unipd.it,Imaging in acute pancreatitis,Italy,Europe
+Prof. Giovanni Foschi,Associate Professor,University of Padua,Gastroenterology,giovanni.foschi@unipd.it,SAP prediction and management,Italy,Europe
+Prof. Alexandra Zsóri,Professor,University of Debrecen,Gastroenterology,zsori.alexandra@med.unideb.hu,Acute pancreatitis outcomes,Hungary,Europe
+Prof. Dominique Vuitton,Professor,Université de Bourgogne,Gastroenterology,dominique.vuitton@u-bourgogne.fr,Pancreatitis epidemiology,France,Europe
+Prof. Giorgio Galeotti,Professor,Università La Sapienza,Surgery,giorgio.galeotti@uniroma1.it,Pancreatitis surgery,Italy,Europe
+Prof. Eva Tóth,Professor,Skåne University Hospital,Gastroenterology,eva.toth@skane.se,Acute pancreatitis outcomes,Sweden,Europe
+Prof. Lars Lundell,Professor,Karolinska Institute,Surgery,lars.lundell@ki.se,Pancreatitis complications,Sweden,Europe
+Prof. Paul Perera,Associate Professor,University of Melbourne,Surgery,p.perera@unimelb.edu.au,Acute pancreatitis management,Australia,Oceania
+Prof. Mark Feldman,Professor,University of Texas Southwestern,Gastroenterology,mark.feldman@utsouthwestern.edu,Pancreatitis pathophysiology,USA,North America
+Prof. Timothy Gardner,Professor,University of Pennsylvania,Pancreatology,tgardner@pennmedicine.upenn.edu,SAP prediction models,USA,North America
+Prof. Adekunle Ige,Professor,University of Ibadan,Surgery,aige@ui.edu.ng,Pancreatitis in Africa,Nigeria,Africa
+Prof. Yiping Chen,Professor,Zhejiang University,Gastroenterology,chenyiping@zju.edu.cn,Acute pancreatitis outcomes in Asia,China,Asia
+Prof. Keisuke Tsuji,Professor,University of Tokyo,Surgery,ktsuji@med.tokyo.ac.jp,Pancreatitis outcomes & management,Japan,Asia
