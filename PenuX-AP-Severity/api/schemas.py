@@ -1,5 +1,5 @@
-"""Pydantic schemas for the FastAPI research endpoint."""
-from typing import Optional
+"""Pydantic schemas for the FastAPI research endpoint and Camelion HIS integration."""
+from typing import Any, Optional
 from pydantic import BaseModel, Field
 
 RESEARCH_WARNING = (
@@ -45,3 +45,44 @@ class HealthResponse(BaseModel):
     status: str = "ok"
     version: str = "0.1.0"
     warning: str = RESEARCH_WARNING
+
+
+# ---------------------------------------------------------------------------
+# Camelion HIS native JSON schema
+# ---------------------------------------------------------------------------
+
+class CamelionRequest(BaseModel):
+    """Camelion (קמיליון) HIS flat JSON request.
+
+    Accepts both Hebrew and English field names as exported by the Camelion
+    REST / HL7 v2 gateway. Patient identifiers are accepted for routing but
+    are discarded before prediction and are never stored or logged.
+    """
+    # Patient identifiers — routing only, never stored
+    patient_id: Optional[str] = Field(None, description="Camelion patient MRN (not stored)")
+    encounter_id: Optional[str] = Field(None, description="Camelion encounter ID (not stored)")
+
+    # Flat clinical values — Hebrew or English keys accepted via the adapter
+    # (all fields are optional; pass whatever is available at admission)
+    model_config = {"extra": "allow"}
+
+
+class CamelionPredictionResponse(BaseModel):
+    """Response returned to the Camelion system."""
+    encounter_id: Optional[str] = None
+    severe_ap_probability: Optional[float] = None
+    risk_group: Optional[str] = Field(
+        None,
+        description="low | intermediate | high — for triage alerting only",
+    )
+    fields_used: list[str] = Field(
+        default_factory=list,
+        description="Clinical variables that contributed to this prediction",
+    )
+    missing_fields: list[str] = Field(
+        default_factory=list,
+        description="Variables not supplied; prediction may be less reliable",
+    )
+    model_version: str = "0.1.0"
+    warning: str = RESEARCH_WARNING
+    error: Optional[str] = None
