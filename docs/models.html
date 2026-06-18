@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>PenuX — השוואת מודלים</title>
+  <title>PenuX — Model Comparison</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -107,7 +107,7 @@
     .feat-card{border:1px solid var(--gray-200);border-radius:var(--radius);padding:1.3rem;background:var(--white)}
     .feat-card h4{font-size:.9rem;font-weight:700;margin-bottom:1rem;color:var(--gray-700)}
     .feat-bar-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem}
-    .feat-label{font-size:.8rem;min-width:90px;text-align:right;color:var(--gray-700)}
+    .feat-label{font-size:.8rem;min-width:90px;text-align:left;color:var(--gray-700)}
     .feat-bar-bg{flex:1;background:var(--gray-100);border-radius:99px;height:10px;overflow:hidden}
     .feat-bar{height:100%;border-radius:99px;background:var(--blue);transition:width .4s}
     .feat-bar.green{background:var(--green)}
@@ -134,25 +134,25 @@
     PenuX
   </a>
   <ul class="nav-links">
-    <li><a href="index.html">בית</a></li>
-    <li><a href="review.html">מאמר סקירה</a></li>
-    <li><a href="models.html" class="active">מודלים</a></li>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="review.html">Review Article</a></li>
+    <li><a href="models.html" class="active">Models</a></li>
     <li><a href="api.html" class="nav-cta">Swagger UI</a></li>
   </ul>
 </nav>
 
 <!-- HERO -->
 <div class="hero">
-  <div class="badge">מחקר בלבד — אין שימוש קליני</div>
-  <h1>השוואת 3 מודלי ML</h1>
-  <p>Logistic Regression · Random Forest · Gradient Boosting — מאומנים ומוערכים על קוהורט AP סיני (n=722) עם 5-fold cross-validation</p>
+  <div class="badge">Research Only — Not for Clinical Use</div>
+  <h1>3-Model ML Comparison</h1>
+  <p>Logistic Regression · Random Forest · Gradient Boosting — trained and evaluated on a Chinese AP cohort (n=722) with 5-fold cross-validation</p>
 </div>
 
 <!-- SUMMARY CARDS -->
 <section>
   <div class="container">
-    <h2>ביצועים — סיכום</h2>
-    <p class="lead">כל המודלים הוערכו ב-5-fold Stratified Cross-Validation | Ground truth: SAP label (Atlanta 2012) | n=722</p>
+    <h2>Performance Summary</h2>
+    <p class="lead">All models evaluated with 5-fold Stratified Cross-Validation | Ground truth: SAP label (Atlanta 2012) | n=722</p>
 
     <div class="stat-grid">
       <div class="stat-card">
@@ -168,7 +168,7 @@
       <div class="stat-card green">
         <div class="model-name">Random Forest</div>
         <div class="auc">0.877</div>
-        <div class="sub">AUC (CV) ★ הטוב ביותר</div>
+        <div class="sub">AUC (CV) ★ Best</div>
         <div class="badges">
           <span class="pill pill-green">F1=0.917</span>
           <span class="pill pill-green">Sens=96.8%</span>
@@ -191,7 +191,7 @@
     <div class="tbl-wrap">
       <table class="cmp-tbl">
         <thead><tr>
-          <th>מודל</th><th>AUC</th><th>F1</th><th>Threshold</th>
+          <th>Model</th><th>AUC</th><th>F1</th><th>Threshold</th>
           <th>TP</th><th>FP</th><th>FN</th><th>TN</th>
           <th>Sensitivity</th><th>Specificity</th><th>PPV</th>
         </tr></thead>
@@ -220,10 +220,10 @@
 <!-- CONFUSION MATRICES -->
 <section>
   <div class="container">
-    <h2>מטריצות בלבול</h2>
-    <p class="lead">כל סף בנפרד | Ground truth: 1=SAP חמור, 0=SAP קל</p>
+    <h2>Confusion Matrices</h2>
+    <p class="lead">Per threshold | Ground truth: 1=Severe SAP, 0=Mild SAP</p>
 
-    <div class="warn">⚠️ מחקר בלבד. כל המספרים מ-5-fold cross-validation על אותה אוכלוסייה — אין external validation set.</div>
+    <div class="warn">⚠️ Research only. All figures from 5-fold cross-validation on the same cohort — no external validation set.</div>
 
     <div class="tabs">
       <button class="tab-btn active" onclick="showTab('lr','this')">Logistic Regression</button>
@@ -293,8 +293,8 @@
 <!-- ROC CURVES -->
 <section>
   <div class="container">
-    <h2>עקומות ROC</h2>
-    <p class="lead">5-fold cross-validation — ציר X: False Positive Rate · ציר Y: True Positive Rate</p>
+    <h2>ROC Curves</h2>
+    <p class="lead">5-fold cross-validation — X axis: False Positive Rate · Y axis: True Positive Rate</p>
     <div class="roc-grid">
       <div class="roc-card">
         <h4>Logistic Regression — AUC 0.817</h4>
@@ -315,7 +315,7 @@
 <!-- FEATURE IMPORTANCE -->
 <section>
   <div class="container">
-    <h2>חשיבות פיצ'רים</h2>
+    <h2>Feature Importance</h2>
     <p class="lead">Top-10 features per model | LR: |coefficient| · RF/GB: feature_importance</p>
     <div class="feat-grid" id="feat-container"></div>
   </div>
@@ -324,39 +324,39 @@
 <!-- ALGORITHM NOTES -->
 <section>
   <div class="container">
-    <h2>תיאור אלגוריתמי</h2>
+    <h2>Algorithm Descriptions</h2>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.4rem">
 
       <div style="border:1px solid var(--gray-200);border-radius:var(--radius);padding:1.4rem;border-top:4px solid var(--blue)">
         <h3 style="margin-top:0">Logistic Regression</h3>
-        <p style="font-size:.87rem">מודל לינארי עם רגולריזציה L2 (C=0.5). תכונות ממוצעות ומנורמלות (StandardScaler). Threshold אופטימלי: <strong>0.575</strong> לפי מקסימום F1.</p>
-        <p style="font-size:.87rem">פיצ'רים מרכזיים: Lymphocytes, Calcium, Creatinine, Lactate, LDH. מפרש את כל הפיצ'רים בו-זמנית — interpretable.</p>
+        <p style="font-size:.87rem">Linear model with L2 regularisation (C=0.5). Features scaled with StandardScaler. Optimal threshold: <strong>0.575</strong> by maximum F1.</p>
+        <p style="font-size:.87rem">Key features: Lymphocytes, Calcium, Creatinine, Lactate, LDH. Interprets all features simultaneously — fully interpretable.</p>
         <p style="font-size:.82rem;color:var(--gray-400)">sklearn LogisticRegression · max_iter=1000 · random_state=42</p>
       </div>
 
       <div style="border:1px solid var(--gray-200);border-radius:var(--radius);padding:1.4rem;border-top:4px solid var(--green)">
         <h3 style="color:var(--green);margin-top:0">Random Forest ★</h3>
-        <p style="font-size:.87rem">200 עצי החלטה, max_depth=6, min_samples_leaf=5. מחלק ממוצע הסתברויות בין העצים. AUC הגבוה ביותר (0.877).</p>
-        <p style="font-size:.87rem">Robust לנתונים חסרים (fillna=0), לא דורש נרמול. פיצ'רים מרכזיים: Calcium, D-dimer, LDH, Lactate, Hematocrit.</p>
+        <p style="font-size:.87rem">200 decision trees, max_depth=6, min_samples_leaf=5. Averages predicted probabilities across trees. Highest AUC (0.877).</p>
+        <p style="font-size:.87rem">Robust to missing values (fillna=0), no normalisation required. Key features: Calcium, D-dimer, LDH, Lactate, Hematocrit.</p>
         <p style="font-size:.82rem;color:var(--gray-400)">sklearn RandomForestClassifier · n_estimators=200 · max_depth=6</p>
       </div>
 
       <div style="border:1px solid var(--gray-200);border-radius:var(--radius);padding:1.4rem;border-top:4px solid var(--purple)">
         <h3 style="color:var(--purple);margin-top:0">Gradient Boosting</h3>
-        <p style="font-size:.87rem">150 עצים רדודים (max_depth=3), learning_rate=0.05. F1 הגבוה ביותר (0.918). Threshold נמוך יחסית (0.35) — מאפשר sensitivity גבוהה מוקדם.</p>
-        <p style="font-size:.87rem">פיצ'רים מרכזיים: D-dimer, Calcium, LDH, Lactate, Hematocrit — דומה ל-RF, מאשר stability.</p>
+        <p style="font-size:.87rem">150 shallow trees (max_depth=3), learning_rate=0.05. Highest F1 (0.918). Relatively low threshold (0.35) — achieves high sensitivity early.</p>
+        <p style="font-size:.87rem">Key features: D-dimer, Calcium, LDH, Lactate, Hematocrit — similar to RF, confirming stability.</p>
         <p style="font-size:.82rem;color:var(--gray-400)">sklearn GradientBoostingClassifier · n_estimators=150 · lr=0.05</p>
       </div>
     </div>
 
     <div class="warn" style="margin-top:1.5rem">
-      <strong>מגבלות:</strong> אין external test set — כל המספרים מ-cross-validation על אותו קוהורט סיני (n=722). class imbalance: 585 severe vs 137 mild. לא הוכח על קוהורטים מערביים.
+      <strong>Limitations:</strong> No external test set — all figures from cross-validation on the same Chinese cohort (n=722). Class imbalance: 585 severe vs 137 mild. Not validated on Western cohorts.
     </div>
   </div>
 </section>
 
 <footer>
-  <p>PenuX · <a href="https://github.com/netanelcyber/penuX" target="_blank">GitHub</a> · מחקר בלבד — לא לשימוש קליני · MIT License</p>
+  <p>PenuX · <a href="https://github.com/netanelcyber/penuX" target="_blank">GitHub</a> · Research Only — Not for Clinical Use · MIT License</p>
 </footer>
 
 <script>
