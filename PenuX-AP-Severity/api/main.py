@@ -225,6 +225,127 @@ class PathogenOutput(BaseModel):
     warning: str = RESEARCH_WARNING
 
 
+# ---------------------------------------------------------------------------
+# Sepsis risk — SIRS + qSOFA heuristic from routine tests
+# ---------------------------------------------------------------------------
+
+class SepsisInput(BaseModel):
+    temperature_c: Optional[float] = Field(None, description="Body temperature °C")
+    heart_rate: Optional[float] = Field(None, description="Heart rate bpm")
+    respiratory_rate: Optional[float] = Field(None, description="Respiratory rate /min")
+    systolic_bp: Optional[float] = Field(None, description="Systolic BP mmHg")
+    wbc: Optional[float] = Field(None, description="WBC ×10⁹/L (e.g. 12.5 = 12,500 cells/µL)")
+    lactate: Optional[float] = Field(None, description="Lactate mmol/L")
+    creatinine: Optional[float] = Field(None, description="Creatinine mg/dL")
+    bilirubin: Optional[float] = Field(None, description="Bilirubin total mg/dL")
+    platelets: Optional[float] = Field(None, description="Platelets ×10³/µL")
+    map_mmhg: Optional[float] = Field(None, description="Mean arterial pressure mmHg")
+    spo2: Optional[float] = Field(None, description="SpO2 %")
+    age: Optional[float] = Field(None, description="Age in years")
+
+
+class SepsisOutput(BaseModel):
+    sepsis_risk_probability: float
+    risk_group: str = Field(description="low | moderate | high | critical")
+    sirs_score: int = Field(description="SIRS criteria met (0-4)")
+    qsofa_score: int = Field(description="qSOFA score (0-3)")
+    criteria_met: list[str] = Field(description="Specific criteria that were triggered")
+    warning: str = RESEARCH_WARNING
+
+
+def _sepsis_score(inp: SepsisInput) -> tuple[float, str, int, int, list[str]]:
+    """SIRS + qSOFA logistic model from routine tests only.
+
+    SIRS: temp, HR, RR, WBC  — 2+ criteria = SIRS
+    qSOFA: SBP≤100, RR≥22, altered mentation (not tested here) — 2+ = high risk
+    Augmented with lactate, creatinine, bilirubin, platelets for organ dysfunction.
+    """
+    criteria: list[str] = []
+    sirs = 0
+    qsofa = 0
+
+    if inp.temperature_c is not None:
+        if inp.temperature_c > 38.3:
+            sirs += 1
+            criteria.append(f"Fever ({inp.temperature_c}°C > 38.3)")
+        elif inp.temperature_c < 36.0:
+            sirs += 1
+            criteria.append(f"Hypothermia ({inp.temperature_c}°C < 36.0)")
+
+    if inp.heart_rate is not None and inp.heart_rate > 90:
+        sirs += 1
+        criteria.append(f"Tachycardia (HR {inp.heart_rate} > 90)")
+
+    if inp.respiratory_rate is not None:
+        if inp.respiratory_rate > 20:
+            sirs += 1
+            criteria.append(f"Tachypnea (RR {inp.respiratory_rate} > 20)")
+        if inp.respiratory_rate >= 22:
+            qsofa += 1
+
+    if inp.wbc is not None:
+        if inp.wbc > 12.0:
+            sirs += 1
+            criteria.append(f"Leukocytosis (WBC {inp.wbc} > 12.0)")
+        elif inp.wbc < 4.0:
+            sirs += 1
+            criteria.append(f"Leukopenia (WBC {inp.wbc} < 4.0)")
+
+    if inp.systolic_bp is not None and inp.systolic_bp <= 100:
+        qsofa += 1
+        criteria.append(f"Hypotension (SBP {inp.systolic_bp} ≤ 100)")
+
+    # Organ dysfunction markers (Sepsis-3)
+    organ_score = 0.0
+    if inp.creatinine is not None and inp.creatinine > 2.0:
+        organ_score += 0.15
+        criteria.append(f"Renal dysfunction (Creatinine {inp.creatinine} > 2.0)")
+    if inp.bilirubin is not None and inp.bilirubin > 2.0:
+        organ_score += 0.10
+        criteria.append(f"Hepatic dysfunction (Bilirubin {inp.bilirubin} > 2.0)")
+    if inp.platelets is not None and inp.platelets < 100:
+        organ_score += 0.15
+        criteria.append(f"Thrombocytopenia (Platelets {inp.platelets} < 100)")
+    if inp.lactate is not None and inp.lactate > 2.0:
+        organ_score += 0.20
+        criteria.append(f"Elevated lactate ({inp.lactate} > 2.0 mmol/L)")
+        if inp.lactate > 4.0:
+            organ_score += 0.10
+            criteria.append(f"Critical lactate ({inp.lactate} > 4.0 — septic shock)")
+    if inp.map_mmhg is not None and inp.map_mmhg < 65:
+        organ_score += 0.20
+        criteria.append(f"Low MAP ({inp.map_mmhg} < 65 mmHg — vasopressor territory)")
+    if inp.spo2 is not None and inp.spo2 < 94:
+        organ_score += 0.08
+        criteria.append(f"Hypoxia (SpO2 {inp.spo2}% < 94%)")
+
+    # Age adjustment
+    age_adj = 0.0
+    if inp.age is not None and inp.age > 65:
+        age_adj = 0.05
+
+    # Logistic: intercept anchored so 0 criteria ≈ 5% risk
+    logit = (
+        -2.9
+        + 0.55 * sirs
+        + 0.65 * qsofa
+        + organ_score * 4.0
+        + age_adj
+    )
+    proba = round(1.0 / (1.0 + math.exp(-logit)), 4)
+
+    if proba < 0.15:
+        risk = "low"
+    elif proba < 0.40:
+        risk = "moderate"
+    elif proba < 0.70:
+        risk = "high"
+    else:
+        risk = "critical"
+
+    return proba, risk, min(sirs, 4), qsofa, criteria
+
+
 @app.on_event("startup")
 def startup():
     _load_model()
@@ -745,4 +866,71 @@ def predict_pathogen(data: PathogenInput):
         predicted_pathogen=_PATHOGEN_CLASSES[int(probs.argmax())],
         confidence=round(float(probs.max()), 4),
         top3=top3,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Sepsis risk detection — SIRS + qSOFA + organ dysfunction (routine tests)
+# ---------------------------------------------------------------------------
+
+@app.post(
+    "/predict/sepsis",
+    response_model=SepsisOutput,
+    tags=["predict"],
+    summary="Sepsis risk — routine tests only (SIRS + qSOFA + organ dysfunction)",
+    description=(
+        "Estimates sepsis risk from **routine admission tests only** using a "
+        "logistic combination of:\n\n"
+        "- **SIRS** (Systemic Inflammatory Response Syndrome): temperature, HR, RR, WBC\n"
+        "- **qSOFA** (quick Sequential Organ Failure Assessment): RR ≥ 22, SBP ≤ 100\n"
+        "- **Organ dysfunction markers** (Sepsis-3): creatinine, bilirubin, platelets, lactate, MAP, SpO2\n\n"
+        "All fields are optional — supply whatever routine tests are available at admission.\n\n"
+        "**Risk groups:** low (<15%) · moderate (15–40%) · high (40–70%) · critical (>70%)\n\n"
+        "⚠️ RESEARCH USE ONLY — not validated for clinical decisions. "
+        "Sepsis requires clinical judgment, culture results, and physician assessment."
+    ),
+    openapi_extra={
+        "requestBody": {
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "septic_shock": {
+                            "summary": "Critical — septic shock pattern",
+                            "value": {
+                                "temperature_c": 39.5, "heart_rate": 118,
+                                "respiratory_rate": 26, "systolic_bp": 88,
+                                "wbc": 18.5, "lactate": 4.2, "creatinine": 2.4,
+                                "platelets": 80, "map_mmhg": 58, "spo2": 90, "age": 72,
+                            },
+                        },
+                        "sirs_without_organ_failure": {
+                            "summary": "High — SIRS criteria but no organ failure",
+                            "value": {
+                                "temperature_c": 38.8, "heart_rate": 102,
+                                "respiratory_rate": 22, "systolic_bp": 105,
+                                "wbc": 14.2, "age": 58,
+                            },
+                        },
+                        "low_risk": {
+                            "summary": "Low — near-normal vitals and labs",
+                            "value": {
+                                "temperature_c": 37.1, "heart_rate": 78,
+                                "respiratory_rate": 16, "systolic_bp": 122,
+                                "wbc": 8.5, "spo2": 98, "age": 40,
+                            },
+                        },
+                    }
+                }
+            }
+        }
+    },
+)
+def predict_sepsis(data: SepsisInput):
+    proba, risk, sirs_score, qsofa_score, criteria = _sepsis_score(data)
+    return SepsisOutput(
+        sepsis_risk_probability=proba,
+        risk_group=risk,
+        sirs_score=sirs_score,
+        qsofa_score=qsofa_score,
+        criteria_met=criteria,
     )
