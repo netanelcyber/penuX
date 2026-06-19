@@ -1,0 +1,43 @@
+name: Test Email Forwarding
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check DNS and send test email
+        run: |
+          echo "=== DNS Check ==="
+          dig MX penux.uk +short
+          dig TXT penux.uk +short | grep forward
+
+          echo ""
+          echo "=== Sending test email ==="
+          python3 << 'EOF'
+          import smtplib
+          from email.mime.text import MIMEText
+          from datetime import datetime
+
+          msg = MIMEText(f"Test email sent at {datetime.utcnow()} UTC via GitHub Actions → forwardemail.net → nsh531@gmail.com")
+          msg['Subject'] = f'PenuX Email Test - {datetime.utcnow().strftime("%H:%M UTC")}'
+          msg['From'] = 'netanel@penux.uk'
+          msg['To'] = 'netanel@penux.uk'
+
+          try:
+              with smtplib.SMTP('mx1.forwardemail.net', 25, timeout=15) as s:
+                  s.ehlo()
+                  s.sendmail('netanel@penux.uk', ['netanel@penux.uk'], msg.as_string())
+                  print("✅ Email sent to netanel@penux.uk — check nsh531@gmail.com")
+          except Exception as e:
+              print(f"Port 25 error: {e}")
+              try:
+                  with smtplib.SMTP('mx1.forwardemail.net', 587, timeout=15) as s:
+                      s.ehlo()
+                      s.starttls()
+                      s.sendmail('netanel@penux.uk', ['netanel@penux.uk'], msg.as_string())
+                      print("✅ Email sent via 587")
+              except Exception as e2:
+                  print(f"Port 587 error: {e2}")
+          EOF
