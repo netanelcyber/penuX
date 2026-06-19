@@ -1,0 +1,51 @@
+name: Setup Forward Email DNS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup-dns:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update DNS for forwardemail.net
+        env:
+          CF_TOKEN: ${{ secrets.CF_TOKEN }}
+        run: |
+          python3 << 'EOF'
+          import requests, os
+
+          TOKEN   = os.environ["CF_TOKEN"]
+          HEADERS = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
+          BASE    = "https://api.cloudflare.com/client/v4"
+          ZONE_ID = "24699ffac18738a5d05cb627e4bda597"
+
+          def add_or_skip(rec):
+              r = requests.post(f"{BASE}/zones/{ZONE_ID}/dns_records", headers=HEADERS, json=rec, timeout=15)
+              d = r.json()
+              if d.get("success"):
+                  x = d["result"]
+                  print(f"OK  {x['type']:5} {x['name']} -> {x['content']}")
+              else:
+                  errs = d.get("errors", [])
+                  if any("already exists" in str(e) for e in errs):
+                      print(f"SKIP {rec['type']} {rec['name']} already exists")
+                  else:
+                      print(f"FAIL {rec['type']}: {errs}")
+
+          # Remove old ImprovMX MX records first
+          r = requests.get(f"{BASE}/zones/{ZONE_ID}/dns_records?type=MX", headers=HEADERS, timeout=15)
+          for rec in r.json().get("result", []):
+              if "improvmx" in rec["content"]:
+                  rd = requests.delete(f"{BASE}/zones/{ZONE_ID}/dns_records/{rec['id']}", headers=HEADERS, timeout=15)
+                  print(f"DEL MX {rec['content']}: {rd.json().get('success')}")
+
+          # forwardemail.net MX records
+          add_or_skip({"type":"MX","name":"penux.uk","content":"mx1.forwardemail.net","priority":10,"ttl":1})
+          add_or_skip({"type":"MX","name":"penux.uk","content":"mx2.forwardemail.net","priority":20,"ttl":1})
+
+          # TXT record: forward netanel@penux.uk -> nsh531@gmail.com
+          add_or_skip({"type":"TXT","name":"penux.uk","content":"forward-email=netanel:nsh531@gmail.com","ttl":1})
+
+          print("\n✅ Done! netanel@penux.uk will forward to nsh531@gmail.com")
+          print("   No account needed — DNS-only forwarding via forwardemail.net")
+          EOF
