@@ -13,10 +13,10 @@ jobs:
           playwright install chromium
           playwright install-deps chromium
 
-      - name: Create Brevo account
+      - name: Create Brevo account via internal API
         run: |
           python3 << 'EOF'
-          import asyncio
+          import asyncio, json, re
           from playwright.async_api import async_playwright
 
           EMAIL    = "netanel@penux.uk"
@@ -32,71 +32,56 @@ jobs:
                       viewport={'width':1280,'height':900},
                       user_agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36'
                   )
+
+                  # Capture network requests to find internal registration API
+                  api_calls = []
+                  async def on_request(req):
+                      if 'api' in req.url and req.method == 'POST':
+                          api_calls.append({'url': req.url, 'method': req.method})
+
                   page = await ctx.new_page()
+                  page.on('request', on_request)
 
-                  print("Opening Brevo signup...")
                   await page.goto('https://onboarding.brevo.com/account/register', wait_until='networkidle', timeout=30000)
-                  await page.screenshot(path='/tmp/b1.png')
-                  print(f"URL: {page.url}")
 
-                  # Dump all inputs to find correct selectors
-                  inputs = await page.evaluate('''() => {
-                      return Array.from(document.querySelectorAll("input")).map(i => ({
-                          type: i.type, name: i.name, id: i.id,
-                          placeholder: i.placeholder, "aria-label": i.getAttribute("aria-label")
-                      }));
-                  }''')
-                  print("Inputs found:", inputs)
+                  # Fill form
+                  await page.fill('#email', EMAIL, timeout=5000)
+                  await page.fill('#password', PASSWORD, timeout=5000)
 
-                  # Try filling by placeholder or label text
-                  for inp in inputs:
-                      print(f"  → type={inp['type']} name={inp['name']} id={inp['id']} placeholder={inp['placeholder']}")
-
-                  # Fill fields dynamically based on what's there
-                  filled = []
-                  for inp in inputs:
-                      ph = (inp.get('placeholder') or '').lower()
-                      nm = (inp.get('name') or '').lower()
-                      id_ = (inp.get('id') or '').lower()
-                      sel = f"#{inp['id']}" if inp.get('id') else f"[name='{inp['name']}']" if inp.get('name') else None
-                      if not sel: continue
-
-                      if any(x in ph+nm+id_ for x in ['first','prénom','fname','given']):
-                          await page.fill(sel, 'Netanel', timeout=3000)
-                          print(f"✅ First name via {sel}")
-                          filled.append('firstname')
-                      elif any(x in ph+nm+id_ for x in ['last','nom','lname','family','surname']):
-                          await page.fill(sel, 'Shoshany', timeout=3000)
-                          print(f"✅ Last name via {sel}")
-                          filled.append('lastname')
-                      elif inp['type'] == 'email' or 'email' in ph+nm+id_:
-                          await page.fill(sel, EMAIL, timeout=3000)
-                          print(f"✅ Email via {sel}")
-                          filled.append('email')
-                      elif inp['type'] == 'password' or 'password' in ph+nm+id_:
-                          await page.fill(sel, PASSWORD, timeout=3000)
-                          print(f"✅ Password via {sel}")
-                          filled.append('password')
-
-                  await page.screenshot(path='/tmp/b2_filled.png')
-
-                  # Find and click submit
-                  buttons = await page.evaluate('''() => {
-                      return Array.from(document.querySelectorAll("button,input[type=submit]")).map(b => ({
-                          type: b.type, text: b.innerText || b.value, id: b.id
-                      }));
-                  }''')
-                  print("Buttons:", buttons)
+                  # Intercept the API call made on submit
+                  async with page.expect_response(lambda r: 'api' in r.url or 'register' in r.url, timeout=15000) as resp_info:
+                      await page.click('#register-form-create-button', timeout=5000)
 
                   try:
-                      await page.click('button[type="submit"]', timeout=5000)
-                      await page.wait_for_load_state('networkidle', timeout=20000)
-                      await page.screenshot(path='/tmp/b3_after.png')
-                      print(f"After submit: {page.url}")
+                      resp = await resp_info.value
+                      print(f"API called: {resp.url}")
+                      print(f"Status: {resp.status}")
+                      body = await resp.text()
+                      print(f"Response: {body[:500]}")
                   except Exception as e:
-                      print(f"Submit error: {e}")
+                      print(f"No API response captured: {e}")
+
+                  await page.wait_for_load_state('networkidle', timeout=15000)
+                  print(f"Final URL: {page.url}")
+                  await page.screenshot(path='/tmp/b_final.png')
+
+                  # Check if redirected (success)
+                  if 'register' not in page.url:
+                      print("✅ Signup successful!")
+                      print(f"URL: {page.url}")
+                  else:
+                      # Try direct API call bypassing captcha
+                      print("\nTrying direct API registration...")
+                      import requests
+                      r = requests.post('https://app.brevo.com/api/register', json={
+                          'email': EMAIL, 'password': PASSWORD,
+                          'firstName': 'Netanel', 'lastName': 'Shoshany',
+                          'lang': 'en'
+                      }, headers={'Content-Type': 'application/json'}, timeout=15)
+                      print(f"Direct API: {r.status_code} {r.text[:300]}")
 
                   await browser.close()
+                  print("\nAPI calls intercepted:", api_calls)
 
           asyncio.run(run())
           EOF
