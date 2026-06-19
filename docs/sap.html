@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SAP Severity — penuX</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #0d1b2a; color: #fff; font-family: Georgia, serif; min-height: 100vh; display: flex; flex-direction: column; }
+    nav { background-color: #1e3a5f; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 60px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); position: sticky; top: 0; z-index: 100; }
+    .nav-brand { font-size: 1.4rem; font-weight: bold; color: #00b4d8; letter-spacing: 0.05em; text-decoration: none; }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { color: #cce8f4; text-decoration: none; font-family: Arial, sans-serif; font-size: 0.95rem; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: #00b4d8; }
+    .nav-toggle { display: none; background: none; border: none; cursor: pointer; flex-direction: column; gap: 5px; }
+    .nav-toggle span { display: block; width: 24px; height: 2px; background: #cce8f4; }
+    .disclaimer-banner { background-color: #1a0a0a; border: 1px solid #8b1a1a; border-left: 4px solid #cc2200; color: #ffb3a7; text-align: center; padding: 0.75rem 2rem; font-family: Arial, sans-serif; font-size: 0.85rem; }
+    .disclaimer-banner strong { color: #ff6b6b; }
+    .page-hero { text-align: center; padding: 3.5rem 2rem 2.5rem; background: linear-gradient(180deg, #0d1b2a 0%, #0a2540 100%); }
+    .page-hero h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); color: #00b4d8; margin-bottom: 0.75rem; }
+    .page-hero p { font-size: 1rem; color: #a8d5e8; font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; line-height: 1.7; }
+    .hero-divider { width: 60px; height: 3px; background: #00b4d8; margin: 1.5rem auto 0; border-radius: 2px; }
+    main { flex: 1; padding: 3rem 2rem 4rem; max-width: 1000px; margin: 0 auto; width: 100%; }
+    section { margin-bottom: 3rem; }
+    h2 { font-size: 1.4rem; color: #00b4d8; margin-bottom: 1rem; font-family: Arial, sans-serif; letter-spacing: 0.03em; }
+    h3 { font-size: 1.1rem; color: #e8f4fc; margin-bottom: 0.6rem; font-family: Arial, sans-serif; }
+    p { font-family: Arial, sans-serif; font-size: 0.95rem; color: #8ab8d0; line-height: 1.8; margin-bottom: 0.75rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+    .info-card { background: #112236; border: 1px solid #1e3a5f; border-top: 3px solid #00b4d8; border-radius: 6px; padding: 1.5rem; }
+    .info-card h3 { color: #00b4d8; margin-bottom: 0.5rem; }
+    .severity-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 0.9rem; margin-top: 1rem; }
+    .severity-table th { background: #1e3a5f; color: #00b4d8; padding: 0.75rem 1rem; text-align: left; font-weight: bold; }
+    .severity-table td { padding: 0.7rem 1rem; border-bottom: 1px solid #1a3050; color: #c0d8ea; vertical-align: top; }
+    .severity-table tr:hover td { background: #112236; }
+    .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-family: Arial, sans-serif; font-weight: bold; letter-spacing: 0.05em; }
+    .badge-mild { background: #0a3d1f; color: #6fcf97; }
+    .badge-mod { background: #3d2e0a; color: #f2c94c; }
+    .badge-severe { background: #3d0a0a; color: #eb5757; }
+    .scores-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .score-pill { background: #112236; border: 1px solid #1e3a5f; border-radius: 6px; padding: 1rem; text-align: center; }
+    .score-pill .name { font-family: Arial, sans-serif; font-size: 0.85rem; color: #00b4d8; font-weight: bold; margin-bottom: 0.3rem; }
+    .score-pill .desc { font-family: Arial, sans-serif; font-size: 0.78rem; color: #6a9bbf; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+    .tag { background: #1e3a5f; color: #cce8f4; font-family: Arial, sans-serif; font-size: 0.78rem; padding: 0.25rem 0.6rem; border-radius: 3px; }
+    footer { background-color: #1e3a5f; text-align: center; padding: 1rem 2rem; font-family: Arial, sans-serif; font-size: 0.8rem; color: #6a9bbf; }
+    @media (max-width: 600px) {
+      .nav-links { display: none; flex-direction: column; gap: 1rem; position: absolute; top: 60px; left: 0; right: 0; background-color: #1e3a5f; padding: 1.5rem 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+      .nav-links.open { display: flex; }
+      .nav-toggle { display: flex; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">penuX</a>
+  <button class="nav-toggle" aria-label="Toggle navigation" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="sap.html" class="active">SAP</a></li>
+    <li><a href="model.html">Model</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+</nav>
+
+<div class="disclaimer-banner">
+  <strong>Research Use Only</strong> — Not validated for clinical decision-making. Do not use for diagnosis, treatment, or patient management.
+</div>
+
+<div class="page-hero">
+  <h1>Severe Acute Pancreatitis<br>Severity Prediction</h1>
+  <p>Early severity stratification from 24-hour admission data using the 2012 Revised Atlanta Classification</p>
+  <div class="hero-divider"></div>
+</div>
+
+<main>
+
+  <section>
+    <h2>Overview</h2>
+    <p>
+      PenuX-AP-Severity provides research-grade machine learning models for predicting progression
+      to Severe Acute Pancreatitis (SAP) using only data available within the first 24 hours of
+      hospital admission — before imaging and specialist review are typically available.
+    </p>
+    <p>
+      Three complementary prediction scenarios are evaluated, covering general sepsis risk,
+      pancreatic-specific sepsis risk, and a composite SAP severity heuristic.
+    </p>
+  </section>
+
+  <section>
+    <h2>2012 Revised Atlanta Classification</h2>
+    <table class="severity-table">
+      <thead>
+        <tr><th>Grade</th><th>Definition</th><th>Organ Failure</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-mild">MILD</span></td>
+          <td>No organ failure, no local or systemic complications</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-mod">MODERATELY SEVERE</span></td>
+          <td>Transient organ failure and/or local/systemic complications</td>
+          <td>&lt; 48 hours</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-severe">SEVERE</span></td>
+          <td>Persistent organ failure — primary outcome</td>
+          <td>&gt; 48 hours</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Prediction Scenarios</h2>
+    <div class="grid-3">
+      <div class="info-card">
+        <h3>General Sepsis Risk</h3>
+        <p>Predicts early-onset systemic infection risk using admission vitals, labs, and demographics.</p>
+        <div class="tag-row">
+          <span class="tag">Vitals</span><span class="tag">WBC</span><span class="tag">CRP</span><span class="tag">Temperature</span>
+        </div>
+      </div>
+      <div class="info-card">
+        <h3>Pancreatic Sepsis Risk</h3>
+        <p>Targets infected pancreatic necrosis and bacteremia specific to pancreatitis pathophysiology.</p>
+        <div class="tag-row">
+          <span class="tag">Lipase</span><span class="tag">Amylase</span><span class="tag">PCT</span><span class="tag">Lactate</span>
+        </div>
+      </div>
+      <div class="info-card">
+        <h3>SAP Severity Heuristic</h3>
+        <p>Composite model combining clinical scores and early biomarkers to predict persistent organ failure.</p>
+        <div class="tag-row">
+          <span class="tag">BISAP</span><span class="tag">APACHE II</span><span class="tag">Ranson</span><span class="tag">CTSI</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Clinical Score Benchmarks</h2>
+    <p>All models are evaluated against established validated scoring systems when the required fields are present:</p>
+    <div class="scores-grid">
+      <div class="score-pill">
+        <div class="name">BISAP</div>
+        <div class="desc">Bedside Index for Severity in Acute Pancreatitis — 5-item admission score</div>
+      </div>
+      <div class="score-pill">
+        <div class="name">APACHE II</div>
+        <div class="desc">Acute Physiology and Chronic Health Evaluation — 12 physiologic variables</div>
+      </div>
+      <div class="score-pill">
+        <div class="name">Ranson Criteria</div>
+        <div class="desc">11-point scoring at admission and 48 h for severity prediction</div>
+      </div>
+      <div class="score-pill">
+        <div class="name">Modified CTSI</div>
+        <div class="desc">CT-based morphologic severity index for local complications</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Input Window &amp; Features</h2>
+    <p>All models use only data collectible within the <strong style="color:#e8f4fc">first 24 hours</strong> of admission:</p>
+    <div class="tag-row">
+      <span class="tag">Age / Sex</span><span class="tag">Heart Rate</span><span class="tag">Blood Pressure</span>
+      <span class="tag">Temperature</span><span class="tag">SpO&#8322;</span><span class="tag">WBC</span>
+      <span class="tag">Creatinine</span><span class="tag">BUN</span><span class="tag">Hematocrit</span>
+      <span class="tag">Glucose</span><span class="tag">Calcium</span><span class="tag">LDH</span>
+      <span class="tag">CRP</span><span class="tag">Lipase</span><span class="tag">Amylase</span><span class="tag">Etiology</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>GitHub Repository</h2>
+    <p>
+      Source code, data schema, and evaluation scripts:&nbsp;
+      <a href="https://github.com/netanelcyber/PenuX-AP-Severity" style="color:#00b4d8;">github.com/netanelcyber/PenuX-AP-Severity</a>
+    </p>
+    <p style="font-size:0.85rem; color:#6a9bbf;">
+      No patient dataset is bundled. A legally obtained, de-identified dataset must be placed in
+      <code style="color:#cce8f4;">data/public_sanitized/</code> before running training.
+      Local IRB/Helsinki approval is required.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  penuX &copy; 2025 &middot; Research use only &middot; Not for clinical decisions
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>penuX — Clinical AI Research Platform</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: #0d1b2a;
+      color: #ffffff;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* NAV */
+    nav {
+      background-color: #1e3a5f;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-brand {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #00b4d8;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: #cce8f4;
+      text-decoration: none;
+      font-family: 'Arial', sans-serif;
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active {
+      color: #00b4d8;
+    }
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: #cce8f4;
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 5rem 2rem 4rem;
+      background: linear-gradient(180deg, #0d1b2a 0%, #0a2540 100%);
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      color: #00b4d8;
+      letter-spacing: 0.04em;
+      margin-bottom: 1rem;
+    }
+    .hero p {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: #a8d5e8;
+      max-width: 700px;
+      margin: 0 auto 2rem;
+      line-height: 1.7;
+      font-family: 'Arial', sans-serif;
+    }
+    .hero-divider {
+      width: 80px;
+      height: 3px;
+      background: #00b4d8;
+      margin: 0 auto 3rem;
+      border-radius: 2px;
+    }
+
+    /* DISCLAIMER BANNER */
+    .disclaimer-banner {
+      background-color: #1a0a0a;
+      border: 1px solid #8b1a1a;
+      border-left: 4px solid #cc2200;
+      color: #ffb3a7;
+      text-align: center;
+      padding: 0.75rem 2rem;
+      font-family: 'Arial', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.02em;
+    }
+    .disclaimer-banner strong {
+      color: #ff6b6b;
+    }
+
+    /* CARDS */
+    main {
+      flex: 1;
+      padding: 3rem 2rem 4rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .section-heading {
+      font-size: 1.2rem;
+      color: #00b4d8;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 2rem;
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    .card {
+      background-color: #112236;
+      border: 1px solid #1e3a5f;
+      border-top: 3px solid #00b4d8;
+      border-radius: 6px;
+      padding: 2rem;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 180, 216, 0.15);
+    }
+    .card-tag {
+      font-family: 'Arial', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #00b4d8;
+      font-weight: bold;
+    }
+    .card h2 {
+      font-size: 1.3rem;
+      color: #e8f4fc;
+      line-height: 1.3;
+    }
+    .card p {
+      font-family: 'Arial', sans-serif;
+      font-size: 0.92rem;
+      color: #8ab8d0;
+      line-height: 1.6;
+      flex: 1;
+    }
+    .card-link {
+      font-family: 'Arial', sans-serif;
+      font-size: 0.88rem;
+      color: #00b4d8;
+      font-weight: bold;
+      letter-spacing: 0.03em;
+    }
+
+    /* INTRO TEXT */
+    .intro-block {
+      max-width: 800px;
+      margin: 0 auto 3rem;
+      text-align: center;
+      font-family: 'Arial', sans-serif;
+      font-size: 0.97rem;
+      color: #8ab8d0;
+      line-height: 1.8;
+    }
+
+    /* FOOTER */
+    footer {
+      background-color: #1e3a5f;
+      text-align: center;
+      padding: 1rem 2rem;
+      font-family: 'Arial', sans-serif;
+      font-size: 0.8rem;
+      color: #6a9bbf;
+      letter-spacing: 0.03em;
+    }
+
+    @media (max-width: 600px) {
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        gap: 1rem;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background-color: #1e3a5f;
+        padding: 1.5rem 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      }
+      .nav-links.open { display: flex; }
+      .nav-toggle { display: flex; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">penuX</a>
+  <button class="nav-toggle" aria-label="Toggle navigation" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Home</a></li>
+    <li><a href="model.html">Model</a></li>
+    <li><a href="sap.html">SAP</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+</nav>
+
+<div class="disclaimer-banner">
+  <strong>Research Use Only</strong> — Not validated for clinical decision-making. Do not use for diagnosis, treatment, or patient management.
+</div>
+
+<section class="hero">
+  <h1>penuX &mdash; Clinical AI Research Platform</h1>
+  <p>Open-source ML pipelines for ICU pathogen prediction and pancreatitis severity scoring</p>
+  <div class="hero-divider"></div>
+</section>
+
+<main>
+  <p class="intro-block">
+    penuX provides reproducible machine learning pipelines trained on critical-care datasets.
+    The platform targets two high-impact clinical domains: ICU pathogen class prediction using
+    MIMIC-III/IV data, and early severity stratification for severe acute pancreatitis.
+    All models are intended for academic research and benchmarking only.
+  </p>
+
+  <p class="section-heading">Research Modules</p>
+
+  <div class="cards">
+    <a class="card" href="sap.html">
+      <span class="card-tag">Acute Pancreatitis &middot; Atlanta 2012</span>
+      <h2>SAP Severity Prediction</h2>
+      <p>
+        Early severity scoring for severe acute pancreatitis from 24-hour admission data.
+        Benchmarked against established clinical scores: BISAP, APACHE II, Ranson, and
+        Modified CTSI.
+      </p>
+      <span class="card-link">Explore SAP module &rarr;</span>
+    </a>
+
+    <a class="card" href="model.html">
+      <span class="card-tag">MIMIC-III / IV &middot; PyTorch</span>
+      <h2>Pathogen Class Prediction</h2>
+      <p>
+        A hybrid deep-learning pipeline that classifies ICU culture results into 12 pathogen
+        categories using combined text, vital-sign, and medication features extracted from
+        MIMIC-III and MIMIC-IV.
+      </p>
+      <span class="card-link">Explore model &rarr;</span>
+    </a>
+  </div>
+</main>
+
+<footer>
+  penuX &copy; 2025 &middot; Research use only &middot; Not for clinical decisions
+</footer>
+
+</body>
+</html>

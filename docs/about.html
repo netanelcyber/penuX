@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>penuX — About</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: #0d1b2a;
+      color: #ffffff;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    nav {
+      background-color: #1e3a5f;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-brand {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #00b4d8;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: #cce8f4;
+      text-decoration: none;
+      font-family: 'Arial', sans-serif;
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: #00b4d8; }
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .nav-toggle span { display: block; width: 24px; height: 2px; background: #cce8f4; }
+
+    /* PAGE HEADER */
+    .page-header {
+      background: linear-gradient(180deg, #0a2540 0%, #0d1b2a 100%);
+      padding: 3.5rem 2rem 2.5rem;
+      text-align: center;
+      border-bottom: 1px solid #1e3a5f;
+    }
+    .page-header .breadcrumb {
+      font-family: 'Arial', sans-serif;
+      font-size: 0.8rem;
+      color: #4a8fa8;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      color: #00b4d8;
+      margin-bottom: 0.75rem;
+    }
+    .page-header p {
+      font-family: 'Arial', sans-serif;
+      font-size: 1rem;
+      color: #8ab8d0;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* MAIN */
+    main {
+      flex: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 2rem 4rem;
+      width: 100%;
+    }
+
+    .section { margin-bottom: 3rem; }
+    .section-title {
+      font-size: 1.15rem;
+      color: #00b4d8;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-family: 'Arial', sans-serif;
+      border-bottom: 1px solid #1e3a5f;
+      padding-bottom: 0.6rem;
+      margin-bottom: 1.5rem;
+    }
+    .section p {
+      font-family: 'Arial', sans-serif;
+      font-size: 0.95rem;
+      color: #a8c8dc;
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+    .section p:last-child { margin-bottom: 0; }
+
+    /* AUTHOR CARD */
+    .author-card {
+      background-color: #112236;
+      border: 1px solid #1e3a5f;
+      border-top: 3px solid #00b4d8;
+      border-radius: 6px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .author-name {
+      font-size: 1.5rem;
+      color: #e8f4fc;
+      letter-spacing: 0.03em;
+    }
+    .author-role {
+      font-family: 'Arial', sans-serif;
+      font-size: 0.88rem;
+      color: #00b4d8;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .author-contact {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .contact-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: 'Arial', sans-serif;
+      font-size: 0.9rem;
+    }
+    .contact-label {
+      color: #4a8fa8;
+      min-width: 60px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .contact-row a {
+      color: #00b4d8;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .contact-row a:hover { color: #48cae4; text-decoration: underline; }
+    .contact-row span { color: #a8c8dc; }
+
+    /* GITHUB REPOS */
+    .repo-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .repo-card {
+      background-color: #112236;
+      border: 1px solid #1e3a5f;
+      border-radius: 4px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      text-decoration: none;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    .repo-card:hover {
+      border-color: #00b4d8;
+      background-color: #0e2840;
+    }
+    .repo-card-top {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .repo-card-top svg {
+      width: 18px;
+      height: 18px;
+      fill: #00b4d8;
+      flex-shrink: 0;
+    }
+    .repo-name {
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      color: #00b4d8;
+    }
+    .repo-desc {
+      font-family: 'Arial', sans-serif;
+      font-size: 0.85rem;
+      color: #7aabb8;
+      line-height: 1.5;
+      padding-left: 1.65rem;
+    }
+
+    /* ETHICS */
+    .ethics-box {
+      background-color: #112236;
+      border: 1px solid #1e3a5f;
+      border-left: 3px solid #00b4d8;
+      border-radius: 4px;
+      padding: 1.5rem;
+    }
+    .ethics-box p {
+      margin-bottom: 0.9rem;
+    }
+    .ethics-box p:last-child { margin-bottom: 0; }
+
+    /* ACKNOWLEDGMENT */
+    .ack-box {
+      background-color: #0c1f32;
+      border: 1px solid #1e3a5f;
+      border-radius: 4px;
+      padding: 1.5rem;
+    }
+    .ack-box p {
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+    }
+    .ack-box p:last-child { margin-bottom: 0; }
+    .ack-citation {
+      background-color: #112236;
+      border-left: 3px solid #1e3a5f;
+      padding: 0.75rem 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      color: #6a9bbf;
+      line-height: 1.6;
+      border-radius: 0 3px 3px 0;
+      margin-top: 0.75rem;
+    }
+
+    footer {
+      background-color: #1e3a5f;
+      text-align: center;
+      padding: 1rem 2rem;
+      font-family: 'Arial', sans-serif;
+      font-size: 0.8rem;
+      color: #6a9bbf;
+      letter-spacing: 0.03em;
+    }
+
+    @media (max-width: 600px) {
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        gap: 1rem;
+        position: absolute;
+        top: 60px; left: 0; right: 0;
+        background-color: #1e3a5f;
+        padding: 1.5rem 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      }
+      .nav-links.open { display: flex; }
+      .nav-toggle { display: flex; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">penuX</a>
+  <button class="nav-toggle" aria-label="Toggle navigation" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><a href="index.html">SAP</a></li>
+    <li><a href="model.html">penuX Model</a></li>
+    <li><a href="about.html" class="active">About</a></li>
+  </ul>
+</nav>
+
+<div class="page-header">
+  <p class="breadcrumb">penuX &rsaquo; About</p>
+  <h1>About penuX</h1>
+  <p>Open-source clinical AI research — data, methods, and ethics</p>
+</div>
+
+<main>
+
+  <div class="section">
+    <h2 class="section-title">Author</h2>
+    <div class="author-card">
+      <div>
+        <p class="author-role">Principal Investigator &amp; Developer</p>
+        <h2 class="author-name">Netanel Shoshany</h2>
+      </div>
+      <div class="author-contact">
+        <div class="contact-row">
+          <span class="contact-label">Email</span>
+          <a href="mailto:netanel@penux.uk">netanel@penux.uk</a>
+        </div>
+        <div class="contact-row">
+          <span class="contact-label">GitHub</span>
+          <a href="https://github.com/netanelcyber" target="_blank" rel="noopener noreferrer">github.com/netanelcyber</a>
+        </div>
+        <div class="contact-row">
+          <span class="contact-label">Project</span>
+          <span>penuX — Clinical AI Research Platform</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Repositories</h2>
+    <div class="repo-list">
+      <a class="repo-card" href="https://github.com/netanelcyber/penuX" target="_blank" rel="noopener noreferrer">
+        <div class="repo-card-top">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303
+              3.438 9.8 8.205 11.385.6.113.82-.258.82-.577
+              0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422
+              18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729
+              1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305
+              3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93
+              0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176
+              0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405
+              1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23
+              3.285-1.23.645 1.653.24 2.873.12 3.176.765.84
+              1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475
+              5.92.42.36.81 1.096.81 2.22 0 1.606-.015
+              2.896-.015 3.286 0 .315.21.69.825.57C20.565
+              22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+          </svg>
+          <span class="repo-name">netanelcyber/penuX</span>
+        </div>
+        <p class="repo-desc">
+          Pathogen class prediction pipeline — MIMIC-III/IV hybrid model using PyTorch.
+          Classifies ICU microbiology culture results into 12 pathogen classes from
+          multimodal clinical features.
+        </p>
+      </a>
+
+      <a class="repo-card" href="https://github.com/netanelcyber/PenuX-AP-Severity" target="_blank" rel="noopener noreferrer">
+        <div class="repo-card-top">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303
+              3.438 9.8 8.205 11.385.6.113.82-.258.82-.577
+              0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422
+              18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729
+              1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305
+              3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93
+              0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176
+              0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405
+              1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23
+              3.285-1.23.645 1.653.24 2.873.12 3.176.765.84
+              1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475
+              5.92.42.36.81 1.096.81 2.22 0 1.606-.015
+              2.896-.015 3.286 0 .315.21.69.825.57C20.565
+              22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+          </svg>
+          <span class="repo-name">netanelcyber/PenuX-AP-Severity</span>
+        </div>
+        <p class="repo-desc">
+          Severe acute pancreatitis severity prediction pipeline. Three models (general sepsis risk,
+          pancreatic sepsis risk, SAP heuristic) benchmarked against BISAP, APACHE II, Ranson, and
+          Modified CTSI. Based on the 2012 Revised Atlanta Classification.
+        </p>
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Research Ethics Statement</h2>
+    <div class="ethics-box">
+      <p>
+        penuX is a research project developed in accordance with the principles of responsible
+        AI research in healthcare. All work uses de-identified, publicly available datasets accessed
+        through credentialed channels. No individual patient data is released, stored, or transmitted
+        outside the scope of the original data use agreements.
+      </p>
+      <p>
+        The models produced by penuX are experimental in nature. They have not undergone prospective
+        clinical validation, regulatory review, or independent external evaluation. They are shared
+        openly to enable reproducibility, peer scrutiny, and further academic research — not for
+        deployment in clinical workflows.
+      </p>
+      <p>
+        Any researcher using penuX code or data pipelines is responsible for complying with applicable
+        data use agreements, institutional review board (IRB) requirements, and local regulations
+        governing the use of health data and AI research tools. The author assumes no liability for
+        misuse of the provided research artefacts.
+      </p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Data Acknowledgment</h2>
+    <div class="ack-box">
+      <p>
+        The MIMIC-III and MIMIC-IV databases are produced and maintained by the MIT Laboratory for
+        Computational Physiology and made available through
+        <a href="https://physionet.org" target="_blank" rel="noopener noreferrer" style="color:#00b4d8;text-decoration:none;">PhysioNet</a>.
+        Access requires completion of a recognized human subjects training course and acceptance of
+        the PhysioNet Credentialed Health Data Use Agreement.
+      </p>
+      <p>
+        If you use MIMIC data in your own research, please cite the original publications:
+      </p>
+      <div class="ack-citation">
+        Johnson, A.E.W., et al. (2016). MIMIC-III, a freely accessible critical care database.
+        Scientific Data, 3, 160035. https://doi.org/10.1038/sdata.2016.35
+        <br /><br />
+        Johnson, A., et al. (2023). MIMIC-IV, a freely accessible electronic health record dataset.
+        Scientific Data, 10, 1. https://doi.org/10.1038/s41597-022-01899-x
+        <br /><br />
+        Goldberger, A.L., et al. (2000). PhysioBank, PhysioToolkit, and PhysioNet: Components of a
+        new research resource for complex physiologic signals. Circulation, 101(23), e215–e220.
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  penuX &copy; 2025 &middot; Research use only &middot; Not for clinical decisions
+</footer>
+
+</body>
+</html>

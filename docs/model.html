@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>penuX — Pathogen Class Prediction</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: #0d1b2a;
+      color: #ffffff;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    nav {
+      background-color: #1e3a5f;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-brand {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #00b4d8;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: #cce8f4;
+      text-decoration: none;
+      font-family: 'Arial', sans-serif;
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: #00b4d8; }
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .nav-toggle span { display: block; width: 24px; height: 2px; background: #cce8f4; }
+
+    /* PAGE HEADER */
+    .page-header {
+      background: linear-gradient(180deg, #0a2540 0%, #0d1b2a 100%);
+      padding: 3.5rem 2rem 2.5rem;
+      text-align: center;
+      border-bottom: 1px solid #1e3a5f;
+    }
+    .page-header .breadcrumb {
+      font-family: 'Arial', sans-serif;
+      font-size: 0.8rem;
+      color: #4a8fa8;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      color: #00b4d8;
+      margin-bottom: 0.75rem;
+    }
+    .page-header p {
+      font-family: 'Arial', sans-serif;
+      font-size: 1rem;
+      color: #8ab8d0;
+      max-width: 680px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* MAIN */
+    main {
+      flex: 1;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 3rem 2rem 4rem;
+      width: 100%;
+    }
+
+    /* SECTIONS */
+    .section {
+      margin-bottom: 3rem;
+    }
+    .section-title {
+      font-size: 1.15rem;
+      color: #00b4d8;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-family: 'Arial', sans-serif;
+      border-bottom: 1px solid #1e3a5f;
+      padding-bottom: 0.6rem;
+      margin-bottom: 1.5rem;
+    }
+    .section p {
+      font-family: 'Arial', sans-serif;
+      font-size: 0.95rem;
+      color: #a8c8dc;
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    /* PIPELINE DESCRIPTION */
+    .pipeline-box {
+      background-color: #112236;
+      border: 1px solid #1e3a5f;
+      border-left: 3px solid #00b4d8;
+      border-radius: 4px;
+      padding: 1.5rem;
+      margin-top: 1rem;
+    }
+    .pipeline-box p {
+      margin-bottom: 0.75rem;
+    }
+    .pipeline-box p:last-child { margin-bottom: 0; }
+
+    /* PATHOGEN LIST */
+    .pathogen-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0.6rem;
+    }
+    .pathogen-item {
+      background-color: #112236;
+      border: 1px solid #1e3a5f;
+      border-radius: 4px;
+      padding: 0.65rem 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      color: #cce8f4;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .pathogen-item::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #00b4d8;
+      flex-shrink: 0;
+    }
+    .pathogen-item.viral { border-color: #2a5f3a; }
+    .pathogen-item.viral::before { background-color: #4caf80; }
+
+    /* ARCHITECTURE */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .arch-card {
+      background-color: #112236;
+      border: 1px solid #1e3a5f;
+      border-top: 2px solid #00b4d8;
+      border-radius: 4px;
+      padding: 1.2rem;
+    }
+    .arch-card h3 {
+      font-size: 0.9rem;
+      color: #00b4d8;
+      font-family: 'Arial', sans-serif;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .arch-card p {
+      font-family: 'Arial', sans-serif;
+      font-size: 0.85rem;
+      color: #7aabb8;
+      line-height: 1.6;
+      margin-bottom: 0;
+    }
+
+    /* METRICS */
+    .metrics-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Arial', sans-serif;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+    }
+    .metrics-table th {
+      background-color: #1e3a5f;
+      color: #00b4d8;
+      text-align: left;
+      padding: 0.75rem 1rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .metrics-table td {
+      padding: 0.7rem 1rem;
+      color: #a8c8dc;
+      border-bottom: 1px solid #152b42;
+    }
+    .metrics-table tr:last-child td { border-bottom: none; }
+    .metrics-table tr:hover td { background-color: #112236; }
+    .metric-badge {
+      display: inline-block;
+      background-color: #0a2540;
+      border: 1px solid #00b4d8;
+      border-radius: 3px;
+      padding: 0.1rem 0.5rem;
+      font-size: 0.78rem;
+      color: #00b4d8;
+    }
+
+    /* GITHUB LINK */
+    .github-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: #112236;
+      border: 1px solid #1e3a5f;
+      border-radius: 4px;
+      padding: 0.75rem 1.5rem;
+      color: #00b4d8;
+      text-decoration: none;
+      font-family: 'Arial', sans-serif;
+      font-size: 0.9rem;
+      font-weight: bold;
+      transition: background-color 0.2s, border-color 0.2s;
+      margin-top: 1rem;
+    }
+    .github-link:hover {
+      background-color: #1e3a5f;
+      border-color: #00b4d8;
+    }
+    .github-link svg {
+      width: 18px;
+      height: 18px;
+      fill: #00b4d8;
+    }
+
+    footer {
+      background-color: #1e3a5f;
+      text-align: center;
+      padding: 1rem 2rem;
+      font-family: 'Arial', sans-serif;
+      font-size: 0.8rem;
+      color: #6a9bbf;
+      letter-spacing: 0.03em;
+    }
+
+    @media (max-width: 600px) {
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        gap: 1rem;
+        position: absolute;
+        top: 60px; left: 0; right: 0;
+        background-color: #1e3a5f;
+        padding: 1.5rem 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      }
+      .nav-links.open { display: flex; }
+      .nav-toggle { display: flex; }
+      .metrics-table th, .metrics-table td { padding: 0.5rem 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">penuX</a>
+  <button class="nav-toggle" aria-label="Toggle navigation" onclick="this.nextElementSibling.classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><a href="index.html">SAP</a></li>
+    <li><a href="model.html" class="active">penuX Model</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+</nav>
+
+<div class="page-header">
+  <p class="breadcrumb">penuX &rsaquo; Model</p>
+  <h1>Pathogen Class Prediction (MIMIC)</h1>
+  <p>Hybrid deep-learning pipeline for ICU microbiology culture classification using MIMIC-III/IV critical-care data</p>
+</div>
+
+<main>
+
+  <div class="section">
+    <h2 class="section-title">Pipeline Overview</h2>
+    <div class="pipeline-box">
+      <p>
+        The penuX pathogen prediction pipeline is trained on MIMIC-III and MIMIC-IV, two of the largest
+        publicly available critical-care databases. Records are linked across admissions, microbiology
+        events, medication orders, and nursing charted vital signs to construct a multimodal feature set
+        for each culture event.
+      </p>
+      <p>
+        Positive culture results are mapped to one of 12 clinically meaningful pathogen classes,
+        enabling the model to predict the likely organism class from admission-time features before
+        culture results are available. The target application is hypothesis generation and triage
+        support in research settings.
+      </p>
+      <p>
+        <strong style="color:#cce8f4;">Data sources:</strong> MIMIC-III v1.4 and MIMIC-IV v2.x
+        (PhysioNet). Access requires credentialed training and data use agreement.
+      </p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Pathogen Class Taxonomy (12 Classes)</h2>
+    <div class="pathogen-grid">
+      <div class="pathogen-item">B:PSEUDOMONAS AERUGINOSA</div>
+      <div class="pathogen-item">B:STAPH AUREUS COAG +</div>
+      <div class="pathogen-item">B:SERRATIA MARCESCENS</div>
+      <div class="pathogen-item">B:MORGANELLA MORGANII</div>
+      <div class="pathogen-item">B:ESCHERICHIA COLI</div>
+      <div class="pathogen-item">B:PROTEUS MIRABILIS</div>
+      <div class="pathogen-item">B:PROVIDENCIA STUARTII</div>
+      <div class="pathogen-item">B:POSITIVE FOR METHICILLIN RESISTANT STAPH AUREUS</div>
+      <div class="pathogen-item">B:YEAST</div>
+      <div class="pathogen-item">B:GRAM POSITIVE COCCUS(COCCI)</div>
+      <div class="pathogen-item">B:OTHER</div>
+      <div class="pathogen-item viral">V:OTHER</div>
+    </div>
+    <p style="font-family:Arial,sans-serif;font-size:0.8rem;color:#4a8fa8;margin-top:0.75rem;">
+      Prefix B: bacterial &mdash; Prefix V: viral &middot; Classes derived from MIMIC microbiology event labels
+    </p>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Model Architecture</h2>
+    <p>
+      The model is implemented in PyTorch and uses a hybrid fusion strategy that combines three
+      independent feature streams before a joint classification head.
+    </p>
+    <div class="arch-grid">
+      <div class="arch-card">
+        <h3>Text Features</h3>
+        <p>Clinical note embeddings and discharge summary snippets encoded via a lightweight
+        transformer encoder. Captures physician-recorded infection indicators.</p>
+      </div>
+      <div class="arch-card">
+        <h3>Vital Signs</h3>
+        <p>Time-series of charted vitals (temperature, HR, BP, SpO&#8322;, RR, GCS) aggregated
+        over the first 24&ndash;48 hours of ICU admission.</p>
+      </div>
+      <div class="arch-card">
+        <h3>Medication Features</h3>
+        <p>Antibiotic and antimicrobial orders encoded as a binary feature vector, reflecting
+        empiric therapy choices made prior to culture reporting.</p>
+      </div>
+      <div class="arch-card">
+        <h3>Fusion &amp; Head</h3>
+        <p>Feature streams are concatenated and passed through a fully-connected classification
+        head with dropout regularization and softmax output over 12 classes.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Evaluation Metrics</h2>
+    <p>
+      The model is evaluated on a held-out test split stratified by admission. The following
+      metrics are reported across all 12 pathogen classes:
+    </p>
+    <table class="metrics-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Description</th>
+          <th>Scope</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="metric-badge">Accuracy</span></td>
+          <td>Overall correct classification rate across all 12 classes</td>
+          <td>Macro / weighted</td>
+        </tr>
+        <tr>
+          <td><span class="metric-badge">F1 Score</span></td>
+          <td>Harmonic mean of precision and recall; weighted for class imbalance</td>
+          <td>Per-class &amp; macro</td>
+        </tr>
+        <tr>
+          <td><span class="metric-badge">ROC-AUC</span></td>
+          <td>Area under receiver operating characteristic curve (one-vs-rest)</td>
+          <td>Per-class &amp; macro</td>
+        </tr>
+        <tr>
+          <td><span class="metric-badge">ECE</span></td>
+          <td>Expected Calibration Error — reliability of predicted probabilities</td>
+          <td>Global</td>
+        </tr>
+        <tr>
+          <td><span class="metric-badge">Brier Score</span></td>
+          <td>Mean squared error of probabilistic predictions; lower is better</td>
+          <td>Per-class &amp; macro</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Source Code</h2>
+    <p>The full pipeline, including data preprocessing, training scripts, and evaluation notebooks,
+    is available on GitHub under an open-source licence.</p>
+    <a class="github-link" href="https://github.com/netanelcyber/penuX" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303
+          3.438 9.8 8.205 11.385.6.113.82-.258.82-.577
+          0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422
+          18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729
+          1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305
+          3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93
+          0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176
+          0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405
+          1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23
+          3.285-1.23.645 1.653.24 2.873.12 3.176.765.84
+          1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475
+          5.92.42.36.81 1.096.81 2.22 0 1.606-.015
+          2.896-.015 3.286 0 .315.21.69.825.57C20.565
+          22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+      </svg>
+      github.com/netanelcyber/penuX
+    </a>
+  </div>
+
+</main>
+
+<footer>
+  penuX &copy; 2025 &middot; Research use only &middot; Not for clinical decisions
+</footer>
+
+</body>
+</html>
