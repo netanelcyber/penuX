@@ -1,0 +1,121 @@
+name: Setup Brevo SMTP for netanel@penux.uk
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Playwright
+        run: |
+          pip install playwright -q
+          playwright install chromium
+          playwright install-deps chromium
+
+      - name: Create Brevo account and get SMTP credentials
+        env:
+          CF_TOKEN: ${{ secrets.CF_TOKEN }}
+        run: |
+          python3 << 'EOF'
+          import asyncio, os, requests, json, re, time
+          from playwright.async_api import async_playwright
+
+          CF_TOKEN = os.environ["CF_TOKEN"]
+          ZONE_ID  = "24699ffac18738a5d05cb627e4bda597"
+          CF_HDRS  = {"Authorization": f"Bearer {CF_TOKEN}", "Content-Type": "application/json"}
+          CF_BASE  = "https://api.cloudflare.com/client/v4"
+
+          EMAIL    = "netanel@penux.uk"
+          PASSWORD = "PenuX2026!Brevo"
+          FNAME    = "Netanel"
+          LNAME    = "Shoshany"
+
+          async def run():
+              async with async_playwright() as p:
+                  browser = await p.chromium.launch(
+                      headless=True,
+                      args=['--no-sandbox','--disable-dev-shm-usage','--disable-gpu']
+                  )
+                  ctx = await browser.new_context(
+                      viewport={'width':1280,'height':900},
+                      user_agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36'
+                  )
+                  page = await ctx.new_page()
+
+                  # ── 1. Sign up ────────────────────────────────────────────
+                  print("Step 1: Opening Brevo signup...")
+                  await page.goto('https://app.brevo.com/account/register', wait_until='networkidle', timeout=30000)
+                  await page.screenshot(path='/tmp/brevo_1.png')
+                  print(f"URL: {page.url}")
+
+                  try:
+                      await page.fill('input[name="firstname"], #firstname, input[placeholder*="first"]', FNAME, timeout=5000)
+                      print("✅ First name")
+                  except Exception as e: print(f"firstname: {e}")
+
+                  try:
+                      await page.fill('input[name="lastname"], #lastname, input[placeholder*="last"]', LNAME, timeout=5000)
+                      print("✅ Last name")
+                  except Exception as e: print(f"lastname: {e}")
+
+                  try:
+                      await page.fill('input[type="email"], input[name="email"], #email', EMAIL, timeout=5000)
+                      print("✅ Email")
+                  except Exception as e: print(f"email: {e}")
+
+                  try:
+                      await page.fill('input[type="password"], input[name="password"], #password', PASSWORD, timeout=5000)
+                      print("✅ Password")
+                  except Exception as e: print(f"password: {e}")
+
+                  await page.screenshot(path='/tmp/brevo_2_filled.png')
+
+                  try:
+                      await page.click('button[type="submit"], input[type="submit"], button:has-text("Create")', timeout=5000)
+                      await page.wait_for_load_state('networkidle', timeout=20000)
+                      await page.screenshot(path='/tmp/brevo_3_after_signup.png')
+                      print(f"After signup: {page.url}")
+                  except Exception as e:
+                      print(f"Submit: {e}")
+                      await page.screenshot(path='/tmp/brevo_3_error.png')
+
+                  # ── 2. Get SMTP credentials ───────────────────────────────
+                  print("\nStep 2: Getting SMTP credentials...")
+                  await page.goto('https://app.brevo.com/settings/keys/smtp', wait_until='networkidle', timeout=30000)
+                  await page.screenshot(path='/tmp/brevo_4_smtp.png')
+                  print(f"SMTP page: {page.url}")
+
+                  # Look for SMTP key or generate one
+                  try:
+                      btn = page.locator('button:has-text("Generate"), button:has-text("Create"), button:has-text("New")')
+                      if await btn.count() > 0:
+                          await btn.first.click(timeout=5000)
+                          await page.wait_for_load_state('networkidle', timeout=10000)
+                          await page.screenshot(path='/tmp/brevo_5_key.png')
+                  except: pass
+
+                  # Extract SMTP key from page
+                  content = await page.content()
+                  smtp_keys = re.findall(r'xkeysib-[a-zA-Z0-9\-_]{60,}', content)
+                  if smtp_keys:
+                      print(f"\n✅ SMTP KEY: {smtp_keys[0]}")
+                      print(f"   Host: smtp-relay.brevo.com")
+                      print(f"   Port: 587")
+                      print(f"   Login: {EMAIL}")
+                      print(f"   Password: <SMTP key above>")
+                  else:
+                      print("SMTP key not found yet — account may need email verification")
+                      print(f"Content snippet: {content[2000:3000]}")
+
+                  await browser.close()
+
+          asyncio.run(run())
+          EOF
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: brevo-screenshots
+          path: /tmp/brevo_*.png
