@@ -1,4 +1,4 @@
-name: Setup Resend SMTP for netanel@penux.uk
+name: Setup SMTP for netanel@penux.uk
 
 on:
   workflow_dispatch:
@@ -7,154 +7,82 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Playwright
-        run: |
-          pip install playwright -q
-          playwright install chromium
-          playwright install-deps chromium
-
-      - name: Create Resend account and add domain
+      - name: Try multiple SMTP providers via API
         env:
           CF_TOKEN: ${{ secrets.CF_TOKEN }}
         run: |
           python3 << 'EOF'
-          import asyncio, os, requests, json, re, time
-          from playwright.async_api import async_playwright
-
-          CF_TOKEN = os.environ["CF_TOKEN"]
-          ZONE_ID  = "24699ffac18738a5d05cb627e4bda597"
-          CF_BASE  = "https://api.cloudflare.com/client/v4"
-          CF_HDRS  = {"Authorization": f"Bearer {CF_TOKEN}", "Content-Type": "application/json"}
+          import requests, json, time
 
           EMAIL    = "netanel@penux.uk"
-          PASSWORD = "PenuX2026!Resend"
+          PASSWORD = "PenuX2026!"
 
-          async def run():
-              async with async_playwright() as p:
-                  browser = await p.chromium.launch(
-                      headless=True,
-                      args=['--no-sandbox','--disable-dev-shm-usage','--disable-gpu']
-                  )
-                  ctx = await browser.new_context(
-                      viewport={'width':1280,'height':900},
-                      user_agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36'
-                  )
-                  page = await ctx.new_page()
+          def try_provider(name, test_fn):
+              print(f"\n{'='*40}")
+              print(f"Trying: {name}")
+              try:
+                  test_fn()
+              except Exception as e:
+                  print(f"FAILED: {e}")
 
-                  # Capture XHR/fetch calls
-                  api_token = None
-                  captured = []
+          # ── 1. Resend API (no browser needed) ────────────────────────────
+          def try_resend():
+              r = requests.post('https://api.resend.com/auth/signup',
+                  json={'email': EMAIL, 'password': PASSWORD, 'name': 'Netanel Shoshany'},
+                  headers={'Content-Type': 'application/json'}, timeout=10)
+              print(f"Resend signup: {r.status_code} {r.text[:200]}")
 
-                  async def capture_response(resp):
-                      nonlocal api_token
-                      if 'resend.com/api' in resp.url or 'auth' in resp.url:
-                          try:
-                              body = await resp.text()
-                              captured.append({'url': resp.url, 'status': resp.status, 'body': body[:200]})
-                              m = re.search(r'"token"\s*:\s*"([^"]+)"', body)
-                              if m: api_token = m.group(1)
-                          except: pass
+          try_provider("Resend API", try_resend)
 
-                  page.on('response', capture_response)
+          # ── 2. Mailjet ───────────────────────────────────────────────────
+          def try_mailjet():
+              r = requests.post('https://app.mailjet.com/signup',
+                  json={'Email': EMAIL, 'Password': PASSWORD,
+                        'Firstname': 'Netanel', 'Lastname': 'Shoshany'},
+                  headers={'Content-Type': 'application/json'}, timeout=10)
+              print(f"Mailjet: {r.status_code} {r.text[:200]}")
 
-                  print("Step 1: Opening Resend signup...")
-                  await page.goto('https://resend.com/signup', wait_until='networkidle', timeout=30000)
-                  await page.screenshot(path='/tmp/r1.png')
-                  print(f"URL: {page.url}")
+          try_provider("Mailjet", try_mailjet)
 
-                  # List inputs
-                  inputs = await page.evaluate('''() => Array.from(document.querySelectorAll("input")).map(i => ({
-                      type: i.type, name: i.name, id: i.id, placeholder: i.placeholder
-                  }))''')
-                  print("Inputs:", inputs)
+          # ── 3. smtp2go API ───────────────────────────────────────────────
+          def try_smtp2go():
+              r = requests.post('https://api.smtp2go.com/v3/users/account',
+                  json={'username': 'penux', 'email': EMAIL,
+                        'password': PASSWORD, 'timezone': 'Asia/Jerusalem'},
+                  headers={'Content-Type': 'application/json'}, timeout=10)
+              print(f"smtp2go: {r.status_code} {r.text[:200]}")
 
-                  # Fill form
-                  for inp in inputs:
-                      sel = f"#{inp['id']}" if inp.get('id') else f"[name='{inp['name']}']" if inp.get('name') else None
-                      if not sel: continue
-                      ph = (inp.get('placeholder') or '').lower()
-                      nm = (inp.get('name') or '').lower()
-                      id_ = (inp.get('id') or '').lower()
-                      key = ph + nm + id_
-                      try:
-                          if 'email' in key:
-                              await page.fill(sel, EMAIL); print(f"✅ email {sel}")
-                          elif 'password' in key:
-                              await page.fill(sel, PASSWORD); print(f"✅ password {sel}")
-                          elif any(x in key for x in ['first','given']):
-                              await page.fill(sel, 'Netanel'); print(f"✅ first {sel}")
-                          elif any(x in key for x in ['last','family','surname']):
-                              await page.fill(sel, 'Shoshany'); print(f"✅ last {sel}")
-                          elif 'name' in key:
-                              await page.fill(sel, 'Netanel Shoshany'); print(f"✅ name {sel}")
-                      except: pass
+          try_provider("smtp2go", try_smtp2go)
 
-                  await page.screenshot(path='/tmp/r2_filled.png')
+          # ── 4. Postmark ──────────────────────────────────────────────────
+          def try_postmark():
+              r = requests.post('https://api.postmarkapp.com/accounts',
+                  json={'Email': EMAIL, 'Password': PASSWORD,
+                        'FirstName': 'Netanel', 'LastName': 'Shoshany'},
+                  headers={'Content-Type': 'application/json',
+                            'Accept': 'application/json'}, timeout=10)
+              print(f"Postmark: {r.status_code} {r.text[:200]}")
 
-                  try:
-                      await page.click('button[type="submit"]', timeout=5000)
-                      await page.wait_for_load_state('networkidle', timeout=20000)
-                      await page.screenshot(path='/tmp/r3_after.png')
-                      print(f"After submit: {page.url}")
-                  except Exception as e:
-                      print(f"Submit: {e}")
+          try_provider("Postmark", try_postmark)
 
-                  print("\nCaptured API calls:", captured)
-                  print("Token found:", api_token[:40] if api_token else "None")
+          # ── 5. Elastic Email ─────────────────────────────────────────────
+          def try_elastic():
+              r = requests.post('https://api.elasticemail.com/v2/account/register',
+                  data={'email': EMAIL, 'password': PASSWORD,
+                        'firstName': 'Netanel', 'lastName': 'Shoshany',
+                        'affiliateCode': ''},
+                  headers={'Content-Type': 'application/x-www-form-urlencoded'}, timeout=10)
+              print(f"Elastic Email: {r.status_code} {r.text[:300]}")
 
-                  # If we got a token, add domain and get SMTP key
-                  if api_token:
-                      hdrs = {'Authorization': f'Bearer {api_token}', 'Content-Type': 'application/json'}
+          try_provider("Elastic Email", try_elastic)
 
-                      # Add domain
-                      r = requests.post('https://api.resend.com/domains',
-                          headers=hdrs, json={'name': 'penux.uk', 'region': 'eu-west-1'}, timeout=15)
-                      d = r.json()
-                      print(f"\nDomain add: {r.status_code} {json.dumps(d)[:300]}")
+          # ── 6. forwardemail.net account ──────────────────────────────────
+          def try_forwardemail():
+              r = requests.post('https://api.forwardemail.net/v1/account',
+                  json={'email': EMAIL, 'password': PASSWORD},
+                  headers={'Content-Type': 'application/json'}, timeout=10)
+              print(f"forwardemail: {r.status_code} {r.text[:300]}")
 
-                      if r.status_code in (200, 201) and 'records' in d:
-                          print("\n📋 DNS records to add:")
-                          for rec in d['records']:
-                              print(f"  {rec['type']:5} {rec['name']} → {rec['value']}")
+          try_provider("forwardemail.net", try_forwardemail)
 
-                          # Auto-add DNS records to Cloudflare
-                          for rec in d['records']:
-                              payload = {'type': rec['type'], 'name': rec['name'],
-                                        'content': rec['value'], 'ttl': 1}
-                              if rec['type'] == 'CNAME':
-                                  payload['proxied'] = False
-                              cf_r = requests.post(f"{CF_BASE}/zones/{ZONE_ID}/dns_records",
-                                  headers=CF_HDRS, json=payload, timeout=15)
-                              cf_d = cf_r.json()
-                              if cf_d.get('success'):
-                                  print(f"  ✅ CF: {rec['type']} {rec['name']}")
-                              else:
-                                  errs = cf_d.get('errors', [])
-                                  if any('exists' in str(e) for e in errs):
-                                      print(f"  ⚠️  {rec['type']} already exists")
-                                  else:
-                                      print(f"  ❌ {rec['type']}: {errs}")
-
-                      # Get API key for SMTP
-                      r2 = requests.post('https://api.resend.com/api-keys',
-                          headers=hdrs, json={'name': 'PenuX SMTP', 'permission': 'full_access'}, timeout=15)
-                      k = r2.json()
-                      print(f"\n🔑 API Key: {k.get('token', 'not found')}")
-                      print(f"\n📧 SMTP Settings:")
-                      print(f"   Host: smtp.resend.com")
-                      print(f"   Port: 465 or 587")
-                      print(f"   User: resend")
-                      print(f"   Password: <API key above>")
-                      print(f"   From: netanel@penux.uk")
-
-                  await browser.close()
-
-          asyncio.run(run())
           EOF
-
-      - name: Upload screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: resend-screenshots
-          path: /tmp/r*.png
