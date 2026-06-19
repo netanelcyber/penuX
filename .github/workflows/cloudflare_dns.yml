@@ -1,0 +1,50 @@
+name: Add ImprovMX DNS to Cloudflare
+
+on:
+  workflow_dispatch:
+
+jobs:
+  add-dns:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add ImprovMX DNS records to penux.uk
+        run: |
+          python3 << 'EOF'
+          import requests, json
+
+          TOKEN   = "${{ secrets.CF_TOKEN }}"
+          HEADERS = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
+          BASE    = "https://api.cloudflare.com/client/v4"
+
+          r = requests.get(f"{BASE}/zones?name=penux.uk", headers=HEADERS, timeout=15)
+          d = r.json()
+          if not d.get("success") or not d["result"]:
+              print("ERROR:", d.get("errors"))
+              exit(1)
+
+          ZONE_ID = d["result"][0]["id"]
+          print(f"Zone ID: {ZONE_ID}")
+
+          records = [
+              {"type":"MX",    "name":"penux.uk", "content":"mx1.improvmx.com",                    "priority":10, "ttl":1},
+              {"type":"MX",    "name":"penux.uk", "content":"mx2.improvmx.com",                    "priority":20, "ttl":1},
+              {"type":"TXT",   "name":"penux.uk", "content":"v=spf1 include:spf.improvmx.com ~all","ttl":1},
+              {"type":"CNAME", "name":"mail",     "content":"improvmx.com", "proxied":False,        "ttl":1},
+          ]
+
+          for rec in records:
+              r = requests.post(f"{BASE}/zones/{ZONE_ID}/dns_records", headers=HEADERS, json=rec, timeout=15)
+              res = r.json()
+              if res.get("success"):
+                  x = res["result"]
+                  print(f"OK  {x['type']:5} {x['name']} -> {x['content']}")
+              else:
+                  errs = res.get("errors", [])
+                  if any("already exists" in str(e) for e in errs):
+                      print(f"SKIP {rec['type']} already exists")
+                  else:
+                      print(f"FAIL {rec['type']} {rec['name']}: {errs}")
+                      exit(1)
+
+          print("Done!")
+          EOF
