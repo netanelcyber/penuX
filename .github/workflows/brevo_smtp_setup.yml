@@ -1,4 +1,4 @@
-name: Setup SMTP for netanel@penux.uk via forwardemail.net
+name: Verify forwardemail account and get SMTP
 
 on:
   workflow_dispatch:
@@ -7,69 +7,77 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
-      - name: Create forwardemail account and get SMTP credentials
+      - name: Verify account and setup SMTP
         run: |
           python3 << 'EOF'
           import requests, json, base64
 
-          EMAIL    = "netanel@penux.uk"
+          EMAIL = "netanel@penux.uk"
           PASSWORD = "PenuX2026!"
-          AUTH     = base64.b64encode(f"{EMAIL}:{PASSWORD}".encode()).decode()
-          HDRS     = {"Authorization": f"Basic {AUTH}", "Content-Type": "application/json"}
-          BASE     = "https://api.forwardemail.net/v1"
+          CODE = "995650"
 
-          # Create/verify account
-          print("Step 1: Account info...")
-          r = requests.get(f"{BASE}/account", headers=HDRS, timeout=10)
-          d = r.json()
-          print(f"Account: {r.status_code}")
-          print(f"Plan: {d.get('plan')}")
-          print(f"Email: {d.get('email')}")
+          # Step 1: Verify email with code
+          print("Step 1: Verifying email...")
+          r = requests.post('https://api.forwardemail.net/v1/account/verify-email',
+              json={"email": EMAIL, "otp": CODE},
+              headers={"Content-Type": "application/json"},
+              timeout=10)
+          print(f"Verify: {r.status_code} {r.text[:300]}")
 
-          # Check alias exists
-          print("\nStep 2: Checking alias netanel@penux.uk...")
-          r2 = requests.get(f"{BASE}/domains/penux.uk/aliases", headers=HDRS, timeout=10)
-          print(f"Aliases: {r2.status_code} {r2.text[:300]}")
+          # Step 2: Get API token (login)
+          print("\nStep 2: Getting API token...")
+          r2 = requests.post('https://api.forwardemail.net/v1/account/token',
+              json={"email": EMAIL, "password": PASSWORD},
+              headers={"Content-Type": "application/json"},
+              timeout=10)
+          print(f"Token: {r2.status_code} {r2.text[:300]}")
 
-          # Generate password for SMTP
-          print("\nStep 3: Creating alias password for SMTP...")
-          r3 = requests.post(f"{BASE}/domains/penux.uk/aliases",
-              headers=HDRS,
-              json={
-                  "name": "netanel",
-                  "description": "PenuX research account",
-                  "recipients": ["nsh531@gmail.com"],
-                  "has_recipient_verification": False,
-                  "is_enabled": True
-              },
-              timeout=10
-          )
-          d3 = r3.json()
-          print(f"Alias create: {r3.status_code} {json.dumps(d3)[:400]}")
+          d2 = r2.json() if r2.status_code == 200 else {}
+          api_token = d2.get('token') or d2.get('api_token')
 
-          # Get or create SMTP password
-          alias_id = d3.get('id') or (d3.get('data', {}) or {}).get('id')
-          if alias_id:
-              r4 = requests.post(f"{BASE}/domains/penux.uk/aliases/{alias_id}/generate-password",
-                  headers=HDRS, json={}, timeout=10)
+          if not api_token:
+              # Try basic auth directly
+              auth = base64.b64encode(f"{EMAIL}:{PASSWORD}".encode()).decode()
+              r3 = requests.get('https://api.forwardemail.net/v1/account',
+                  headers={"Authorization": f"Basic {auth}"},
+                  timeout=10)
+              print(f"\nBasic auth test: {r3.status_code} {r3.text[:300]}")
+              d3 = r3.json() if r3.status_code == 200 else {}
+              api_token = d3.get('api_token') or d3.get('token')
+
+          if api_token:
+              print(f"\n✅ API Token: {api_token}")
+              AUTH = base64.b64encode(f"{api_token}:".encode()).decode()
+              HDRS = {"Authorization": f"Basic {AUTH}", "Content-Type": "application/json"}
+
+              # Create alias with SMTP password
+              print("\nStep 3: Generating SMTP password for alias...")
+              r4 = requests.post(f'https://api.forwardemail.net/v1/domains/penux.uk/aliases',
+                  headers=HDRS,
+                  json={"name": "netanel", "recipients": ["nsh531@gmail.com"],
+                        "is_enabled": True, "has_imap": True},
+                  timeout=10)
               d4 = r4.json()
-              print(f"SMTP password: {r4.status_code} {json.dumps(d4)[:400]}")
-              smtp_pass = d4.get('password') or d4.get('generated_password')
-          else:
-              smtp_pass = None
+              print(f"Alias: {r4.status_code} {json.dumps(d4)[:400]}")
+
+              alias_id = d4.get('id')
+              if alias_id:
+                  r5 = requests.post(
+                      f'https://api.forwardemail.net/v1/domains/penux.uk/aliases/{alias_id}/generate-password',
+                      headers=HDRS, json={}, timeout=10)
+                  d5 = r5.json()
+                  smtp_pass = d5.get('password') or d5.get('generated_password')
+                  print(f"SMTP pass: {r5.status_code} {json.dumps(d5)[:300]}")
+              else:
+                  smtp_pass = PASSWORD
 
           print("\n" + "="*50)
-          print("📧 SMTP SETTINGS FOR netanel@penux.uk")
+          print("📧 SMTP SETTINGS — netanel@penux.uk")
           print("="*50)
-          print(f"Host:     smtp.forwardemail.net")
-          print(f"Port:     465 (SSL) or 587 (TLS)")
+          print("Host:     smtp.forwardemail.net")
+          print("Port:     465 (SSL) or 587 (STARTTLS)")
           print(f"User:     netanel@penux.uk")
-          print(f"Password: {smtp_pass or PASSWORD + ' (account password)'}")
-          print(f"From:     netanel@penux.uk")
+          print(f"Password: {smtp_pass if 'smtp_pass' in dir() and smtp_pass else PASSWORD}")
+          print("From:     netanel@penux.uk")
           print("="*50)
-          print("\nIMAPSettings (read inbox):")
-          print(f"Host: imap.forwardemail.net")
-          print(f"Port: 993")
-          print(f"User: netanel@penux.uk")
-          print(f"Pass: {smtp_pass or PASSWORD}")
           EOF
