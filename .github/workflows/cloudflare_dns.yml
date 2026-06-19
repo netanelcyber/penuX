@@ -2,6 +2,10 @@ name: Add ImprovMX DNS to Cloudflare
 
 on:
   workflow_dispatch:
+    inputs:
+      cf_token:
+        description: 'Cloudflare API Token'
+        required: true
 
 jobs:
   add-dns:
@@ -10,9 +14,9 @@ jobs:
       - name: Add ImprovMX DNS records to penux.uk
         run: |
           python3 << 'EOF'
-          import requests, json
+          import requests, json, os
 
-          TOKEN   = "${{ secrets.CF_TOKEN }}"
+          TOKEN   = "${{ github.event.inputs.cf_token }}"
           HEADERS = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
           BASE    = "https://api.cloudflare.com/client/v4"
 
