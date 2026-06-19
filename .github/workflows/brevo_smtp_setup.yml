@@ -1,4 +1,4 @@
-name: Setup SMTP for netanel@penux.uk
+name: Setup SMTP for netanel@penux.uk via forwardemail.net
 
 on:
   workflow_dispatch:
@@ -7,82 +7,69 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
-      - name: Try multiple SMTP providers via API
-        env:
-          CF_TOKEN: ${{ secrets.CF_TOKEN }}
+      - name: Create forwardemail account and get SMTP credentials
         run: |
           python3 << 'EOF'
-          import requests, json, time
+          import requests, json, base64
 
           EMAIL    = "netanel@penux.uk"
           PASSWORD = "PenuX2026!"
+          AUTH     = base64.b64encode(f"{EMAIL}:{PASSWORD}".encode()).decode()
+          HDRS     = {"Authorization": f"Basic {AUTH}", "Content-Type": "application/json"}
+          BASE     = "https://api.forwardemail.net/v1"
 
-          def try_provider(name, test_fn):
-              print(f"\n{'='*40}")
-              print(f"Trying: {name}")
-              try:
-                  test_fn()
-              except Exception as e:
-                  print(f"FAILED: {e}")
+          # Create/verify account
+          print("Step 1: Account info...")
+          r = requests.get(f"{BASE}/account", headers=HDRS, timeout=10)
+          d = r.json()
+          print(f"Account: {r.status_code}")
+          print(f"Plan: {d.get('plan')}")
+          print(f"Email: {d.get('email')}")
 
-          # ── 1. Resend API (no browser needed) ────────────────────────────
-          def try_resend():
-              r = requests.post('https://api.resend.com/auth/signup',
-                  json={'email': EMAIL, 'password': PASSWORD, 'name': 'Netanel Shoshany'},
-                  headers={'Content-Type': 'application/json'}, timeout=10)
-              print(f"Resend signup: {r.status_code} {r.text[:200]}")
+          # Check alias exists
+          print("\nStep 2: Checking alias netanel@penux.uk...")
+          r2 = requests.get(f"{BASE}/domains/penux.uk/aliases", headers=HDRS, timeout=10)
+          print(f"Aliases: {r2.status_code} {r2.text[:300]}")
 
-          try_provider("Resend API", try_resend)
+          # Generate password for SMTP
+          print("\nStep 3: Creating alias password for SMTP...")
+          r3 = requests.post(f"{BASE}/domains/penux.uk/aliases",
+              headers=HDRS,
+              json={
+                  "name": "netanel",
+                  "description": "PenuX research account",
+                  "recipients": ["nsh531@gmail.com"],
+                  "has_recipient_verification": False,
+                  "is_enabled": True
+              },
+              timeout=10
+          )
+          d3 = r3.json()
+          print(f"Alias create: {r3.status_code} {json.dumps(d3)[:400]}")
 
-          # ── 2. Mailjet ───────────────────────────────────────────────────
-          def try_mailjet():
-              r = requests.post('https://app.mailjet.com/signup',
-                  json={'Email': EMAIL, 'Password': PASSWORD,
-                        'Firstname': 'Netanel', 'Lastname': 'Shoshany'},
-                  headers={'Content-Type': 'application/json'}, timeout=10)
-              print(f"Mailjet: {r.status_code} {r.text[:200]}")
+          # Get or create SMTP password
+          alias_id = d3.get('id') or (d3.get('data', {}) or {}).get('id')
+          if alias_id:
+              r4 = requests.post(f"{BASE}/domains/penux.uk/aliases/{alias_id}/generate-password",
+                  headers=HDRS, json={}, timeout=10)
+              d4 = r4.json()
+              print(f"SMTP password: {r4.status_code} {json.dumps(d4)[:400]}")
+              smtp_pass = d4.get('password') or d4.get('generated_password')
+          else:
+              smtp_pass = None
 
-          try_provider("Mailjet", try_mailjet)
-
-          # ── 3. smtp2go API ───────────────────────────────────────────────
-          def try_smtp2go():
-              r = requests.post('https://api.smtp2go.com/v3/users/account',
-                  json={'username': 'penux', 'email': EMAIL,
-                        'password': PASSWORD, 'timezone': 'Asia/Jerusalem'},
-                  headers={'Content-Type': 'application/json'}, timeout=10)
-              print(f"smtp2go: {r.status_code} {r.text[:200]}")
-
-          try_provider("smtp2go", try_smtp2go)
-
-          # ── 4. Postmark ──────────────────────────────────────────────────
-          def try_postmark():
-              r = requests.post('https://api.postmarkapp.com/accounts',
-                  json={'Email': EMAIL, 'Password': PASSWORD,
-                        'FirstName': 'Netanel', 'LastName': 'Shoshany'},
-                  headers={'Content-Type': 'application/json',
-                            'Accept': 'application/json'}, timeout=10)
-              print(f"Postmark: {r.status_code} {r.text[:200]}")
-
-          try_provider("Postmark", try_postmark)
-
-          # ── 5. Elastic Email ─────────────────────────────────────────────
-          def try_elastic():
-              r = requests.post('https://api.elasticemail.com/v2/account/register',
-                  data={'email': EMAIL, 'password': PASSWORD,
-                        'firstName': 'Netanel', 'lastName': 'Shoshany',
-                        'affiliateCode': ''},
-                  headers={'Content-Type': 'application/x-www-form-urlencoded'}, timeout=10)
-              print(f"Elastic Email: {r.status_code} {r.text[:300]}")
-
-          try_provider("Elastic Email", try_elastic)
-
-          # ── 6. forwardemail.net account ──────────────────────────────────
-          def try_forwardemail():
-              r = requests.post('https://api.forwardemail.net/v1/account',
-                  json={'email': EMAIL, 'password': PASSWORD},
-                  headers={'Content-Type': 'application/json'}, timeout=10)
-              print(f"forwardemail: {r.status_code} {r.text[:300]}")
-
-          try_provider("forwardemail.net", try_forwardemail)
-
+          print("\n" + "="*50)
+          print("📧 SMTP SETTINGS FOR netanel@penux.uk")
+          print("="*50)
+          print(f"Host:     smtp.forwardemail.net")
+          print(f"Port:     465 (SSL) or 587 (TLS)")
+          print(f"User:     netanel@penux.uk")
+          print(f"Password: {smtp_pass or PASSWORD + ' (account password)'}")
+          print(f"From:     netanel@penux.uk")
+          print("="*50)
+          print("\nIMAPSettings (read inbox):")
+          print(f"Host: imap.forwardemail.net")
+          print(f"Port: 993")
+          print(f"User: netanel@penux.uk")
+          print(f"Pass: {smtp_pass or PASSWORD}")
           EOF
