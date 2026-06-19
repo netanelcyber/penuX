@@ -1,4 +1,4 @@
-name: ForwardEmail - Verify domain and get SMTP
+name: ForwardEmail - Get verification TXT and setup SMTP
 
 on:
   workflow_dispatch:
@@ -7,20 +7,15 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Playwright
-        run: |
-          pip install playwright -q
-          playwright install chromium
-          playwright install-deps chromium
-
-      - name: Login, verify domain, get SMTP creds
+      - name: Get verification TXT and setup domain
         env:
           CF_TOKEN: ${{ secrets.CF_TOKEN }}
         run: |
           python3 << 'EOF'
-          import asyncio, os, requests, re
-          from playwright.async_api import async_playwright
+          import requests, json, base64, re
 
+          CF_TOKEN = "${{ env.CF_TOKEN }}"
+          import os
           CF_TOKEN = os.environ["CF_TOKEN"]
           ZONE_ID  = "24699ffac18738a5d05cb627e4bda597"
           CF_BASE  = "https://api.cloudflare.com/client/v4"
@@ -28,143 +23,90 @@ jobs:
 
           EMAIL    = "netanel@penux.uk"
           PASSWORD = "PenuX2026!"
-          OTP      = "995650"
 
-          async def run():
-              async with async_playwright() as p:
-                  browser = await p.chromium.launch(
-                      headless=True,
-                      args=['--no-sandbox','--disable-dev-shm-usage','--disable-gpu']
-                  )
-                  ctx = await browser.new_context(
-                      viewport={'width':1280,'height':900},
-                      user_agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36'
-                  )
-                  page = await ctx.new_page()
+          # Basic auth with email:password
+          AUTH = base64.b64encode(f"{EMAIL}:{PASSWORD}".encode()).decode()
+          HDRS = {"Authorization": f"Basic {AUTH}", "Content-Type": "application/json",
+                  "Accept": "application/json"}
 
-                  # ── Login ─────────────────────────────────────────────────
-                  print("Step 1: Logging in...")
-                  await page.goto('https://forwardemail.net/en/login', wait_until='domcontentloaded', timeout=30000)
-                  await page.screenshot(path='/tmp/fe1.png')
-                  print(f"URL: {page.url}")
+          # Test auth
+          print("Step 1: Auth test...")
+          r = requests.get('https://api.forwardemail.net/v1/account', headers=HDRS, timeout=10)
+          print(f"Account: {r.status_code} {r.text[:300]}")
 
-                  inputs = await page.evaluate('''() => Array.from(document.querySelectorAll("input")).map(i => ({
-                      type:i.type, name:i.name, id:i.id, placeholder:i.placeholder
-                  }))''')
-                  print("Inputs:", inputs)
+          # Add domain to account
+          print("\nStep 2: Adding domain penux.uk to account...")
+          r2 = requests.post('https://api.forwardemail.net/v1/domains',
+              headers=HDRS,
+              json={"domain": "penux.uk", "plan": "free"},
+              timeout=10)
+          print(f"Add domain: {r2.status_code} {r2.text[:500]}")
 
-                  for inp in inputs:
-                      sel = f"#{inp['id']}" if inp.get('id') else f"[name='{inp['name']}']" if inp.get('name') else None
-                      if not sel: continue
-                      key = (inp.get('placeholder','') + inp.get('name','') + inp.get('id','')).lower()
-                      try:
-                          if 'email' in key or inp['type'] == 'email':
-                              await page.fill(sel, EMAIL); print(f"✅ email")
-                          elif 'password' in key or inp['type'] == 'password':
-                              await page.fill(sel, PASSWORD); print(f"✅ password")
-                      except: pass
+          d2 = r2.json() if r2.headers.get('content-type','').startswith('application/json') else {}
 
-                  try:
-                      await page.click('button[type="submit"]', timeout=5000)
-                      await page.wait_for_load_state('domcontentloaded', timeout=15000)
-                      print(f"After login: {page.url}")
-                      await page.screenshot(path='/tmp/fe2_login.png')
-                  except Exception as e:
-                      print(f"Login submit: {e}")
+          # Get domain info including verification TXT
+          print("\nStep 3: Getting domain verification info...")
+          r3 = requests.get('https://api.forwardemail.net/v1/domains/penux.uk', headers=HDRS, timeout=10)
+          print(f"Domain info: {r3.status_code} {r3.text[:800]}")
 
-                  # ── OTP if needed ─────────────────────────────────────────
-                  if 'otp' in page.url.lower() or 'verify' in page.url.lower() or 'code' in page.url.lower():
-                      print("OTP page detected...")
-                      try:
-                          await page.fill('input[type="text"], input[name="otp"], #otp', OTP, timeout=5000)
-                          await page.click('button[type="submit"]', timeout=5000)
-                          await page.wait_for_load_state('domcontentloaded', timeout=15000)
-                          print(f"After OTP: {page.url}")
-                      except Exception as e:
-                          print(f"OTP: {e}")
+          d3 = r3.json() if r3.headers.get('content-type','').startswith('application/json') else {}
+          verification_record = d3.get('verification_record') or d3.get('verification')
 
-                  await page.screenshot(path='/tmp/fe3_dashboard.png')
+          if verification_record:
+              txt_value = f"forward-email-site-verification={verification_record}"
+              print(f"\n✅ Verification TXT: {txt_value}")
 
-                  # ── Navigate to domain ────────────────────────────────────
-                  print("\nStep 2: Going to domain settings...")
-                  await page.goto('https://forwardemail.net/my-account/domains/penux.uk', wait_until='domcontentloaded', timeout=30000)
-                  await page.screenshot(path='/tmp/fe4_domain.png')
-                  print(f"Domain URL: {page.url}")
-
-                  # Extract verification TXT record from page
-                  content = await page.content()
-                  txt_match = re.search(r'forward-email-site-verification=([a-zA-Z0-9]+)', content)
-                  if txt_match:
-                      site_ver = txt_match.group(0)
-                      print(f"✅ Found site verification: {site_ver}")
-
-                      # Add to Cloudflare
-                      r = requests.post(f"{CF_BASE}/zones/{ZONE_ID}/dns_records",
-                          headers=CF_HDRS,
-                          json={"type":"TXT","name":"penux.uk","content":site_ver,"ttl":1},
-                          timeout=15)
-                      d = r.json()
-                      if d.get('success'):
-                          print(f"✅ Added TXT to Cloudflare: {site_ver}")
-                      else:
-                          errs = d.get('errors',[])
-                          if any('exists' in str(e) for e in errs):
-                              print(f"⚠️  TXT already exists")
-                          else:
-                              print(f"❌ CF error: {errs}")
-
-                      # Click Verify
-                      import asyncio
-                      await asyncio.sleep(3)
-                      try:
-                          await page.click('text=Verify, button:has-text("Verify")', timeout=8000)
-                          await page.wait_for_load_state('domcontentloaded', timeout=15000)
-                          await page.screenshot(path='/tmp/fe5_verified.png')
-                          print(f"After verify: {page.url}")
-                          print("✅ Domain verified!")
-                      except Exception as e:
-                          print(f"Verify click: {e}")
+              # Add to Cloudflare
+              r4 = requests.post(f"{CF_BASE}/zones/{ZONE_ID}/dns_records",
+                  headers=CF_HDRS,
+                  json={"type":"TXT","name":"penux.uk","content":txt_value,"ttl":1},
+                  timeout=15)
+              d4 = r4.json()
+              if d4.get('success'):
+                  print(f"✅ Added to Cloudflare!")
+              else:
+                  errs = d4.get('errors',[])
+                  if any('exists' in str(e) for e in errs):
+                      print(f"⚠️  TXT already exists in Cloudflare")
                   else:
-                      print("Site verification TXT not found in page")
-                      print(f"Content snippet: {content[3000:4000]}")
+                      print(f"❌ CF error: {errs}")
 
-                  # ── Get SMTP password ─────────────────────────────────────
-                  print("\nStep 3: Generating alias SMTP password...")
-                  await page.goto('https://forwardemail.net/my-account/domains/penux.uk/aliases', wait_until='domcontentloaded', timeout=30000)
-                  await page.screenshot(path='/tmp/fe6_aliases.png')
-                  alias_content = await page.content()
+              # Verify domain via API
+              import time; time.sleep(3)
+              print("\nStep 4: Verifying domain...")
+              r5 = requests.get(f'https://api.forwardemail.net/v1/domains/penux.uk/verify-records',
+                  headers=HDRS, timeout=15)
+              print(f"Verify: {r5.status_code} {r5.text[:500]}")
 
-                  # Look for generate password button for netanel alias
-                  try:
-                      await page.click('text=Generate Password, button:has-text("Generate")', timeout=5000)
-                      await page.wait_for_load_state('domcontentloaded', timeout=10000)
-                      await page.screenshot(path='/tmp/fe7_pass.png')
-                      pass_content = await page.content()
-                      pass_match = re.search(r'[A-Za-z0-9!@#$%^&*]{16,}', pass_content)
-                      smtp_pass = pass_match.group(0) if pass_match else PASSWORD
-                      print(f"✅ SMTP password generated")
-                  except Exception as e:
-                      smtp_pass = PASSWORD
-                      print(f"Password gen: {e}")
+          # Get aliases for SMTP password
+          print("\nStep 5: Getting alias SMTP password...")
+          r6 = requests.get('https://api.forwardemail.net/v1/domains/penux.uk/aliases', headers=HDRS, timeout=10)
+          print(f"Aliases: {r6.status_code} {r6.text[:500]}")
 
-                  await browser.close()
+          d6 = r6.json() if r6.headers.get('content-type','').startswith('application/json') else []
+          if isinstance(d6, list) and d6:
+              alias_id = d6[0].get('id')
+              if alias_id:
+                  r7 = requests.post(
+                      f'https://api.forwardemail.net/v1/domains/penux.uk/aliases/{alias_id}/generate-password',
+                      headers=HDRS, json={}, timeout=10)
+                  print(f"Gen pass: {r7.status_code} {r7.text[:300]}")
+                  smtp_pass = r7.json().get('password','') if r7.status_code == 200 else PASSWORD
+              else:
+                  smtp_pass = PASSWORD
+          else:
+              smtp_pass = PASSWORD
 
-                  print("\n" + "="*50)
-                  print("📧 SMTP SETTINGS — netanel@penux.uk")
-                  print("="*50)
-                  print("Host:     smtp.forwardemail.net")
-                  print("Port:     465 (SSL) or 587 (TLS)")
-                  print(f"User:     netanel@penux.uk")
-                  print(f"Password: {smtp_pass}")
-                  print("From:     netanel@penux.uk")
-                  print("="*50)
-
-          asyncio.run(run())
+          print("\n" + "="*55)
+          print("📧 SMTP SETTINGS — netanel@penux.uk")
+          print("="*55)
+          print("Host:     smtp.forwardemail.net")
+          print("Port:     465 (SSL) or 587 (TLS)")
+          print(f"User:     netanel@penux.uk")
+          print(f"Password: {smtp_pass}")
+          print("From:     Netanel Shoshany <netanel@penux.uk>")
+          print("="*55)
+          print("\n📥 IMAP (read inbox):")
+          print("Host:     imap.forwardemail.net:993")
+          print(f"User/Pass: same as above")
           EOF
-
-      - name: Upload screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: fe-screenshots
-          path: /tmp/fe*.png
