@@ -1,0 +1,64 @@
+name: Setup Cloudflare Email Routing
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup-email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enable Email Routing and add forwarding rule
+        env:
+          CF_TOKEN: ${{ secrets.CF_TOKEN }}
+        run: |
+          python3 << 'EOF'
+          import requests, json, os
+
+          TOKEN   = os.environ["CF_TOKEN"]
+          HEADERS = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
+          BASE    = "https://api.cloudflare.com/client/v4"
+          ZONE_ID = "24699ffac18738a5d05cb627e4bda597"
+
+          # 1. Enable Email Routing
+          r = requests.post(f"{BASE}/zones/{ZONE_ID}/email/routing/enable", headers=HEADERS, timeout=15)
+          d = r.json()
+          if d.get("success"):
+              print("✅ Email Routing enabled")
+          else:
+              errs = d.get("errors", [])
+              if any("already enabled" in str(e) or "already" in str(e).lower() for e in errs):
+                  print("✅ Email Routing already enabled")
+              else:
+                  print(f"Enable: {errs}")
+
+          # 2. Add catch-all rule: netanel@penux.uk → nsh531@gmail.com
+          rule = {
+              "actions": [{"type": "forward", "value": ["nsh531@gmail.com"]}],
+              "enabled": True,
+              "matchers": [{"field": "to", "type": "literal", "value": "netanel@penux.uk"}],
+              "name": "netanel forward"
+          }
+          r = requests.post(f"{BASE}/zones/{ZONE_ID}/email/routing/rules", headers=HEADERS, json=rule, timeout=15)
+          d = r.json()
+          if d.get("success"):
+              print(f"✅ Rule added: netanel@penux.uk → nsh531@gmail.com")
+          else:
+              print(f"Rule: {d.get('errors')}")
+
+          # 3. Add catch-all rule (optional)
+          catchall = {
+              "actions": [{"type": "forward", "value": ["nsh531@gmail.com"]}],
+              "enabled": True,
+              "matchers": [{"field": "to", "type": "all"}],
+              "name": "catch-all"
+          }
+          r = requests.put(f"{BASE}/zones/{ZONE_ID}/email/routing/rules/catch_all", headers=HEADERS, json=catchall, timeout=15)
+          d = r.json()
+          if d.get("success"):
+              print("✅ Catch-all rule: *@penux.uk → nsh531@gmail.com")
+          else:
+              print(f"Catch-all: {d.get('errors')}")
+
+          print("\n🎉 Done! netanel@penux.uk will forward to nsh531@gmail.com")
+          print("⚠️  You must verify nsh531@gmail.com — Cloudflare will send a verification email")
+          EOF
