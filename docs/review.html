@@ -539,6 +539,68 @@
     PenuX Random Forest (AUC=0.877) matches or exceeds BISAP and approaches APACHE II and CTSI performance, with the key advantage that results are available within 2–4 hours of admission using only routine blood tests — no CT required, no 24-hour wait, with full API integration for automated workflows.
   </p>
 
+  <!-- ── 7b. Why 48-hour validation ── -->
+  <h3 class="sub-title">7.1 Why Do Classical Scoring Tools Require 48 Hours to Confirm Severity?</h3>
+
+  <p>
+    A key clinical limitation of Ranson, Glasgow (Imrie), and related scoring systems is that their final score cannot be computed at admission — a subset of criteria is only evaluable after 48 hours of observation. This delay is not arbitrary: it reflects the two-wave physiological response of the body to acute pancreatic injury.
+  </p>
+
+  <h4 style="font-weight:600;color:var(--gray900);margin:1.2rem 0 .5rem">Wave 1 — Immediate Enzymatic Release (0–24 h)</h4>
+  <ul style="padding-left:1.5rem;color:var(--gray800);margin-bottom:1rem">
+    <li>Amylase and lipase are released into the bloodstream within hours of acinar cell injury — these are available at admission and confirm the diagnosis of AP.</li>
+    <li>Local inflammatory response begins; leukocytosis appears early.</li>
+    <li>At this stage, systemic organ impact is not yet measurable.</li>
+  </ul>
+
+  <h4 style="font-weight:600;color:var(--gray900);margin:1.2rem 0 .5rem">Wave 2 — Systemic Inflammatory Response (24–48 h)</h4>
+  <ul style="padding-left:1.5rem;color:var(--gray800);margin-bottom:1rem">
+    <li><strong>SIRS consolidates:</strong> cytokine storm (IL-6, TNF-α) peaks at 24–48 hours, driving the systemic response that determines severity.</li>
+    <li><strong>Target organ response:</strong> kidneys (rising creatinine / BUN), lungs (falling PaO₂/FiO₂ ratio), cardiovascular system — all require time to manifest measurable dysfunction.</li>
+    <li><strong>Fluid redistribution:</strong> third-space losses, hemoconcentration (hematocrit fall ≥10%), and calcium binding to necrotic fat (Ca²⁺ drop) develop over 24–48 hours.</li>
+  </ul>
+
+  <h4 style="font-weight:600;color:var(--gray900);margin:1.2rem 0 .5rem">Which Parameters Require a 48-Hour Window</h4>
+  <div class="table-wrap" style="margin-bottom:1.2rem">
+    <table>
+      <thead>
+        <tr><th>Scoring Tool</th><th>48-Hour Parameters</th><th>Reason for Delay</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Ranson (1974)</strong></td>
+          <td>ΔBUN ≥5 mg/dL · ΔHematocrit ≥10% · Ca²⁺ &lt;8 mg/dL · PaO₂ &lt;60 mmHg · Base deficit &gt;4 mEq/L · Fluid sequestration &gt;6 L</td>
+          <td>All are <em>dynamic delta values</em> — require two time points to compute</td>
+        </tr>
+        <tr>
+          <td><strong>Glasgow / Imrie</strong></td>
+          <td>PaO₂ · albumin · calcium · LDH (re-measured at 48 h)</td>
+          <td>Values peak or trough at 24–48 h; admission values underestimate severity</td>
+        </tr>
+        <tr>
+          <td><strong>BISAP</strong></td>
+          <td>BUN &gt;25 mg/dL (first 24 h)</td>
+          <td>BUN inflated before IV resuscitation — more reliable after initial fluid therapy</td>
+        </tr>
+        <tr>
+          <td><strong>CT Severity Index</strong></td>
+          <td>CT scan performed at 48–72 h</td>
+          <td>Pancreatic necrosis is not visible on early CT (&lt;48 h) — contrast enhancement underestimates devitalised tissue</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="font-weight:600;color:var(--gray900);margin:1.2rem 0 .5rem">The Clinical Cost of the 48-Hour Window</h4>
+  <p>
+    For severe cases, a 48-hour diagnostic delay is clinically dangerous. Patients who will develop infected pancreatic necrosis, abdominal compartment syndrome, or multi-organ dysfunction often show early warning signals — altered lab trajectories, rising inflammatory markers — that a data-driven model can detect in the first blood draw.
+    A prospective study by Mounzer et al. (2012, <em>Gastroenterology</em>) demonstrated that BISAP and APACHE II outperform Ranson at 24 hours but remain inferior to models that use admission biomarkers such as BUN, hematocrit, and SIRS criteria simultaneously.
+  </p>
+
+  <div style="background:var(--blue-lt,#eff6ff);border-left:4px solid var(--blue,#2563eb);padding:1rem 1.2rem;border-radius:0 .5rem .5rem 0;margin-bottom:1.5rem">
+    <strong>PenuX advantage:</strong> By learning from 106 admission laboratory values simultaneously — including the same inflammatory and metabolic markers that classical tools evaluate serially — the Random Forest model achieves equivalent or superior discrimination (AUC 0.877) from a <em>single blood draw at admission</em>, eliminating the 24–48 hour validation window entirely.
+  </div>
+
   <!-- ── 8. Limitations ── -->
   <h2 class="section-title">8. Limitations and Future Directions</h2>
   <ul style="padding-left:1.5rem;color:var(--gray800);margin-bottom:1rem">
