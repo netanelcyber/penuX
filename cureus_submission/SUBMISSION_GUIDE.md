@@ -6,8 +6,8 @@
 ## Step 1 — Create Account (5 minutes)
 1. Go to: https://www.cureus.com/sign_up
 2. Register with: nsh531@gmail.com
-3. Create ORCID (if you don't have one): https://orcid.org/register — FREE, 2 minutes
-4. Link ORCID to Cureus account
+3. Link your existing ORCID to Cureus account: **0000-0002-3482-5508**
+   URL: https://orcid.org/0000-0002-3482-5508
 
 ---
 

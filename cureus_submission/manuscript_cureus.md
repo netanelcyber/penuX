@@ -13,7 +13,7 @@ Netanel Shoshany
 Independent Clinical AI Researcher
 Israel
 nsh531@gmail.com
-ORCID: (create at https://orcid.org if needed — free, 2 minutes)
+ORCID: https://orcid.org/0000-0002-3482-5508
 
 ---
 
