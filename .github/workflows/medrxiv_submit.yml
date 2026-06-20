@@ -1,0 +1,30 @@
+name: Submit SAP manuscript to medRxiv
+
+on:
+  workflow_dispatch:
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Playwright
+        run: |
+          pip install playwright -q
+          playwright install chromium
+          playwright install-deps chromium
+
+      - name: Submit to medRxiv
+        env:
+          MEDRXIV_EMAIL: netanel@penux.uk
+          MEDRXIV_PASS: ${{ secrets.MEDRXIV_PASS }}
+        run: python3 .github/scripts/medrxiv_submit.py
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: medrxiv-screenshots
+          path: /tmp/s*.png
