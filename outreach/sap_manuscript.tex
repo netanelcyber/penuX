@@ -49,7 +49,7 @@
 \noindent\textbf{Correspondence:} Netanel Stern, PenuX Research Initiative. E-mail: \href{mailto:netanel@penux.uk}{netanel@penux.uk}
 
 \vspace{0.5cm}
-\noindent\textbf{Source code:} \url{https://github.com/netanelcyber/PenuX-AP-Severity}
+\noindent\textbf{Source code:} \url{https://github.com/netanelcyber/penuX/tree/mimic3%2B4/PenuX-AP-Severity}
 
 \vspace{0.5cm}
 \noindent\fcolorbox{black}{yellow!20}{\parbox{0.97\textwidth}{\small\textbf{Disclaimer:} This study is for research purposes only and is not intended for clinical use. The models described herein have not been validated in a prospective clinical setting and should not be used to guide patient management decisions without further rigorous validation.}}
@@ -123,7 +123,7 @@ For each model, the decision threshold was selected to maximise the F1 score on 
 
 \subsection{Implementation}
 
-All models were implemented in Python~3.10. Classical ML models used scikit-learn~1.3; deep learning models used TensorFlow~2.13/Keras. Source code, preprocessing pipelines, and trained model artefacts are openly available at \url{https://github.com/netanelcyber/PenuX-AP-Severity}.
+All models were implemented in Python~3.10. Classical ML models used scikit-learn~1.3; deep learning models used TensorFlow~2.13/Keras. Source code, preprocessing pipelines, and trained model artefacts are openly available at \url{https://github.com/netanelcyber/penuX/tree/mimic3%2B4/PenuX-AP-Severity}.
 
 % ============================================================
 \section{Results}
@@ -202,7 +202,7 @@ Priorities for future work include: prospective validation in multi-centre cohor
 % ============================================================
 \section{Conclusion}
 
-In this comparative evaluation of 11 machine learning and deep learning models for early severity prediction in acute pancreatitis, Random Forest achieved the best overall discriminative performance (AUC\,=\,0.877) using routine admission laboratory values, with Gradient Boosting performing comparably (AUC\,=\,0.874). Classical ensemble methods consistently outperformed feedforward and recurrent deep learning architectures. LSTM-family models were poorly suited to this cross-sectional tabular setting, achieving AUC values of 0.684--0.777 and exhibiting threshold collapse toward universal positive prediction. The high sensitivity of RF (96.8\% at threshold 0.535) is clinically meaningful for early identification of patients requiring escalated care. An open-source implementation is freely available at \url{https://github.com/netanelcyber/PenuX-AP-Severity} to facilitate reproducibility and adaptation. Prospective, multi-centre external validation is required before any clinical deployment.
+In this comparative evaluation of 11 machine learning and deep learning models for early severity prediction in acute pancreatitis, Random Forest achieved the best overall discriminative performance (AUC\,=\,0.877) using routine admission laboratory values, with Gradient Boosting performing comparably (AUC\,=\,0.874). Classical ensemble methods consistently outperformed feedforward and recurrent deep learning architectures. LSTM-family models were poorly suited to this cross-sectional tabular setting, achieving AUC values of 0.684--0.777 and exhibiting threshold collapse toward universal positive prediction. The high sensitivity of RF (96.8\% at threshold 0.535) is clinically meaningful for early identification of patients requiring escalated care. An open-source implementation is freely available at \url{https://github.com/netanelcyber/penuX/tree/mimic3%2B4/PenuX-AP-Severity} to facilitate reproducibility and adaptation. Prospective, multi-centre external validation is required before any clinical deployment.
 
 \vspace{1em}
 \noindent\fcolorbox{black}{yellow!20}{\parbox{0.97\textwidth}{\small\textbf{Disclaimer:} This study is for research purposes only and is not intended for clinical use. The predictive models described have not undergone prospective clinical validation and must not be used to guide individual patient management.}}
@@ -210,11 +210,11 @@ In this comparative evaluation of 11 machine learning and deep learning models f
 % ============================================================
 \section*{Data Availability}
 
-The de-identified dataset is not publicly distributed due to patient privacy constraints. The full analysis pipeline, model architectures, and preprocessing code are available at \url{https://github.com/netanelcyber/PenuX-AP-Severity}.
+The de-identified dataset is not publicly distributed due to patient privacy constraints. The full analysis pipeline, model architectures, and preprocessing code are available at \url{https://github.com/netanelcyber/penuX/tree/mimic3%2B4/PenuX-AP-Severity}.
 
 \section*{Code Availability}
 
-Open-source Python implementation: \url{https://github.com/netanelcyber/PenuX-AP-Severity}. Requires Python 3.10, scikit-learn 1.3, TensorFlow 2.13, and standard scientific Python libraries (NumPy, pandas, Matplotlib).
+Open-source Python implementation: \url{https://github.com/netanelcyber/penuX/tree/mimic3%2B4/PenuX-AP-Severity}. Requires Python 3.10, scikit-learn 1.3, TensorFlow 2.13, and standard scientific Python libraries (NumPy, pandas, Matplotlib).
 
 \section*{Author Contributions}
 
