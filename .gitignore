@@ -15,3 +15,10 @@ docs/examples/
 .idea/
 .claude/
 .claude/
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
