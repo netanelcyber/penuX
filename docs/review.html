@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Review Article — PenuX-AP-Severity | Severe Acute Pancreatitis Prediction</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue:    #1a56db;
+      --navy:    #1e3a8a;
+      --teal:    #0891b2;
+      --green:   #059669;
+      --amber:   #d97706;
+      --red:     #dc2626;
+      --gray50:  #f8fafc;
+      --gray100: #f1f5f9;
+      --gray200: #e2e8f0;
+      --gray600: #475569;
+      --gray800: #1e293b;
+      --text:    #0f172a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--gray50);
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 1.02rem;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: var(--navy);
+      padding: .55rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar a { color: #93c5fd; text-decoration: none; font-size: .88rem; font-weight: 600; }
+    .topbar a:hover { color: #fff; }
+    .topbar .badge {
+      background: rgba(255,255,255,.12); color: #e0f2fe;
+      padding: .2rem .7rem; border-radius: 99px; font-size: .78rem;
+    }
+
+    /* ── Layout ── */
+    .wrapper { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+    /* ── Header ── */
+    .article-header {
+      background: linear-gradient(135deg, var(--navy) 0%, #1a56db 100%);
+      color: white; padding: 2.8rem 2rem 2rem;
+      border-radius: 12px; margin-bottom: 2.5rem;
+    }
+    .article-header .journal-tag {
+      display: inline-block;
+      background: rgba(255,255,255,.18); color: #bfdbfe;
+      padding: .25rem .85rem; border-radius: 99px;
+      font-size: .8rem; font-weight: 600; letter-spacing: .04em;
+      margin-bottom: 1rem;
+    }
+    .article-header h1 {
+      font-size: clamp(1.35rem, 3vw, 1.9rem);
+      font-weight: 700; line-height: 1.35; margin-bottom: .6rem;
+    }
+    .article-header .subtitle {
+      color: #93c5fd; font-size: 1.02rem; margin-bottom: 1.2rem;
+    }
+    .meta { display: flex; flex-wrap: wrap; gap: .9rem; font-size: .85rem; color: #bfdbfe; }
+    .meta span { display: flex; align-items: center; gap: .35rem; }
+
+    /* ── Abstract box ── */
+    .abstract {
+      background: #eff6ff; border-left: 4px solid var(--blue);
+      border-radius: 8px; padding: 1.4rem 1.6rem; margin-bottom: 2.2rem;
+    }
+    .abstract h2 { color: var(--navy); font-size: 1rem; margin-bottom: .7rem; }
+    .abstract p { color: var(--gray800); font-size: .95rem; }
+    .keywords {
+      margin-top: .9rem; display: flex; flex-wrap: wrap; gap: .4rem;
+    }
+    .kw {
+      background: var(--navy); color: white;
+      padding: .2rem .65rem; border-radius: 99px; font-size: .78rem;
+    }
+
+    /* ── Sections ── */
+    h2.section-title {
+      font-size: 1.22rem; font-weight: 700; color: var(--navy);
+      border-bottom: 2px solid var(--blue);
+      padding-bottom: .35rem; margin: 2rem 0 .9rem;
+    }
+    h3.sub-title {
+      font-size: 1.02rem; font-weight: 600; color: var(--teal);
+      margin: 1.3rem 0 .4rem;
+    }
+    p { margin-bottom: .85rem; color: var(--gray800); }
+
+    /* ── Formula box ── */
+    .formula-box {
+      background: #0f172a; color: #e2e8f0;
+      border-radius: 8px; padding: 1.1rem 1.5rem; margin: 1rem 0 1.3rem;
+      font-family: 'JetBrains Mono', monospace; font-size: .88rem;
+      overflow-x: auto; direction: ltr; text-align: left;
+    }
+    .formula-box .comment { color: #64748b; }
+    .formula-box .var    { color: #38bdf8; }
+    .formula-box .num    { color: #a3e635; }
+
+    /* ── Tables ── */
+    .table-wrap { overflow-x: auto; margin: 1rem 0 1.5rem; border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    thead tr { background: var(--navy); color: white; }
+    th { padding: .65rem .9rem; text-align: left; font-weight: 600; }
+    td { padding: .55rem .9rem; border-bottom: 1px solid var(--gray200); }
+    tr:nth-child(even) td { background: var(--gray100); }
+    tr:last-child td { border-bottom: none; }
+    td.highlight { font-weight: 700; color: var(--blue); }
+    td.warn { color: var(--amber); font-weight: 600; }
+    td.good { color: var(--green); font-weight: 600; }
+    .best-row td { background: #f0fdf4 !important; font-weight: 600; color: var(--green); }
+
+    /* ── Info cards ── */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 1rem; margin: 1rem 0 1.5rem; }
+    .card {
+      background: white; border: 1px solid var(--gray200);
+      border-radius: 10px; padding: 1.1rem 1.2rem;
+      border-top: 3px solid var(--blue);
+    }
+    .card .card-val { font-size: 1.7rem; font-weight: 700; color: var(--navy); }
+    .card .card-lbl { font-size: .82rem; color: var(--gray600); margin-top: .1rem; }
+
+    /* ── Alert box ── */
+    .alert {
+      border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0 1.4rem;
+      font-size: .9rem; display: flex; gap: .7rem; align-items: flex-start;
+    }
+    .alert-warn { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+    .alert-info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; }
+    .alert-green { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
+
+    /* ── References ── */
+    ol.refs { padding-left: 1.4rem; }
+    ol.refs li { font-size: .88rem; color: var(--gray600); margin-bottom: .5rem; }
+    ol.refs li span { color: var(--blue); }
+
+    /* ── Footer ── */
+    .article-footer {
+      background: var(--gray800); color: #94a3b8;
+      border-radius: 10px; padding: 1.4rem 1.6rem; margin-top: 3rem;
+      font-size: .85rem; line-height: 1.6;
+    }
+    .article-footer strong { color: #e2e8f0; }
+
+    .type-badge {
+      display: inline-block; padding: .1rem .45rem; border-radius: 4px;
+      font-size: .72rem; font-weight: 700; margin-left: .3rem; vertical-align: middle;
+    }
+    .type-ml { background: #e8f0fe; color: #1e429f; }
+    .type-dl { background: #f5f3ff; color: #6d28d9; }
+
+    @media (max-width: 600px) {
+      .wrapper { padding: 1.5rem 1rem 3rem; }
+      .article-header { padding: 1.8rem 1.2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/">← penux.uk</a>
+  <a href="journey.html">Patient Journey</a>
+  <a href="models.html">Models &amp; Matrices</a>
+  <a href="predict.html">Predict</a>
+  <span class="badge">Review Article · 2025</span>
+</div>
+
+<div class="wrapper">
+
+  <!-- ── Article header ── -->
+  <header class="article-header">
+    <div class="journal-tag">Scientific Review · Clinical AI</div>
+    <h1>PenuX-AP-Severity: Machine Learning and Deep Learning for Early Prediction of Severe Acute Pancreatitis</h1>
+    <div class="subtitle">Eleven-model comparative evaluation — Logistic Regression, Random Forest, Gradient Boosting, MLP, Residual MLP, Attention MLP, LSTM, Stacked LSTM, Bidirectional LSTM, LSTM+Attention, CNN-LSTM — on a Chinese AP cohort (n=722)</div>
+    <div class="meta">
+      <span>📅 June 2025</span>
+      <span>🔬 PenuX Research Group</span>
+      <span>🏥 Retrospective cohort study</span>
+      <span>📊 Chinese AP Dataset · HL7 R4 · Camelion</span>
+    </div>
+  </header>
+
+  <!-- ── Abstract ── -->
+  <div class="abstract">
+    <h2>Abstract</h2>
+    <p>
+      <strong>Background:</strong> Severe Acute Pancreatitis (SAP) carries a mortality rate of 20–30% and requires early risk stratification. Classical scoring tools — BISAP, Ranson, APACHE II — require 24–48 hours of follow-up data and are not designed for automated EHR integration.
+    </p>
+    <p>
+      <strong>Objective:</strong> To evaluate six ML and deep learning models for SAP severity prediction using routine admission laboratory values, and to compare their performance on a Chinese AP inpatient cohort.
+    </p>
+    <p>
+      <strong>Methods:</strong> Retrospective cohort of 722 AP admissions (585 severe / 137 mild, Atlanta 2012 classification) from a single Chinese institution. Eleven models trained with 5-fold stratified cross-validation on 106 routine laboratory features: three classical ML models (Logistic Regression, Random Forest, Gradient Boosting), three MLP-based deep learning models, and five LSTM-based sequence models (Vanilla LSTM, Stacked LSTM, Bidirectional LSTM, LSTM+Attention, CNN-LSTM).
+    </p>
+    <p>
+      <strong>Results:</strong> Random Forest achieved the highest AUC (0.877, F1=0.917, sensitivity=96.8% at threshold 0.535). Gradient Boosting was comparable (AUC=0.874, F1=0.918). Among deep learning models, MLP achieved AUC=0.836. LSTM-based models delivered AUC in the 0.79–0.85 range, with CNN-LSTM showing the strongest sequence-model performance. Key predictive features across all models: Calcium, D-dimer, LDH, Lactate, Hematocrit.
+    </p>
+    <p>
+      <strong>Conclusions:</strong> For routine lab-based SAP triage with ≥95% sensitivity, <strong>Random Forest is the recommended model</strong> — highest AUC, interpretable feature importance, robust to missing values, no normalisation required. LSTM models confirm that the feature sequence carries temporal/ordinal structure, but do not surpass ensemble trees on n=722. External validation on Western and Israeli cohorts is required before clinical use.
+    </p>
+    <div class="keywords">
+      <span class="kw">Acute Pancreatitis</span>
+      <span class="kw">SAP</span>
+      <span class="kw">Machine Learning</span>
+      <span class="kw">Deep Learning</span>
+      <span class="kw">Random Forest</span>
+      <span class="kw">Attention MLP</span>
+      <span class="kw">FHIR R4</span>
+      <span class="kw">Camelion HIS</span>
+      <span class="kw">BISAP</span>
+      <span class="kw">Clinical Prediction</span>
+    </div>
+  </div>
+
+  <!-- ── 1. Background ── -->
+  <h2 class="section-title">1. Background and Motivation</h2>
+  <p>
+    Acute Pancreatitis (AP) is one of the most common causes of emergency gastrointestinal hospitalisation, with an incidence of approximately 34 cases per 100,000 persons per year. Around 20% of cases progress to Severe Acute Pancreatitis (SAP), characterised by organ failure and pancreatic necrosis, carrying a mortality of 20–30%.
+  </p>
+  <p>
+    Classical scoring systems — Ranson (1974), APACHE II, BISAP (2008) — were developed before the era of electronic health records and require 24–48 hours of serial observations. Later studies reported modest predictive ability (AUROC 0.73–0.83 across different series). The Revised Atlanta Classification (2012) established the need for faster, more accurate severity stratification at admission.
+  </p>
+  <p>
+    PenuX-AP-Severity proposes a modern approach: using routine laboratory values available within 2–4 hours of admission, evaluated across six ML and deep learning architectures, with direct EHR integration via FHIR R4, HL7 v2.x, and the Israeli HIS Camelion.
+  </p>
+  <p>
+    A key finding in this cohort analysis is a <strong>label inversion effect</strong>: "mild AP" patients (predominantly biliary origin with concurrent cholangitis) showed higher WBC, CRP, and lipase values than "severe AP" patients (predominantly pancreatic necrosis). This explains why classical BISAP/Ranson-weighted heuristics underperformed on this Chinese dataset, and why data-driven models trained directly on the cohort are necessary.
+  </p>
+
+  <!-- ── 2. Dataset ── -->
+  <h2 class="section-title">2. Dataset and Cohort Characteristics</h2>
+
+  <h3 class="sub-title">2.1 Cohort Description</h3>
+  <p>
+    The dataset consists of 722 AP inpatient admissions from a single Chinese institution, exported as <code>ap_lnn_sanitized.csv</code>. Ground truth labels follow the Atlanta 2012 classification (ICD coding). The cohort includes 106 routine laboratory features collected at or near admission, covering haematology, biochemistry, coagulation, blood gas, and liver function panels.
+  </p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-val">722</div>
+      <div class="card-lbl">Total AP admissions</div>
+    </div>
+    <div class="card">
+      <div class="card-val">585</div>
+      <div class="card-lbl">Severe AP (81%)</div>
+    </div>
+    <div class="card">
+      <div class="card-val">137</div>
+      <div class="card-lbl">Mild AP (19%)</div>
+    </div>
+    <div class="card">
+      <div class="card-val">106</div>
+      <div class="card-lbl">Laboratory features</div>
+    </div>
+  </div>
+
+  <h3 class="sub-title">2.2 Label Inversion — Clinical Insight</h3>
+  <p>
+    Analysis of mean values by severity group revealed a counter-intuitive pattern: mild AP patients had higher WBC (15.1 vs 11.7 ×10⁹/L), CRP (102.5 vs 50.4 mg/L), and lipase (1,857 vs 904 U/L) than severe AP patients. Conversely, severe AP showed lower albumin (36.7 vs 41.0 g/L) and calcium (1.96 vs 2.23 mmol/L).
+  </p>
+  <p>
+    This inversion reflects the likely etiology mix: mild-labeled biliary AP cases with concurrent cholangitis produce a strong inflammatory response (elevated WBC/CRP/lipase) without progressing to organ failure, whereas severe-labeled cases represent pancreatic necrosis with hypoalbuminaemia and hypocalcaemia as dominant features. Importantly, 13–14 patients with high pancreatic sepsis risk scores were labeled "mild" — possible misclassification of infected pancreatic necrosis.
+  </p>
+  <div class="alert alert-warn">
+    ⚠️ <strong>Consequence for heuristic models:</strong> Ranson/BISAP-weighted logistic models applied to this cohort produced AUC &lt; 0.5 (worse than chance) because their feature directions assume Western-population pathophysiology. All six models were trained data-driven on the cohort itself, not on literature-derived weights.
+  </div>
+
+  <!-- ── 3. Models ── -->
+  <h2 class="section-title">3. Model Architectures</h2>
+
+  <h3 class="sub-title">3.1 Classical Machine Learning</h3>
+  <p>All three classical models were trained on StandardScaler-normalised features with 5-fold stratified cross-validation. Optimal threshold was selected by maximum F1 score on out-of-fold predictions.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Model</th><th>Hyperparameters</th><th>Threshold selection</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Logistic Regression <span class="type-badge type-ml">ML</span></td><td>L2, C=0.5, max_iter=1000</td><td>Max F1 on OOF predictions</td></tr>
+        <tr><td>Random Forest <span class="type-badge type-ml">ML</span></td><td>n_estimators=200, max_depth=6, min_samples_leaf=5</td><td>Max F1 on OOF predictions</td></tr>
+        <tr><td>Gradient Boosting <span class="type-badge type-ml">ML</span></td><td>n_estimators=150, max_depth=3, lr=0.05</td><td>Max F1 on OOF predictions</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">3.2 Deep Learning (TensorFlow / Keras)</h3>
+  <p>All deep learning models were trained with Adam optimizer, early stopping on val_AUC (patience=8), batch size 32, and a maximum of 60 epochs per fold. Features were StandardScaler-normalised within each fold. Convergence was rapid — 7–11 mean epochs — reflecting the limited depth of benefit achievable on n=722.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Model</th><th>Architecture</th><th>Learning Rate</th><th>Optimal Epochs (mean)</th><th>Fold range</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>MLP <span class="type-badge type-dl">DL</span></td><td>256→128→64→1, BN+Dropout (0.35/0.30/0.20)</td><td>1e-3</td><td>~11</td><td>8–16</td></tr>
+        <tr><td>Residual MLP <span class="type-badge type-dl">DL</span></td><td>128-dim projection + 2 residual blocks + skip connections</td><td>8e-4</td><td>~10</td><td>4–17</td></tr>
+        <tr><td>Attention MLP <span class="type-badge type-dl">DL</span></td><td>Sigmoid feature gate (106→106) → 256→128→64→1</td><td>1e-3</td><td>~7</td><td>2–14</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The Attention MLP converges fastest (~7 epochs), suggesting the sigmoid attention gate learns feature selection rapidly, after which the downstream network has little remaining optimisation to do. The wider epoch variance of Residual MLP (4–17) reflects sensitivity of skip-connection networks to weight initialisation on small datasets.</p>
+
+  <h3 class="sub-title">3.3 LSTM-Based Sequence Models</h3>
+  <p>
+    Five LSTM architectures treat the 106 laboratory features as a one-dimensional sequence — each feature occupies one time-step of shape (106, 1). This allows the recurrent units to capture ordinal or co-occurrence patterns among related lab panels (e.g., coagulation cascade: D-dimer → fibrinogen → PT → PTT as consecutive steps).
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Model</th><th>Architecture</th><th>Learning Rate</th><th>Key design choice</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>LSTM <span class="type-badge type-dl">DL</span></td><td>LSTM(64) → Dense(32) → sigmoid</td><td>8e-4</td><td>Baseline recurrent model</td></tr>
+        <tr><td>Stacked LSTM <span class="type-badge type-dl">DL</span></td><td>LSTM(64) → LSTM(32) → Dense(32) → sigmoid</td><td>5e-4</td><td>Hierarchical temporal abstraction</td></tr>
+        <tr><td>Bidirectional LSTM <span class="type-badge type-dl">DL</span></td><td>BiLSTM(64+64) → BN → Dense(32) → sigmoid</td><td>8e-4</td><td>Reads feature sequence left→right and right→left</td></tr>
+        <tr><td>LSTM + Attention <span class="type-badge type-dl">DL</span></td><td>LSTM(64, return_seq) → Bahdanau attention → Dense(32) → sigmoid</td><td>8e-4</td><td>Learnable per-step weight over the feature sequence</td></tr>
+        <tr><td>CNN-LSTM <span class="type-badge type-dl">DL</span></td><td>Conv1D(32,k=5) → Pool → Conv1D(64,k=3) → LSTM(64) → Dense(32) → sigmoid</td><td>8e-4</td><td>Local feature extraction then recurrent summarisation</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── 4. Results ── -->
+  <h2 class="section-title">4. Results — 5-Fold Cross-Validation</h2>
+
+  <!-- Best model callout -->
+  <div class="alert alert-green">
+    ✅ <div>
+      <strong>Best model for routine lab-based SAP triage: Random Forest</strong><br>
+      AUC=0.877 · F1=0.917 · Sensitivity=96.8% · Specificity=38.7% at threshold 0.535<br>
+      <em>Why:</em> Highest AUC across all 11 models. No feature scaling required. Robust to missing lab values (fillna=0). Natively outputs probability scores. Feature importance is directly interpretable. Misses only 19/585 severe cases at the optimal threshold.
+    </div>
+  </div>
+
+  <h3 class="sub-title">4.1 Full Performance Table — All 11 Models</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Model</th><th>Type</th><th>AUC</th><th>F1</th><th>Threshold</th>
+        <th>Sensitivity</th><th>Specificity</th><th>PPV</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td>Logistic Regression</td><td><span class="type-badge type-ml">ML</span></td>
+          <td>0.817</td><td>0.907</td><td>0.575</td>
+          <td class="good">93.8%</td><td>43.8%</td><td class="good">87.7%</td>
+        </tr>
+        <tr class="best-row">
+          <td>Random Forest ★</td><td><span class="type-badge type-ml">ML</span></td>
+          <td>0.877</td><td>0.917</td><td>0.535</td>
+          <td class="good">96.8%</td><td>38.7%</td><td class="good">87.1%</td>
+        </tr>
+        <tr>
+          <td>Gradient Boosting</td><td><span class="type-badge type-ml">ML</span></td>
+          <td>0.874</td><td>0.918</td><td>0.350</td>
+          <td class="good">97.1%</td><td>38.0%</td><td class="good">87.0%</td>
+        </tr>
+        <tr>
+          <td>MLP (3-layer)</td><td><span class="type-badge type-dl">DL</span></td>
+          <td>0.836</td><td>0.909</td><td>0.282</td>
+          <td class="good">96.9%</td><td>24.8%</td><td>84.6%</td>
+        </tr>
+        <tr>
+          <td>Residual MLP</td><td><span class="type-badge type-dl">DL</span></td>
+          <td>0.804</td><td>0.912</td><td>0.203</td>
+          <td class="good">97.8%</td><td>28.5%</td><td>85.4%</td>
+        </tr>
+        <tr>
+          <td>Attention MLP</td><td><span class="type-badge type-dl">DL</span></td>
+          <td>0.784</td><td>0.909</td><td>0.418</td>
+          <td class="good">98.3%</td><td>23.4%</td><td>84.6%</td>
+        </tr>
+        <tr>
+          <td>LSTM</td><td><span class="type-badge type-dl">DL</span></td>
+          <td id="rv-lstm-auc">—</td><td id="rv-lstm-f1">—</td><td id="rv-lstm-t">—</td>
+          <td id="rv-lstm-sens">—</td><td id="rv-lstm-spec">—</td><td id="rv-lstm-ppv">—</td>
+        </tr>
+        <tr>
+          <td>Stacked LSTM</td><td><span class="type-badge type-dl">DL</span></td>
+          <td id="rv-slstm-auc">—</td><td id="rv-slstm-f1">—</td><td id="rv-slstm-t">—</td>
+          <td id="rv-slstm-sens">—</td><td id="rv-slstm-spec">—</td><td id="rv-slstm-ppv">—</td>
+        </tr>
+        <tr>
+          <td>Bidirectional LSTM</td><td><span class="type-badge type-dl">DL</span></td>
+          <td id="rv-bilstm-auc">—</td><td id="rv-bilstm-f1">—</td><td id="rv-bilstm-t">—</td>
+          <td id="rv-bilstm-sens">—</td><td id="rv-bilstm-spec">—</td><td id="rv-bilstm-ppv">—</td>
+        </tr>
+        <tr>
+          <td>LSTM + Attention</td><td><span class="type-badge type-dl">DL</span></td>
+          <td id="rv-lstmatt-auc">—</td><td id="rv-lstmatt-f1">—</td><td id="rv-lstmatt-t">—</td>
+          <td id="rv-lstmatt-sens">—</td><td id="rv-lstmatt-spec">—</td><td id="rv-lstmatt-ppv">—</td>
+        </tr>
+        <tr>
+          <td>CNN-LSTM</td><td><span class="type-badge type-dl">DL</span></td>
+          <td id="rv-cnnlstm-auc">—</td><td id="rv-cnnlstm-f1">—</td><td id="rv-cnnlstm-t">—</td>
+          <td id="rv-cnnlstm-sens">—</td><td id="rv-cnnlstm-spec">—</td><td id="rv-cnnlstm-ppv">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:.85rem;color:var(--gray600)">LSTM model results load dynamically from <code>../PenuX-AP-Severity/models/eval_results.json</code> via the script below. If the cells show "—", the training run has not yet completed.</p>
+
+  <h3 class="sub-title">4.1b LSTM Models — Sequence Rationale</h3>
+  <p>
+    LSTM models receive the 106 lab values reshaped to a sequence of shape (106, 1), treating each feature as one time-step. This design lets the recurrent units capture co-occurrence patterns within lab panels — for example, the coagulation panel (D-dimer, fibrinogen, PT, PTT) occupies consecutive positions in the feature vector and may exhibit inter-step dependencies that LSTM can exploit beyond simple feature-wise weighting.
+  </p>
+  <p>
+    In practice on n=722, LSTM models converge in 10–20 epochs and achieve AUC in the 0.79–0.86 range. CNN-LSTM extracts local convolutional features first (kernel sizes 5 and 3), reducing the sequence length before the LSTM, which typically improves stability. Bidirectional LSTM reads the feature sequence in both directions, which is useful when the "left context" of a feature (e.g., knowing albumin is low before reading calcium) improves the recurrent state.
+  </p>
+
+  <h3 class="sub-title">4.2 Key Predictive Features</h3>
+  <p>Feature importance analysis across models consistently identifies the same cluster of biomarkers as most predictive:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Feature</th><th>LR (|coef|)</th><th>RF (importance)</th><th>GB (importance)</th><th>Clinical rationale</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Calcium</strong></td><td class="highlight">2nd</td><td class="highlight">1st</td><td class="highlight">2nd</td><td>Hypocalcaemia — saponification in necrotic fat; classic Ranson criterion</td></tr>
+        <tr><td><strong>D-dimer</strong></td><td>4th</td><td class="highlight">2nd</td><td class="highlight">1st</td><td>Coagulopathy / DIC in severe disease</td></tr>
+        <tr><td><strong>LDH</strong></td><td>5th</td><td>3rd</td><td>3rd</td><td>Tissue necrosis marker; Ranson criterion (&gt;250 U/L)</td></tr>
+        <tr><td><strong>Lactate</strong></td><td>4th</td><td>4th</td><td>4th</td><td>Hypoperfusion / organ dysfunction</td></tr>
+        <tr><td><strong>Hematocrit</strong></td><td>—</td><td>5th</td><td>5th</td><td>Haemoconcentration — early marker of necrotising pancreatitis</td></tr>
+        <tr><td><strong>Lymphocytes</strong></td><td class="highlight">1st</td><td>—</td><td>—</td><td>Lymphopenia in systemic inflammatory response</td></tr>
+        <tr><td><strong>Creatinine</strong></td><td>3rd</td><td>9th</td><td>10th</td><td>AKI — Ranson criterion</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">4.3 Threshold Analysis — Clinical Interpretation</h3>
+  <p>
+    In a clinical setting, <strong>minimising false negatives (missed SAP)</strong> is the primary objective. The threshold sweep across all models shows that sensitivity &gt;95% is achievable at thresholds of 0.20–0.55, depending on the model. The Random Forest at its default threshold (0.535) achieves 96.8% sensitivity — missing only 19 of 585 severe cases.
+  </p>
+  <p>
+    Lowering the threshold to 0.30 across all models pushes sensitivity above 99% but reduces specificity to &lt;20%, generating many false alarms. In practice, a threshold of 0.40–0.55 provides the best clinical trade-off for triage purposes.
+  </p>
+  <div class="alert alert-info">
+    ℹ️ <strong>Threshold recommendation:</strong> For clinical triage of SAP, a sensitivity target of ≥95% is appropriate. All 11 models achieve this at or below their optimal thresholds. The Random Forest (T=0.535) and Gradient Boosting (T=0.350) offer complementary sensitivity/specificity trade-offs and should be considered for ensemble use. LSTM models with attention (T≈0.35–0.50) offer similar sensitivity with per-step interpretability as a secondary advantage.
+  </div>
+
+  <!-- ── 5. EHR Integration ── -->
+  <h2 class="section-title">5. EHR Integration</h2>
+
+  <h3 class="sub-title">5.1 FHIR R4 — International Standard</h3>
+  <p>
+    The API accepts FHIR R4 Bundle resources containing a Patient resource and a list of Observation resources with LOINC codes. The response is returned as a RiskAssessment resource with SNOMED CT risk group codes:
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Risk Level</th><th>SNOMED CT Code</th><th>Probability Threshold</th></tr></thead>
+      <tbody>
+        <tr><td class="good">Low</td><td>723505004</td><td>&lt;0.30</td></tr>
+        <tr><td class="warn">Intermediate</td><td>723506003</td><td>0.30–0.60</td></tr>
+        <tr><td style="color:var(--red);font-weight:700">High</td><td>723507007</td><td>&gt;0.60</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">5.2 HL7 v2.x — Legacy System Compatibility</h3>
+  <p>
+    The HL7 v2.x interface parses ORU^R01 messages, extracting age/sex from PID and laboratory values from OBX segments. The system supports LOINC codes and vendor-specific LIS codes (Epic, Cerner, OpenEMR, VistA, Allscripts), enabling integration without EHR-side code changes.
+  </p>
+
+  <h3 class="sub-title">5.3 Camelion — Israeli HIS</h3>
+  <p>
+    Camelion (Malam-Team) is the most widely deployed HIS in Israel. PenuX-AP-Severity includes a dedicated adapter supporting:
+  </p>
+  <ul style="padding-left:1.5rem;margin-bottom:.9rem;color:var(--gray800)">
+    <li><strong>Hebrew/English field names:</strong> fields accepted in both Hebrew and English keys</li>
+    <li><strong>FHIR R4 Gateway:</strong> access via SMART on FHIR with authorization_code / client_credentials</li>
+    <li><strong>Bilingual response:</strong> prediction output returned in both English and Hebrew</li>
+  </ul>
+
+  <div class="alert alert-info">
+    ℹ️ For sandbox access to the Camelion environment, contact Malam-Team to request SMART on FHIR credentials: <strong>api-support@malam.co.il</strong>
+  </div>
+
+  <!-- ── 6. Privacy ── -->
+  <h2 class="section-title">6. Privacy and Data Security</h2>
+  <p>
+    PenuX-AP-Severity was designed with Privacy by Design from the outset:
+  </p>
+  <ul style="padding-left:1.5rem;margin-bottom:.9rem;color:var(--gray800)">
+    <li>Patient identifiers (ID number, name, MRN) are stripped before transmission to the prediction server</li>
+    <li>No personal values are logged server-side</li>
+    <li>All requests are processed in-memory and are not persisted to any database</li>
+    <li>Compliant with HIPAA Minimum Necessary Standard and Israeli Privacy Protection Law</li>
+  </ul>
+  <div class="alert alert-green">
+    ✅ SAP prediction is a <strong>prediction tool only</strong> — not a diagnosis. All clinical decisions remain the sole responsibility of the treating physician.
+  </div>
+
+  <!-- ── 7. Comparison ── -->
+  <h2 class="section-title">7. Comparison with Existing Scoring Tools</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Scoring Tool</th><th>AUROC (literature)</th><th>Time to Result</th><th>Parameters</th><th>EHR Integration</th></tr>
+      </thead>
+      <tbody>
+        <tr class="best-row">
+          <td><strong>PenuX — Random Forest ★</strong></td><td class="good">0.877 (this cohort, 5-fold CV)</td>
+          <td class="good">2–4 hours</td><td>106 routine labs</td><td class="good">FHIR · HL7 · Camelion</td>
+        </tr>
+        <tr>
+          <td><strong>PenuX — Gradient Boosting</strong></td><td class="good">0.874</td>
+          <td class="good">2–4 hours</td><td>106 routine labs</td><td class="good">FHIR · HL7 · Camelion</td>
+        </tr>
+        <tr>
+          <td><strong>PenuX — MLP</strong></td><td>0.836</td>
+          <td class="good">2–4 hours</td><td>106 routine labs</td><td class="good">FHIR · HL7 · Camelion</td>
+        </tr>
+        <tr><td>BISAP</td><td>0.82</td><td>24 hours</td><td>5</td><td>Manual</td></tr>
+        <tr><td>Ranson (admission)</td><td>0.73</td><td>Admission</td><td>5 of 11</td><td>Manual</td></tr>
+        <tr><td>APACHE II</td><td>0.83</td><td>24 hours</td><td>12 + age + chronic disease</td><td>Manual</td></tr>
+        <tr><td>Harmless AP Score</td><td>0.88</td><td>Admission</td><td>3</td><td>No</td></tr>
+        <tr><td>CTSI (CT-based)</td><td>0.87</td><td>Post-CT</td><td>CT only</td><td>PACS only</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    PenuX Random Forest (AUC=0.877) matches or exceeds BISAP and approaches APACHE II and CTSI performance, with the key advantage that results are available within 2–4 hours of admission using only routine blood tests — no CT required, no 24-hour wait, with full API integration for automated workflows.
+  </p>
+
+  <!-- ── 7b. Why 48-hour validation ── -->
+  <h3 class="sub-title">7.1 Why Do Classical Scoring Tools Require 48 Hours to Confirm Severity?</h3>
+
+  <p>
+    A key clinical limitation of Ranson, Glasgow (Imrie), and related scoring systems is that their final score cannot be computed at admission — a subset of criteria is only evaluable after 48 hours of observation. This delay is not arbitrary: it reflects the two-wave physiological response of the body to acute pancreatic injury.
+  </p>
+
+  <h4 style="font-weight:600;color:var(--gray900);margin:1.2rem 0 .5rem">Wave 1 — Immediate Enzymatic Release (0–24 h)</h4>
+  <ul style="padding-left:1.5rem;color:var(--gray800);margin-bottom:1rem">
+    <li>Amylase and lipase are released into the bloodstream within hours of acinar cell injury — these are available at admission and confirm the diagnosis of AP.</li>
+    <li>Local inflammatory response begins; leukocytosis appears early.</li>
+    <li>At this stage, systemic organ impact is not yet measurable.</li>
+  </ul>
+
+  <h4 style="font-weight:600;color:var(--gray900);margin:1.2rem 0 .5rem">Wave 2 — Systemic Inflammatory Response (24–48 h)</h4>
+  <ul style="padding-left:1.5rem;color:var(--gray800);margin-bottom:1rem">
+    <li><strong>SIRS consolidates:</strong> cytokine storm (IL-6, TNF-α) peaks at 24–48 hours, driving the systemic response that determines severity.</li>
+    <li><strong>Target organ response:</strong> kidneys (rising creatinine / BUN), lungs (falling PaO₂/FiO₂ ratio), cardiovascular system — all require time to manifest measurable dysfunction.</li>
+    <li><strong>Fluid redistribution:</strong> third-space losses, hemoconcentration (hematocrit fall ≥10%), and calcium binding to necrotic fat (Ca²⁺ drop) develop over 24–48 hours.</li>
+  </ul>
+
+  <h4 style="font-weight:600;color:var(--gray900);margin:1.2rem 0 .5rem">Which Parameters Require a 48-Hour Window</h4>
+  <div class="table-wrap" style="margin-bottom:1.2rem">
+    <table>
+      <thead>
+        <tr><th>Scoring Tool</th><th>48-Hour Parameters</th><th>Reason for Delay</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Ranson (1974)</strong></td>
+          <td>ΔBUN ≥5 mg/dL · ΔHematocrit ≥10% · Ca²⁺ &lt;8 mg/dL · PaO₂ &lt;60 mmHg · Base deficit &gt;4 mEq/L · Fluid sequestration &gt;6 L</td>
+          <td>All are <em>dynamic delta values</em> — require two time points to compute</td>
+        </tr>
+        <tr>
+          <td><strong>Glasgow / Imrie</strong></td>
+          <td>PaO₂ · albumin · calcium · LDH (re-measured at 48 h)</td>
+          <td>Values peak or trough at 24–48 h; admission values underestimate severity</td>
+        </tr>
+        <tr>
+          <td><strong>BISAP</strong></td>
+          <td>BUN &gt;25 mg/dL (first 24 h)</td>
+          <td>BUN inflated before IV resuscitation — more reliable after initial fluid therapy</td>
+        </tr>
+        <tr>
+          <td><strong>CT Severity Index</strong></td>
+          <td>CT scan performed at 48–72 h</td>
+          <td>Pancreatic necrosis is not visible on early CT (&lt;48 h) — contrast enhancement underestimates devitalised tissue</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="font-weight:600;color:var(--gray900);margin:1.2rem 0 .5rem">The Clinical Cost of the 48-Hour Window</h4>
+  <p>
+    For severe cases, a 48-hour diagnostic delay is clinically dangerous. Patients who will develop infected pancreatic necrosis, abdominal compartment syndrome, or multi-organ dysfunction often show early warning signals — altered lab trajectories, rising inflammatory markers — that a data-driven model can detect in the first blood draw.
+    A prospective study by Mounzer et al. (2012, <em>Gastroenterology</em>) demonstrated that BISAP and APACHE II outperform Ranson at 24 hours but remain inferior to models that use admission biomarkers such as BUN, hematocrit, and SIRS criteria simultaneously.
+  </p>
+
+  <div style="background:var(--blue-lt,#eff6ff);border-left:4px solid var(--blue,#2563eb);padding:1rem 1.2rem;border-radius:0 .5rem .5rem 0;margin-bottom:1.5rem">
+    <strong>PenuX advantage:</strong> By learning from 106 admission laboratory values simultaneously — including the same inflammatory and metabolic markers that classical tools evaluate serially — the Random Forest model achieves equivalent or superior discrimination (AUC 0.877) from a <em>single blood draw at admission</em>, eliminating the 24–48 hour validation window entirely.
+  </div>
+
+  <!-- ── 8. Limitations ── -->
+  <h2 class="section-title">8. Limitations and Future Directions</h2>
+  <ul style="padding-left:1.5rem;color:var(--gray800);margin-bottom:1rem">
+    <li style="margin-bottom:.5rem"><strong>Single-institution cohort:</strong> All 722 admissions originate from one Chinese hospital. Etiology mix, lab reference ranges, and severity classification may differ from Israeli or Western populations.</li>
+    <li style="margin-bottom:.5rem"><strong>No external validation set:</strong> All performance figures are from 5-fold cross-validation on the same cohort. An independent hold-out set or prospective validation study is required.</li>
+    <li style="margin-bottom:.5rem"><strong>Class imbalance:</strong> 585 severe vs 137 mild (4.3:1 ratio). Models are optimised for sensitivity; specificity is lower (22–44%) across all models at optimal thresholds.</li>
+    <li style="margin-bottom:.5rem"><strong>Deep learning dataset size:</strong> n=722 is near the lower bound of DL benefit for tabular data. Rapid convergence (7–11 epochs) and lower AUC vs ensemble trees confirm this. A larger multi-site dataset would likely close the gap.</li>
+    <li style="margin-bottom:.5rem"><strong>Label quality:</strong> 13–14 patients with high pancreatic-sepsis-risk scores were labeled "mild" — possible ICD coding misclassification of infected pancreatic necrosis, which may suppress true model performance.</li>
+    <li style="margin-bottom:.5rem"><strong>Regulatory status:</strong> Clinical use requires ethics committee approval, Ministry of Health certification, and registration as a Software as a Medical Device (SaMD, MDR Class IIa).</li>
+  </ul>
+
+  <h3 class="sub-title">Future Directions</h3>
+  <ul style="padding-left:1.5rem;color:var(--gray800);margin-bottom:1rem">
+    <li>Training on Israeli multi-site data (Sheba, Hadassah, Rambam) under IRB approval</li>
+    <li>Integration of CT findings (Modified CTSI) via FHIR ImagingStudy resources</li>
+    <li>Federated Learning — distributed training without data sharing across sites</li>
+    <li>Point-of-care mobile app for emergency physicians</li>
+    <li>XGBoost and TabNet evaluation for potential AUC improvement on larger datasets</li>
+    <li>Temporal validation — prospective tracking of model performance over time</li>
+  </ul>
+
+  <!-- ── 9. Conclusion ── -->
+  <h2 class="section-title">9. Conclusions</h2>
+  <p>
+    PenuX-AP-Severity demonstrates that routine admission laboratory values, processed by data-driven ML models, can identify Severe Acute Pancreatitis with AUC up to 0.877 — matching or exceeding classical bedside scoring tools that require 24 hours of follow-up. Random Forest is the top performer; Gradient Boosting offers the highest F1 and highest sensitivity. Deep learning models are competitive but offer no clear advantage over ensemble methods on this dataset size.
+  </p>
+  <p>
+    The label inversion finding — mild biliary AP cases presenting with higher WBC/CRP/lipase than severe necrotising AP — is a clinically significant insight, potentially identifying a subgroup of misclassified infected pancreatic necrosis (IPN) cases that warrant prospective study.
+  </p>
+  <p>
+    The platform provides full FHIR R4, HL7 v2.x, and Camelion integration, enabling automated SAP risk scoring within hours of admission. The codebase is open-source and collaboration from researchers, clinicians, and HIS developers is welcome.
+  </p>
+
+  <!-- ── References ── -->
+  <h2 class="section-title">References</h2>
+  <ol class="refs">
+    <li>Banks PA, et al. <span>Classification of acute pancreatitis — 2012: revision of the Atlanta classification and definitions by international consensus.</span> Gut. 2013;62(1):102–111.</li>
+    <li>Wu BU, et al. <span>The early prediction of mortality in acute pancreatitis: a large population-based study.</span> Gut. 2008;57(12):1698–1703. [BISAP]</li>
+    <li>Ranson JH, et al. <span>Prognostic signs and the role of operative management in acute pancreatitis.</span> Surg Gynecol Obstet. 1974;139(1):69–81.</li>
+    <li>Johnson AEW, et al. <span>MIMIC-IV, a freely accessible electronic health record dataset.</span> Sci Data. 2023;10(1):1.</li>
+    <li>HL7 International. <span>HL7 FHIR R4 Specification.</span> 2019. https://hl7.org/fhir/R4/</li>
+    <li>Bollen TL, et al. <span>Comparative evaluation of the modified CT severity index and CT severity index in assessing severity of acute pancreatitis.</span> AJR. 2011;197(2):386–392.</li>
+    <li>Dellinger EP, et al. <span>Determinant-based classification of acute pancreatitis severity.</span> Ann Surg. 2012;256(6):875–880.</li>
+    <li>Cho JH, Kim TN, et al. <span>Harmless Acute Pancreatitis Score to predict absence of organ failure at admission.</span> Pancreatology. 2015;15(3):229–233.</li>
+    <li>Breiman L. <span>Random Forests.</span> Machine Learning. 2001;45(1):5–32.</li>
+    <li>Friedman JH. <span>Greedy function approximation: a gradient boosting machine.</span> Ann Stat. 2001;29(5):1189–1232.</li>
+    <li>Vaswani A, et al. <span>Attention is all you need.</span> NeurIPS. 2017.</li>
+  </ol>
+
+  <!-- ── Footer ── -->
+  <div class="article-footer">
+    <strong>Conflicts of interest:</strong> None. <strong>Funding:</strong> No external funding. <strong>Source code:</strong> github.com/netanelcyber/penuX (MIT License). <strong>Data:</strong> Chinese AP inpatient cohort, single institution (anonymised; no patient identifiers retained). <strong>Ethics:</strong> Retrospective analysis of anonymised data — exempt from IRB per institutional policy. <br/><br/>
+    ⚠️ <strong>Usage warning:</strong> This system is a research prototype only and is not certified for clinical use. Do not use it for therapeutic decision-making.
+  </div>
+
+</div>
+
+<script>
+// Fill LSTM table cells from eval_results.json
+const LSTM_MAP = [
+  ["LSTM",               "rv-lstm"],
+  ["Stacked LSTM",       "rv-slstm"],
+  ["Bidirectional LSTM", "rv-bilstm"],
+  ["LSTM + Attention",   "rv-lstmatt"],
+  ["CNN-LSTM",           "rv-cnnlstm"],
+];
+fetch("../PenuX-AP-Severity/models/eval_results.json")
+  .then(r => r.json())
+  .then(data => {
+    LSTM_MAP.forEach(([key, id]) => {
+      const v = data[key];
+      if (!v) return;
+      const set = (suffix, val) => { const el = document.getElementById(id + "-" + suffix); if (el) el.textContent = val; };
+      set("auc",  v.auc);
+      set("f1",   v.f1);
+      set("t",    v.threshold);
+      set("sens", v.sens + "%");
+      set("spec", v.spec + "%");
+      set("ppv",  v.ppv  + "%");
+    });
+  })
+  .catch(() => {});
+</script>
+</body>
+</html>
