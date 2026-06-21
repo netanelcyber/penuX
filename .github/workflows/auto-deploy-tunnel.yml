@@ -48,16 +48,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Verify ngrok secret is set
+      - name: Select tunnel method
+        id: tunnel
         run: |
-          if [ -z "${{ secrets.NGROK_AUTHTOKEN }}" ]; then
-            echo "::error::NGROK_AUTHTOKEN secret is not set."
-            echo "Add it at: Settings → Secrets and variables → Actions"
-            echo "Get a free token (email only, no card) at:"
-            echo "  https://dashboard.ngrok.com/get-started/your-authtoken"
-            exit 1
+          if [ -n "${{ secrets.NGROK_AUTHTOKEN }}" ]; then
+            echo "method=ngrok" >> "$GITHUB_OUTPUT"
+            echo "✅ Using ngrok (permanent URL)"
+          else
+            echo "method=localhost_run" >> "$GITHUB_OUTPUT"
+            echo "ℹ️ No NGROK_AUTHTOKEN — using signup-free localhost.run (temporary URL)"
+            echo "   For a permanent URL, add NGROK_AUTHTOKEN + NGROK_DOMAIN secrets."
           fi
-          echo "✅ NGROK_AUTHTOKEN is configured"
 
       - name: Create .env file
         run: |
@@ -87,7 +88,8 @@ jobs:
           done
           docker compose -f docker-compose-hub.yml ps
 
-      - name: Install ngrok
+      - name: Start ngrok tunnel (permanent URL)
+        if: steps.tunnel.outputs.method == 'ngrok'
         run: |
           curl -fsSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | \
             sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
@@ -95,10 +97,7 @@ jobs:
             sudo tee /etc/apt/sources.list.d/ngrok.list
           sudo apt-get update -q && sudo apt-get install -y ngrok
           ngrok config add-authtoken "${{ secrets.NGROK_AUTHTOKEN }}"
-          echo "✅ ngrok installed and authenticated"
 
-      - name: Start tunnel to Web UI
-        run: |
           DOMAIN="${{ secrets.NGROK_DOMAIN }}"
           if [ -n "$DOMAIN" ]; then
             echo "Starting tunnel on permanent domain: $DOMAIN"
@@ -113,20 +112,50 @@ jobs:
             python3 -c "import sys,json; t=json.load(sys.stdin)['tunnels']; print([x['public_url'] for x in t if x['public_url'].startswith('https')][0])" 2>/dev/null || echo "")
 
           {
-            echo "### 🚀 PenuX LDAP is LIVE"
+            echo "### 🚀 PenuX LDAP is LIVE (ngrok)"
             echo ""
-            if [ -n "$PUBLIC_URL" ]; then
-              echo "**Web UI:** $PUBLIC_URL"
-            elif [ -n "$DOMAIN" ]; then
-              echo "**Web UI:** https://$DOMAIN"
-            fi
+            echo "**Web UI:** ${PUBLIC_URL:-https://$DOMAIN}"
             echo ""
             echo "API is reachable at the \`/api/*\` paths on the same host."
             echo ""
             echo "_This deployment auto-relaunches every 6 hours via cron._"
           } >> "$GITHUB_STEP_SUMMARY"
-
           echo "Public URL: ${PUBLIC_URL:-https://$DOMAIN}"
+
+      - name: Start localhost.run tunnel (signup-free)
+        if: steps.tunnel.outputs.method == 'localhost_run'
+        run: |
+          echo "Starting SSH reverse tunnel via localhost.run (no account needed)..."
+          # -T no pty, batch-mode keys disabled, auto-accept host key
+          nohup ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            -o ServerAliveInterval=30 -o ExitOnForwardFailure=yes -T \
+            -R 80:localhost:3001 nokey@localhost.run > lhr.log 2>&1 &
+
+          echo "Waiting for tunnel URL..."
+          PUBLIC_URL=""
+          for i in $(seq 1 20); do
+            PUBLIC_URL=$(grep -oE 'https://[a-z0-9.-]+\.lhr\.life' lhr.log 2>/dev/null | head -1 || true)
+            [ -z "$PUBLIC_URL" ] && PUBLIC_URL=$(grep -oE 'https://[a-z0-9.-]+\.localhost\.run' lhr.log 2>/dev/null | head -1 || true)
+            [ -n "$PUBLIC_URL" ] && break
+            sleep 3
+          done
+
+          {
+            echo "### 🚀 PenuX LDAP is LIVE (localhost.run — signup-free)"
+            echo ""
+            if [ -n "$PUBLIC_URL" ]; then
+              echo "**Web UI:** $PUBLIC_URL"
+            else
+              echo "URL not captured yet — see the 'localhost.run' step log (lhr.log)."
+            fi
+            echo ""
+            echo "⚠️ This URL changes every run. For a permanent URL, add repo secrets"
+            echo "\`NGROK_AUTHTOKEN\` + \`NGROK_DOMAIN\` (ngrok signup is email-only, no card)."
+            echo ""
+            echo "_This deployment auto-relaunches every 6 hours via cron._"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "Public URL: ${PUBLIC_URL:-see lhr.log}"
+          cat lhr.log || true
 
       - name: Keep deployment alive
         run: |
@@ -155,4 +184,6 @@ jobs:
           echo "=== web logs ==="
           docker compose -f docker-compose-hub.yml logs web || true
           echo "=== ngrok log ==="
-          cat ngrok.log || true
+          cat ngrok.log 2>/dev/null || true
+          echo "=== localhost.run log ==="
+          cat lhr.log 2>/dev/null || true
