@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "server.js"
+    }
+  ],
+  "env": {
+    "LDAP_HOST": "@ldap_host",
+    "LDAP_BASE_DN": "@ldap_base_dn",
+    "LDAP_ADMIN_DN": "@ldap_admin_dn",
+    "LDAP_ADMIN_PASSWORD": "@ldap_admin_password",
+    "CORS_ORIGIN": "@cors_origin"
+  }
+}
