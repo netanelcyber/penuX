@@ -67,18 +67,20 @@ services:
     networks:
       - penux-net
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
-    resources:
-      limits:
-        cpus: '1'
-        memory: 512M
-      reservations:
-        cpus: '0.5'
-        memory: 256M
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
 
   web:
     image: netanelcyber/penux-ldap-web:latest
@@ -95,18 +97,20 @@ services:
     networks:
       - penux-net
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001 || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
-    resources:
-      limits:
-        cpus: '0.5'
-        memory: 256M
-      reservations:
-        cpus: '0.25'
-        memory: 128M
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
 
 volumes:
   ldap_data:
