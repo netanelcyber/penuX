@@ -1,0 +1,30 @@
+name: Submit to Cureus Journal
+
+on:
+  workflow_dispatch:
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Playwright
+        run: |
+          pip install playwright -q
+          playwright install chromium
+          playwright install-deps chromium
+
+      - name: Submit to Cureus
+        env:
+          MEDRXIV_EMAIL: netanel@penux.uk
+          MEDRXIV_PASS: ${{ secrets.MEDRXIV_PASS }}
+        run: python3 .github/scripts/cureus_submit.py
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cureus-screenshots
+          path: /tmp/c*.png
