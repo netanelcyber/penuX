@@ -1,0 +1,158 @@
+name: Auto-Deploy LDAP via Free Tunnel
+
+# Fully automated deployment — no manual steps, no Cloudflare, no credit card.
+#
+# GitHub Actions ubuntu runners have Docker pre-installed and are free.
+# This workflow boots the full LDAP stack and exposes it through a free
+# ngrok tunnel with a PERMANENT static domain.
+#
+# A job can run up to ~6 hours, so the cron schedule relaunches it before
+# it expires — giving you a near-always-on free deployment.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   NGROK_AUTHTOKEN  - from https://dashboard.ngrok.com/get-started/your-authtoken
+#                      (ngrok signup is email-only, NO credit card)
+#   NGROK_DOMAIN     - your free static domain, e.g. penux-ldap.ngrok-free.app
+#                      get one free at https://dashboard.ngrok.com/domains
+#
+# Optional secrets (sensible defaults used if absent):
+#   LDAP_ADMIN_PASSWORD, POSTGRES_PASSWORD
+
+on:
+  workflow_dispatch:
+    inputs:
+      keepalive_minutes:
+        description: 'Minutes to keep the deployment running (max 350)'
+        required: false
+        default: '350'
+  push:
+    branches:
+      - claude/laughing-cori-jlr7od
+      - main
+    paths:
+      - 'docker-compose-hub.yml'
+      - '.github/workflows/auto-deploy-tunnel.yml'
+  schedule:
+    # Relaunch every ~5h50m so the tunnel stays alive across the 6h job cap
+    - cron: '0 */6 * * *'
+
+concurrency:
+  group: auto-deploy-tunnel
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify ngrok secret is set
+        run: |
+          if [ -z "${{ secrets.NGROK_AUTHTOKEN }}" ]; then
+            echo "::error::NGROK_AUTHTOKEN secret is not set."
+            echo "Add it at: Settings → Secrets and variables → Actions"
+            echo "Get a free token (email only, no card) at:"
+            echo "  https://dashboard.ngrok.com/get-started/your-authtoken"
+            exit 1
+          fi
+          echo "✅ NGROK_AUTHTOKEN is configured"
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          LDAP_ADMIN_PASSWORD=${{ secrets.LDAP_ADMIN_PASSWORD || 'admin123' }}
+          POSTGRES_USER=penux
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD || 'secure_password' }}
+          NODE_ENV=production
+          CORS_ORIGIN=*
+          EOF
+          echo "✅ .env created"
+
+      - name: Pull and start the stack
+        run: |
+          echo "=== Pulling images ==="
+          docker compose -f docker-compose-hub.yml pull
+
+          echo "=== Starting services ==="
+          docker compose -f docker-compose-hub.yml up -d
+
+          echo "=== Waiting for API to become healthy (up to 120s) ==="
+          for i in $(seq 1 24); do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' penux-api 2>/dev/null || echo "starting")
+            echo "  attempt $i/24 → api: $STATUS"
+            [ "$STATUS" = "healthy" ] && break
+            sleep 5
+          done
+          docker compose -f docker-compose-hub.yml ps
+
+      - name: Install ngrok
+        run: |
+          curl -fsSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | \
+            sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
+          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | \
+            sudo tee /etc/apt/sources.list.d/ngrok.list
+          sudo apt-get update -q && sudo apt-get install -y ngrok
+          ngrok config add-authtoken "${{ secrets.NGROK_AUTHTOKEN }}"
+          echo "✅ ngrok installed and authenticated"
+
+      - name: Start tunnel to Web UI
+        run: |
+          DOMAIN="${{ secrets.NGROK_DOMAIN }}"
+          if [ -n "$DOMAIN" ]; then
+            echo "Starting tunnel on permanent domain: $DOMAIN"
+            nohup ngrok http 3001 --domain="$DOMAIN" --log=stdout > ngrok.log 2>&1 &
+          else
+            echo "No NGROK_DOMAIN set — using a random URL for this run"
+            nohup ngrok http 3001 --log=stdout > ngrok.log 2>&1 &
+          fi
+
+          sleep 8
+          PUBLIC_URL=$(curl -s http://localhost:4040/api/tunnels | \
+            python3 -c "import sys,json; t=json.load(sys.stdin)['tunnels']; print([x['public_url'] for x in t if x['public_url'].startswith('https')][0])" 2>/dev/null || echo "")
+
+          {
+            echo "### 🚀 PenuX LDAP is LIVE"
+            echo ""
+            if [ -n "$PUBLIC_URL" ]; then
+              echo "**Web UI:** $PUBLIC_URL"
+            elif [ -n "$DOMAIN" ]; then
+              echo "**Web UI:** https://$DOMAIN"
+            fi
+            echo ""
+            echo "API is reachable at the \`/api/*\` paths on the same host."
+            echo ""
+            echo "_This deployment auto-relaunches every 6 hours via cron._"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "Public URL: ${PUBLIC_URL:-https://$DOMAIN}"
+
+      - name: Keep deployment alive
+        run: |
+          MINUTES="${{ github.event.inputs.keepalive_minutes || '350' }}"
+          echo "Keeping deployment alive for $MINUTES minutes..."
+          echo "Tunnel and stack will run until then, then cron relaunches."
+          END=$(( $(date +%s) + MINUTES * 60 ))
+          while [ "$(date +%s)" -lt "$END" ]; do
+            # Health probe every 60s; restart stack if API drops
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' penux-api 2>/dev/null || echo "gone")
+            if [ "$STATUS" = "unhealthy" ] || [ "$STATUS" = "gone" ]; then
+              echo "⚠️ API status=$STATUS — restarting stack"
+              docker compose -f docker-compose-hub.yml up -d
+            fi
+            sleep 60
+          done
+          echo "Keepalive window ended — cron will relaunch."
+
+      - name: Dump logs on failure
+        if: failure()
+        run: |
+          echo "=== docker compose ps ==="
+          docker compose -f docker-compose-hub.yml ps || true
+          echo "=== api logs ==="
+          docker compose -f docker-compose-hub.yml logs api || true
+          echo "=== web logs ==="
+          docker compose -f docker-compose-hub.yml logs web || true
+          echo "=== ngrok log ==="
+          cat ngrok.log || true

@@ -9,6 +9,7 @@
   },
 
   "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postStartCommand": "nohup bash .devcontainer/autostart.sh > /tmp/penux-autostart.log 2>&1 &",
 
   "forwardPorts": [3000, 3001, 389],
   "portsAttributes": {
