@@ -1,0 +1,88 @@
+#!/bin/bash
+# 🚀 PenuX LDAP Deployment Control
+# Simple commands for all deployment tasks
+
+set -e
+
+CMD="${1:-status}"
+
+case "$CMD" in
+  status|st)
+    echo "📊 Deployment Status"
+    ./deployment-status.sh
+    ;;
+
+  ngrok|auto)
+    echo "🔗 Setting up permanent ngrok domain..."
+    ./ngrok-full-auto.sh
+    ;;
+
+  test|local)
+    echo "🧪 Local testing (localhost.run, temporary URL)"
+    ./free-tunnel-setup.sh netanelcyber
+    ;;
+
+  trigger|run)
+    echo "▶️ Triggering workflow..."
+    gh workflow run auto-deploy-tunnel.yml -r claude/laughing-cori-jlr7od
+    echo "✅ Triggered. Check status with: ./deploy status"
+    ;;
+
+  logs|log)
+    echo "📋 Latest workflow logs"
+    RUN=$(gh run list --workflow auto-deploy-tunnel.yml --limit 1 --json databaseId -q '.[0].databaseId')
+    gh run view "$RUN" --log
+    ;;
+
+  url|link)
+    echo "🔗 Getting your LDAP URL..."
+    RUN=$(gh run list --workflow auto-deploy-tunnel.yml --limit 1 --json databaseId -q '.[0].databaseId')
+    echo "https://github.com/netanelcyber/penuX/actions/runs/$RUN"
+    ;;
+
+  stop|pause)
+    echo "⏸️  Disabling auto-deployment..."
+    gh workflow disable auto-deploy-tunnel.yml
+    echo "✅ Paused (existing run will finish in ~6h)"
+    echo "   Resume with: ./deploy resume"
+    ;;
+
+  resume|start)
+    echo "▶️ Re-enabling auto-deployment..."
+    gh workflow enable auto-deploy-tunnel.yml
+    echo "✅ Resumed (cron will trigger in up to 6h)"
+    echo "   Or manually trigger: ./deploy trigger"
+    ;;
+
+  help|h|"")
+    cat << 'EOF'
+🚀 PenuX LDAP Deployment Control
+
+Commands:
+  ./deploy status      — Check deployment status
+  ./deploy ngrok       — Setup permanent ngrok domain (5 min, one command)
+  ./deploy test        — Test locally with localhost.run
+  ./deploy trigger     — Manually trigger the workflow
+  ./deploy logs        — View latest workflow logs
+  ./deploy url         — Get the latest run URL
+  ./deploy stop        — Pause auto-deployment
+  ./deploy resume      — Resume auto-deployment
+  ./deploy help        — Show this help
+
+Examples:
+  ./deploy status              # See what's running
+  ./deploy ngrok               # Permanent URL (recommended)
+  ./deploy trigger && sleep 2 && ./deploy status  # Trigger and watch
+
+Current Status:
+EOF
+    ./deployment-status.sh
+    ;;
+
+  *)
+    echo "❌ Unknown command: $CMD"
+    echo ""
+    ./deploy help
+    exit 1
+    ;;
+esac

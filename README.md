@@ -25,7 +25,26 @@
 
 ---
 
-## 🚀 Quick Start (5 Minutes)
+## ☁️ Cloud Deployment (Zero Setup)
+
+**Already running on GitHub Actions with auto-restart every 6 hours**
+
+```bash
+# Check status
+./deploy status
+
+# Get permanent URL (5 min, one command)
+./deploy ngrok
+
+# View all commands
+./deploy help
+```
+
+📖 See [`DEPLOY.md`](DEPLOY.md) for full cloud deployment guide.
+
+---
+
+## 🚀 Quick Start (5 Minutes — Local)
 
 ### 1️⃣ Start Services
 ```bash
