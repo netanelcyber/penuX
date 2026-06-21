@@ -68,6 +68,15 @@ nav{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px 
 .field input:focus,.field select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.12)}
 .impute-note{font-size:.75rem;color:var(--gray-500);margin-top:.5rem;font-style:italic}
 
+/* UNIT TOGGLE */
+.unit-toggle-bar{display:flex;align-items:center;justify-content:flex-end;gap:.6rem;padding:.6rem 1.5rem;background:var(--gray-50);border-bottom:1px solid var(--gray-100);font-size:.8rem;color:var(--gray-600)}
+.toggle-track{width:44px;height:24px;border-radius:12px;background:var(--gray-300);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;border:none;padding:0}
+.toggle-track.on{background:var(--blue)}
+.toggle-thumb{width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.toggle-track.on .toggle-thumb{left:23px}
+.unit-label-si{color:var(--gray-500)}
+.unit-label-us{color:var(--blue);font-weight:600}
+
 /* FHIR TAB */
 .fhir-area textarea{width:100%;border:1px solid var(--gray-200);border-radius:6px;padding:.75rem;font-size:.8rem;font-family:'Courier New',monospace;color:var(--gray-700);resize:vertical;min-height:180px}
 .fhir-area textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.12)}
@@ -157,6 +166,15 @@ nav{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px 
         <button class="tab-btn" onclick="switchTab('fhir')">FHIR R4 Bundle</button>
       </div>
 
+      <!-- UNIT TOGGLE -->
+      <div class="unit-toggle-bar">
+        <span id="lbl-si" class="unit-label-si">SI units</span>
+        <button class="toggle-track" id="unit-toggle" onclick="toggleUnits()" title="Switch between SI and US conventional units">
+          <span class="toggle-thumb"></span>
+        </button>
+        <span id="lbl-us" class="unit-label-us">US conventional (mg/dL)</span>
+      </div>
+
       <!-- MANUAL ENTRY TAB -->
       <div class="tab-panel active" id="tab-manual">
 
@@ -186,20 +204,20 @@ nav{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px 
           <div class="field-group-title">Renal / Metabolic</div>
           <div class="fields-grid">
             <div class="field">
-              <label>肌酐 (Creatinine) <span class="loinc">2160-0</span> <span class="unit">µmol/L</span></label>
-              <input type="number" step="any" id="f_肌酐" placeholder="76.59" data-loinc="2160-0"/>
+              <label>肌酐 (Creatinine) <span class="loinc">2160-0</span> <span class="unit" id="unit-肌酐">µmol/L</span></label>
+              <input type="number" step="any" id="f_肌酐" placeholder="76.59" data-loinc="2160-0" data-conv="creatinine"/>
             </div>
             <div class="field">
-              <label>尿素 (BUN) <span class="loinc">3094-0</span> <span class="unit">mmol/L</span></label>
-              <input type="number" step="any" id="f_尿素" placeholder="4.94" data-loinc="3094-0"/>
+              <label>尿素 (BUN) <span class="loinc">3094-0</span> <span class="unit" id="unit-尿素">mmol/L</span></label>
+              <input type="number" step="any" id="f_尿素" placeholder="4.94" data-loinc="3094-0" data-conv="bun"/>
             </div>
             <div class="field">
-              <label>葡萄糖 (Glucose) <span class="loinc">2345-7</span> <span class="unit">mmol/L</span></label>
-              <input type="number" step="any" id="f_葡萄糖" placeholder="5.97" data-loinc="2345-7"/>
+              <label>葡萄糖 (Glucose) <span class="loinc">2345-7</span> <span class="unit" id="unit-葡萄糖">mmol/L</span></label>
+              <input type="number" step="any" id="f_葡萄糖" placeholder="5.97" data-loinc="2345-7" data-conv="glucose"/>
             </div>
             <div class="field">
-              <label>钙 (Calcium) <span class="loinc">17861-6</span> <span class="unit">mmol/L</span></label>
-              <input type="number" step="any" id="f_钙" placeholder="2.02" data-loinc="17861-6"/>
+              <label>钙 (Calcium) <span class="loinc">17861-6</span> <span class="unit" id="unit-钙">mmol/L</span></label>
+              <input type="number" step="any" id="f_钙" placeholder="2.02" data-loinc="17861-6" data-conv="calcium"/>
             </div>
           </div>
         </div>
@@ -216,8 +234,8 @@ nav{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px 
               <input type="number" step="any" id="f_谷草转氨酶" placeholder="85.47" data-loinc="1920-8"/>
             </div>
             <div class="field">
-              <label>总胆红素 (Total Bilirubin) <span class="loinc">1975-2</span> <span class="unit">µmol/L</span></label>
-              <input type="number" step="any" id="f_总胆红素" placeholder="19.81" data-loinc="1975-2"/>
+              <label>总胆红素 (Total Bilirubin) <span class="loinc">1975-2</span> <span class="unit" id="unit-总胆红素">µmol/L</span></label>
+              <input type="number" step="any" id="f_总胆红素" placeholder="19.81" data-loinc="1975-2" data-conv="bilirubin"/>
             </div>
             <div class="field">
               <label>淀粉酶 (Amylase) <span class="loinc">1798-8</span> <span class="unit">U/L</span></label>
@@ -246,12 +264,12 @@ nav{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px 
               <input type="number" step="any" id="f_D-二聚体测定" placeholder="1.11" data-loinc="48065-7"/>
             </div>
             <div class="field">
-              <label>白蛋白 (Albumin) <span class="loinc">1751-7</span> <span class="unit">g/L</span></label>
-              <input type="number" step="any" id="f_白蛋白" placeholder="37.23" data-loinc="1751-7"/>
+              <label>白蛋白 (Albumin) <span class="loinc">1751-7</span> <span class="unit" id="unit-白蛋白">g/L</span></label>
+              <input type="number" step="any" id="f_白蛋白" placeholder="37.23" data-loinc="1751-7" data-conv="albumin"/>
             </div>
             <div class="field">
-              <label>乳酸 (Lactate) <span class="loinc">2524-7</span> <span class="unit">mmol/L</span></label>
-              <input type="number" step="any" id="f_乳酸" placeholder="1.42" data-loinc="2524-7"/>
+              <label>乳酸 (Lactate) <span class="loinc">2524-7</span> <span class="unit" id="unit-乳酸">mmol/L</span></label>
+              <input type="number" step="any" id="f_乳酸" placeholder="1.42" data-loinc="2524-7" data-conv="lactate"/>
             </div>
           </div>
         </div>
@@ -482,24 +500,7 @@ function predictRF(fv, model) {
   return sum / model.trees.length;
 }
 
-function buildFeatureVector(model) {
-  const fv = new Float32Array(model.n_features);
-  for (let i = 0; i < model.n_features; i++) {
-    const name = model.feature_names[i];
-    // Try form field
-    const el = document.getElementById('f_' + name);
-    let val = null;
-    if (el) {
-      if (el.tagName === 'SELECT') {
-        val = el.value !== '' ? parseFloat(el.value) : null;
-      } else {
-        val = el.value !== '' ? parseFloat(el.value) : null;
-      }
-    }
-    fv[i] = (val !== null && !isNaN(val)) ? val : FEATURE_MEANS[name];
-  }
-  return fv;
-}
+// buildFeatureVector is defined later (after unit-conversion section) so it can handle SI↔US toggle
 
 function runPrediction() {
   if (!MODEL) return;
@@ -625,6 +626,85 @@ function exportFHIR(prob) {
   a.href = url; a.download = 'penux_risk_assessment.json';
   document.body.appendChild(a); a.click();
   document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+// ── UNIT CONVERSION ───────────────────────────────────────────────────────────
+// All conversions: SI → US (multiply), US → SI (divide)
+// The model always receives SI values.
+const CONV = {
+  glucose:    { siUnit:'mmol/L',  usUnit:'mg/dL',  factor:18.016, siPlaceholder:'5.97',  usPlaceholder:'107.6' },
+  bun:        { siUnit:'mmol/L',  usUnit:'mg/dL',  factor:2.801,  siPlaceholder:'4.94',  usPlaceholder:'13.8'  },
+  creatinine: { siUnit:'µmol/L',  usUnit:'mg/dL',  factor:0.01131,siPlaceholder:'76.59', usPlaceholder:'0.87'  },
+  calcium:    { siUnit:'mmol/L',  usUnit:'mg/dL',  factor:4.008,  siPlaceholder:'2.02',  usPlaceholder:'8.1'   },
+  bilirubin:  { siUnit:'µmol/L',  usUnit:'mg/dL',  factor:0.05848,siPlaceholder:'19.81', usPlaceholder:'1.16'  },
+  albumin:    { siUnit:'g/L',     usUnit:'g/dL',   factor:0.1,    siPlaceholder:'37.23', usPlaceholder:'3.72'  },
+  lactate:    { siUnit:'mmol/L',  usUnit:'mg/dL',  factor:9.01,   siPlaceholder:'1.42',  usPlaceholder:'12.8'  },
+};
+
+// Map field id → conv key
+const FIELD_CONV_MAP = {
+  'f_葡萄糖':'glucose', 'f_尿素':'bun', 'f_肌酐':'creatinine',
+  'f_钙':'calcium', 'f_总胆红素':'bilirubin', 'f_白蛋白':'albumin', 'f_乳酸':'lactate'
+};
+
+// Unit label elements
+const UNIT_LABEL_MAP = {
+  'f_葡萄糖':'unit-葡萄糖', 'f_尿素':'unit-尿素', 'f_肌酐':'unit-肌酐',
+  'f_钙':'unit-钙', 'f_总胆红素':'unit-总胆红素', 'f_白蛋白':'unit-白蛋白', 'f_乳酸':'unit-乳酸'
+};
+
+let isUSUnits = false;
+
+function toggleUnits() {
+  isUSUnits = !isUSUnits;
+  const btn = document.getElementById('unit-toggle');
+  btn.classList.toggle('on', isUSUnits);
+  document.getElementById('lbl-si').style.fontWeight = isUSUnits ? '' : '600';
+  document.getElementById('lbl-si').style.color = isUSUnits ? '' : 'var(--blue)';
+  document.getElementById('lbl-us').style.fontWeight = isUSUnits ? '600' : '';
+  document.getElementById('lbl-us').style.color = isUSUnits ? 'var(--blue)' : 'var(--gray-500)';
+
+  for (const [fieldId, convKey] of Object.entries(FIELD_CONV_MAP)) {
+    const cfg = CONV[convKey];
+    const el = document.getElementById(fieldId);
+    const labelEl = document.getElementById(UNIT_LABEL_MAP[fieldId]);
+
+    // Convert existing value
+    if (el.value !== '') {
+      const v = parseFloat(el.value);
+      if (!isNaN(v)) {
+        if (isUSUnits) {
+          el.value = (v * cfg.factor).toFixed(2);
+        } else {
+          el.value = (v / cfg.factor).toFixed(2);
+        }
+      }
+    }
+
+    // Update label + placeholder
+    labelEl.textContent = isUSUnits ? cfg.usUnit : cfg.siUnit;
+    el.placeholder = isUSUnits ? cfg.usPlaceholder : cfg.siPlaceholder;
+  }
+}
+
+// Convert US → SI before inference when US mode is active
+function buildFeatureVector(model) {
+  const fv = new Float32Array(model.n_features);
+  for (let i = 0; i < model.n_features; i++) {
+    const name = model.feature_names[i];
+    const el = document.getElementById('f_' + name);
+    let val = null;
+    if (el) {
+      val = el.value !== '' ? parseFloat(el.value) : null;
+      // Convert US → SI before inference
+      if (val !== null && !isNaN(val) && isUSUnits) {
+        const convKey = FIELD_CONV_MAP['f_' + name];
+        if (convKey) val = val / CONV[convKey].factor;
+      }
+    }
+    fv[i] = (val !== null && !isNaN(val)) ? val : FEATURE_MEANS[name];
+  }
+  return fv;
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
