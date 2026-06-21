@@ -14,6 +14,18 @@ A complete **OpenLDAP + phpLDAPadmin** setup for the penux.uk domain, providing 
 
 ## Quick Start
 
+### For Windows Users
+
+**👉 [See Windows Installation Guide](WINDOWS_SETUP.md)** for Docker Desktop setup and PowerShell instructions.
+
+Quick version:
+```powershell
+cd services\openldap
+.\setup.ps1
+```
+
+### For Linux/macOS Users
+
 ### 1. Initialize and Start Services
 
 ```bash
@@ -37,8 +49,14 @@ This will:
 
 Use the management script:
 
+**Linux/macOS:**
 ```bash
 ./manage.sh help
+```
+
+**Windows (PowerShell):**
+```powershell
+.\manage.ps1 help
 ```
 
 ## Configuration
