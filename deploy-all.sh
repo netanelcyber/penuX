@@ -178,6 +178,9 @@ credentials-file: $CREDS_FILE
 
 ingress:
   - hostname: ldap.penux.uk
+    service: http://localhost:3001
+
+  - hostname: keycloak.penux.uk
     service: http://localhost:8080
 
   - hostname: ldap-server.penux.uk

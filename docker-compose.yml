@@ -67,6 +67,26 @@ services:
       timeout: 5s
       retries: 5
 
+  # PenuX LDAP Web UI
+  web-ui:
+    image: node:22-alpine
+    container_name: penux-web-ui
+    working_dir: /app
+    volumes:
+      - ./services/openldap/web:/app
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+    command: sh -c "npm install && node server.js"
+    networks:
+      - penux-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   ldap_data:
   ldap_config:
