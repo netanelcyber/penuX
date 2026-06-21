@@ -1,9 +1,16 @@
-name: Build and Push to Docker Hub
+name: Build, Push and Deploy to Cloudflare Tunnel
 
-# Pushes PenuX LDAP images to Docker Hub.
+# Pushes PenuX LDAP images to Docker Hub, then deploys via Cloudflare Tunnel.
 # Requires repository secrets:
-#   DOCKERHUB_USERNAME - your Docker Hub username
-#   DOCKERHUB_TOKEN    - a Docker Hub access token (Account Settings -> Security)
+#   DOCKERHUB_USERNAME    - your Docker Hub username
+#   DOCKERHUB_TOKEN       - a Docker Hub access token (Account Settings -> Security)
+#
+# Optional secrets for auto-deploy to your server via SSH:
+#   SERVER_HOST           - your server IP or hostname
+#   SERVER_USER           - SSH username (e.g. ubuntu, root)
+#   SERVER_SSH_KEY        - your SSH private key (contents of ~/.ssh/id_rsa)
+#   CLOUDFLARE_API_TOKEN  - Cloudflare API token (dash.cloudflare.com → My Profile → API Tokens)
+#   CLOUDFLARE_ACCOUNT_ID - Cloudflare Account ID (dash.cloudflare.com → right sidebar)
 
 on:
   push:
@@ -82,3 +89,87 @@ jobs:
           echo "docker pull ${{ steps.meta.outputs.user }}/penux-ldap-api:latest" >> "$GITHUB_STEP_SUMMARY"
           echo "docker pull ${{ steps.meta.outputs.user }}/penux-ldap-web:latest" >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    # Skips gracefully if SSH secrets are not configured
+    if: ${{ vars.SERVER_HOST != '' || secrets.SERVER_HOST != '' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd ~/penuX || git clone https://github.com/netanelcyber/penuX.git ~/penuX && cd ~/penuX
+            git pull origin claude/laughing-cori-jlr7od
+
+            echo "=== Pulling latest Docker images ==="
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/penux-ldap-api:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/penux-ldap-web:latest
+
+            echo "=== Starting Docker services ==="
+            chmod +x cloudflare-tunnel-setup.sh
+            docker-compose -f docker-compose-hub.yml pull
+            docker-compose -f docker-compose-hub.yml up -d
+
+            echo "=== Setting up Cloudflare Tunnel ==="
+            if ! command -v cloudflared &> /dev/null; then
+              curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+              sudo dpkg -i cloudflared.deb && rm cloudflared.deb
+            fi
+
+            # Non-interactive login using API token
+            export CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }}
+            cloudflared tunnel --origincert /dev/null login --token "$CLOUDFLARE_API_TOKEN" 2>/dev/null || true
+
+            # Create tunnel if it doesn't exist
+            cloudflared tunnel create penux-ldap 2>/dev/null || true
+
+            # Configure routing
+            mkdir -p ~/.cloudflared
+            CREDS=$(ls ~/.cloudflared/*.json 2>/dev/null | grep -v cert | head -1)
+            cat > ~/.cloudflared/config.yml << 'EOF'
+            tunnel: penux-ldap
+            credentials-file: CREDS_PATH
+
+            ingress:
+              - hostname: ldap.penux.uk
+                service: http://localhost:3001
+              - hostname: penux.uk
+                service: http://localhost:3001
+              - hostname: api.ldap.penux.uk
+                service: http://localhost:3000
+              - service: http_status:404
+            EOF
+            sed -i "s|CREDS_PATH|$CREDS|g" ~/.cloudflared/config.yml
+
+            # DNS routes
+            cloudflared tunnel route dns penux-ldap ldap.penux.uk 2>/dev/null || true
+            cloudflared tunnel route dns penux-ldap penux.uk 2>/dev/null || true
+            cloudflared tunnel route dns penux-ldap api.ldap.penux.uk 2>/dev/null || true
+
+            # Install/restart service
+            sudo cloudflared service install 2>/dev/null || true
+            sudo systemctl restart cloudflared || cloudflared tunnel run penux-ldap &
+
+            echo ""
+            echo "✅ Deployed! Live at:"
+            echo "   https://ldap.penux.uk"
+            echo "   https://api.ldap.penux.uk"
+
+      - name: Deployment summary
+        run: |
+          echo "### 🚀 Deployed to ldap.penux.uk" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Service | URL |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---------|-----|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Web UI  | https://ldap.penux.uk |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| API     | https://api.ldap.penux.uk |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Root    | https://penux.uk |" >> "$GITHUB_STEP_SUMMARY"
