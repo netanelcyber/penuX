@@ -1,0 +1,36 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Certificates
+certs/
+ssl/
+
+# Logs
+*.log
+logs/
+
+# Docker volumes (local development)
+ldap_database/
+ldap_config/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backups
+*.ldif.bak
+*.tar.gz
+backups/
+
+# Temporary files
+*.tmp
+/tmp/
