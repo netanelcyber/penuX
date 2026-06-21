@@ -1,0 +1,32 @@
+{
+  "name": "PenuX LDAP Dev",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "dockerDashComposeVersion": "v2"
+    }
+  },
+
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+
+  "forwardPorts": [3000, 3001, 389],
+  "portsAttributes": {
+    "3000": { "label": "PenuX API", "onAutoForward": "silent" },
+    "3001": { "label": "PenuX Web UI", "onAutoForward": "openBrowser" },
+    "389":  { "label": "LDAP", "onAutoForward": "silent" }
+  },
+
+  "remoteEnv": {
+    "DOCKER_USER": "netanelcyber"
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-azuretools.vscode-docker"],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  }
+}
