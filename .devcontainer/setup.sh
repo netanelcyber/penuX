@@ -5,10 +5,7 @@ set -e
 echo "=== PenuX LDAP Codespaces Setup ==="
 
 # Make scripts executable
-chmod +x cloudflare-tunnel-setup.sh 2>/dev/null || true
-chmod +x codespaces-tunnel-setup.sh 2>/dev/null || true
-chmod +x free-tunnel-setup.sh 2>/dev/null || true
-chmod +x docker-hub-push.sh 2>/dev/null || true
+chmod +x free-tunnel-setup.sh docker-hub-push.sh 2>/dev/null || true
 
 echo ""
 echo "=== Ready! ==="
