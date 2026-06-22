@@ -36,16 +36,19 @@ chown penux-imap:penux-imap "${MAIL_DIR}" "${CONFIG_DIR}"
 # Copy code
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 rsync -a "${SCRIPT_DIR}/imap_server/" "${INSTALL_DIR}/imap_server/"
-cp "${SCRIPT_DIR}/run_imap.py" "${SCRIPT_DIR}/manage_users.py" "${INSTALL_DIR}/"
+cp "${SCRIPT_DIR}/run_imap.py" "${SCRIPT_DIR}/manage_users.py" \
+   "${SCRIPT_DIR}/webmail.py"  "${SCRIPT_DIR}/run_webmail.py" \
+   "${INSTALL_DIR}/"
 
 # Virtualenv
 python3 -m venv "${INSTALL_DIR}/venv"
 "${INSTALL_DIR}/venv/bin/pip" install --quiet --upgrade pip
 
-# Systemd service
-cp "${SCRIPT_DIR}/deploy/systemd/penux-imap.service" /etc/systemd/system/
+# Systemd services
+cp "${SCRIPT_DIR}/deploy/systemd/penux-imap.service"    /etc/systemd/system/
+cp "${SCRIPT_DIR}/deploy/systemd/penux-webmail.service" /etc/systemd/system/
 systemctl daemon-reload
-systemctl enable penux-imap
+systemctl enable penux-imap penux-webmail
 
 # Create initial user if password provided
 if [[ -n "${IMAP_PASS}" ]]; then
@@ -62,7 +65,12 @@ echo ""
 echo "Next steps:"
 echo "  1. Get a TLS cert:  certbot certonly --dns-cloudflare -d mail.penux.uk"
 echo "     Copy certs to:   /etc/ssl/penux/fullchain.pem  and  /etc/ssl/penux/privkey.pem"
-echo "  2. Start the server: systemctl start penux-imap"
+echo "  2. Start services:   systemctl start penux-imap penux-webmail"
 echo "  3. Check logs:       journalctl -u penux-imap -f"
+echo "                       journalctl -u penux-webmail -f"
 echo "  4. Add users:        IMAP_USERS_FILE=${CONFIG_DIR}/users.json \\"
 echo "                         python ${INSTALL_DIR}/manage_users.py add <user> <pass>"
+echo "  5. Open firewall:    ufw allow 143/tcp  # IMAP"
+echo "                       ufw allow 993/tcp  # IMAPS"
+echo "                       ufw allow 443/tcp  # Webmail HTTPS"
+echo "                       ufw allow 80/tcp   # Webmail HTTP (redirect)"

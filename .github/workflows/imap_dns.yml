@@ -193,7 +193,9 @@ jobs:
           print(f"  penux.uk       MX 10 → mail.penux.uk")
           print(f"  penux.uk       TXT   → {spf}")
           print()
-          print("IMAP ports that must be open on the server firewall:")
+          print("Ports that must be open on the server firewall:")
           print("  TCP 143  (IMAP + STARTTLS)")
           print("  TCP 993  (IMAPS / implicit TLS)")
+          print("  TCP 443  (Webmail HTTPS — https://mail.penux.uk)")
+          print("  TCP  80  (Webmail HTTP fallback)")
           PYEOF
