@@ -4,111 +4,196 @@ on:
   workflow_dispatch:
     inputs:
       server_ip:
-        description: "IPv4 address of the IMAP server"
-        required: true
+        description: "Server IPv4 (leave blank to use this runner's public IP)"
+        required: false
         type: string
       server_ipv6:
-        description: "IPv6 address (optional)"
+        description: "Server IPv6 (optional)"
         required: false
         type: string
       dry_run:
-        description: "Dry run (show changes without applying)"
+        description: "Dry run — show planned changes without applying"
         required: false
         default: "false"
         type: choice
-        options: ["true", "false"]
+        options: ["false", "true"]
 
 jobs:
   configure-dns:
-    name: Configure Cloudflare DNS
+    name: Configure Cloudflare DNS for mail.penux.uk
     runs-on: ubuntu-latest
     steps:
-      - name: Set up DNS records via Cloudflare API
+      - name: Resolve server IP
+        id: ip
+        run: |
+          INPUT_IP="${{ inputs.server_ip }}"
+          if [ -n "${INPUT_IP}" ]; then
+            echo "ip=${INPUT_IP}" >> "$GITHUB_OUTPUT"
+            echo "Using provided IP: ${INPUT_IP}"
+          else
+            RUNNER_IP=$(curl -4 -s --max-time 10 https://ifconfig.me)
+            echo "ip=${RUNNER_IP}" >> "$GITHUB_OUTPUT"
+            echo "Using runner public IP: ${RUNNER_IP}"
+          fi
+
+      - name: Apply DNS records via Cloudflare API
         env:
-          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CF_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-          SERVER_IP: ${{ inputs.server_ip }}
+          CF_TOKEN: ${{ secrets.CF_TOKEN }}
+          SERVER_IP: ${{ steps.ip.outputs.ip }}
           SERVER_IPV6: ${{ inputs.server_ipv6 }}
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
-          set -euo pipefail
+          python3 << 'PYEOF'
+          import requests, os, sys, json
 
-          API="https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/dns_records"
-          AUTH_HEADER="Authorization: Bearer ${CF_API_TOKEN}"
-          CT_HEADER="Content-Type: application/json"
+          TOKEN    = os.environ["CF_TOKEN"]
+          IP       = os.environ["SERVER_IP"]
+          IPV6     = os.environ.get("SERVER_IPV6", "")
+          DRY_RUN  = os.environ.get("DRY_RUN", "false").lower() == "true"
+          DOMAIN   = "penux.uk"
+          MAIL_SUB = "mail.penux.uk"
 
-          create_or_update() {
-            local type="$1" name="$2" content="$3" proxied="$4"
-            echo "--- DNS ${type} ${name} → ${content} (proxied=${proxied})"
+          HEADERS  = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
+          BASE     = "https://api.cloudflare.com/client/v4"
 
-            # Check if record exists
-            existing=$(curl -s -H "${AUTH_HEADER}" \
-              "${API}?type=${type}&name=${name}" | python3 -c \
-              "import json,sys; r=json.load(sys.stdin); print(r['result'][0]['id'] if r['result'] else '')" 2>/dev/null || echo "")
+          # ── Discover Zone ID ──────────────────────────────────────────────
+          r = requests.get(f"{BASE}/zones?name={DOMAIN}", headers=HEADERS, timeout=15)
+          d = r.json()
+          if not d.get("success") or not d["result"]:
+              print("ERROR: could not find zone for", DOMAIN, d.get("errors"))
+              sys.exit(1)
+          ZONE_ID = d["result"][0]["id"]
+          print(f"Zone: {DOMAIN}  ID: {ZONE_ID}")
+          print(f"Target IP: {IP}")
+          print(f"Dry run: {DRY_RUN}")
+          print()
 
-            payload=$(python3 -c "import json; print(json.dumps({
-              'type': '${type}',
-              'name': '${name}',
-              'content': '${content}',
-              'proxied': ${proxied},
-              'ttl': 300
-            }))")
+          # ── Helper: list existing records ─────────────────────────────────
+          def list_records(rtype=None, name=None):
+              params = {}
+              if rtype: params["type"] = rtype
+              if name:  params["name"] = name
+              r = requests.get(f"{BASE}/zones/{ZONE_ID}/dns_records",
+                               headers=HEADERS, params=params, timeout=15)
+              return r.json().get("result", [])
 
-            if [ "${DRY_RUN}" = "true" ]; then
-              echo "[DRY RUN] Would $([ -n "${existing}" ] && echo 'update' || echo 'create') ${type} ${name}"
-              return
-            fi
+          # ── Helper: delete record by id ───────────────────────────────────
+          def delete_record(rec_id, label=""):
+              if DRY_RUN:
+                  print(f"  [DRY] DELETE {label} id={rec_id}")
+                  return
+              r = requests.delete(f"{BASE}/zones/{ZONE_ID}/dns_records/{rec_id}",
+                                  headers=HEADERS, timeout=15)
+              ok = r.json().get("success", False)
+              print(f"  DELETE {label}: {'OK' if ok else 'FAIL ' + str(r.json().get('errors'))}")
 
-            if [ -n "${existing}" ]; then
-              result=$(curl -s -X PUT -H "${AUTH_HEADER}" -H "${CT_HEADER}" \
-                "${API}/${existing}" -d "${payload}")
-            else
-              result=$(curl -s -X POST -H "${AUTH_HEADER}" -H "${CT_HEADER}" \
-                "${API}" -d "${payload}")
-            fi
-            echo "${result}" | python3 -c \
-              "import json,sys; r=json.load(sys.stdin); print('OK:', r['result']['name']) if r['success'] else print('FAIL:', r['errors'])"
-          }
+          # ── Helper: upsert a DNS record ───────────────────────────────────
+          def upsert(rtype, name, content, proxied=False, priority=None, ttl=300):
+              existing = list_records(rtype, name)
+              payload = {"type": rtype, "name": name, "content": content,
+                         "proxied": proxied, "ttl": ttl}
+              if priority is not None:
+                  payload["priority"] = priority
 
-          # A record: mail.penux.uk → server IP (not proxied — IMAP needs direct TCP)
-          create_or_update "A" "mail.penux.uk" "${SERVER_IP}" "false"
+              label = f"{rtype:5} {name} → {content}"
+              if DRY_RUN:
+                  action = "UPDATE" if existing else "CREATE"
+                  print(f"  [DRY] {action} {label}")
+                  return
 
-          # AAAA record if IPv6 provided
-          if [ -n "${SERVER_IPV6}" ]; then
-            create_or_update "AAAA" "mail.penux.uk" "${SERVER_IPV6}" "false"
-          fi
+              if existing:
+                  rec_id = existing[0]["id"]
+                  res = requests.put(f"{BASE}/zones/{ZONE_ID}/dns_records/{rec_id}",
+                                     headers=HEADERS, json=payload, timeout=15).json()
+              else:
+                  res = requests.post(f"{BASE}/zones/{ZONE_ID}/dns_records",
+                                      headers=HEADERS, json=payload, timeout=15).json()
 
-          # MX record: penux.uk → mail.penux.uk (priority 10)
-          MX_PAYLOAD=$(python3 -c "import json; print(json.dumps({
-            'type': 'MX',
-            'name': 'penux.uk',
-            'content': 'mail.penux.uk',
-            'priority': 10,
-            'proxied': False,
-            'ttl': 300
-          }))")
+              if res.get("success"):
+                  x = res["result"]
+                  print(f"  OK  {x['type']:5} {x['name']} → {x['content']}")
+              else:
+                  errs = res.get("errors", [])
+                  print(f"  FAIL {label}: {errs}")
+                  sys.exit(1)
 
-          if [ "${DRY_RUN}" = "false" ]; then
-            existing_mx=$(curl -s -H "${AUTH_HEADER}" \
-              "${API}?type=MX&name=penux.uk" | python3 -c \
-              "import json,sys; r=json.load(sys.stdin); print(r['result'][0]['id'] if r['result'] else '')" 2>/dev/null || echo "")
-            if [ -n "${existing_mx}" ]; then
-              curl -s -X PUT -H "${AUTH_HEADER}" -H "${CT_HEADER}" \
-                "${API}/${existing_mx}" -d "${MX_PAYLOAD}" | python3 -c \
-                "import json,sys; r=json.load(sys.stdin); print('MX OK' if r['success'] else r['errors'])"
-            else
-              curl -s -X POST -H "${AUTH_HEADER}" -H "${CT_HEADER}" \
-                "${API}" -d "${MX_PAYLOAD}" | python3 -c \
-                "import json,sys; r=json.load(sys.stdin); print('MX OK' if r['success'] else r['errors'])"
-            fi
-          else
-            echo "[DRY RUN] Would set MX penux.uk → mail.penux.uk priority 10"
-          fi
+          # ────────────────────────────────────────────────────────────────
+          # 1. Remove any existing CNAME for "mail.penux.uk" (ImprovMX remnant)
+          #    A CNAME and an A record cannot coexist.
+          # ────────────────────────────────────────────────────────────────
+          print("── Step 1: Remove conflicting CNAME records for mail.penux.uk ──")
+          old_cnames = list_records("CNAME", MAIL_SUB)
+          if old_cnames:
+              for rec in old_cnames:
+                  print(f"  Found CNAME {rec['name']} → {rec['content']} — removing")
+                  delete_record(rec["id"], f"CNAME {rec['name']}")
+          else:
+              print("  No conflicting CNAME found — good")
 
-          echo ""
-          echo "DNS setup complete. Records:"
-          echo "  mail.penux.uk A     → ${SERVER_IP}"
-          [ -n "${SERVER_IPV6}" ] && echo "  mail.penux.uk AAAA  → ${SERVER_IPV6}"
-          echo "  penux.uk      MX 10 → mail.penux.uk"
-          echo ""
-          echo "Next step: run the 'IMAP — TLS Certificate' workflow to get a Let's Encrypt cert."
+          # ────────────────────────────────────────────────────────────────
+          # 2. A record: mail.penux.uk → server IP (NOT proxied — IMAP is raw TCP)
+          # ────────────────────────────────────────────────────────────────
+          print()
+          print("── Step 2: A record mail.penux.uk ──")
+          upsert("A", MAIL_SUB, IP, proxied=False)
+
+          # ────────────────────────────────────────────────────────────────
+          # 3. AAAA record (optional IPv6)
+          # ────────────────────────────────────────────────────────────────
+          if IPV6:
+              print()
+              print("── Step 3: AAAA record mail.penux.uk ──")
+              upsert("AAAA", MAIL_SUB, IPV6, proxied=False)
+          else:
+              print()
+              print("── Step 3: AAAA — skipped (no IPv6 provided) ──")
+
+          # ────────────────────────────────────────────────────────────────
+          # 4. MX record: penux.uk → mail.penux.uk (priority 10)
+          #    Remove old ImprovMX MX records first.
+          # ────────────────────────────────────────────────────────────────
+          print()
+          print("── Step 4: MX records ──")
+          old_mx = list_records("MX", DOMAIN)
+          for rec in old_mx:
+              if "improvmx" in rec["content"].lower():
+                  print(f"  Removing old ImprovMX MX: {rec['content']}")
+                  delete_record(rec["id"], f"MX {rec['content']}")
+
+          upsert("MX", DOMAIN, MAIL_SUB, priority=10)
+
+          # ────────────────────────────────────────────────────────────────
+          # 5. SPF TXT record — allow mail from mail.penux.uk
+          # ────────────────────────────────────────────────────────────────
+          print()
+          print("── Step 5: SPF TXT record ──")
+          spf = "v=spf1 mx a:mail.penux.uk ~all"
+          old_spf = [r for r in list_records("TXT", DOMAIN)
+                     if r["content"].startswith("v=spf1")]
+          for rec in old_spf:
+              if rec["content"] != spf:
+                  print(f"  Replacing old SPF: {rec['content']}")
+                  delete_record(rec["id"], "SPF")
+          # upsert after potential delete
+          old_spf_current = [r for r in list_records("TXT", DOMAIN)
+                              if r["content"] == spf]
+          if not old_spf_current:
+              upsert("TXT", DOMAIN, spf)
+          else:
+              print(f"  SPF already correct — no change")
+
+          # ────────────────────────────────────────────────────────────────
+          print()
+          print("════════════════════════════════════════════════════════")
+          print("DNS configuration complete!" if not DRY_RUN else "Dry run done — no changes applied.")
+          print()
+          print(f"  mail.penux.uk  A     → {IP}  (not proxied)")
+          if IPV6:
+              print(f"  mail.penux.uk  AAAA  → {IPV6}")
+          print(f"  penux.uk       MX 10 → mail.penux.uk")
+          print(f"  penux.uk       TXT   → {spf}")
+          print()
+          print("IMAP ports that must be open on the server firewall:")
+          print("  TCP 143  (IMAP + STARTTLS)")
+          print("  TCP 993  (IMAPS / implicit TLS)")
+          PYEOF
