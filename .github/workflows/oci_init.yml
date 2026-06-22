@@ -1,0 +1,204 @@
+name: Oracle Cloud — Init Credentials & Provision
+
+# Run this ONCE to configure everything and spin up your server.
+# After it finishes, oracle_provision.yml can re-provision at any time,
+# and imap_deploy.yml auto-deploys code on every push.
+#
+# ── Where to find your OCI credentials ─────────────────────────────────────
+#  1. Log in to cloud.oracle.com
+#  2. Top-right → Profile → User Settings → API Keys → Add API Key
+#     • Choose "Generate API Key Pair"
+#     • Download the private key  (e.g. ~/Downloads/oci_key.pem)
+#     • Click Add → copy the fingerprint shown
+#  3. Encode the private key to a single line:
+#       Linux / OCI Cloud Shell:   base64 -w0 ~/Downloads/oci_key.pem
+#       macOS:                     base64 -i  ~/Downloads/oci_key.pem
+#  4. Your User OCID   → Profile → User Settings → copy OCID
+#     Tenancy OCID     → Profile → Tenancy → copy OCID
+#     Home region      → shown in console URL, e.g. eu-frankfurt-1
+# ───────────────────────────────────────────────────────────────────────────
+
+on:
+  workflow_dispatch:
+    inputs:
+      oci_user_ocid:
+        description: "OCI User OCID  (ocid1.user.oc1..xxxxxx)"
+        required: true
+        type: string
+      oci_tenancy_ocid:
+        description: "OCI Tenancy OCID  (ocid1.tenancy.oc1..xxxxxx)"
+        required: true
+        type: string
+      oci_fingerprint:
+        description: "API key fingerprint  (xx:xx:xx:xx:...)"
+        required: true
+        type: string
+      oci_private_key_b64:
+        description: "Private key — base64 one-liner  (see instructions above)"
+        required: true
+        type: string
+      oci_region:
+        description: "Home region  (e.g. eu-frankfurt-1  or  us-ashburn-1)"
+        required: true
+        type: string
+      cf_token:
+        description: "Cloudflare API token with Zone:Edit on penux.uk"
+        required: true
+        type: string
+      imap_pass:
+        description: "Password for the netanel mailbox"
+        required: true
+        type: string
+      imap_user:
+        description: "Mail username"
+        required: false
+        default: "netanel"
+        type: string
+      gh_pat:
+        description: "GitHub PAT (secrets:write) — auto-registers SSH deploy key for future pushes"
+        required: false
+        type: string
+
+jobs:
+  init:
+    name: Store secrets + provision server
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write   # needed to trigger oracle_provision.yml
+
+    steps:
+      - name: Mask sensitive inputs
+        run: |
+          echo "::add-mask::${{ inputs.oci_private_key_b64 }}"
+          echo "::add-mask::${{ inputs.cf_token }}"
+          echo "::add-mask::${{ inputs.imap_pass }}"
+          [ -n "${{ inputs.gh_pat }}" ] && echo "::add-mask::${{ inputs.gh_pat }}" || true
+
+      - name: Validate private key
+        env:
+          KEY_B64: ${{ inputs.oci_private_key_b64 }}
+        run: |
+          echo "$KEY_B64" | base64 -d > /tmp/oci_key.pem
+          if openssl rsa -in /tmp/oci_key.pem -check -noout 2>/dev/null; then
+            echo "Private key: valid RSA"
+          elif openssl ec -in /tmp/oci_key.pem -check -noout 2>/dev/null; then
+            echo "Private key: valid EC"
+          else
+            echo "ERROR: oci_private_key_b64 does not decode to a valid PEM key."
+            echo ""
+            echo "  Linux / OCI Cloud Shell:  base64 -w0 your_key.pem"
+            echo "  macOS:                    base64 -i  your_key.pem"
+            exit 1
+          fi
+
+      - name: Store all secrets in GitHub
+        env:
+          GH_TOKEN:        ${{ secrets.GITHUB_TOKEN }}
+          OCI_USER_OCID:   ${{ inputs.oci_user_ocid }}
+          OCI_TENANCY:     ${{ inputs.oci_tenancy_ocid }}
+          OCI_FINGERPRINT: ${{ inputs.oci_fingerprint }}
+          OCI_KEY_B64:     ${{ inputs.oci_private_key_b64 }}
+          OCI_REGION:      ${{ inputs.oci_region }}
+          CF_TOKEN:        ${{ inputs.cf_token }}
+        run: |
+          pip install --quiet PyNaCl requests
+
+          python3 << 'PYEOF'
+          import base64, os, sys
+          import requests
+          from nacl import encoding, public
+
+          token       = os.environ["GH_TOKEN"]
+          repo        = "${{ github.repository }}"
+          private_key = base64.b64decode(os.environ["OCI_KEY_B64"]).decode()
+
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+          }
+
+          r = requests.get(
+              f"https://api.github.com/repos/{repo}/actions/secrets/public-key",
+              headers=headers, timeout=15)
+          r.raise_for_status()
+          pk   = r.json()
+          kid  = pk["key_id"]
+          pkey = public.PublicKey(pk["key"].encode(), encoding.Base64Encoder)
+
+          def enc(v):
+              return base64.b64encode(public.SealedBox(pkey).encrypt(v.encode())).decode()
+
+          secrets = {
+              "OCI_USER_OCID":    os.environ["OCI_USER_OCID"],
+              "OCI_TENANCY_OCID": os.environ["OCI_TENANCY"],
+              "OCI_FINGERPRINT":  os.environ["OCI_FINGERPRINT"],
+              "OCI_PRIVATE_KEY":  private_key,
+              "OCI_REGION":       os.environ["OCI_REGION"],
+              "CF_TOKEN":         os.environ["CF_TOKEN"],
+          }
+
+          ok = True
+          for name, value in secrets.items():
+              r = requests.put(
+                  f"https://api.github.com/repos/{repo}/actions/secrets/{name}",
+                  headers=headers,
+                  json={"encrypted_value": enc(value), "key_id": kid},
+                  timeout=15)
+              if r.status_code in (201, 204):
+                  print(f"  ✓  {name}")
+              else:
+                  print(f"  ✗  {name}  ({r.status_code}: {r.text[:80]})")
+                  ok = False
+
+          sys.exit(0 if ok else 1)
+          PYEOF
+
+      - name: Trigger oracle_provision.yml
+        env:
+          GH_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
+          IMAP_PASS: ${{ inputs.imap_pass }}
+          IMAP_USER: ${{ inputs.imap_user }}
+          GH_PAT:    ${{ inputs.gh_pat }}
+        run: |
+          BODY=$(python3 -c "
+          import json, os
+          print(json.dumps({
+              'ref': '${{ github.ref_name }}',
+              'inputs': {
+                  'imap_pass': os.environ['IMAP_PASS'],
+                  'imap_user': os.environ['IMAP_USER'],
+                  'gh_pat':    os.environ.get('GH_PAT', ''),
+              }
+          }))")
+
+          HTTP=$(curl -sS -o /tmp/dispatch.json -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "Content-Type: application/json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/oracle_provision.yml/dispatches" \
+            -d "$BODY")
+
+          if [ "$HTTP" = "204" ]; then
+            echo "✓ oracle_provision.yml triggered — VM is being created now"
+          else
+            echo "HTTP $HTTP: $(cat /tmp/dispatch.json)"
+            echo ""
+            echo "Secrets are set. Trigger oracle_provision.yml manually from Actions tab."
+          fi
+
+      - name: Done
+        run: |
+          echo "════════════════════════════════════════════"
+          echo "  GitHub Secrets stored ✓"
+          echo "  Oracle VM provisioning triggered ✓"
+          echo ""
+          echo "  Follow progress:"
+          echo "  https://github.com/${{ github.repository }}/actions/workflows/oracle_provision.yml"
+          echo ""
+          echo "  In ~5 minutes your server will be live:"
+          echo "    Webmail:  http://mail.penux.uk"
+          echo "    IMAP:     mail.penux.uk:143"
+          echo "    User:     ${{ inputs.imap_user }}"
+          echo "════════════════════════════════════════════"
