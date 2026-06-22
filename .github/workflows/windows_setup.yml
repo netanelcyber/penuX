@@ -1,0 +1,227 @@
+name: Windows — Generate Setup Package
+
+# Creates a Cloudflare Tunnel (no port-forwarding needed) and generates
+# a ready-to-run ZIP for Windows. Download, extract, run setup.ps1 — done.
+#
+# Required secret: CF_TOKEN (Cloudflare API token with Zone:Edit)
+
+on:
+  workflow_dispatch:
+    inputs:
+      imap_pass:
+        description: "Password for the netanel mailbox"
+        required: true
+        type: string
+      imap_user:
+        description: "Mail username"
+        required: false
+        default: "netanel"
+        type: string
+
+jobs:
+  generate:
+    name: Create tunnel + generate package
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Mask sensitive inputs
+        run: |
+          echo "::add-mask::${{ inputs.imap_pass }}"
+
+      - name: Create Cloudflare Tunnel + configure DNS
+        id: tunnel
+        env:
+          CF_TOKEN: ${{ secrets.CF_TOKEN }}
+        run: |
+          pip install --quiet requests
+
+          python3 << 'PYEOF'
+          import json, os, secrets
+          import requests
+
+          token = os.environ["CF_TOKEN"]
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Content-Type": "application/json",
+          }
+          base = "https://api.cloudflare.com/client/v4"
+
+          # Account ID
+          r = requests.get(f"{base}/accounts", headers=headers, timeout=15)
+          r.raise_for_status()
+          account_id = r.json()["result"][0]["id"]
+
+          # Reuse existing tunnel or create new one
+          r = requests.get(f"{base}/accounts/{account_id}/cfd_tunnel?name=penux-webmail",
+                           headers=headers, timeout=15)
+          existing = [t for t in r.json().get("result", []) if not t.get("deleted_at")]
+
+          if existing:
+              tunnel_id = existing[0]["id"]
+              # Get a new token for the existing tunnel
+              r = requests.get(f"{base}/accounts/{account_id}/cfd_tunnel/{tunnel_id}/token",
+                               headers=headers, timeout=15)
+              tunnel_token = r.json()["result"]
+              print(f"Reusing existing tunnel: {tunnel_id}")
+          else:
+              r = requests.post(
+                  f"{base}/accounts/{account_id}/cfd_tunnel",
+                  headers=headers,
+                  json={"name": "penux-webmail", "tunnel_secret": secrets.token_hex(32)},
+                  timeout=15)
+              r.raise_for_status()
+              data = r.json()["result"]
+              tunnel_id = data["id"]
+              tunnel_token = data["token"]
+              print(f"Created tunnel: {tunnel_id}")
+
+          # Configure ingress
+          requests.put(
+              f"{base}/accounts/{account_id}/cfd_tunnel/{tunnel_id}/configurations",
+              headers=headers,
+              json={"config": {"ingress": [
+                  {"hostname": "mail.penux.uk", "service": "http://localhost:8080"},
+                  {"service": "http_status:404"},
+              ]}},
+              timeout=15).raise_for_status()
+          print("Ingress configured: mail.penux.uk → localhost:8080")
+
+          # Zone ID for penux.uk
+          r = requests.get(f"{base}/zones?name=penux.uk", headers=headers, timeout=15)
+          zone_id = r.json()["result"][0]["id"]
+
+          # Delete existing A/CNAME records for mail.penux.uk
+          r = requests.get(f"{base}/zones/{zone_id}/dns_records?name=mail.penux.uk",
+                           headers=headers, timeout=15)
+          for rec in r.json().get("result", []):
+              requests.delete(f"{base}/zones/{zone_id}/dns_records/{rec['id']}",
+                              headers=headers, timeout=15)
+              print(f"Deleted DNS record: {rec['type']} mail.penux.uk")
+
+          # Create CNAME → tunnel
+          requests.post(
+              f"{base}/zones/{zone_id}/dns_records",
+              headers=headers,
+              json={"type": "CNAME", "name": "mail", "proxied": True,
+                    "content": f"{tunnel_id}.cfargotunnel.com"},
+              timeout=15).raise_for_status()
+          print(f"DNS: mail.penux.uk → {tunnel_id}.cfargotunnel.com (proxied)")
+
+          # Write output
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"tunnel_token={tunnel_token}\n")
+              f.write(f"tunnel_id={tunnel_id}\n")
+          PYEOF
+
+      - name: Generate Windows package
+        env:
+          IMAP_PASS: ${{ inputs.imap_pass }}
+          IMAP_USER: ${{ inputs.imap_user }}
+          TUNNEL_TOKEN: ${{ steps.tunnel.outputs.tunnel_token }}
+        run: |
+          PKG=/tmp/penux-windows
+          mkdir -p "$PKG/src" "$PKG/mail" "$PKG/logs"
+
+          # ── users.json (pre-hashed password) ────────────────────────────
+          python3 << 'PYEOF'
+          import os, json, hashlib, secrets as sec
+
+          user = os.environ["IMAP_USER"]
+          pw   = os.environ["IMAP_PASS"]
+          salt = sec.token_hex(16)
+          h    = hashlib.sha256(f"{salt}{pw}".encode()).hexdigest()
+          with open("/tmp/penux-windows/users.json", "w") as f:
+              json.dump({user: f"$sha256${salt}${h}"}, f, indent=2)
+          print(f"users.json: {user} created")
+          PYEOF
+
+          # ── Copy Python source ───────────────────────────────────────────
+          cp -r imap_server run_imap.py manage_users.py \
+                webmail.py run_webmail.py "$PKG/src/"
+
+          # ── start.bat ────────────────────────────────────────────────────
+          cat > "$PKG/start.bat" << BATEOF
+          @echo off
+          cd /d "%~dp0"
+          if not exist logs mkdir logs
+
+          echo Starting PenuX IMAP + Webmail + Cloudflare Tunnel...
+
+          set IMAP_HOST=127.0.0.1
+          set IMAP_PORT=143
+          set IMAP_MAILDIR=%~dp0mail
+          set IMAP_USERS_FILE=%~dp0users.json
+          set WEB_HOST=127.0.0.1
+          set WEB_PORT=8080
+
+          start "PenuX IMAP"    /min cmd /c "cd /d "%~dp0src" && python run_imap.py >> "%~dp0logs\imap.log" 2>&1"
+          start "PenuX Webmail" /min cmd /c "cd /d "%~dp0src" && python run_webmail.py >> "%~dp0logs\webmail.log" 2>&1"
+          start "PenuX Tunnel"  /min cloudflared.exe tunnel run --token ${TUNNEL_TOKEN}
+
+          echo.
+          echo  PenuX is running!
+          echo  Webmail: https://mail.penux.uk
+          echo  User:    ${IMAP_USER}
+          echo.
+          echo  Closing this window will stop the server.
+          pause
+          BATEOF
+
+          # ── stop.bat ────────────────────────────────────────────────────
+          cat > "$PKG/stop.bat" << 'BATEOF'
+          @echo off
+          taskkill /F /FI "WINDOWTITLE eq PenuX*" >nul 2>&1
+          taskkill /F /IM cloudflared.exe >nul 2>&1
+          echo PenuX stopped.
+          pause
+          BATEOF
+
+          # ── setup.ps1 ────────────────────────────────────────────────────
+          cp deploy/setup.ps1 "$PKG/setup.ps1"
+
+          # ── README.txt ───────────────────────────────────────────────────
+          cat > "$PKG/README.txt" << 'READEOF'
+          PenuX — IMAP Server + Webmail (Windows Home Edition)
+          =====================================================
+
+          FIRST TIME:
+            1. Right-click setup.ps1 → Run with PowerShell
+               (downloads Python + cloudflared, sets up auto-start)
+
+          EVERY TIME (auto after setup):
+            Double-click start.bat
+
+          STOP SERVER:
+            Double-click stop.bat
+
+          WEBMAIL:
+            https://mail.penux.uk  (works from any device on the internet)
+
+          IMAP CLIENT (local network only):
+            Server: 127.0.0.1   Port: 143   No TLS
+          READEOF
+
+          # ── Zip it ───────────────────────────────────────────────────────
+          cd /tmp
+          zip -r penux-windows.zip penux-windows/
+          echo "Package size: $(du -sh penux-windows.zip | cut -f1)"
+
+      - name: Upload setup package
+        uses: actions/upload-artifact@v4
+        with:
+          name: penux-windows-setup
+          path: /tmp/penux-windows.zip
+          retention-days: 7
+
+      - name: Done
+        run: |
+          echo "════════════════════════════════════════════"
+          echo "  Package ready!"
+          echo ""
+          echo "  1. Download artifact: penux-windows-setup"
+          echo "  2. Extract the ZIP"
+          echo "  3. Right-click setup.ps1 → Run with PowerShell"
+          echo "  4. After setup: https://mail.penux.uk is live"
+          echo "════════════════════════════════════════════"
