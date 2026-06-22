@@ -37,7 +37,11 @@ def _decode_header_value(val: Optional[str]) -> str:
     parts = []
     for raw, enc in email.header.decode_header(val):
         if isinstance(raw, bytes):
-            parts.append(raw.decode(enc or "utf-8", errors="replace"))
+            charset = enc or "utf-8"
+            try:
+                parts.append(raw.decode(charset, errors="replace"))
+            except (LookupError, UnicodeDecodeError):
+                parts.append(raw.decode("utf-8", errors="replace"))
         else:
             parts.append(raw)
     return " ".join(parts)
