@@ -1,0 +1,189 @@
+name: Bootstrap — First-time server setup
+
+# Run this ONCE on a fresh server.
+# After it completes, the imap_deploy.yml workflow handles all future deploys.
+#
+# Required secrets (add before running):
+#   IMAP_ROOT_PASS  — root/sudo password for the server
+#   CF_TOKEN        — Cloudflare API token (already set if you ran imap_dns.yml)
+#
+# Required inputs (enter when triggering):
+#   server_ip       — your server's current public IP
+#   imap_pass       — password for the 'netanel' mailbox
+
+on:
+  workflow_dispatch:
+    inputs:
+      server_ip:
+        description: "Server public IPv4 address"
+        required: true
+        type: string
+      imap_user:
+        description: "Mail user to create (default: netanel)"
+        required: false
+        default: "netanel"
+        type: string
+      imap_pass:
+        description: "Password for the mail user"
+        required: true
+        type: string
+      ssh_user:
+        description: "SSH login user (default: root)"
+        required: false
+        default: "root"
+        type: string
+
+jobs:
+  bootstrap:
+    name: Bootstrap ${{ inputs.server_ip }}
+    runs-on: ubuntu-latest
+    env:
+      SERVER:   ${{ inputs.server_ip }}
+      SSH_USER: ${{ inputs.ssh_user }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install sshpass
+        run: sudo apt-get install -y -qq sshpass
+
+      - name: Accept host key
+        run: ssh-keyscan -H "${SERVER}" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Generate deploy keypair
+        run: |
+          ssh-keygen -t ed25519 -C "github-deploy@penux" -f ~/.ssh/deploy_key -N ""
+          echo "DEPLOY_PUB=$(cat ~/.ssh/deploy_key.pub)" >> "$GITHUB_ENV"
+
+      - name: Install everything on server
+        env:
+          SSHPASS:   ${{ secrets.IMAP_ROOT_PASS }}
+          CF_TOKEN:  ${{ secrets.CF_TOKEN }}
+          IMAP_PASS: ${{ inputs.imap_pass }}
+          IMAP_USER: ${{ inputs.imap_user }}
+        run: |
+          # Copy deploy public key to server
+          sshpass -e ssh-copy-id -i ~/.ssh/deploy_key.pub \
+            -o StrictHostKeyChecking=no \
+            "${SSH_USER}@${SERVER}" 2>/dev/null || true
+
+          # Copy repo + install script
+          sshpass -e ssh -o StrictHostKeyChecking=no \
+            "${SSH_USER}@${SERVER}" "
+            set -euo pipefail
+            export DEBIAN_FRONTEND=noninteractive
+
+            # Install deps and clone/update repo
+            apt-get update -qq
+            apt-get install -y -qq git python3 python3-venv rsync ufw
+
+            if [ -d /opt/penux-src ]; then
+              git -C /opt/penux-src fetch origin
+              git -C /opt/penux-src checkout ${{ github.ref_name }}
+              git -C /opt/penux-src pull --ff-only
+            else
+              git clone --branch ${{ github.ref_name }} \
+                https://github.com/${{ github.repository }} /opt/penux-src
+            fi
+
+            cd /opt/penux-src
+
+            # Run installer
+            CF_TOKEN='${CF_TOKEN}' \
+              bash deploy/install.sh \
+                --imap-user '${IMAP_USER}' \
+                --imap-pass '${IMAP_PASS}'
+
+            # Firewall
+            ufw allow OpenSSH
+            ufw allow 143 993 80 443
+            ufw --force enable
+
+            # Start everything
+            systemctl start penux-imap penux-webmail penux-ddns.timer penux-ddns
+
+            echo 'Bootstrap complete'
+          "
+
+      - name: Add deploy key to GitHub Secrets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Encrypt private key for GitHub Secrets API
+          pip install --quiet PyNaCl requests
+
+          python3 - << 'PYEOF'
+          import base64, json, os, sys
+          import requests
+          from nacl import encoding, public
+
+          token  = os.environ["GH_TOKEN"]
+          repo   = "${{ github.repository }}"
+          key_priv = open(os.path.expanduser("~/.ssh/deploy_key")).read()
+          server   = os.environ["SERVER"]
+
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+          }
+
+          # Get repo public key
+          r = requests.get(
+              f"https://api.github.com/repos/{repo}/actions/secrets/public-key",
+              headers=headers, timeout=15)
+          r.raise_for_status()
+          pk_data = r.json()
+          key_id  = pk_data["key_id"]
+          pub_key = public.PublicKey(pk_data["key"].encode(), encoding.Base64Encoder)
+
+          def encrypt(val: str) -> str:
+              sealed = public.SealedBox(pub_key).encrypt(val.encode())
+              return base64.b64encode(sealed).decode()
+
+          secrets_to_set = {
+              "IMAP_SERVER_SSH_KEY":  key_priv,
+              "IMAP_SERVER_HOST":     "mail.penux.uk",
+              "IMAP_SERVER_USER":     os.environ.get("SSH_USER", "root"),
+          }
+
+          for name, value in secrets_to_set.items():
+              payload = {"encrypted_value": encrypt(value), "key_id": key_id}
+              r = requests.put(
+                  f"https://api.github.com/repos/{repo}/actions/secrets/{name}",
+                  headers=headers, json=payload, timeout=15)
+              status = "✓" if r.status_code in (201, 204) else f"✗ {r.status_code}"
+              print(f"  {status}  {name}")
+
+          print("GitHub Secrets updated — future pushes will auto-deploy.")
+          PYEOF
+
+      - name: Smoke test
+        run: |
+          sleep 15
+          python3 - << 'PYEOF'
+          import socket, sys
+          host = "mail.penux.uk"
+          try:
+              s = socket.create_connection((host, 143), timeout=15)
+              g = s.recv(512).decode(errors="replace").strip()
+              s.close()
+              if "* OK" in g:
+                  print(f"IMAP ✓  {g[:60]}")
+              else:
+                  print(f"IMAP ?  {g[:80]}")
+                  sys.exit(1)
+          except Exception as e:
+              print(f"IMAP unreachable (DNS may still propagating): {e}")
+          PYEOF
+
+      - name: Summary
+        run: |
+          echo "Bootstrap complete!"
+          echo ""
+          echo "  Webmail:  http://mail.penux.uk"
+          echo "  IMAP:     mail.penux.uk:143"
+          echo "  User:     ${{ inputs.imap_user }}"
+          echo ""
+          echo "GitHub Secrets IMAP_SERVER_SSH_KEY, IMAP_SERVER_HOST, IMAP_SERVER_USER"
+          echo "have been set — every future push to this branch auto-deploys."

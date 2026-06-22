@@ -1,0 +1,170 @@
+#cloud-config
+# ─────────────────────────────────────────────────────────────────────────────
+# PenuX IMAP + Webmail + DDNS — fully automated VPS bootstrap
+#
+# HOW TO USE:
+#   1. Fill in the three variables below (CF_TOKEN, IMAP_PASS, GH_PAT)
+#   2. Create a VPS (Ubuntu 22.04 LTS recommended) and paste this as "User Data"
+#      • DigitalOcean:  Droplets → Create → Advanced → User Data
+#      • Hetzner:       Server → Cloud Config field
+#      • Linode/Vultr:  User Data / Cloud Init field
+#   3. Boot the server — everything installs automatically (~3 min)
+#   4. Check progress:  tail -f /var/log/penux-setup.log
+#   5. Add the printed SSH key to GitHub Secrets as IMAP_SERVER_SSH_KEY
+#      then every `git push` auto-deploys the code.
+#
+# GH_PAT (optional): Personal Access Token with `secrets:write` permission.
+#   If provided, the deploy key is added to GitHub Secrets automatically
+#   and you never need to SSH at all.
+#   Create at: https://github.com/settings/tokens (Fine-grained, secrets:write)
+# ─────────────────────────────────────────────────────────────────────────────
+
+write_files:
+  - path: /root/penux-setup.sh
+    permissions: '0700'
+    content: |
+      #!/bin/bash
+      set -euo pipefail
+      exec > /var/log/penux-setup.log 2>&1
+
+      # ── FILL THESE IN ────────────────────────────────────────────────────
+      CF_TOKEN="REPLACE_WITH_CLOUDFLARE_API_TOKEN"
+      IMAP_PASS="REPLACE_WITH_MAILBOX_PASSWORD"
+      IMAP_USER="netanel"
+      GH_PAT=""          # optional — auto-adds deploy key to GitHub secrets
+      GH_REPO="netanelcyber/penuX"
+      BRANCH="claude/imap-server-penux-1op6fl"
+      # ─────────────────────────────────────────────────────────────────────
+
+      echo "[$(date)] Starting PenuX automated setup..."
+
+      # System packages
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update -qq
+      apt-get install -y -qq git ufw python3 python3-venv curl
+
+      # Clone repo
+      if [ -d /opt/penux-src ]; then
+        git -C /opt/penux-src pull --ff-only
+      else
+        git clone https://github.com/${GH_REPO} /opt/penux-src
+      fi
+      cd /opt/penux-src
+      git checkout "${BRANCH}"
+
+      # Install IMAP + webmail + DDNS
+      CF_TOKEN="${CF_TOKEN}" \
+        bash deploy/install.sh \
+          --imap-user "${IMAP_USER}" \
+          --imap-pass "${IMAP_PASS}"
+
+      # Firewall
+      ufw allow OpenSSH
+      ufw allow 143/tcp   # IMAP
+      ufw allow 993/tcp   # IMAPS
+      ufw allow 80/tcp    # webmail HTTP
+      ufw allow 443/tcp   # webmail HTTPS
+      ufw --force enable
+
+      # Start services
+      systemctl start penux-imap penux-webmail penux-ddns.timer
+
+      # Run DDNS immediately so DNS is live in ~30 seconds
+      systemctl start penux-ddns
+
+      # Generate SSH deploy key for GitHub Actions
+      KEY_FILE="/root/.ssh/github_deploy"
+      if [ ! -f "${KEY_FILE}" ]; then
+        ssh-keygen -t ed25519 -C "github-deploy@penux" -f "${KEY_FILE}" -N ""
+      fi
+      cat "${KEY_FILE}.pub" >> /root/.ssh/authorized_keys
+
+      echo ""
+      echo "════════════════════════════════════════════════════════════"
+      echo "  PenuX setup complete!"
+      echo ""
+      echo "  IMAP:    mail.penux.uk:143  (user: ${IMAP_USER})"
+      echo "  Webmail: http://mail.penux.uk"
+      echo "  DDNS:    auto-updating every 5 minutes"
+      echo "════════════════════════════════════════════════════════════"
+
+      # Auto-register deploy key to GitHub if GH_PAT is set
+      if [ -n "${GH_PAT}" ]; then
+        echo "[$(date)] Adding deploy key to GitHub secrets..."
+
+        # Get repo public key for secrets encryption
+        PUB_KEY_RESP=$(curl -sS \
+          -H "Authorization: Bearer ${GH_PAT}" \
+          -H "Accept: application/vnd.github+json" \
+          "https://api.github.com/repos/${GH_REPO}/actions/secrets/public-key")
+
+        KEY_ID=$(echo "${PUB_KEY_RESP}" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['key_id'])")
+        PUB_ENC=$(echo "${PUB_KEY_RESP}" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['key'])")
+
+        # Encrypt the secret using libsodium via Python
+        pip install --quiet PyNaCl
+
+        PRIV_KEY=$(cat "${KEY_FILE}")
+        ENCRYPTED=$(python3 - "${PUB_ENC}" "${PRIV_KEY}" << 'PYEOF'
+      import sys, base64
+      from nacl import encoding, public
+      pub_b64, secret = sys.argv[1], sys.argv[2]
+      pub_key = public.PublicKey(pub_b64.encode(), encoding.Base64Encoder)
+      sealed = public.SealedBox(pub_key).encrypt(secret.encode())
+      print(base64.b64encode(sealed).decode())
+      PYEOF
+        )
+
+        # Upsert GitHub secret
+        curl -sS -X PUT \
+          -H "Authorization: Bearer ${GH_PAT}" \
+          -H "Accept: application/vnd.github+json" \
+          -H "Content-Type: application/json" \
+          "https://api.github.com/repos/${GH_REPO}/actions/secrets/IMAP_SERVER_SSH_KEY" \
+          -d "{\"encrypted_value\":\"${ENCRYPTED}\",\"key_id\":\"${KEY_ID}\"}"
+
+        # Also set host + user secrets
+        SERVER_IP=$(curl -4 -s --max-time 5 https://ifconfig.me)
+        for SECRET_NAME in IMAP_SERVER_HOST IMAP_SERVER_USER; do
+          [ "${SECRET_NAME}" = "IMAP_SERVER_HOST" ] && VAL="mail.penux.uk" || VAL="root"
+          ENC_VAL=$(python3 - "${PUB_ENC}" "${VAL}" << 'PYEOF'
+      import sys, base64
+      from nacl import encoding, public
+      pub_b64, secret = sys.argv[1], sys.argv[2]
+      pub_key = public.PublicKey(pub_b64.encode(), encoding.Base64Encoder)
+      sealed = public.SealedBox(pub_key).encrypt(secret.encode())
+      print(base64.b64encode(sealed).decode())
+      PYEOF
+          )
+          curl -sS -X PUT \
+            -H "Authorization: Bearer ${GH_PAT}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "Content-Type: application/json" \
+            "https://api.github.com/repos/${GH_REPO}/actions/secrets/${SECRET_NAME}" \
+            -d "{\"encrypted_value\":\"${ENC_VAL}\",\"key_id\":\"${KEY_ID}\"}"
+        done
+
+        echo "[$(date)] GitHub secrets set: IMAP_SERVER_SSH_KEY, IMAP_SERVER_HOST, IMAP_SERVER_USER"
+        echo "  → Future git pushes will auto-deploy via GitHub Actions."
+      else
+        echo ""
+        echo "  ── Manual step (one-time) ───────────────────────────────"
+        echo "  To enable auto-deploy on every git push, add this to"
+        echo "  GitHub → Settings → Secrets → Actions:"
+        echo ""
+        echo "  Secret name: IMAP_SERVER_SSH_KEY"
+        echo "  Secret value:"
+        echo "---BEGIN DEPLOY KEY---"
+        cat "${KEY_FILE}"
+        echo "---END DEPLOY KEY---"
+        echo ""
+        echo "  Also add:"
+        echo "    IMAP_SERVER_HOST = mail.penux.uk"
+        echo "    IMAP_SERVER_USER = root"
+        echo "  ─────────────────────────────────────────────────────────"
+      fi
+
+      echo "[$(date)] Done."
+
+runcmd:
+  - bash /root/penux-setup.sh
