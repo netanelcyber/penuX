@@ -1,0 +1,242 @@
+name: Oracle Cloud — Provision Always Free VM
+
+# Provisions a VM.Standard.E2.1.Micro (Always Free) on Oracle Cloud,
+# opens firewall ports, injects cloud-init, and waits for IMAP to come up.
+#
+# Required secrets (Settings → Secrets → Actions):
+#   OCI_USER_OCID      — Profile → User settings → OCID
+#   OCI_TENANCY_OCID   — Profile → Tenancy → OCID
+#   OCI_FINGERPRINT    — Profile → API keys → Fingerprint
+#   OCI_PRIVATE_KEY    — PEM private key (paste full contents)
+#   OCI_REGION         — e.g. eu-frankfurt-1  or  us-ashburn-1
+#   CF_TOKEN           — Cloudflare API token (Zone:Edit)
+#
+# Optional secret:
+#   OCI_COMPARTMENT_OCID — defaults to tenancy root if omitted
+
+on:
+  workflow_dispatch:
+    inputs:
+      imap_pass:
+        description: "Password for the netanel mailbox"
+        required: true
+        type: string
+      imap_user:
+        description: "Mail user to create"
+        required: false
+        default: "netanel"
+        type: string
+      gh_pat:
+        description: "GitHub PAT (secrets:write) — auto-registers SSH deploy key"
+        required: false
+        type: string
+
+jobs:
+  provision:
+    name: Provision Oracle Cloud VM
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OCI CLI
+        run: pip install --quiet oci-cli
+
+      - name: Configure OCI credentials
+        run: |
+          mkdir -p ~/.oci
+          printf '%s\n' "${{ secrets.OCI_PRIVATE_KEY }}" > ~/.oci/key.pem
+          chmod 600 ~/.oci/key.pem
+          COMPARTMENT="${{ secrets.OCI_COMPARTMENT_OCID || secrets.OCI_TENANCY_OCID }}"
+          cat > ~/.oci/config << EOF
+          [DEFAULT]
+          user=${{ secrets.OCI_USER_OCID }}
+          tenancy=${{ secrets.OCI_TENANCY_OCID }}
+          fingerprint=${{ secrets.OCI_FINGERPRINT }}
+          key_file=/root/.oci/key.pem
+          region=${{ secrets.OCI_REGION }}
+          EOF
+          echo "COMPARTMENT=${COMPARTMENT}" >> "$GITHUB_ENV"
+
+      - name: Prepare cloud-init (inject secrets)
+        env:
+          CF_TOKEN:  ${{ secrets.CF_TOKEN }}
+          IMAP_PASS: ${{ inputs.imap_pass }}
+          IMAP_USER: ${{ inputs.imap_user }}
+          GH_PAT:    ${{ inputs.gh_pat }}
+        run: |
+          python3 - << 'PYEOF'
+          import os
+
+          with open("deploy/cloud-init.yml") as f:
+              c = f.read()
+
+          c = c.replace('CF_TOKEN="REPLACE_WITH_CLOUDFLARE_API_TOKEN"',
+                        f'CF_TOKEN="{os.environ["CF_TOKEN"]}"')
+          c = c.replace('IMAP_PASS="REPLACE_WITH_MAILBOX_PASSWORD"',
+                        f'IMAP_PASS="{os.environ["IMAP_PASS"]}"')
+          c = c.replace('IMAP_USER="netanel"',
+                        f'IMAP_USER="{os.environ.get("IMAP_USER", "netanel")}"')
+          if os.environ.get("GH_PAT"):
+              c = c.replace('GH_PAT=""', f'GH_PAT="{os.environ["GH_PAT"]}"')
+
+          with open("/tmp/cloud-init.yml", "w") as f:
+              f.write(c)
+          print("cloud-init ready")
+          PYEOF
+
+      - name: Discover OCI resources
+        id: res
+        run: |
+          # Availability domain
+          AD=$(oci iam availability-domain list \
+            --compartment-id "$COMPARTMENT" \
+            --query 'data[0].name' --raw-output)
+
+          # Default VCN
+          VCN=$(oci network vcn list \
+            --compartment-id "$COMPARTMENT" \
+            --query 'data[0].id' --raw-output)
+
+          # First subnet
+          SN=$(oci network subnet list \
+            --compartment-id "$COMPARTMENT" \
+            --vcn-id "$VCN" \
+            --query 'data[0].id' --raw-output)
+
+          # Latest Ubuntu 22.04 image for E2.1.Micro
+          IMG=$(oci compute image list \
+            --compartment-id "$COMPARTMENT" \
+            --operating-system "Canonical Ubuntu" \
+            --operating-system-version "22.04" \
+            --shape "VM.Standard.E2.1.Micro" \
+            --sort-by TIMECREATED --sort-order DESC \
+            --query 'data[0].id' --raw-output)
+
+          # Default security list
+          SL=$(oci network security-list list \
+            --compartment-id "$COMPARTMENT" \
+            --vcn-id "$VCN" \
+            --query 'data[0].id' --raw-output)
+
+          echo "ad=$AD"     >> "$GITHUB_OUTPUT"
+          echo "subnet=$SN" >> "$GITHUB_OUTPUT"
+          echo "image=$IMG" >> "$GITHUB_OUTPUT"
+          echo "sl=$SL"     >> "$GITHUB_OUTPUT"
+          echo "vcn=$VCN"   >> "$GITHUB_OUTPUT"
+          echo "AD=$AD  VCN=$VCN  Image=$IMG"
+
+      - name: Open VCN ports 80 143 443 993
+        run: |
+          SL_ID="${{ steps.res.outputs.sl }}"
+
+          # Fetch current ingress + egress rules
+          INGRESS=$(oci network security-list get --security-list-id "$SL_ID" \
+            --query 'data."ingress-security-rules"')
+          EGRESS=$(oci network security-list get --security-list-id "$SL_ID" \
+            --query 'data."egress-security-rules"')
+
+          # Merge our ports into existing ingress rules
+          UPDATED=$(python3 - "$INGRESS" << 'PYEOF'
+          import sys, json
+
+          rules = json.loads(sys.argv[1])
+          existing_ports = {
+              r["tcp-options"]["destination-port-range"]["min"]
+              for r in rules
+              if r.get("protocol") == "6"
+              and r.get("tcp-options", {}).get("destination-port-range")
+          }
+          for port in [80, 143, 443, 993]:
+              if port not in existing_ports:
+                  rules.append({
+                      "is-stateless": False,
+                      "protocol": "6",
+                      "source": "0.0.0.0/0",
+                      "source-type": "CIDR_BLOCK",
+                      "tcp-options": {
+                          "destination-port-range": {"min": port, "max": port}
+                      }
+                  })
+                  print(f"  + port {port}", flush=True)
+          print(json.dumps(rules))
+          PYEOF
+          )
+
+          oci network security-list update \
+            --security-list-id "$SL_ID" \
+            --ingress-security-rules "$UPDATED" \
+            --egress-security-rules  "$EGRESS" \
+            --force
+          echo "Security list updated"
+
+      - name: Launch VM.Standard.E2.1.Micro
+        id: vm
+        run: |
+          INSTANCE_ID=$(oci compute instance launch \
+            --compartment-id   "$COMPARTMENT" \
+            --availability-domain "${{ steps.res.outputs.ad }}" \
+            --shape            "VM.Standard.E2.1.Micro" \
+            --image-id         "${{ steps.res.outputs.image }}" \
+            --subnet-id        "${{ steps.res.outputs.subnet }}" \
+            --user-data-file   /tmp/cloud-init.yml \
+            --assign-public-ip true \
+            --display-name     "penux-imap" \
+            --query 'data.id' --raw-output)
+          echo "id=$INSTANCE_ID" >> "$GITHUB_OUTPUT"
+          echo "Instance ID: $INSTANCE_ID"
+
+      - name: Wait for RUNNING state (up to 5 min)
+        run: |
+          oci compute instance wait \
+            --instance-id    "${{ steps.vm.outputs.id }}" \
+            --lifecycle-state RUNNING \
+            --max-wait-seconds 300
+          sleep 15
+
+      - name: Get public IP
+        id: ip
+        run: |
+          IP=$(oci compute instance list-vnics \
+            --instance-id "${{ steps.vm.outputs.id }}" \
+            --query 'data[0]."public-ip"' --raw-output)
+          echo "ip=$IP" >> "$GITHUB_OUTPUT"
+          echo "Public IP: $IP"
+
+      - name: Wait for cloud-init to finish (~3 min)
+        run: |
+          echo "Server is booting and running cloud-init..."
+          sleep 200
+          echo "Done waiting — checking IMAP..."
+
+      - name: Smoke test IMAP
+        run: |
+          python3 - << 'PYEOF'
+          import socket, sys
+          host = "mail.penux.uk"
+          try:
+              s = socket.create_connection((host, 143), timeout=15)
+              g = s.recv(512).decode(errors="replace").strip()
+              s.close()
+              if "* OK" in g:
+                  print(f"IMAP ✓  {g[:60]}")
+              else:
+                  print(f"IMAP ?  {g[:80]}")
+                  sys.exit(1)
+          except Exception as e:
+              print(f"IMAP unreachable (DNS may still be propagating): {e}")
+          PYEOF
+
+      - name: Summary
+        run: |
+          echo "════════════════════════════════════════════"
+          echo "  Oracle Cloud VM provisioned!"
+          echo ""
+          echo "  Instance IP: ${{ steps.ip.outputs.ip }}"
+          echo "  Webmail:     http://mail.penux.uk"
+          echo "  IMAP:        mail.penux.uk:143"
+          echo "  User:        ${{ inputs.imap_user }}"
+          echo ""
+          echo "  To check setup logs:"
+          echo "  ssh ubuntu@${{ steps.ip.outputs.ip }} tail -f /var/log/penux-setup.log"
+          echo "════════════════════════════════════════════"
