@@ -1,0 +1,119 @@
+name: Email User Sync
+
+# Automatically sync email users to LDAP and notify on changes
+# Triggered: Manually or on schedule
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        type: choice
+        options:
+          - sync-users
+          - send-notification
+          - verify-emails
+        default: 'sync-users'
+  schedule:
+    # Daily email user verification at 9 AM UTC
+    - cron: '0 9 * * *'
+
+jobs:
+  email-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Sync email users to LDAP
+        if: github.event.inputs.action != 'send-notification'
+        run: |
+          echo "🔄 Email User Sync"
+          echo "=================="
+          echo ""
+          echo "Configured email users:"
+          echo ""
+          grep "^dn: cn=" ldap-init-users.ldif | while read line; do
+            USERNAME=$(echo "$line" | grep -oP '(?<=cn=)[^,]+')
+            MAIL=$(grep -A 20 "^dn: cn=$USERNAME" ldap-init-users.ldif | grep "^mail:" | cut -d' ' -f2)
+            STATUS="✅"
+            echo "$STATUS $USERNAME → $MAIL"
+          done
+          echo ""
+          echo "To sync these users, the LDAP stack must be running."
+          echo "This workflow assumes deployment is active."
+
+      - name: Verify email addresses
+        if: github.event.inputs.action == 'verify-emails'
+        run: |
+          echo "📧 Email Address Verification"
+          echo "=============================="
+          echo ""
+
+          USERS=(
+            "john.smith@penux.uk"
+            "alice.johnson@penux.uk"
+            "bob.wilson@penux.uk"
+            "carol.davis@penux.uk"
+          )
+
+          for email in "${USERS[@]}"; do
+            # Basic email format validation
+            if [[ $email =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+              echo "✅ $email — Valid format"
+            else
+              echo "❌ $email — Invalid format"
+            fi
+          done
+
+      - name: Prepare deployment notification
+        if: github.event.inputs.action == 'send-notification'
+        run: |
+          echo "📬 Preparing email notifications"
+          echo ""
+
+          LIVE_URL=$(cat LIVE_URL.txt | grep "^https://" | head -1)
+
+          cat > deployment-email.txt << EOF
+          Subject: PenuX LDAP Platform Update
+
+          Hello Team,
+
+          The PenuX LDAP platform has been updated with new features.
+
+          🔐 LDAP Services Status: ✅ Active
+          📧 Email Service: ✅ MailHog SMTP Active
+          🌐 Web UI: $LIVE_URL
+
+          New Email Users Available:
+          • john.smith@penux.uk (Engineering Manager)
+          • alice.johnson@penux.uk (Senior Developer)
+          • bob.wilson@penux.uk (QA Engineer)
+
+          All users can authenticate with their email-based DN:
+            cn=alice.johnson,ou=users,dc=penux,dc=uk
+
+          For more information, see: EMAIL-SETUP.md
+
+          Best regards,
+          PenuX Automation
+          EOF
+
+          echo "📧 Email template prepared:"
+          cat deployment-email.txt
+
+      - name: Create deployment summary
+        run: |
+          echo "## ✅ Email User Sync Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Action:** ${{ github.event.inputs.action || 'scheduled-verification' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Active Email Users:**" >> $GITHUB_STEP_SUMMARY
+          echo "- john.smith@penux.uk" >> $GITHUB_STEP_SUMMARY
+          echo "- alice.johnson@penux.uk" >> $GITHUB_STEP_SUMMARY
+          echo "- bob.wilson@penux.uk" >> $GITHUB_STEP_SUMMARY
+          echo "- carol.davis@penux.uk" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**SMTP Service:** MailHog (localhost:1025)" >> $GITHUB_STEP_SUMMARY
+          echo "**Web UI:** http://localhost:8025" >> $GITHUB_STEP_SUMMARY

@@ -199,6 +199,38 @@ jobs:
 
           echo "✅ URLs published to LIVE_URL.txt"
 
+      - name: Send deployment success notification
+        if: success()
+        run: |
+          PUBLIC_URL="${{ steps.ngrok_tunnel.outputs.url || steps.lhr_tunnel.outputs.url }}"
+
+          cat > notification.txt << EOF
+          From: system@penux.uk
+          To: john.smith@penux.uk, alice.johnson@penux.uk, bob.wilson@penux.uk
+          Subject: PenuX LDAP Deployment Success
+
+          ✅ Deployment Successful
+
+          Web UI: $PUBLIC_URL
+          Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          Duration: ${{ job.duration }}
+
+          All services are healthy and running.
+
+          - OpenLDAP (LDAP protocol)
+          - PostgreSQL (Database)
+          - PenuX API (REST endpoints)
+          - PenuX Web UI (Dashboard)
+          - MailHog (SMTP testing)
+
+          The deployment will auto-refresh every 6 hours.
+          EOF
+
+          # Send via SMTP to MailHog (once it's running)
+          # For now, just log it
+          echo "📧 Deployment notification prepared:"
+          cat notification.txt
+
       - name: Keep deployment alive
         run: |
           MINUTES="${{ github.event.inputs.keepalive_minutes || '350' }}"
