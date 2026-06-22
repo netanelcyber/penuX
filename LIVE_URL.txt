@@ -1,14 +1,14 @@
 # PenuX LDAP Live Deployment
-Generated: pending deployment
+Generated: 2026-06-22 (Live)
 
 ## Web UI
-https://pending-deployment
+https://e02a00d561b421.lhr.life
 
 ## REST API
-Base: https://pending-deployment/api
-Health: https://pending-deployment/api/health
-Users: https://pending-deployment/api/users
-Search: https://pending-deployment/api/search?filter=*
+Base: https://e02a00d561b421.lhr.life/api
+Health: https://e02a00d561b421.lhr.life/api/health
+Users: https://e02a00d561b421.lhr.life/api/users
+Search: https://e02a00d561b421.lhr.life/api/search?filter=*
 
 ## Credentials
 Admin DN: cn=admin,dc=penux,dc=uk
