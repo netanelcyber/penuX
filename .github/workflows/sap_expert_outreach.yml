@@ -1,0 +1,247 @@
+name: SAP Expert Outreach Emails
+
+on:
+  workflow_dispatch:
+    inputs:
+      recipient_email:
+        description: "Recipient email address"
+        required: true
+      recipient_name:
+        description: "Recipient name (Dr. Last Name)"
+        required: true
+      email_type:
+        description: "Email type"
+        required: true
+        default: "gastroenterologist"
+        type: choice
+        options:
+          - gastroenterologist
+          - icu_physician
+          - clinical_ai_researcher
+          - irb_committee
+          - research_network
+          - journal_editor
+
+jobs:
+  send-outreach:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Send SAP expert outreach email
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+          RECIPIENT_EMAIL: ${{ inputs.recipient_email }}
+          RECIPIENT_NAME: ${{ inputs.recipient_name }}
+          EMAIL_TYPE: ${{ inputs.email_type }}
+        run: |
+          python3 << 'PYEOF'
+          import smtplib, os, sys
+          from email.mime.multipart import MIMEMultipart
+          from email.mime.text import MIMEText
+
+          smtp_host = os.environ.get("SMTP_HOST", "mx1.forwardemail.net")
+          smtp_port = int(os.environ.get("SMTP_PORT", "587"))
+          smtp_user = os.environ.get("SMTP_USER", "")
+          smtp_pass = os.environ.get("SMTP_PASS", "")
+          from_email = os.environ.get("FROM_EMAIL", "netanel@penux.uk")
+          to_email   = os.environ["RECIPIENT_EMAIL"]
+          to_name    = os.environ["RECIPIENT_NAME"]
+          email_type = os.environ["EMAIL_TYPE"]
+
+          REPO_URL = "https://github.com/netanelcyber/penux"
+
+          EMAILS = {
+              "gastroenterologist": {
+                  "subject": "Research collaboration inquiry — ML early prediction of Severe Acute Pancreatitis",
+                  "body": f"""Dear Dr. {to_name},
+
+I hope this message finds you well. My name is Netanel Shoshany, and I am an independent clinical AI researcher leading PenuX-AP-Severity, an open-source machine learning project focused on early prediction of Severe Acute Pancreatitis (SAP).
+
+THE CLINICAL PROBLEM
+SAP — defined as persistent organ failure >48 hours per the 2012 Revised Atlanta Classification — affects 10–20% of acute pancreatitis admissions and carries significant morbidity and mortality. Most existing scoring systems (BISAP, APACHE II, Ranson, Modified CTSI) require data accumulating over 24–48 hours, limiting early triage utility.
+
+WHAT WE HAVE BUILT
+A retrospective ML pipeline using only routine admission variables available within the first 24 hours — vital signs, WBC, CRP, BUN, creatinine, calcium, glucose, LDH, hematocrit — to predict SAP progression. Models include logistic regression, random forest, and gradient-boosted ensembles, calibrated and benchmarked against classical clinical scores.
+
+WHY I AM REACHING OUT
+We are seeking collaboration with a clinical pancreatologist or gastroenterologist for:
+  1. Clinical review of feature selection and outcome operationalization (Atlanta 2012 label logic)
+  2. External validation on an institutional AP cohort (retrospective, de-identified, IRB-approved)
+  3. Co-authorship on a planned peer-reviewed manuscript
+
+The repository is publicly available: {REPO_URL}
+
+I would be grateful for a brief 20-minute call to discuss feasibility. I can send a one-page summary and draft manuscript in advance.
+
+Thank you for your time and consideration.
+
+Best regards,
+Netanel Shoshany
+Independent Clinical AI Researcher
+netanel@penux.uk
+{REPO_URL}"""
+              },
+              "icu_physician": {
+                  "subject": "SAP severity ML model — validation collaboration proposal",
+                  "body": f"""Dear Dr. {to_name},
+
+I am writing to propose a research collaboration on machine-learning-based early warning for Severe Acute Pancreatitis (SAP) in the ICU setting.
+
+SAP — defined as persistent organ failure >48 hours (Atlanta 2012) — is one of the most resource-intensive presentations in general and surgical ICUs. Early identification of patients at risk for SAP could meaningfully improve triage, bed allocation, and escalation timing.
+
+THE PENUX-AP-SEVERITY PROJECT
+We have developed an ML pipeline trained on MIMIC-IV data that predicts SAP from the first 24 hours of admission using only routine variables: vital signs, WBC, CRP, creatinine, BUN, calcium, glucose, LDH, hematocrit, and basic demographics. The models are benchmarked against BISAP, APACHE II, and Ranson scores.
+
+PROPOSED COLLABORATION (Phase 1 — Retrospective Validation)
+  Step 1: Define local AP cohort (inclusion/exclusion criteria)
+  Step 2: Map local variables to model input schema
+  Step 3: External validation (AUROC, AUPRC, calibration)
+  Step 4: Lead-time and alert-burden analysis
+  Step 5: Joint manuscript submission
+
+This is a retrospective, non-interventional study requiring only de-identified EHR data and standard IRB/ethics committee approval. No changes to patient care during the study.
+
+Repository: {REPO_URL}
+
+I would welcome a brief call at your convenience.
+
+Thank you for your consideration.
+
+Sincerely,
+Netanel Shoshany
+netanel@penux.uk"""
+              },
+              "clinical_ai_researcher": {
+                  "subject": "PenuX-AP-Severity — open-source SAP prediction pipeline, seeking co-investigator",
+                  "body": f"""Dear Dr. {to_name},
+
+I came across your work and believe there may be strong complementarity with an open-source project I am leading.
+
+PenuX-AP-Severity is a Python-based retrospective ML pipeline for predicting progression to Severe Acute Pancreatitis (SAP, persistent organ failure >48h, Atlanta 2012) from routine 24-hour admission data. The project includes:
+
+  - Full modelling stack: logistic regression, random forest, XGBoost, LightGBM — with isotonic/Platt calibration and bootstrapped confidence intervals
+  - Classical benchmark integration: BISAP, APACHE II, Ranson, Modified CTSI implemented natively for head-to-head comparison
+  - Explainability: SHAP + permutation importance
+  - FHIR/HL7 adapters for integration-ready inference endpoint (FastAPI)
+  - MIMIC-IV SQL extraction pipeline for reproducibility
+
+Repository: {REPO_URL}
+
+I am seeking a co-investigator for:
+  - External validation on a non-MIMIC dataset
+  - Prospective silent-mode pilot design
+  - Grant application co-authorship (NIH R01 / ERC / ISF)
+
+If this aligns with your current research agenda, I would be delighted to discuss.
+
+Best regards,
+Netanel Shoshany
+netanel@penux.uk"""
+              },
+              "irb_committee": {
+                  "subject": "Pre-submission inquiry — retrospective ML study for SAP prediction (non-interventional)",
+                  "body": f"""Dear {to_name},
+
+I am writing to inquire about the process for obtaining ethical approval for a retrospective, non-interventional machine-learning model development study at your institution.
+
+STUDY SUMMARY
+  Title:      Early prediction of Severe Acute Pancreatitis using routine 24-hour admission data: a machine learning approach
+  Design:     Retrospective observational cohort study
+  Population: Adult patients (>=18 years) admitted with acute pancreatitis
+  Outcome:    SAP — persistent organ failure >48 hours per the 2012 Revised Atlanta Classification
+  Intervention: None — the model is not used to guide patient care
+  Data:       Existing de-identified EHR records; no patient contact; no prospective data collection
+  Identifiers: No direct identifiers stored or published
+  Framework:  TRIPOD reporting guidelines; Declaration of Helsinki (2013)
+
+I would appreciate guidance on the appropriate application pathway (expedited vs. full review) and whether a data protection officer (DPO) notification is required.
+
+I am happy to provide the full study protocol, data flow diagram, de-identification methodology, and TRIPOD checklist at your request.
+
+Thank you for your time.
+
+Respectfully,
+Netanel Shoshany
+netanel@penux.uk"""
+              },
+              "research_network": {
+                  "subject": "Inquiry — access to multi-center AP dataset for SAP ML model external validation",
+                  "body": f"""Dear {to_name},
+
+I am an independent clinical AI researcher working on PenuX-AP-Severity, an open-source machine learning project for early prediction of Severe Acute Pancreatitis (SAP) from 24-hour admission data.
+
+The model has been developed and internally validated on MIMIC-IV (retrospective critical-care dataset). To advance toward publication, we need external validation on a prospectively collected or multi-center cohort — ideally with:
+
+  - >=200 confirmed acute pancreatitis admissions (any severity)
+  - Atlanta 2012 severity classification available or reconstructable from records
+  - Routine labs and vital signs from the first 24 hours of admission
+  - De-identified, IRB/ethics-approved for secondary AI research
+
+I would be very grateful if you could advise whether any member institutions or network datasets would be available for such a collaboration, or if you could connect me with appropriate contacts.
+
+All outputs would be shared with contributing sites. Co-authorship is offered to all contributing centers.
+
+Repository: {REPO_URL}
+
+Kind regards,
+Netanel Shoshany
+netanel@penux.uk"""
+              },
+              "journal_editor": {
+                  "subject": "Pre-submission inquiry — ML prediction of Severe Acute Pancreatitis from 24-hour admission data",
+                  "body": f"""Dear Dr. {to_name},
+
+I would like to submit a brief pre-submission inquiry regarding a manuscript currently under preparation, tentatively titled:
+
+"Early Prediction of Severe Acute Pancreatitis from Routine 24-Hour Admission Data: A Machine Learning Approach with Classical Score Benchmarking"
+
+KEY POINTS
+  Design:   Retrospective observational cohort study (MIMIC-IV dataset)
+  Outcome:  SAP per the 2012 Revised Atlanta Classification (persistent organ failure >48h)
+  Methods:  Logistic regression, random forest, and gradient-boosted classifiers trained on routine 24-hour variables; calibrated; SHAP-explained; benchmarked against BISAP, APACHE II, Ranson, and Modified CTSI
+  Novel contribution: Head-to-head comparison of modern ML vs. established clinical scores under identical data availability constraints (first 24 hours only); open-source reproducible pipeline; FHIR-ready inference endpoint
+  Reporting: TRIPOD guideline-compliant
+  Word count (estimate): ~3,500 words + tables + figures
+  Code availability: Open source ({REPO_URL})
+
+I believe this work fits within your journal's scope and would welcome your assessment of suitability before full submission.
+
+Thank you for your consideration.
+
+Sincerely,
+Netanel Shoshany
+netanel@penux.uk"""
+              },
+          }
+
+          selected = EMAILS.get(email_type)
+          if not selected:
+              print(f"Unknown email type: {email_type}")
+              sys.exit(1)
+
+          msg = MIMEMultipart("alternative")
+          msg["Subject"] = selected["subject"]
+          msg["From"]    = f"Netanel Shoshany <{from_email}>"
+          msg["To"]      = to_email
+          msg.attach(MIMEText(selected["body"], "plain"))
+
+          print(f"Sending '{email_type}' email to {to_email}...")
+          try:
+              with smtplib.SMTP(smtp_host, smtp_port, timeout=20) as s:
+                  s.ehlo()
+                  if smtp_port == 587:
+                      s.starttls()
+                  if smtp_user and smtp_pass:
+                      s.login(smtp_user, smtp_pass)
+                  s.sendmail(from_email, [to_email], msg.as_string())
+              print(f"✅ Email sent to {to_email}")
+          except Exception as e:
+              print(f"❌ Send failed: {e}")
+              sys.exit(1)
+          PYEOF
