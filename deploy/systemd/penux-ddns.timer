@@ -1,0 +1,10 @@
+[Unit]
+Description=PenuX DDNS — update Cloudflare every 5 minutes
+
+[Timer]
+OnBootSec=30
+OnUnitActiveSec=5min
+Unit=penux-ddns.service
+
+[Install]
+WantedBy=timers.target

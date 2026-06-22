@@ -1,0 +1,18 @@
+[Unit]
+Description=PenuX Cloudflare DDNS updater
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=penux-imap
+EnvironmentFile=/etc/penux-imap/imap.env
+ExecStart=/opt/penux-imap/venv/bin/python /opt/penux-imap/ddns.py
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=penux-ddns
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=/var/cache/penux-ddns

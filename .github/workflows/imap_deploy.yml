@@ -7,68 +7,80 @@ on:
       - "imap_server/**"
       - "run_imap.py"
       - "manage_users.py"
-      - "Dockerfile.imap"
-      - "docker-compose.imap.yml"
-      - "requirements-imap.txt"
+      - "webmail.py"
+      - "run_webmail.py"
+      - "ddns.py"
+      - "deploy/**"
+      - "tests/test_imap_server.py"
   workflow_dispatch:
 
 jobs:
   test:
-    name: Syntax & import check
+    name: Run 39-test IMAP suite
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Check syntax
-        run: |
-          python -m py_compile imap_server/__init__.py
-          python -m py_compile imap_server/config.py
-          python -m py_compile imap_server/mailstore.py
-          python -m py_compile imap_server/protocol.py
-          python -m py_compile imap_server/server.py
-          python -m py_compile run_imap.py
-          python -m py_compile manage_users.py
-          echo "All files compile OK"
-      - name: Import check
-        run: |
-          python -c "from imap_server.config import Config; print('Config OK')"
-          python -c "from imap_server.mailstore import UserMaildir; print('Mailstore OK')"
-          python -c "from imap_server.protocol import IMAPSession; print('Protocol OK')"
-          python -c "from imap_server.server import run_server; print('Server OK')"
+      - run: python3 tests/test_imap_server.py
 
   deploy:
-    name: Deploy via SSH
+    name: Deploy to mail.penux.uk
     needs: test
     runs-on: ubuntu-latest
+    # Only runs if the SSH key secret is configured
     if: ${{ secrets.IMAP_SERVER_SSH_KEY != '' }}
+    env:
+      # Falls back to hostname so dynamic IPs are no problem
+      SSH_HOST: ${{ secrets.IMAP_SERVER_HOST || 'mail.penux.uk' }}
+      SSH_USER: ${{ secrets.IMAP_SERVER_USER || 'root' }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy to server
-        env:
-          SSH_KEY: ${{ secrets.IMAP_SERVER_SSH_KEY }}
-          SSH_HOST: ${{ secrets.IMAP_SERVER_HOST }}
-          SSH_USER: ${{ secrets.IMAP_SERVER_USER || 'ubuntu' }}
+      - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${SSH_KEY}" > ~/.ssh/deploy_key
+          echo "${{ secrets.IMAP_SERVER_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan "${SSH_HOST}" >> ~/.ssh/known_hosts 2>/dev/null
+          ssh-keyscan -H "${SSH_HOST}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
-          # Sync code
+      - name: Sync code to server
+        run: |
           rsync -az --delete \
-            -e "ssh -i ~/.ssh/deploy_key" \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             imap_server/ run_imap.py manage_users.py \
-            Dockerfile.imap docker-compose.imap.yml requirements-imap.txt \
-            "${SSH_USER}@${SSH_HOST}:~/penuX/"
+            webmail.py run_webmail.py ddns.py \
+            deploy/ users.example.json \
+            "${SSH_USER}@${SSH_HOST}:/opt/penux-imap/"
 
-          # Rebuild and restart container
-          ssh -i ~/.ssh/deploy_key "${SSH_USER}@${SSH_HOST}" "
-            cd ~/penuX &&
-            docker compose -f docker-compose.imap.yml build --no-cache imap &&
-            docker compose -f docker-compose.imap.yml up -d imap &&
-            docker compose -f docker-compose.imap.yml ps
-          "
-          echo "Deployment complete"
+      - name: Restart services
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            "${SSH_USER}@${SSH_HOST}" << 'ENDSSH'
+          systemctl restart penux-imap penux-webmail || true
+          # Re-run DDNS immediately so the new code is live before we verify
+          systemctl start penux-ddns || true
+          systemctl is-active penux-imap && echo "penux-imap: active" || echo "penux-imap: FAILED"
+          systemctl is-active penux-webmail && echo "penux-webmail: active" || echo "penux-webmail: FAILED"
+          ENDSSH
+
+      - name: Smoke-test IMAP port
+        run: |
+          sleep 8
+          python3 - << 'EOF'
+          import socket, sys
+          host = "mail.penux.uk"
+          try:
+              s = socket.create_connection((host, 143), timeout=10)
+              g = s.recv(512).decode(errors="replace")
+              s.close()
+              if "* OK" in g:
+                  print("IMAP greeting OK:", g.strip()[:60])
+              else:
+                  print("Unexpected greeting:", repr(g[:80]))
+                  sys.exit(1)
+          except Exception as e:
+              print(f"IMAP unreachable: {e}")
+              sys.exit(1)
+          EOF
