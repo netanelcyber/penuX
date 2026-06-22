@@ -1,0 +1,77 @@
+dn: ou=users,dc=penux,dc=uk
+objectClass: organizationalUnit
+ou: users
+
+dn: ou=groups,dc=penux,dc=uk
+objectClass: organizationalUnit
+ou: groups
+
+dn: cn=john.smith,ou=users,dc=penux,dc=uk
+objectClass: inetOrgPerson
+objectClass: person
+objectClass: organizationalPerson
+cn: john.smith
+sn: Smith
+givenName: John
+mail: john.smith@penux.uk
+userPassword: {SSHA}KLrZqYvHpW3FmQLrfH3c7nHz8QCPYU2O
+uid: john.smith
+displayName: John Smith
+description: Engineering Manager
+telephoneNumber: +44-20-1234-5678
+
+dn: cn=alice.johnson,ou=users,dc=penux,dc=uk
+objectClass: inetOrgPerson
+objectClass: person
+objectClass: organizationalPerson
+cn: alice.johnson
+sn: Johnson
+givenName: Alice
+mail: alice.johnson@penux.uk
+userPassword: {SSHA}KLrZqYvHpW3FmQLrfH3c7nHz8QCPYU2O
+uid: alice.johnson
+displayName: Alice Johnson
+description: Senior Developer
+telephoneNumber: +44-20-1234-5679
+
+dn: cn=bob.wilson,ou=users,dc=penux,dc=uk
+objectClass: inetOrgPerson
+objectClass: person
+objectClass: organizationalPerson
+cn: bob.wilson
+sn: Wilson
+givenName: Bob
+mail: bob.wilson@penux.uk
+userPassword: {SSHA}KLrZqYvHpW3FmQLrfH3c7nHz8QCPYU2O
+uid: bob.wilson
+displayName: Bob Wilson
+description: QA Engineer
+telephoneNumber: +44-20-1234-5680
+
+dn: cn=carol.davis,ou=users,dc=penux,dc=uk
+objectClass: inetOrgPerson
+objectClass: person
+objectClass: organizationalPerson
+cn: carol.davis
+sn: Davis
+givenName: Carol
+mail: carol.davis@penux.uk
+userPassword: {SSHA}KLrZqYvHpW3FmQLrfH3c7nHz8QCPYU2O
+uid: carol.davis
+displayName: Carol Davis
+description: Product Manager
+telephoneNumber: +44-20-1234-5681
+
+dn: cn=developers,ou=groups,dc=penux,dc=uk
+objectClass: groupOfNames
+cn: developers
+member: cn=alice.johnson,ou=users,dc=penux,dc=uk
+member: cn=bob.wilson,ou=users,dc=penux,dc=uk
+description: Development team
+
+dn: cn=management,ou=groups,dc=penux,dc=uk
+objectClass: groupOfNames
+cn: management
+member: cn=john.smith,ou=users,dc=penux,dc=uk
+member: cn=carol.davis,ou=users,dc=penux,dc=uk
+description: Management team

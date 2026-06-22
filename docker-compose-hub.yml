@@ -23,6 +23,86 @@ services:
       retries: 3
     restart: unless-stopped
 
+  ldap-init:
+    image: osixia/openldap:1.5.0
+    container_name: penux-ldap-init
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        echo "Waiting for LDAP to be healthy..."
+        sleep 5
+        LDAP_HOST="openldap"
+        LDAP_PORT="389"
+        LDAP_ADMIN_DN="cn=admin,dc=penux,dc=uk"
+        LDAP_ADMIN_PASSWORD="${LDAP_ADMIN_PASSWORD:-admin123}"
+
+        for i in {1..30}; do
+          if ldapwhoami -H "ldap://$$LDAP_HOST:$$LDAP_PORT" -D "$$LDAP_ADMIN_DN" -w "$$LDAP_ADMIN_PASSWORD" 2>/dev/null; then
+            echo "✅ LDAP is ready"
+            break
+          fi
+          echo "Attempt $$i/30 - waiting for LDAP..."
+          sleep 2
+        done
+
+        echo "Initializing email users..."
+        cat << 'LDIF' | ldapadd -H "ldap://$$LDAP_HOST:$$LDAP_PORT" -D "$$LDAP_ADMIN_DN" -w "$$LDAP_ADMIN_PASSWORD" -c 2>&1 || true
+        dn: ou=users,dc=penux,dc=uk
+        objectClass: organizationalUnit
+        ou: users
+
+        dn: ou=groups,dc=penux,dc=uk
+        objectClass: organizationalUnit
+        ou: groups
+
+        dn: cn=john.smith,ou=users,dc=penux,dc=uk
+        objectClass: inetOrgPerson
+        cn: john.smith
+        sn: Smith
+        givenName: John
+        mail: john.smith@penux.uk
+        uid: john.smith
+        userPassword: password123
+        displayName: John Smith
+
+        dn: cn=alice.johnson,ou=users,dc=penux,dc=uk
+        objectClass: inetOrgPerson
+        cn: alice.johnson
+        sn: Johnson
+        givenName: Alice
+        mail: alice.johnson@penux.uk
+        uid: alice.johnson
+        userPassword: password123
+        displayName: Alice Johnson
+
+        dn: cn=bob.wilson,ou=users,dc=penux,dc=uk
+        objectClass: inetOrgPerson
+        cn: bob.wilson
+        sn: Wilson
+        givenName: Bob
+        mail: bob.wilson@penux.uk
+        uid: bob.wilson
+        userPassword: password123
+        displayName: Bob Wilson
+
+        dn: cn=developers,ou=groups,dc=penux,dc=uk
+        objectClass: groupOfNames
+        cn: developers
+        member: cn=alice.johnson,ou=users,dc=penux,dc=uk
+        member: cn=bob.wilson,ou=users,dc=penux,dc=uk
+        LDIF
+
+        echo "✅ Email users initialized"
+    environment:
+      LDAP_ADMIN_PASSWORD: "${LDAP_ADMIN_PASSWORD:-admin123}"
+    depends_on:
+      openldap:
+        condition: service_healthy
+    networks:
+      - penux-net
+    restart: on-failure
+
   postgres:
     image: postgres:15-alpine
     container_name: penux-postgres
@@ -106,6 +186,29 @@ services:
         limits:
           cpus: '0.5'
           memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: penux-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - penux-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8025"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
         reservations:
           cpus: '0.1'
           memory: 64M
