@@ -190,29 +190,6 @@ services:
           cpus: '0.1'
           memory: 64M
 
-  mailhog:
-    image: mailhog/mailhog:latest
-    container_name: penux-mailhog
-    ports:
-      - "1025:1025"
-      - "8025:8025"
-    networks:
-      - penux-net
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8025"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.25'
-          memory: 128M
-        reservations:
-          cpus: '0.1'
-          memory: 64M
-
 volumes:
   ldap_data:
     driver: local
