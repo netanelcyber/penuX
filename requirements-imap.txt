@@ -1,0 +1,3 @@
+# PenuX IMAP Server dependencies
+# No third-party packages needed — pure Python stdlib only
+# (asyncio, ssl, email, re, json, pathlib, hashlib, secrets)

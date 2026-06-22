@@ -1,0 +1,36 @@
+FROM python:3.11-slim
+
+LABEL org.opencontainers.image.title="PenuX IMAP Server"
+LABEL org.opencontainers.image.description="RFC 3501 IMAP4rev1 server for mail.penux.uk"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY requirements-imap.txt ./
+RUN pip install --no-cache-dir -r requirements-imap.txt
+
+COPY imap_server/ ./imap_server/
+COPY run_imap.py manage_users.py ./
+
+# Maildir storage
+RUN mkdir -p /var/mail/penux
+
+# Config directory
+RUN mkdir -p /etc/penux-imap
+
+EXPOSE 143 993
+
+ENV IMAP_HOST=0.0.0.0
+ENV IMAP_PORT=143
+ENV IMAPS_PORT=993
+ENV IMAP_MAILDIR=/var/mail/penux
+ENV IMAP_TLS_CERT=/etc/ssl/penux/fullchain.pem
+ENV IMAP_TLS_KEY=/etc/ssl/penux/privkey.pem
+ENV IMAP_SERVERNAME=mail.penux.uk
+ENV IMAP_USERS_FILE=/etc/penux-imap/users.json
+
+VOLUME ["/var/mail/penux", "/etc/penux-imap", "/etc/ssl/penux"]
+
+CMD ["python", "run_imap.py"]

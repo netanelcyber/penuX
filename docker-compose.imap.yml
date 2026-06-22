@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  imap:
+    build:
+      context: .
+      dockerfile: Dockerfile.imap
+    image: penux-imap:latest
+    container_name: penux-imap
+    restart: unless-stopped
+    ports:
+      - "143:143"
+      - "993:993"
+    volumes:
+      - maildata:/var/mail/penux
+      - ./config/imap:/etc/penux-imap
+      - ./config/ssl:/etc/ssl/penux:ro
+    environment:
+      IMAP_SERVERNAME: mail.penux.uk
+      IMAP_USERS_FILE: /etc/penux-imap/users.json
+      IMAP_TLS_CERT: /etc/ssl/penux/fullchain.pem
+      IMAP_TLS_KEY: /etc/ssl/penux/privkey.pem
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import socket; s=socket.create_connection(('localhost',143),3); s.recv(100); s.close()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  maildata:
+    driver: local

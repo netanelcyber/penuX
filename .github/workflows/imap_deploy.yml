@@ -1,0 +1,74 @@
+name: IMAP — Deploy to Server
+
+on:
+  push:
+    branches: [claude/imap-server-penux-1op6fl, main]
+    paths:
+      - "imap_server/**"
+      - "run_imap.py"
+      - "manage_users.py"
+      - "Dockerfile.imap"
+      - "docker-compose.imap.yml"
+      - "requirements-imap.txt"
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Syntax & import check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check syntax
+        run: |
+          python -m py_compile imap_server/__init__.py
+          python -m py_compile imap_server/config.py
+          python -m py_compile imap_server/mailstore.py
+          python -m py_compile imap_server/protocol.py
+          python -m py_compile imap_server/server.py
+          python -m py_compile run_imap.py
+          python -m py_compile manage_users.py
+          echo "All files compile OK"
+      - name: Import check
+        run: |
+          python -c "from imap_server.config import Config; print('Config OK')"
+          python -c "from imap_server.mailstore import UserMaildir; print('Mailstore OK')"
+          python -c "from imap_server.protocol import IMAPSession; print('Protocol OK')"
+          python -c "from imap_server.server import run_server; print('Server OK')"
+
+  deploy:
+    name: Deploy via SSH
+    needs: test
+    runs-on: ubuntu-latest
+    if: ${{ secrets.IMAP_SERVER_SSH_KEY != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to server
+        env:
+          SSH_KEY: ${{ secrets.IMAP_SERVER_SSH_KEY }}
+          SSH_HOST: ${{ secrets.IMAP_SERVER_HOST }}
+          SSH_USER: ${{ secrets.IMAP_SERVER_USER || 'ubuntu' }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${SSH_KEY}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan "${SSH_HOST}" >> ~/.ssh/known_hosts 2>/dev/null
+
+          # Sync code
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key" \
+            imap_server/ run_imap.py manage_users.py \
+            Dockerfile.imap docker-compose.imap.yml requirements-imap.txt \
+            "${SSH_USER}@${SSH_HOST}:~/penuX/"
+
+          # Rebuild and restart container
+          ssh -i ~/.ssh/deploy_key "${SSH_USER}@${SSH_HOST}" "
+            cd ~/penuX &&
+            docker compose -f docker-compose.imap.yml build --no-cache imap &&
+            docker compose -f docker-compose.imap.yml up -d imap &&
+            docker compose -f docker-compose.imap.yml ps
+          "
+          echo "Deployment complete"

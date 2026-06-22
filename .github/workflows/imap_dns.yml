@@ -1,0 +1,114 @@
+name: IMAP — DNS Setup for mail.penux.uk
+
+on:
+  workflow_dispatch:
+    inputs:
+      server_ip:
+        description: "IPv4 address of the IMAP server"
+        required: true
+        type: string
+      server_ipv6:
+        description: "IPv6 address (optional)"
+        required: false
+        type: string
+      dry_run:
+        description: "Dry run (show changes without applying)"
+        required: false
+        default: "false"
+        type: choice
+        options: ["true", "false"]
+
+jobs:
+  configure-dns:
+    name: Configure Cloudflare DNS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up DNS records via Cloudflare API
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          SERVER_IP: ${{ inputs.server_ip }}
+          SERVER_IPV6: ${{ inputs.server_ipv6 }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+
+          API="https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/dns_records"
+          AUTH_HEADER="Authorization: Bearer ${CF_API_TOKEN}"
+          CT_HEADER="Content-Type: application/json"
+
+          create_or_update() {
+            local type="$1" name="$2" content="$3" proxied="$4"
+            echo "--- DNS ${type} ${name} → ${content} (proxied=${proxied})"
+
+            # Check if record exists
+            existing=$(curl -s -H "${AUTH_HEADER}" \
+              "${API}?type=${type}&name=${name}" | python3 -c \
+              "import json,sys; r=json.load(sys.stdin); print(r['result'][0]['id'] if r['result'] else '')" 2>/dev/null || echo "")
+
+            payload=$(python3 -c "import json; print(json.dumps({
+              'type': '${type}',
+              'name': '${name}',
+              'content': '${content}',
+              'proxied': ${proxied},
+              'ttl': 300
+            }))")
+
+            if [ "${DRY_RUN}" = "true" ]; then
+              echo "[DRY RUN] Would $([ -n "${existing}" ] && echo 'update' || echo 'create') ${type} ${name}"
+              return
+            fi
+
+            if [ -n "${existing}" ]; then
+              result=$(curl -s -X PUT -H "${AUTH_HEADER}" -H "${CT_HEADER}" \
+                "${API}/${existing}" -d "${payload}")
+            else
+              result=$(curl -s -X POST -H "${AUTH_HEADER}" -H "${CT_HEADER}" \
+                "${API}" -d "${payload}")
+            fi
+            echo "${result}" | python3 -c \
+              "import json,sys; r=json.load(sys.stdin); print('OK:', r['result']['name']) if r['success'] else print('FAIL:', r['errors'])"
+          }
+
+          # A record: mail.penux.uk → server IP (not proxied — IMAP needs direct TCP)
+          create_or_update "A" "mail.penux.uk" "${SERVER_IP}" "false"
+
+          # AAAA record if IPv6 provided
+          if [ -n "${SERVER_IPV6}" ]; then
+            create_or_update "AAAA" "mail.penux.uk" "${SERVER_IPV6}" "false"
+          fi
+
+          # MX record: penux.uk → mail.penux.uk (priority 10)
+          MX_PAYLOAD=$(python3 -c "import json; print(json.dumps({
+            'type': 'MX',
+            'name': 'penux.uk',
+            'content': 'mail.penux.uk',
+            'priority': 10,
+            'proxied': False,
+            'ttl': 300
+          }))")
+
+          if [ "${DRY_RUN}" = "false" ]; then
+            existing_mx=$(curl -s -H "${AUTH_HEADER}" \
+              "${API}?type=MX&name=penux.uk" | python3 -c \
+              "import json,sys; r=json.load(sys.stdin); print(r['result'][0]['id'] if r['result'] else '')" 2>/dev/null || echo "")
+            if [ -n "${existing_mx}" ]; then
+              curl -s -X PUT -H "${AUTH_HEADER}" -H "${CT_HEADER}" \
+                "${API}/${existing_mx}" -d "${MX_PAYLOAD}" | python3 -c \
+                "import json,sys; r=json.load(sys.stdin); print('MX OK' if r['success'] else r['errors'])"
+            else
+              curl -s -X POST -H "${AUTH_HEADER}" -H "${CT_HEADER}" \
+                "${API}" -d "${MX_PAYLOAD}" | python3 -c \
+                "import json,sys; r=json.load(sys.stdin); print('MX OK' if r['success'] else r['errors'])"
+            fi
+          else
+            echo "[DRY RUN] Would set MX penux.uk → mail.penux.uk priority 10"
+          fi
+
+          echo ""
+          echo "DNS setup complete. Records:"
+          echo "  mail.penux.uk A     → ${SERVER_IP}"
+          [ -n "${SERVER_IPV6}" ] && echo "  mail.penux.uk AAAA  → ${SERVER_IPV6}"
+          echo "  penux.uk      MX 10 → mail.penux.uk"
+          echo ""
+          echo "Next step: run the 'IMAP — TLS Certificate' workflow to get a Let's Encrypt cert."

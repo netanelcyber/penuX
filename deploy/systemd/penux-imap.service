@@ -1,0 +1,41 @@
+[Unit]
+Description=PenuX IMAP Server (mail.penux.uk)
+Documentation=https://github.com/netanelcyber/penux
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=penux-imap
+Group=penux-imap
+WorkingDirectory=/opt/penux-imap
+ExecStart=/opt/penux-imap/venv/bin/python run_imap.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=penux-imap
+
+# Environment
+EnvironmentFile=-/etc/penux-imap/imap.env
+Environment=IMAP_SERVERNAME=mail.penux.uk
+Environment=IMAP_PORT=143
+Environment=IMAPS_PORT=993
+Environment=IMAP_MAILDIR=/var/mail/penux
+Environment=IMAP_TLS_CERT=/etc/ssl/penux/fullchain.pem
+Environment=IMAP_TLS_KEY=/etc/ssl/penux/privkey.pem
+Environment=IMAP_USERS_FILE=/etc/penux-imap/users.json
+
+# Security hardening
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=/var/mail/penux /etc/penux-imap
+ReadOnlyPaths=/etc/ssl/penux
+
+# Allow binding to ports 143 and 993
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target

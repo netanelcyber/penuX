@@ -1,0 +1,97 @@
+name: IMAP — TLS Certificate (Let's Encrypt)
+
+on:
+  workflow_dispatch:
+    inputs:
+      email:
+        description: "Email for Let's Encrypt account"
+        required: true
+        default: "netanel@penux.uk"
+        type: string
+      renew_only:
+        description: "Only renew existing certificate"
+        required: false
+        default: "false"
+        type: choice
+        options: ["true", "false"]
+  schedule:
+    # Renew certificate every 60 days
+    - cron: "0 3 1 */2 *"
+
+jobs:
+  issue-cert:
+    name: Issue/Renew TLS Certificate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install certbot with Cloudflare plugin
+        run: |
+          pip install certbot certbot-dns-cloudflare
+
+      - name: Write Cloudflare credentials
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          mkdir -p ~/.secrets/certbot
+          cat > ~/.secrets/certbot/cloudflare.ini <<EOF
+          dns_cloudflare_api_token = ${CF_API_TOKEN}
+          EOF
+          chmod 600 ~/.secrets/certbot/cloudflare.ini
+
+      - name: Issue certificate via DNS-01 challenge
+        env:
+          ACME_EMAIL: ${{ inputs.email || 'netanel@penux.uk' }}
+        run: |
+          certbot certonly \
+            --non-interactive \
+            --agree-tos \
+            --email "${ACME_EMAIL}" \
+            --dns-cloudflare \
+            --dns-cloudflare-credentials ~/.secrets/certbot/cloudflare.ini \
+            --dns-cloudflare-propagation-seconds 30 \
+            -d mail.penux.uk \
+            --cert-name mail.penux.uk
+
+      - name: Package certificate files
+        run: |
+          mkdir -p /tmp/certs
+          cp /etc/letsencrypt/live/mail.penux.uk/fullchain.pem /tmp/certs/
+          cp /etc/letsencrypt/live/mail.penux.uk/privkey.pem /tmp/certs/
+          # Create a deploy bundle
+          tar czf /tmp/mail-penux-uk-certs.tar.gz -C /tmp/certs .
+
+      - name: Upload certificate as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mail-penux-uk-tls-cert
+          path: /tmp/certs/
+          retention-days: 90
+
+      - name: Deploy certificate to server
+        if: ${{ secrets.IMAP_SERVER_SSH_KEY != '' }}
+        env:
+          SSH_KEY: ${{ secrets.IMAP_SERVER_SSH_KEY }}
+          SSH_HOST: ${{ secrets.IMAP_SERVER_HOST }}
+          SSH_USER: ${{ secrets.IMAP_SERVER_USER || 'ubuntu' }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${SSH_KEY}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan "${SSH_HOST}" >> ~/.ssh/known_hosts 2>/dev/null
+
+          ssh -i ~/.ssh/deploy_key "${SSH_USER}@${SSH_HOST}" \
+            "sudo mkdir -p /etc/ssl/penux"
+
+          scp -i ~/.ssh/deploy_key \
+            /etc/letsencrypt/live/mail.penux.uk/fullchain.pem \
+            "${SSH_USER}@${SSH_HOST}:/tmp/fullchain.pem"
+          scp -i ~/.ssh/deploy_key \
+            /etc/letsencrypt/live/mail.penux.uk/privkey.pem \
+            "${SSH_USER}@${SSH_HOST}:/tmp/privkey.pem"
+
+          ssh -i ~/.ssh/deploy_key "${SSH_USER}@${SSH_HOST}" \
+            "sudo mv /tmp/fullchain.pem /etc/ssl/penux/ && \
+             sudo mv /tmp/privkey.pem /etc/ssl/penux/ && \
+             sudo chmod 644 /etc/ssl/penux/fullchain.pem && \
+             sudo chmod 600 /etc/ssl/penux/privkey.pem && \
+             docker compose -f ~/penuX/docker-compose.imap.yml restart imap && \
+             echo 'Certificate deployed and IMAP server restarted'"
