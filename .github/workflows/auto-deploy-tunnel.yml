@@ -199,37 +199,85 @@ jobs:
 
           echo "✅ URLs published to LIVE_URL.txt"
 
-      - name: Send deployment success notification
+      - name: Send deployment success notification via SMTP
         if: success()
         run: |
-          PUBLIC_URL="${{ steps.ngrok_tunnel.outputs.url || steps.lhr_tunnel.outputs.url }}"
+          echo "⏳ Waiting for MailHog to be ready..."
+          sleep 5
 
-          cat > notification.txt << EOF
+          PUBLIC_URL="${{ steps.ngrok_tunnel.outputs.url || steps.lhr_tunnel.outputs.url }}"
+          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+          # Create email content
+          cat > email.txt << 'EMAILEOF'
           From: system@penux.uk
-          To: john.smith@penux.uk, alice.johnson@penux.uk, bob.wilson@penux.uk
+          To: john.smith@penux.uk
           Subject: PenuX LDAP Deployment Success
 
-          ✅ Deployment Successful
+          ✅ DEPLOYMENT SUCCESSFUL
 
-          Web UI: $PUBLIC_URL
-          Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
-          Duration: ${{ job.duration }}
+          Web UI: PLACEHOLDER_URL
+          Timestamp: PLACEHOLDER_TIME
 
-          All services are healthy and running.
+          All services are healthy and running:
+          • OpenLDAP (LDAP protocol, port 389)
+          • PostgreSQL (Database, port 5432)
+          • PenuX API (REST endpoints, port 3000)
+          • PenuX Web UI (Dashboard, port 3001)
+          • MailHog (SMTP testing, port 1025)
+          • LDAP Init (Email users initialized)
 
-          - OpenLDAP (LDAP protocol)
-          - PostgreSQL (Database)
-          - PenuX API (REST endpoints)
-          - PenuX Web UI (Dashboard)
-          - MailHog (SMTP testing)
+          Email Users Available:
+          • john.smith@penux.uk
+          • alice.johnson@penux.uk
+          • bob.wilson@penux.uk
 
-          The deployment will auto-refresh every 6 hours.
-          EOF
+          The deployment will auto-refresh every 6 hours via cron.
 
-          # Send via SMTP to MailHog (once it's running)
-          # For now, just log it
-          echo "📧 Deployment notification prepared:"
-          cat notification.txt
+          ---
+          Sent by PenuX Automation
+          EMAILEOF
+
+          # Replace placeholders
+          sed -i "s|PLACEHOLDER_URL|$PUBLIC_URL|g" email.txt
+          sed -i "s|PLACEHOLDER_TIME|$TIMESTAMP|g" email.txt
+
+          echo "📧 Sending email via MailHog..."
+          # Use Python to send email via SMTP
+          python3 << 'PYEOF'
+          import smtplib
+          import time
+
+          # Wait for MailHog to accept connections
+          for attempt in range(10):
+            try:
+              with open('email.txt', 'r') as f:
+                email_content = f.read()
+
+              # Connect to MailHog SMTP
+              server = smtplib.SMTP('localhost', 1025, timeout=5)
+
+              # Send email
+              server.sendmail(
+                'system@penux.uk',
+                ['john.smith@penux.uk', 'alice.johnson@penux.uk', 'bob.wilson@penux.uk'],
+                email_content
+              )
+              server.quit()
+
+              print("✅ Email sent successfully via MailHog!")
+              break
+            except Exception as e:
+              print(f"Attempt {attempt+1}/10: {e}")
+              if attempt < 9:
+                time.sleep(2)
+              else:
+                print("⚠️ Could not send email (MailHog may not be ready yet)")
+          PYEOF
+
+          echo ""
+          echo "📬 Email Notification:"
+          cat email.txt
 
       - name: Keep deployment alive
         run: |
@@ -247,6 +295,71 @@ jobs:
             sleep 60
           done
           echo "Keepalive window ended — cron will relaunch."
+
+      - name: Send deployment failure notification via SMTP
+        if: failure()
+        run: |
+          echo "⏳ Waiting for MailHog to be ready..."
+          sleep 5
+
+          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+          # Create failure email
+          cat > failure-email.txt << 'EMAILEOF'
+          From: system@penux.uk
+          To: john.smith@penux.uk
+          Subject: ⚠️ PenuX LDAP Deployment FAILED
+
+          ❌ DEPLOYMENT FAILED
+
+          Timestamp: PLACEHOLDER_TIME
+          Workflow: Auto-Deploy LDAP via Free Tunnel
+          Branch: claude/laughing-cori-jlr7od
+
+          One or more services failed to start or become healthy.
+          Please check the GitHub Actions logs for details:
+          https://github.com/netanelcyber/penuX/actions/workflows/auto-deploy-tunnel.yml
+
+          Common issues:
+          • Docker image pull timeout
+          • Port already in use
+          • Service health check timeout
+          • Network connectivity
+
+          The next auto-deployment will run in ~6 hours.
+          You can manually trigger a retry from the GitHub Actions UI.
+
+          ---
+          PenuX Automation
+          EMAILEOF
+
+          sed -i "s|PLACEHOLDER_TIME|$TIMESTAMP|g" failure-email.txt
+
+          echo "📧 Sending failure notification via MailHog..."
+          python3 << 'PYEOF'
+          import smtplib
+          import time
+
+          for attempt in range(10):
+            try:
+              with open('failure-email.txt', 'r') as f:
+                email_content = f.read()
+
+              server = smtplib.SMTP('localhost', 1025, timeout=5)
+              server.sendmail(
+                'system@penux.uk',
+                ['john.smith@penux.uk'],
+                email_content
+              )
+              server.quit()
+
+              print("✅ Failure notification sent!")
+              break
+            except Exception as e:
+              print(f"Attempt {attempt+1}/10: {e}")
+              if attempt < 9:
+                time.sleep(2)
+          PYEOF
 
       - name: Dump logs on failure
         if: failure()
