@@ -15,6 +15,7 @@ import re
 import time
 import socket
 import logging
+import threading
 from pathlib import Path
 from typing import Optional
 
@@ -35,6 +36,17 @@ _VALID_FLAGS = set(_MAILDIR_TO_IMAP.values())
 
 # Shared per-process PID+hostname component for unique names
 _HOSTNAME = socket.gethostname().replace("/", "_").replace(":", "_")
+
+# Monotonic counter for unique Maildir filenames (prevents collision within same second)
+_seq_lock = threading.Lock()
+_seq = 0
+
+
+def _next_unique() -> str:
+    global _seq
+    with _seq_lock:
+        _seq += 1
+        return f"{int(time.time())}.{_seq}.{os.getpid()}.{_HOSTNAME}"
 
 
 def _maildir_flags_to_imap(flags_str: str) -> list[str]:
@@ -221,8 +233,7 @@ class Mailbox:
     def append(self, raw: bytes, flags: list[str], uid_map_save_fn) -> int:
         """Write a new message and return its UID."""
         self._ensure_dirs()
-        ts = time.time()
-        unique = f"{int(ts)}.{os.getpid()}.{_HOSTNAME}"
+        unique = _next_unique()
         flag_str = _imap_flags_to_maildir(flags)
         filename = f"{unique}:2,{flag_str}"
         dest = self.path / "cur" / filename
