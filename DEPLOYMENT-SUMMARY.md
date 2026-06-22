@@ -63,8 +63,12 @@ NGROK-AUTO-SETUP.md                           ✅ Permanent URL setup
 - URL changes every 6 hours
 - Perfect for testing/demos
 
-**Check status:**
+**Find the current live URL:**
 ```bash
+# Quick check — the URL is always here:
+cat LIVE_URL.txt
+
+# Or check status:
 ./deployment-status.sh
 ```
 
@@ -159,6 +163,12 @@ gh run list --workflow=auto-deploy-tunnel.yml --limit=1
 
 ## 🌐 Access Your LDAP
 
+### Get the Live URL
+```bash
+# The live URL is always here (auto-updated each deployment):
+cat LIVE_URL.txt
+```
+
 ### Web UI
 ```
 https://<tunnel-url>/
@@ -166,16 +176,19 @@ https://<tunnel-url>/
 
 ### REST API
 ```bash
+# Read current URL
+URL=$(cat LIVE_URL.txt)
+
 # Health check
-curl https://<tunnel-url>/api/health
+curl $URL/api/health
 
 # List users (with auth)
 curl -u "cn=admin,dc=penux,dc=uk:admin123" \
-  https://<tunnel-url>/api/users
+  $URL/api/users
 
 # Search LDAP
 curl -u "cn=admin,dc=penux,dc=uk:admin123" \
-  https://<tunnel-url>/api/search?filter=*
+  $URL/api/search?filter=*
 ```
 
 ### LDAP Protocol
@@ -288,6 +301,7 @@ git push
 ✅ **Free** — No credit card, no costs  
 ✅ **Codespaces Support** — Auto-boots when you open in GitHub Codespaces  
 ✅ **Permanent URL** — Optional ngrok upgrade (email signup only)  
+✅ **Auto-Published URL** — Live tunnel URL committed to `LIVE_URL.txt` each run  
 ✅ **GitHub Actions Only** — Leverages free ubuntu runners  
 
 ---

@@ -1,0 +1,6 @@
+https://pending-deployment
+
+Check the GitHub Actions workflow log for the current live URL:
+https://github.com/netanelcyber/penuX/actions/workflows/auto-deploy-tunnel.yml
+
+This file is automatically updated on each deployment.
