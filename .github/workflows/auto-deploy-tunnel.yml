@@ -170,8 +170,25 @@ jobs:
             exit 0
           fi
 
-          echo "Publishing URL to LIVE_URL.txt: $PUBLIC_URL"
-          echo "$PUBLIC_URL" > LIVE_URL.txt
+          echo "Publishing tunnel URLs to LIVE_URL.txt: $PUBLIC_URL"
+
+          {
+            echo "# PenuX LDAP Live Deployment"
+            echo "Generated: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            echo ""
+            echo "## Web UI"
+            echo "$PUBLIC_URL"
+            echo ""
+            echo "## REST API"
+            echo "Base: $PUBLIC_URL/api"
+            echo "Health: $PUBLIC_URL/api/health"
+            echo "Users: $PUBLIC_URL/api/users"
+            echo "Search: $PUBLIC_URL/api/search?filter=*"
+            echo ""
+            echo "## Credentials"
+            echo "Admin DN: cn=admin,dc=penux,dc=uk"
+            echo "Admin Password: admin123"
+          } > LIVE_URL.txt
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -180,7 +197,7 @@ jobs:
           git commit -m "chore: update live tunnel URL" 2>/dev/null || true
           git push origin ${{ github.ref_name }} 2>/dev/null || true
 
-          echo "✅ URL published to LIVE_URL.txt"
+          echo "✅ URLs published to LIVE_URL.txt"
 
       - name: Keep deployment alive
         run: |

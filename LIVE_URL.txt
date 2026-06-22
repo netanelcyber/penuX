@@ -1,6 +1,15 @@
+# PenuX LDAP Live Deployment
+Generated: pending deployment
+
+## Web UI
 https://pending-deployment
 
-Check the GitHub Actions workflow log for the current live URL:
-https://github.com/netanelcyber/penuX/actions/workflows/auto-deploy-tunnel.yml
+## REST API
+Base: https://pending-deployment/api
+Health: https://pending-deployment/api/health
+Users: https://pending-deployment/api/users
+Search: https://pending-deployment/api/search?filter=*
 
-This file is automatically updated on each deployment.
+## Credentials
+Admin DN: cn=admin,dc=penux,dc=uk
+Admin Password: admin123
