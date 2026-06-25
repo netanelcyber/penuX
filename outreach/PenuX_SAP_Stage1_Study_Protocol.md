@@ -5,7 +5,7 @@
 **Protocol Version:** 1.0  
 **Date:** June 2026  
 **Principal Investigator:** Netanel Stern, PenuX Research Initiative  
-**Contact:** netanel@penux.uk | +972-55-970-8708  
+**Contact:** nsh531@gmail.com | +972-55-970-8708  
 **ClinicalTrials.gov:** [Pending Registration]
 
 ---
