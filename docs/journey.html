@@ -356,7 +356,7 @@
     <li><a href="review.html">Review Article</a></li>
     <li><a href="models.html">Models</a></li>
     <li><a href="predict.html">Predict</a></li>
-    <li><a href="api.html" class="nav-cta">Swagger UI</a></li>
+    <li><a href="tasks.html" style="font-size:.85rem">📋 Tasks</a></li><li><a href="api.html" class="nav-cta">Swagger UI</a></li>
   </ul>
 </nav>
 
@@ -416,7 +416,7 @@
           <div class="step-body">
             <div class="step-num">Step 3 &middot; PenuX</div>
             <div class="step-title">PenuX Scores Risk</div>
-            <div class="step-desc">106 lab-derived features fed to the Random Forest model via FHIR&nbsp;R4 or HL7&nbsp;v2. Severe-AP probability returned in &lt;200&nbsp;ms. Risk tier assigned automatically.
+            <div class="step-desc">59 lab features fed to the Random Forest model via FHIR&nbsp;R4 or HL7&nbsp;v2. Severe-AP probability returned in &lt;200&nbsp;ms. Risk tier assigned automatically.
               <br><span class="chip chip-green">AUROC 0.877</span>
             </div>
           </div>
@@ -598,7 +598,7 @@
           <tr class="penux-row">
             <td><strong>PenuX-AP-Severity</strong> <span class="badge badge-blue">This work</span></td>
             <td><span class="badge badge-green">&lt; 4 hours</span></td>
-            <td>Routine admission labs (up to 106 features from 19 parameters)</td>
+            <td>Routine admission labs (59 features from 19 parameters)</td>
             <td>Research prototype; single Chinese cohort n=722; external validation pending</td>
             <td><strong>Earliest available &middot; Fully automated &middot; No imaging &middot; No extra tests</strong></td>
           </tr>
@@ -764,13 +764,21 @@
 
 <!-- CTA -->
 <section class="cta-section">
-  <div class="section-inner" style="max-width:700px;">
-    <h2>Want to Validate PenuX in Your Institution?</h2>
-    <p>We are seeking clinical validation partners &mdash; gastroenterology and pancreatology departments with access to retrospective or prospective severe AP cohorts. Data stays on-site; we provide the model and analysis pipeline.</p>
+  <div class="section-inner" style="max-width:780px;">
+    <h2>Stage 0 — Seeking Hospital Data Partners</h2>
+    <p>We are currently in <strong style="color:white;">Stage 0</strong> — building hospital data partnerships before formal validation begins. We are looking for gastroenterology or acute-medicine departments willing to provide de-identified retrospective SAP data, co-develop an IRB protocol, and serve as the first external validation site. <strong style="color:white;">Co-authorship offered</strong>. Data stays on-site — PenuX supplies the model, pipeline, and analysis.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;margin-bottom:1.5rem;">
+      <div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:.6rem 1.1rem;font-size:.85rem;">&#128203; n=220 validation cohort#129309; Data partnership MOU</div>
+      <div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:.6rem 1.1rem;font-size:.85rem;">&#128336; 12-month enrolment</div>
+      <div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:.6rem 1.1rem;font-size:.85rem;">&#128394; Co-authorship offered</div>
+      <div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:.6rem 1.1rem;font-size:.85rem;">&#9878; Shared IRB framework</div>
+    </div>
     <div class="cta-buttons">
       <a href="https://github.com/netanelcyber/penuX" target="_blank" rel="noopener noreferrer" class="btn btn-white">View on GitHub</a>
-      <a href="mailto:nsh531@gmail.com" class="btn btn-outline-white">Contact Us</a>
+      <a href="mailto:nsh531@gmail.com?subject=Stage%20I%20Validation%20Study%20Enquiry" class="btn btn-outline-white">&#9993; nsh531@gmail.com</a>
+      <a href="tel:+972559708708" class="btn btn-outline-white">&#128222; +972-55-970-8708</a>
     </div>
+    <p style="margin-top:1.2rem;font-size:.82rem;color:rgba(255,255,255,.65);">PI: Netanel Stern &mdash; PenuX Research Initiative</p>
   </div>
 </section>
 
@@ -781,6 +789,7 @@
       <div class="footer-brand">
         <h3>PenuX-AP-Severity</h3>
         <p>Open-source machine learning model for early prediction of Severe Acute Pancreatitis using routine admission laboratory data. Built with the 2012 Revised Atlanta Classification.</p>
+        <p style="margin-top:.6rem;font-size:.8rem;">PI: <strong style="color:var(--white);">Netanel Stern</strong> &mdash; <a href="mailto:nsh531@gmail.com" style="color:var(--gray-400);">nsh531@gmail.com</a> &middot; <a href="tel:+972559708708" style="color:var(--gray-400);">+972-55-970-8708</a></p>
       </div>
       <div class="footer-col">
         <h4>Project</h4>

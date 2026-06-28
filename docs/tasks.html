@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>PenuX — Task Board</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  :root {
+    --blue:   #1F497D;
+    --blue2:  #2563EB;
+    --green:  #16A34A;
+    --amber:  #D97706;
+    --red:    #DC2626;
+    --gray:   #6B7280;
+    --light:  #F3F4F6;
+    --border: #E5E7EB;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #F9FAFB; color: #111827; }
+
+  /* ── AUTH OVERLAY ── */
+  #auth-overlay {
+    position: fixed; inset: 0; background: #0f172a;
+    display: flex; align-items: center; justify-content: center; z-index: 9999;
+  }
+  #auth-box {
+    background: #1e293b; border: 1px solid #334155; border-radius: 12px;
+    padding: 2.5rem; width: 360px; text-align: center;
+  }
+  #auth-box h2 { color: #f1f5f9; font-size: 1.3rem; margin-bottom: .25rem; }
+  #auth-box p  { color: #94a3b8; font-size: .85rem; margin-bottom: 1.5rem; }
+  #auth-box input {
+    width: 100%; padding: .75rem 1rem; background: #0f172a;
+    border: 1px solid #475569; border-radius: 8px; color: #f1f5f9;
+    font-size: 1rem; margin-bottom: .75rem; text-align: center; letter-spacing: .15em;
+  }
+  #auth-box input:focus { outline: none; border-color: #3b82f6; }
+  #auth-box button {
+    width: 100%; padding: .75rem; background: #2563EB; color: #fff;
+    border: none; border-radius: 8px; font-size: 1rem; font-weight: 600;
+    cursor: pointer; transition: background .2s;
+  }
+  #auth-box button:hover { background: #1d4ed8; }
+  #auth-error { color: #f87171; font-size: .85rem; margin-top: .75rem; min-height: 1.2em; }
+  #auth-logo { font-size: 2rem; font-weight: 800; color: #3b82f6; margin-bottom: 1rem; }
+
+  /* ── MAIN APP ── */
+  #app { display: none; min-height: 100vh; }
+
+  nav {
+    background: var(--blue); color: #fff; padding: .75rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  nav .brand { font-size: 1.1rem; font-weight: 700; }
+  nav .brand span { opacity: .6; font-weight: 400; font-size: .9rem; margin-left: .5rem; }
+  nav button {
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+    color: #fff; padding: .35rem .9rem; border-radius: 6px; cursor: pointer; font-size: .85rem;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  h1 { font-size: 1.5rem; font-weight: 700; color: var(--blue); margin-bottom: .25rem; }
+  .subtitle { color: var(--gray); font-size: .9rem; margin-bottom: 2rem; }
+
+  /* ── STATS BAR ── */
+  .stats { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .stat {
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    padding: .75rem 1.25rem; flex: 1; min-width: 130px; text-align: center;
+  }
+  .stat-val { font-size: 1.6rem; font-weight: 800; }
+  .stat-lbl { font-size: .75rem; color: var(--gray); margin-top: .1rem; }
+  .c-green { color: var(--green); } .c-amber { color: var(--amber); }
+  .c-red   { color: var(--red);  } .c-blue  { color: var(--blue2); }
+
+  /* ── ADD TASK ── */
+  .add-bar {
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+    display: flex; gap: .75rem; flex-wrap: wrap; align-items: flex-end;
+  }
+  .add-bar input, .add-bar select {
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: .5rem .75rem; font-size: .9rem; flex: 1; min-width: 140px;
+  }
+  .add-bar input:focus, .add-bar select:focus { outline: none; border-color: var(--blue2); }
+  .add-bar .btn-add {
+    background: var(--blue2); color: #fff; border: none; border-radius: 6px;
+    padding: .55rem 1.25rem; font-size: .9rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .add-bar .btn-add:hover { background: #1d4ed8; }
+
+  /* ── FILTER BAR ── */
+  .filter-bar { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .filter-btn {
+    padding: .35rem .9rem; border-radius: 20px; font-size: .82rem; cursor: pointer;
+    border: 1px solid var(--border); background: #fff; color: var(--gray); transition: all .15s;
+  }
+  .filter-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+  /* ── TABLE ── */
+  .table-wrap { background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    background: var(--light); padding: .65rem 1rem; text-align: left;
+    font-size: .78rem; font-weight: 600; color: var(--gray); border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #F9FAFB; }
+  tbody td { padding: .7rem 1rem; font-size: .88rem; vertical-align: middle; }
+  .task-title { font-weight: 500; }
+  .task-sub   { font-size: .78rem; color: var(--gray); margin-top: .15rem; }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-block; padding: .2rem .6rem; border-radius: 20px;
+    font-size: .74rem; font-weight: 600; white-space: nowrap;
+  }
+  .badge-done    { background: #DCFCE7; color: #15803D; }
+  .badge-pending { background: #FEF9C3; color: #92400E; }
+  .badge-urgent  { background: #FEE2E2; color: #991B1B; }
+  .badge-waiting { background: #E0E7FF; color: #3730A3; }
+
+  .cat-badge {
+    display: inline-block; padding: .15rem .5rem; border-radius: 4px;
+    font-size: .72rem; font-weight: 500;
+  }
+  .cat-meeting  { background: #DBEAFE; color: #1e40af; }
+  .cat-follow   { background: #F3E8FF; color: #6B21A8; }
+  .cat-research { background: #DCFCE7; color: #166534; }
+  .cat-admin    { background: #FEF3C7; color: #92400E; }
+
+  .btn-done, .btn-del {
+    border: none; border-radius: 5px; padding: .25rem .6rem;
+    font-size: .78rem; cursor: pointer; font-weight: 500; margin-left: .25rem;
+  }
+  .btn-done { background: #DCFCE7; color: #15803D; }
+  .btn-done:hover { background: #BBF7D0; }
+  .btn-del  { background: #FEE2E2; color: #991B1B; }
+  .btn-del:hover  { background: #FECACA; }
+
+  .empty-state { text-align: center; padding: 3rem; color: var(--gray); }
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: .5rem; }
+
+  @media (max-width: 700px) {
+    thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── AUTH OVERLAY ── -->
+<div id="auth-overlay">
+  <div id="auth-box">
+    <div id="auth-logo">PenuX</div>
+    <h2>Task Board</h2>
+    <p>Protected area — enter password</p>
+    <input type="password" id="pw-input" placeholder="••••••••••"
+           onkeydown="if(event.key==='Enter')tryLogin()">
+    <button onclick="tryLogin()">Sign In</button>
+    <div id="auth-error"></div>
+  </div>
+</div>
+
+<!-- ── MAIN APP ── -->
+<div id="app">
+  <nav>
+    <div class="brand">PenuX <span>Task Board</span></div>
+    <button onclick="logout()">Sign Out</button>
+  </nav>
+
+  <div class="container">
+    <h1>Task Board</h1>
+    <p class="subtitle" id="last-updated"></p>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat"><div class="stat-val c-blue"  id="cnt-total">0</div><div class="stat-lbl">Total Tasks</div></div>
+      <div class="stat"><div class="stat-val c-red"   id="cnt-urgent">0</div><div class="stat-lbl">Urgent</div></div>
+      <div class="stat"><div class="stat-val c-amber" id="cnt-pending">0</div><div class="stat-lbl">Pending</div></div>
+      <div class="stat"><div class="stat-val c-green" id="cnt-done">0</div><div class="stat-lbl">Done</div></div>
+    </div>
+
+    <!-- Add Task -->
+    <div class="add-bar">
+      <input  id="new-title" placeholder="Task title..." style="flex:2; min-width:200px;">
+      <input  id="new-sub"   placeholder="Details / contact...">
+      <input  id="new-due"   type="date">
+      <select id="new-cat">
+        <option value="meeting">Meeting</option>
+        <option value="follow">Follow-Up</option>
+        <option value="research">Research</option>
+        <option value="admin">Admin</option>
+      </select>
+      <select id="new-status">
+        <option value="pending">Pending</option>
+        <option value="urgent">Urgent</option>
+        <option value="waiting">Waiting</option>
+        <option value="done">Done</option>
+      </select>
+      <button class="btn-add" onclick="addTask()">+ Add Task</button>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('urgent',this)">🔴 Urgent</button>
+      <button class="filter-btn" onclick="setFilter('pending',this)">🟡 Pending</button>
+      <button class="filter-btn" onclick="setFilter('waiting',this)">🔵 Waiting</button>
+      <button class="filter-btn" onclick="setFilter('done',this)">✅ Done</button>
+      <button class="filter-btn" onclick="setFilter('meeting',this)">📅 Meetings</button>
+      <button class="filter-btn" onclick="setFilter('follow',this)">📬 Follow-Ups</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:35%">Task</th>
+            <th>Category</th>
+            <th>Due</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="task-tbody"></tbody>
+      </table>
+      <div class="empty-state" id="empty-state" style="display:none">
+        <div class="icon">📋</div>
+        <div>No tasks found</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── PASSWORD (SHA-256 of "penux2026") ───────────────────────────────────────
+const HASH = '8e19f48cde72ab0f0e80bfef8dc1e87dcecd05ab3fce7a29b1b9cf8a44b4cd3b';
+
+async function sha256(msg) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function tryLogin() {
+  const pw = document.getElementById('pw-input').value;
+  const h  = await sha256(pw);
+  if (h === HASH) {
+    sessionStorage.setItem('penux_auth', '1');
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    renderTasks();
+  } else {
+    document.getElementById('auth-error').textContent = 'Incorrect password.';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('penux_auth');
+  location.reload();
+}
+
+// ── DATA ────────────────────────────────────────────────────────────────────
+const STORE = 'penux_tasks';
+
+const DEFAULT_TASKS = [
+  // Meetings
+  { id:1, title:'Zoom — Prof. Michael Kochman (UPenn Gastro)', sub:'Confirmed: Tue 10 Jul, 08:00–09:00 EST (15:00 IL)', due:'2026-07-10', cat:'meeting', status:'pending' },
+  { id:2, title:'Zoom — Dr. Nauzer Forbes (Calgary)',          sub:'Confirmed: Sun 6 Jul, 12:00 MDT (21:00 IL)',         due:'2026-07-06', cat:'meeting', status:'pending' },
+  { id:3, title:'פגישה — פרופ\' תמנע נפתלי (וולפסון)',          sub:'שלישי 30.6, 10:00 — מכון גסטרו וולפסון',           due:'2026-06-30', cat:'meeting', status:'urgent'  },
+  // Follow-Ups
+  { id:4, title:'Follow-Up — Dr. James Buxbaum (USC)',         sub:'"Very exciting" — לחכות ל-Cindy לתיאום זמן',         due:'2026-06-30', cat:'follow',   status:'waiting' },
+  { id:5, title:'Follow-Up — Dr. Saurabh Chawla',             sub:'"Monday afternoon EST" — לאשר יום ושעה ספציפיים',   due:'2026-06-30', cat:'follow',   status:'urgent'  },
+  { id:6, title:'Follow-Up — Prof. Peter Hegyi (Semmelweis)',  sub:'"Will come back with dates" — לחכות, ואם לא עד 7.7 לשלוח תזכורת', due:'2026-07-07', cat:'follow', status:'waiting' },
+  // OOO Returns
+  { id:7, title:'חזרה מחופשה — Prof. Luca Frulloni',           sub:'חוזר 29.6 — לשלוח מעקב PenuX',                     due:'2026-06-29', cat:'follow',   status:'pending' },
+  { id:8, title:'חזרה מחופשה — Panu Mentula',                  sub:'חוזר 13.7 — לשלוח מעקב PenuX',                     due:'2026-07-13', cat:'follow',   status:'pending' },
+  { id:9, title:'חזרה מחופשה — נמען הולנדי (STARRED)',         sub:'חוזר 12.7 — לשלוח מעקב PenuX',                     due:'2026-07-12', cat:'follow',   status:'pending' },
+  // Research
+  { id:10, title:'Submit to OSF Preprints',                    sub:'run: OSF_TOKEN=<token> python3 outreach/submit_osf.py', due:'2026-06-28', cat:'research', status:'urgent'  },
+  { id:11, title:'Stage I Protocol — IRB Submission',          sub:'Prepare IRB package from PenuX_SAP_Stage1_Study_Protocol.pdf', due:'2026-07-15', cat:'research', status:'pending' },
+  { id:12, title:'Fix bad email — Prof. Lévy (Paris)',         sub:'philippe.levy@bjn.ap-hop-paris.fr bounced — find correct address', due:'2026-06-30', cat:'admin', status:'pending' },
+];
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(STORE)) || DEFAULT_TASKS; }
+  catch { return DEFAULT_TASKS; }
+}
+
+function save(tasks) { localStorage.setItem(STORE, JSON.stringify(tasks)); }
+
+function nextId(tasks) { return tasks.length ? Math.max(...tasks.map(t=>t.id)) + 1 : 1; }
+
+// ── RENDER ──────────────────────────────────────────────────────────────────
+let currentFilter = 'all';
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTasks();
+}
+
+const STATUS_BADGE = {
+  done:    '<span class="badge badge-done">✓ Done</span>',
+  pending: '<span class="badge badge-pending">⏳ Pending</span>',
+  urgent:  '<span class="badge badge-urgent">🔴 Urgent</span>',
+  waiting: '<span class="badge badge-waiting">⏸ Waiting</span>',
+};
+const CAT_BADGE = {
+  meeting:  '<span class="cat-badge cat-meeting">📅 Meeting</span>',
+  follow:   '<span class="cat-badge cat-follow">📬 Follow-Up</span>',
+  research: '<span class="cat-badge cat-research">🔬 Research</span>',
+  admin:    '<span class="cat-badge cat-admin">⚙️ Admin</span>',
+};
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function isOverdue(iso) {
+  if (!iso) return false;
+  return new Date(iso) < new Date(new Date().toDateString());
+}
+
+function renderTasks() {
+  const tasks = load();
+  const tbody = document.getElementById('task-tbody');
+  const empty = document.getElementById('empty-state');
+
+  // Stats
+  document.getElementById('cnt-total').textContent  = tasks.length;
+  document.getElementById('cnt-urgent').textContent  = tasks.filter(t=>t.status==='urgent').length;
+  document.getElementById('cnt-pending').textContent = tasks.filter(t=>t.status==='pending').length;
+  document.getElementById('cnt-done').textContent    = tasks.filter(t=>t.status==='done').length;
+  document.getElementById('last-updated').textContent =
+    'Last updated ' + new Date().toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
+
+  // Filter
+  let filtered = tasks;
+  if (['urgent','pending','waiting','done'].includes(currentFilter))
+    filtered = tasks.filter(t => t.status === currentFilter);
+  else if (['meeting','follow','research','admin'].includes(currentFilter))
+    filtered = tasks.filter(t => t.cat === currentFilter);
+
+  // Sort: urgent first, then by due date
+  const order = {urgent:0, pending:1, waiting:2, done:3};
+  filtered.sort((a,b) => {
+    if (order[a.status] !== order[b.status]) return order[a.status] - order[b.status];
+    return (a.due||'9').localeCompare(b.due||'9');
+  });
+
+  tbody.innerHTML = '';
+  if (!filtered.length) { empty.style.display='block'; return; }
+  empty.style.display = 'none';
+
+  filtered.forEach(t => {
+    const overdue = t.status !== 'done' && isOverdue(t.due);
+    const row = tbody.insertRow();
+    if (overdue) row.style.background = '#FFF7F7';
+    row.innerHTML = `
+      <td>
+        <div class="task-title" style="${t.status==='done'?'text-decoration:line-through;color:#9CA3AF':''}">
+          ${t.title}
+        </div>
+        ${t.sub ? `<div class="task-sub">${t.sub}</div>` : ''}
+      </td>
+      <td>${CAT_BADGE[t.cat]||''}</td>
+      <td style="white-space:nowrap; ${overdue?'color:#DC2626;font-weight:600':''}">
+        ${fmtDate(t.due)}${overdue?' ⚠️':''}
+      </td>
+      <td>${STATUS_BADGE[t.status]||t.status}</td>
+      <td style="white-space:nowrap">
+        ${t.status!=='done'?`<button class="btn-done" onclick="markDone(${t.id})">✓</button>`:''}
+        <button class="btn-del" onclick="deleteTask(${t.id})">✕</button>
+      </td>`;
+  });
+}
+
+function addTask() {
+  const title  = document.getElementById('new-title').value.trim();
+  if (!title) { document.getElementById('new-title').focus(); return; }
+  const tasks = load();
+  tasks.push({
+    id:     nextId(tasks),
+    title,
+    sub:    document.getElementById('new-sub').value.trim(),
+    due:    document.getElementById('new-due').value,
+    cat:    document.getElementById('new-cat').value,
+    status: document.getElementById('new-status').value,
+  });
+  save(tasks);
+  document.getElementById('new-title').value = '';
+  document.getElementById('new-sub').value   = '';
+  document.getElementById('new-due').value   = '';
+  renderTasks();
+}
+
+function markDone(id) {
+  const tasks = load().map(t => t.id===id ? {...t, status:'done'} : t);
+  save(tasks);
+  renderTasks();
+}
+
+function deleteTask(id) {
+  if (!confirm('Delete this task?')) return;
+  save(load().filter(t => t.id !== id));
+  renderTasks();
+}
+
+// ── BOOT ────────────────────────────────────────────────────────────────────
+if (sessionStorage.getItem('penux_auth') === '1') {
+  document.getElementById('auth-overlay').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderTasks();
+} else {
+  setTimeout(() => document.getElementById('pw-input').focus(), 100);
+}
+</script>
+</body>
+</html>

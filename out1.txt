@@ -1,0 +1,166 @@
+
+==============================================================================
+PenuX — Leakage-Aware Evaluation with 6h and 12h Summary Features
+==============================================================================
+MIMIC dir : dataset/mimic/mimic-iii-clinical-database-demo-1.4
+Windows   : [6, 12] hours
+Text input: specimen family inside window only; no interpretation field
+
+[1/6] Loading tables...
+  Loading patients from dataset/mimic/mimic-iii-clinical-database-demo-1.4/PATIENTS.csv...
+  Loading admissions from dataset/mimic/mimic-iii-clinical-database-demo-1.4/ADMISSIONS.csv...
+  Loading icustays from dataset/mimic/mimic-iii-clinical-database-demo-1.4/ICUSTAYS.csv...
+  Loading labevents from dataset/mimic/mimic-iii-clinical-database-demo-1.4/LABEVENTS.csv with itemid filter...
+  Loading chartevents from dataset/mimic/mimic-iii-clinical-database-demo-1.4/CHARTEVENTS.csv with itemid filter...
+  Loading microbiologyevents from dataset/mimic/mimic-iii-clinical-database-demo-1.4/MICROBIOLOGYEVENTS.csv...
+
+[2/6] Building ICU stay table...
+  ICU stays loaded: 136
+
+[3/6] Building positive-culture cohort and labels...
+  Cohort: 55 ICU stays with positive cultures
+
+  label_3class:
+    BACTERIAL                                     n=41
+    FUNGAL                                        n=14
+
+  label_species:
+    YEAST                                         n=14
+    OTHER                                         n=10
+    MRSA                                          n=8
+    STAPH AUREUS COAG +                           n=7
+    PROTEUS MIRABILIS                             n=4
+    ESCHERICHIA COLI                              n=3
+    PSEUDOMONAS AERUGINOSA                        n=3
+    GRAM POSITIVE COCCUS(COCCI)                   n=2
+    CORYNEBACTERIUM SPECIES                       n=2
+    KLEBSIELLA PNEUMONIAE                         n=2
+
+[4/6] Preparing event streams...
+  Lab event rows after itemid filter     : 27516
+  Chart event rows after itemid filter   : 102821
+
+[5/6] Building summary features for each window...
+  Final matrix: N=55 rows, feature columns=710
+  Example feature columns:
+    gender
+    age
+    lab_bicarbonate_w6h_mean
+    lab_bicarbonate_w6h_std
+    lab_bicarbonate_w6h_min
+    lab_bicarbonate_w6h_max
+    lab_bicarbonate_w6h_first
+    lab_bicarbonate_w6h_last
+    lab_bicarbonate_w6h_delta
+    lab_bicarbonate_w6h_slope
+    lab_bicarbonate_w6h_count
+    lab_bilirubin_total_w6h_mean
+    lab_bilirubin_total_w6h_std
+    lab_bilirubin_total_w6h_min
+    lab_bilirubin_total_w6h_max
+    lab_bilirubin_total_w6h_first
+    lab_bilirubin_total_w6h_last
+    lab_bilirubin_total_w6h_delta
+    lab_bilirubin_total_w6h_slope
+    lab_bilirubin_total_w6h_count
+    lab_bun_w6h_mean
+    lab_bun_w6h_std
+    lab_bun_w6h_min
+    lab_bun_w6h_max
+    lab_bun_w6h_first
+    lab_bun_w6h_last
+    lab_bun_w6h_delta
+    lab_bun_w6h_slope
+    lab_bun_w6h_count
+    lab_chloride_w6h_mean
+    lab_chloride_w6h_std
+    lab_chloride_w6h_min
+    lab_chloride_w6h_max
+    lab_chloride_w6h_first
+    lab_chloride_w6h_last
+    lab_chloride_w6h_delta
+    lab_chloride_w6h_slope
+    lab_chloride_w6h_count
+    lab_creatinine_w6h_mean
+    lab_creatinine_w6h_std
+    ... 670 more
+
+[6/6] Evaluating labels...
+
+==============================================================================
+Evaluating label_3class
+==============================================================================
+Class counts:
+  BACTERIAL                                     n=41
+  FUNGAL                                        n=14
+
+N=55 classes=2 numeric_features=707 categorical_features=3
+Categorical: ['gender', 'specimen_family_w6h', 'specimen_family_w12h']
+CV: StratifiedGroupKFold, n_splits=5
+  DummyMostFreq          accuracy=0.745+/-0.036  balanced_accuracy=0.500+/-0.000  macro_f1=0.427+/-0.012  weighted_f1=0.637+/-0.050
+  DummyStratified        accuracy=0.582+/-0.073  balanced_accuracy=0.412+/-0.097  macro_f1=0.405+/-0.104  weighted_f1=0.565+/-0.076  [BELOW baseline macroF1+balAcc; acc BELOW]
+  LogRegBalanced         accuracy=0.564+/-0.106  balanced_accuracy=0.460+/-0.063  macro_f1=0.435+/-0.062  weighted_f1=0.559+/-0.087  [BELOW baseline macroF1+balAcc; acc BELOW]
+  ExtraTreesBalanced     accuracy=0.727+/-0.081  balanced_accuracy=0.529+/-0.124  macro_f1=0.484+/-0.145  weighted_f1=0.660+/-0.101  [PASS baseline macroF1+balAcc; acc BELOW]
+  RandomForestBalanced   accuracy=0.691+/-0.093  balanced_accuracy=0.463+/-0.050  macro_f1=0.407+/-0.033  weighted_f1=0.608+/-0.074  [BELOW baseline macroF1+balAcc; acc BELOW]
+  HistGradientBoosting   accuracy=0.709+/-0.106  balanced_accuracy=0.518+/-0.158  macro_f1=0.492+/-0.190  weighted_f1=0.658+/-0.131  [PASS baseline macroF1+balAcc; acc BELOW]
+
+Best non-dummy by macroF1: HistGradientBoosting
+
+==============================================================================
+Evaluating label_species
+==============================================================================
+Class counts:
+  YEAST                                         n=14
+  OTHER                                         n=10
+  MRSA                                          n=8
+  STAPH AUREUS COAG +                           n=7
+  PROTEUS MIRABILIS                             n=4
+  ESCHERICHIA COLI                              n=3
+  PSEUDOMONAS AERUGINOSA                        n=3
+  GRAM POSITIVE COCCUS(COCCI)                   n=2
+  CORYNEBACTERIUM SPECIES                       n=2
+  KLEBSIELLA PNEUMONIAE                         n=2
+
+N=55 classes=10 numeric_features=707 categorical_features=3
+Categorical: ['gender', 'specimen_family_w6h', 'specimen_family_w12h']
+CV: StratifiedGroupKFold, n_splits=2
+  DummyMostFreq          accuracy=0.255+/-0.014  balanced_accuracy=0.106+/-0.006  macro_f1=0.043+/-0.004  weighted_f1=0.104+/-0.010
+  DummyStratified        accuracy=0.186+/-0.083  balanced_accuracy=0.132+/-0.004  macro_f1=0.098+/-0.022  weighted_f1=0.172+/-0.091  [PASS baseline macroF1+balAcc; acc BELOW]
+  LogRegBalanced         ERROR: The 'liblinear' solver does not support multiclass classification (n_classes >= 3). Either use another solver or wrap the estimator in a OneVsRestClassifier to keep applying a one-versus-rest scheme.
+  ExtraTreesBalanced     accuracy=0.133+/-0.098  balanced_accuracy=0.121+/-0.101  macro_f1=0.073+/-0.055  weighted_f1=0.111+/-0.080  [PASS baseline macroF1+balAcc; acc BELOW]
+  RandomForestBalanced   accuracy=0.167+/-0.064  balanced_accuracy=0.099+/-0.045  macro_f1=0.079+/-0.036  weighted_f1=0.131+/-0.048  [BELOW baseline macroF1+balAcc; acc BELOW]
+  HistGradientBoosting   accuracy=0.255+/-0.014  balanced_accuracy=0.106+/-0.006  macro_f1=0.043+/-0.004  weighted_f1=0.104+/-0.010  [BELOW baseline macroF1+balAcc; acc BELOW]
+
+Best non-dummy by macroF1: RandomForestBalanced
+Top feature importances:
+  chart_mean_bp_w12h_first                                0.01091
+  chart_heart_rate_w12h_last                              0.00865
+  chart_dias_bp_w12h_mean                                 0.00841
+  chart_heart_rate_w6h_last                               0.00808
+  chart_mean_bp_w6h_slope                                 0.00775
+  chart_mean_bp_w6h_mean                                  0.00740
+  chart_mean_bp_w6h_first                                 0.00723
+  chart_sys_bp_w6h_std                                    0.00697
+  chart_dias_bp_w12h_first                                0.00673
+  specimen_count_w12h                                     0.00670
+  chart_heart_rate_w12h_min                               0.00636
+  lab_sodium_w12h_mean                                    0.00632
+  chart_mean_bp_w12h_delta                                0.00625
+  chart_mean_bp_w12h_mean                                 0.00623
+  chart_temperature_c_w12h_min                            0.00621
+  chart_dias_bp_w6h_first                                 0.00608
+  chart_dias_bp_w6h_mean                                  0.00600
+  chart_heart_rate_w12h_max                               0.00564
+  lab_sodium_w12h_min                                     0.00553
+  lab_creatinine_w12h_last                                0.00548
+  chart_temperature_c_w6h_min                             0.00547
+  lab_sodium_w12h_max                                     0.00540
+  chart_heart_rate_w12h_mean                              0.00538
+  lab_sodium_w12h_last                                    0.00523
+  lab_chloride_w12h_min                                   0.00512
+
+==============================================================================
+DONE
+==============================================================================
+Interpretation rule: prefer macroF1 and balanced accuracy over majority-class accuracy.
+If models do not beat DummyMostFreq on macroF1 + balanced accuracy, do not claim predictive performance.

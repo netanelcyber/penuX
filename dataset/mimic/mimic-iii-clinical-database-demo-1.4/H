@@ -1,0 +1,38 @@
+import os
+import wfdb
+import numpy as np
+from scipy.fft import fft, fftfreq
+
+root_dir = "/workspaces/penuX/mimic-ecg/physionet.org/files/mimic4wdb/0.1.0-ecg"
+
+for root, dirs, files in os.walk(root_dir):
+    for file in files:
+        if file.endswith(".hea"):
+
+            record_path = os.path.join(root, file[:-4])  # remove .hea
+            print("Processing:", record_path)
+
+            try:
+                record = wfdb.rdrecord(record_path)
+                signal = record.p_signal
+                fs = record.fs
+
+                # choose lead II if available
+                if len(signal.shape) > 1:
+                    ecg = signal[:, 1]
+                else:
+                    ecg = signal
+
+                # FFT
+                N = len(ecg)
+                yf = fft(ecg)
+                xf = fftfreq(N, 1/fs)
+
+                idx = np.where(xf >= 0)
+
+                spectrum = np.abs(yf[idx])
+
+                print("FFT computed:", len(spectrum))
+
+            except Exception as e:
+                print("Error:", e)

@@ -1,7 +1,7 @@
 # Bytecode
 __pycache__/
 *.pyc
-
+/workspaces/penuX/physionet.org/*
 # Python env
 .env/
 .venv/
@@ -13,3 +13,12 @@ docs/examples/
 # Editor
 .vscode/
 .idea/
+.claude/
+.claude/
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
