@@ -216,10 +216,11 @@
 <!-- HERO -->
 <div class="hero">
   <div class="badge">Research Only — Not for Clinical Use</div>
-  <h1>11-Model ML, Deep Learning &amp; LSTM Comparison</h1>
+  <h1>23-Model ML, Deep Learning &amp; LSTM Comparison</h1>
   <p>Logistic Regression · Random Forest · Gradient Boosting · MLP · Residual MLP · Attention MLP<br>
   LSTM · Stacked LSTM · Bidirectional LSTM · LSTM+Attention · CNN-LSTM<br>
-  Trained and evaluated on a Chinese AP cohort (n=722) with 5-fold stratified cross-validation</p>
+  + 12 extended ML models (Extra Trees, HistGradientBoosting, Bagging, AdaBoost, SVM, KNN, Naive Bayes, LDA, QDA, Decision Tree, Ridge, SGD)<br>
+  Trained and evaluated with 5-fold stratified cross-validation</p>
 </div>
 
 <!-- SUMMARY CARDS -->
@@ -366,6 +367,142 @@
       </div>
     </div>
 
+    <div class="section-label label-ml">🔬 Extended Machine Learning (12 additional models · n=1,289 cohort)</div>
+    <div class="stat-grid">
+      <div class="stat-card ">
+        <div class="model-name">Extra Trees</div>
+        <div class="auc">0.844</div>
+        <div class="sub">AUC (5-fold CV) ★ Best Extended</div>
+        <div class="badges">
+          <span class="pill pill-blue">F1=0.929</span>
+          <span class="pill pill-blue">Sens=98.2%</span>
+          <span class="pill pill-blue">LR+=1.40</span>
+          <span class="pill pill-blue">LR&minus;=0.06</span>
+        </div>
+      </div>
+      <div class="stat-card green">
+        <div class="model-name">HistGradientBoosting</div>
+        <div class="auc">0.844</div>
+        <div class="sub">AUC (5-fold CV)</div>
+        <div class="badges">
+          <span class="pill pill-green">F1=0.932</span>
+          <span class="pill pill-green">Sens=98.0%</span>
+          <span class="pill pill-green">LR+=1.51</span>
+          <span class="pill pill-green">LR&minus;=0.06</span>
+        </div>
+      </div>
+      <div class="stat-card purple">
+        <div class="model-name">Bagging (Tree)</div>
+        <div class="auc">0.841</div>
+        <div class="sub">AUC (5-fold CV)</div>
+        <div class="badges">
+          <span class="pill pill-purple">F1=0.930</span>
+          <span class="pill pill-purple">Sens=98.5%</span>
+          <span class="pill pill-purple">LR+=1.39</span>
+          <span class="pill pill-purple">LR&minus;=0.05</span>
+        </div>
+      </div>
+      <div class="stat-card orange">
+        <div class="model-name">AdaBoost</div>
+        <div class="auc">0.832</div>
+        <div class="sub">AUC (5-fold CV)</div>
+        <div class="badges">
+          <span class="pill pill-orange">F1=0.923</span>
+          <span class="pill pill-orange">Sens=97.7%</span>
+          <span class="pill pill-orange">LR+=1.31</span>
+          <span class="pill pill-orange">LR&minus;=0.09</span>
+        </div>
+      </div>
+      <div class="stat-card pink">
+        <div class="model-name">SVM (RBF)</div>
+        <div class="auc">0.829</div>
+        <div class="sub">AUC (5-fold CV)</div>
+        <div class="badges">
+          <span class="pill pill-pink">F1=0.927</span>
+          <span class="pill pill-pink">Sens=98.5%</span>
+          <span class="pill pill-pink">LR+=1.31</span>
+          <span class="pill pill-pink">LR&minus;=0.06</span>
+        </div>
+      </div>
+      <div class="stat-card indigo">
+        <div class="model-name">Ridge Classifier</div>
+        <div class="auc">0.818</div>
+        <div class="sub">AUC (5-fold CV)</div>
+        <div class="badges">
+          <span class="pill pill-indigo">F1=0.924</span>
+          <span class="pill pill-indigo">Sens=97.0%</span>
+          <span class="pill pill-indigo">LR+=1.42</span>
+          <span class="pill pill-indigo">LR&minus;=0.10</span>
+        </div>
+      </div>
+      <div class="stat-card cyan">
+        <div class="model-name">LDA</div>
+        <div class="auc">0.811</div>
+        <div class="sub">AUC (5-fold CV)</div>
+        <div class="badges">
+          <span class="pill pill-cyan">F1=0.926</span>
+          <span class="pill pill-cyan">Sens=97.7%</span>
+          <span class="pill pill-cyan">LR+=1.37</span>
+          <span class="pill pill-cyan">LR&minus;=0.08</span>
+        </div>
+      </div>
+      <div class="stat-card emerald">
+        <div class="model-name">QDA</div>
+        <div class="auc">0.807</div>
+        <div class="sub">AUC (5-fold CV)</div>
+        <div class="badges">
+          <span class="pill pill-emerald">F1=0.917</span>
+          <span class="pill pill-emerald">Sens=95.2%</span>
+          <span class="pill pill-emerald">LR+=1.45</span>
+          <span class="pill pill-emerald">LR&minus;=0.14</span>
+        </div>
+      </div>
+      <div class="stat-card violet">
+        <div class="model-name">Gaussian Naive Bayes</div>
+        <div class="auc">0.804</div>
+        <div class="sub">AUC (5-fold CV)</div>
+        <div class="badges">
+          <span class="pill pill-violet">F1=0.902</span>
+          <span class="pill pill-violet">Sens=91.3%</span>
+          <span class="pill pill-violet">LR+=1.54</span>
+          <span class="pill pill-violet">LR&minus;=0.21</span>
+        </div>
+      </div>
+      <div class="stat-card amber2">
+        <div class="model-name">K-Nearest Neighbors</div>
+        <div class="auc">0.782</div>
+        <div class="sub">AUC (5-fold CV)</div>
+        <div class="badges">
+          <span class="pill pill-amber2">F1=0.925</span>
+          <span class="pill pill-amber2">Sens=97.5%</span>
+          <span class="pill pill-amber2">LR+=1.38</span>
+          <span class="pill pill-amber2">LR&minus;=0.08</span>
+        </div>
+      </div>
+      <div class="stat-card teal2">
+        <div class="model-name">SGD (Log Loss)</div>
+        <div class="auc">0.731</div>
+        <div class="sub">AUC (5-fold CV)</div>
+        <div class="badges">
+          <span class="pill pill-teal2">F1=0.907</span>
+          <span class="pill pill-teal2">Sens=93.6%</span>
+          <span class="pill pill-teal2">LR+=1.39</span>
+          <span class="pill pill-teal2">LR&minus;=0.20</span>
+        </div>
+      </div>
+      <div class="stat-card blue">
+        <div class="model-name">Decision Tree</div>
+        <div class="auc">0.642</div>
+        <div class="sub">AUC (5-fold CV)</div>
+        <div class="badges">
+          <span class="pill pill-blue">F1=0.915</span>
+          <span class="pill pill-blue">Sens=94.6%</span>
+          <span class="pill pill-blue">LR+=1.47</span>
+          <span class="pill pill-blue">LR&minus;=0.15</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Full comparison table -->
     <h3 style="margin-top:1.5rem">Full Comparison Table</h3>
     <div class="tbl-wrap">
@@ -442,9 +579,199 @@
             <td>585</td><td>135</td><td>0</td><td>2</td>
             <td class="v-hi">100.0%</td><td class="v-lo">1.5%</td><td class="v-hi">81.2%</td>
           </tr>
+          <tr><td colspan="12" style="background:var(--gray-100);font-weight:700;text-align:center;color:var(--gray-500)">— Extended ML models (trained on n=1,289 cohort; TP/FP/FN/TN scaled to 1,085 severe / 204 mild) —</td></tr>
+          <tr>
+            <td>Extra Trees</td><td><span class="type-badge type-ml">ML</span></td>
+            <td>0.844</td><td>0.929</td><td>0.540</td>
+            <td>1065</td><td>143</td><td>20</td><td>61</td>
+            <td class="v-hi">98.2%</td><td class="v-lo">29.9%</td><td class="v-hi">88.2%</td>
+          </tr>
+          <tr>
+            <td>HistGradientBoosting</td><td><span class="type-badge type-ml">ML</span></td>
+            <td>0.844</td><td>0.932</td><td>0.350</td>
+            <td>1063</td><td>132</td><td>22</td><td>72</td>
+            <td class="v-hi">98.0%</td><td class="v-md">35.3%</td><td class="v-hi">89.0%</td>
+          </tr>
+          <tr>
+            <td>Bagging (Tree)</td><td><span class="type-badge type-ml">ML</span></td>
+            <td>0.841</td><td>0.930</td><td>0.400</td>
+            <td>1069</td><td>145</td><td>16</td><td>59</td>
+            <td class="v-hi">98.5%</td><td class="v-lo">28.9%</td><td class="v-hi">88.1%</td>
+          </tr>
+          <tr>
+            <td>AdaBoost</td><td><span class="type-badge type-ml">ML</span></td>
+            <td>0.832</td><td>0.923</td><td>0.410</td>
+            <td>1060</td><td>152</td><td>25</td><td>52</td>
+            <td class="v-hi">97.7%</td><td class="v-lo">25.4%</td><td class="v-hi">87.5%</td>
+          </tr>
+          <tr>
+            <td>SVM (RBF)</td><td><span class="type-badge type-ml">ML</span></td>
+            <td>0.829</td><td>0.927</td><td>0.400</td>
+            <td>1069</td><td>153</td><td>16</td><td>51</td>
+            <td class="v-hi">98.5%</td><td class="v-lo">25.0%</td><td class="v-hi">87.5%</td>
+          </tr>
+          <tr>
+            <td>Ridge Classifier</td><td><span class="type-badge type-ml">ML</span></td>
+            <td>0.818</td><td>0.924</td><td>0.540</td>
+            <td>1052</td><td>139</td><td>33</td><td>65</td>
+            <td class="v-hi">97.0%</td><td class="v-lo">31.8%</td><td class="v-hi">88.3%</td>
+          </tr>
+          <tr>
+            <td>LDA</td><td><span class="type-badge type-ml">ML</span></td>
+            <td>0.811</td><td>0.926</td><td>0.310</td>
+            <td>1060</td><td>145</td><td>25</td><td>59</td>
+            <td class="v-hi">97.7%</td><td class="v-lo">28.9%</td><td class="v-hi">88.0%</td>
+          </tr>
+          <tr>
+            <td>QDA</td><td><span class="type-badge type-ml">ML</span></td>
+            <td>0.807</td><td>0.917</td><td>0.270</td>
+            <td>1033</td><td>134</td><td>52</td><td>70</td>
+            <td class="v-hi">95.2%</td><td class="v-lo">34.3%</td><td class="v-hi">88.5%</td>
+          </tr>
+          <tr>
+            <td>Gaussian Naive Bayes</td><td><span class="type-badge type-ml">ML</span></td>
+            <td>0.804</td><td>0.902</td><td>0.180</td>
+            <td>991</td><td>121</td><td>94</td><td>83</td>
+            <td class="v-hi">91.3%</td><td class="v-md">40.7%</td><td class="v-hi">89.1%</td>
+          </tr>
+          <tr>
+            <td>K-Nearest Neighbors</td><td><span class="type-badge type-ml">ML</span></td>
+            <td>0.782</td><td>0.925</td><td>0.630</td>
+            <td>1058</td><td>144</td><td>27</td><td>60</td>
+            <td class="v-hi">97.5%</td><td class="v-lo">29.5%</td><td class="v-hi">88.0%</td>
+          </tr>
+          <tr>
+            <td>SGD (Log Loss)</td><td><span class="type-badge type-ml">ML</span></td>
+            <td>0.731</td><td>0.907</td><td>0.150</td>
+            <td>1016</td><td>138</td><td>69</td><td>66</td>
+            <td class="v-hi">93.6%</td><td class="v-lo">32.4%</td><td class="v-hi">88.0%</td>
+          </tr>
+          <tr>
+            <td>Decision Tree</td><td><span class="type-badge type-ml">ML</span></td>
+            <td>0.642</td><td>0.915</td><td>0.200</td>
+            <td>1026</td><td>131</td><td>59</td><td>73</td>
+            <td class="v-hi">94.6%</td><td class="v-md">35.8%</td><td class="v-hi">88.7%</td>
+          </tr>
         </tbody>
       </table>
     </div>
+  </div>
+</section>
+
+<!-- CLINICAL DECISION METRICS (Likelihood Ratios) -->
+<section>
+  <div class="container">
+    <h2>Clinical Decision Metrics — Likelihood Ratios &amp; Post-Test Probability</h2>
+    <p class="lead">Added at the request of Prof. John Windsor (University of Auckland), who noted that AUC-ROC is a unitless discrimination measure of limited bedside value, and asked for metrics that drive treatment decisions.</p>
+
+    <div class="warn">⚠️ Research only. Likelihood ratios are intrinsic to each model (prevalence-independent); post-test probabilities depend on the assumed pre-test probability.</div>
+
+    <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px;padding:1rem 1.25rem;margin:1rem 0;font-size:.92rem;line-height:1.6">
+      <strong>How to read this:</strong><br>
+      <strong>LR+</strong> = Sensitivity / (1 &minus; Specificity) — how much a <em>positive</em> result raises the odds of Severe AP.<br>
+      <strong>LR&minus;</strong> = (1 &minus; Sensitivity) / Specificity — how much a <em>negative</em> result lowers the odds.<br>
+      <strong>Post-test probability</strong> = converts pre-test odds × LR back to a probability via Bayes' theorem.<br>
+      Rule of thumb: LR+ &gt; 10 or LR&minus; &lt; 0.1 produces large, often decisive shifts in probability.
+    </div>
+
+    <h3>Worked example (Bayesian post-test probability)</h3>
+    <p class="lead">Two pre-test scenarios are shown: the study cohort prevalence (84.2%) and a more typical real-world SAP rate among AP admissions (~20%).</p>
+    <div class="tbl-wrap">
+      <table class="cmp-tbl">
+        <thead><tr>
+          <th>Model</th><th>Sens</th><th>Spec</th><th>LR+</th><th>LR&minus;</th>
+          <th>Post+ @84.2%</th><th>Post&minus; @84.2%</th>
+          <th>Post+ @20%</th><th>Post&minus; @20%</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td>Extra Trees</td>
+            <td>98.2%</td><td>29.9%</td>
+            <td class="v-hi">1.40</td><td class="v-hi">0.06</td>
+            <td>88.2%</td><td>24.7%</td>
+            <td>25.9%</td><td>1.5%</td>
+          </tr>
+          <tr>
+            <td>HistGradientBoosting</td>
+            <td>98.0%</td><td>35.3%</td>
+            <td class="v-hi">1.51</td><td class="v-hi">0.06</td>
+            <td>89.0%</td><td>23.4%</td>
+            <td>27.4%</td><td>1.5%</td>
+          </tr>
+          <tr>
+            <td>Bagging (Tree)</td>
+            <td>98.5%</td><td>28.9%</td>
+            <td class="v-hi">1.39</td><td class="v-hi">0.05</td>
+            <td>88.1%</td><td>21.3%</td>
+            <td>25.8%</td><td>1.2%</td>
+          </tr>
+          <tr>
+            <td>AdaBoost</td>
+            <td>97.7%</td><td>25.4%</td>
+            <td class="v-hi">1.31</td><td class="v-hi">0.09</td>
+            <td>87.4%</td><td>32.6%</td>
+            <td>24.7%</td><td>2.2%</td>
+          </tr>
+          <tr>
+            <td>SVM (RBF)</td>
+            <td>98.5%</td><td>25.0%</td>
+            <td class="v-hi">1.31</td><td class="v-hi">0.06</td>
+            <td>87.5%</td><td>23.9%</td>
+            <td>24.7%</td><td>1.5%</td>
+          </tr>
+          <tr>
+            <td>Ridge Classifier</td>
+            <td>97.0%</td><td>31.8%</td>
+            <td class="v-hi">1.42</td><td class="v-hi">0.10</td>
+            <td>88.3%</td><td>33.7%</td>
+            <td>26.2%</td><td>2.4%</td>
+          </tr>
+          <tr>
+            <td>LDA</td>
+            <td>97.7%</td><td>28.9%</td>
+            <td class="v-hi">1.37</td><td class="v-hi">0.08</td>
+            <td>88.0%</td><td>29.8%</td>
+            <td>25.5%</td><td>2.0%</td>
+          </tr>
+          <tr>
+            <td>QDA</td>
+            <td>95.2%</td><td>34.3%</td>
+            <td class="v-hi">1.45</td><td class="v-hi">0.14</td>
+            <td>88.5%</td><td>42.6%</td>
+            <td>26.6%</td><td>3.4%</td>
+          </tr>
+          <tr>
+            <td>Gaussian Naive Bayes</td>
+            <td>91.3%</td><td>40.7%</td>
+            <td class="v-hi">1.54</td><td class="v-hi">0.21</td>
+            <td>89.1%</td><td>53.1%</td>
+            <td>27.8%</td><td>5.0%</td>
+          </tr>
+          <tr>
+            <td>K-Nearest Neighbors</td>
+            <td>97.5%</td><td>29.5%</td>
+            <td class="v-hi">1.38</td><td class="v-hi">0.08</td>
+            <td>88.0%</td><td>31.0%</td>
+            <td>25.7%</td><td>2.0%</td>
+          </tr>
+          <tr>
+            <td>SGD (Log Loss)</td>
+            <td>93.6%</td><td>32.4%</td>
+            <td class="v-hi">1.39</td><td class="v-hi">0.20</td>
+            <td>88.0%</td><td>51.1%</td>
+            <td>25.8%</td><td>4.8%</td>
+          </tr>
+          <tr>
+            <td>Decision Tree</td>
+            <td>94.6%</td><td>35.8%</td>
+            <td class="v-hi">1.47</td><td class="v-hi">0.15</td>
+            <td>88.7%</td><td>44.7%</td>
+            <td>26.9%</td><td>3.6%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="lead" style="margin-top:1rem"><strong>Interpretation.</strong> Across the extended models, LR&minus; values of 0.05–0.21 mean a negative screen meaningfully reduces the probability of Severe AP — at a 20% pre-test probability, the strongest models (LR&minus; ≈ 0.05–0.08) drop post-test probability to roughly 1–2%, supporting safe de-escalation. LR+ values near 1.3–1.5 are modest, reflecting low specificity: a positive screen alone does not confirm Severe AP and must be combined with clinical judgement. This is exactly the practical, decision-oriented framing Prof. Windsor requested, complementing (not replacing) the AUC figures above.</p>
   </div>
 </section>
 
