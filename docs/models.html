@@ -772,6 +772,21 @@
       </table>
     </div>
     <p class="lead" style="margin-top:1rem"><strong>Interpretation.</strong> Across the extended models, LR&minus; values of 0.05–0.21 mean a negative screen meaningfully reduces the probability of Severe AP — at a 20% pre-test probability, the strongest models (LR&minus; ≈ 0.05–0.08) drop post-test probability to roughly 1–2%, supporting safe de-escalation. LR+ values near 1.3–1.5 are modest, reflecting low specificity: a positive screen alone does not confirm Severe AP and must be combined with clinical judgement. This is exactly the practical, decision-oriented framing Prof. Windsor requested, complementing (not replacing) the AUC figures above.</p>
+
+    <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-left:5px solid #059669;border-radius:10px;padding:1.1rem 1.4rem;margin:1.5rem 0">
+      <div style="font-weight:700;color:#065f46;font-size:1rem;margin-bottom:.5rem">✅ Clinical recommendation — the metric to optimise (per Prof. Windsor)</div>
+      <p style="font-size:.92rem;line-height:1.65;margin:0 0 .6rem">
+        The decision-relevant metric here is the <strong>negative likelihood ratio (LR&minus;)</strong> and its post-test probability — not AUC. On that metric the tool is a strong <strong>rule-out</strong> screen and a weak <strong>rule-in</strong> test:
+      </p>
+      <ul style="font-size:.9rem;line-height:1.6;margin:0 0 .6rem 1.1rem">
+        <li><strong>Best rule-out model: Bagging (Tree)</strong> — LR&minus; = <strong>0.05</strong>; Extra Trees / HistGradientBoosting / SVM-RBF follow at 0.06.</li>
+        <li><strong>Negative screen @20% pre-test → ≈1–2% post-test</strong> probability of Severe AP → supports safe de-escalation / reduced monitoring.</li>
+        <li><strong>Positive screen (LR+ ≈ 1.3–1.5) does NOT confirm</strong> Severe AP — must be combined with clinical judgement.</li>
+      </ul>
+      <p style="font-size:.85rem;color:#047857;margin:0">
+        Note: ranking by clinical utility (LR&minus;) differs from ranking by AUC — Extra Trees &amp; HistGradientBoosting top the AUC list (0.844), while Bagging leads on rule-out. That divergence is precisely Prof. Windsor's point.
+      </p>
+    </div>
   </div>
 </section>
 
