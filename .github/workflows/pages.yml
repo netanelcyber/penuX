@@ -1,4 +1,8 @@
-name: Deploy GitHub Pages
+name: Validate Pages docs
+
+# NOTE: Publishing is handled by GitHub's native "Deploy from a branch" build,
+# which serves docs/ from this branch directly. This workflow only validates the
+# docs before that native build runs — it does NOT publish anything itself.
 
 on:
   push:
@@ -10,23 +14,25 @@ on:
 
 jobs:
   validate:
-    name: Validate & publish docs
+    name: Validate docs
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Check docs/index.html exists
+      - name: Check required docs files exist
         run: |
           test -f docs/index.html && echo "✅ docs/index.html found" || (echo "❌ docs/index.html missing" && exit 1)
           test -f docs/CNAME       && echo "✅ docs/CNAME found"       || (echo "❌ docs/CNAME missing"       && exit 1)
+          test -f docs/.nojekyll   && echo "✅ docs/.nojekyll found"   || echo "⚠️  docs/.nojekyll missing (Jekyll build may run)"
           echo "Domain: $(cat docs/CNAME)"
           echo "📄 HTML size: $(wc -c < docs/index.html) bytes"
 
       - name: Summary
         run: |
-          echo "## 🌐 penux.uk published" >> $GITHUB_STEP_SUMMARY
+          echo "## ✅ penux.uk docs validated" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Branch: \`claude/pensive-pascal-a0l7a8\`  " >> $GITHUB_STEP_SUMMARY
           echo "Source: \`docs/\`  " >> $GITHUB_STEP_SUMMARY
+          echo "Publish: handled by GitHub's native branch deployment  " >> $GITHUB_STEP_SUMMARY
           echo "URL: https://penux.uk" >> $GITHUB_STEP_SUMMARY
