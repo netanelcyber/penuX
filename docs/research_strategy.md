@@ -1,5 +1,5 @@
 # אסטרטגיית מחקר — PenuX Clinical-AI Initiative
-**תאריך:** יוני 2026 | **חוקר ראשי:** נתנאל שטרן | **מוסד:** עצמאי, ישראל
+**תאריך:** יוני 2026 (עדכון: 28.6.2026) | **חוקר ראשי:** נתנאל שטרן | **מוסד:** עצמאי, ישראל
 
 ---
 
@@ -69,11 +69,13 @@ PenuX הוא פרויקט AI קליני עצמאי פתוח-קוד המפתח מ
 
 ### ב.1 תגובות שהתקבלו — עדיפות ראשונה לפעולה
 
-> **עדכון קריטי:** ניתוח מעמיק של תיבת הדוא"ל גילה **שלוש הסכמות לפגישת Zoom** ושתי תגובות חיוביות נוספות — מידע שמשנה את סדר העדיפויות.
+> **עדכון קריטי (28.6.2026):** ניתוח מעמיק של תיבת הדוא"ל גילה **חמש הסכמות לפגישה + יועץ קליני מאושר** — מידע שמשנה מהותית את מצב הפרויקט.
 
 | חוקר / מוסד | תגובה | פעולה נדרשת |
 |------------|--------|------------|
-| **Dr. Saurabh Chawla, Emory** (Prof. of Medicine) | "Happy to discuss more" → "Monday afternoon ET works" | **פגישת Zoom — ₪ תאם ל-30.6 / 1.7** |
+| **Prof. John Windsor, Univ. of Auckland** (HPB Surgery, Pancreatology) | **יועץ קליני מאושר** — "What you are attempting to do is spot-on. I think you do need some clinical guidance." — 10 הודעות (22–28.6) | **פעיל! המשך התכתבות + יישום המלצותיו (LR, step-up)** |
+| **Dr. James Buxbaum, USC Keck** (Gastroenterology) | פגישה **אושרה ליום שני 6.7, 10:00 PST** — אסיסטנטית Cindy Lee תיאמה, Buxbaum: "That is great!" | **פגישת Zoom — 6.7.2026, 10:00 PST (20:00 ישראל)** |
+| **Dr. Saurabh Chawla, Emory** (Prof. of Medicine) | "Happy to discuss more" → "Monday afternoon ET works" | **פגישת Zoom — תאם ל-30.6 / 1.7** |
 | **Prof. Michael Kochman, Penn Medicine** (AGAF, MASGE) | "Very interesting... Tuesday July 10 at 8 or 8:30 AM EST" | **פגישת Zoom — אשר 10.7.26 ב-8:00 EST** |
 | **Prof. Peter Hegyi, Semmelweis** (MD, PhD, DSc, MAE, Pitts Awardee) | "A zoom meeting could be a good idea. We will come back to you with possible dates." — CC לשני עמיתים | **פולואפ לקביעת תאריך + כלל מחקר Semmelweis** |
 | **Prof. Cui Yunfeng, China** (163.com) | "OK. Thanks." + "Sorry to be late" | פולואפ עם הצעת Zoom ספציפית |
@@ -82,7 +84,6 @@ PenuX הוא פרויקט AI קליני עצמאי פתוח-קוד המפתח מ
 | Dr. van den Berg, Amsterdam UMC | חופשה עד 12.7 | פולואפ אחרי 12.7.26 |
 | Prof. Calfee, UCSF | חופשה עד 6.7 | שגוי domain (ARDS, לא AP) |
 | Prof. Field Willingham, Emory | עבר ל-Univ. Miami | עדכן כתובת |
-| Prof. Kochman, Penn | auto-reply + תגובה ידנית חיובית | ← כבר ברשימה למעלה |
 | epando@vhebron.net | כשל DNS מתמשך | הסר — כתובת שבורה |
 
 **ממצאים מפתיעים:**
@@ -105,7 +106,53 @@ PenuX הוא פרויקט AI קליני עצמאי פתוח-קוד המפתח מ
 
 ---
 
-### ב.3 פרופיל הפגישות המתוכננות
+### ב.3 יועץ קליני מאושר — Prof. John Windsor (Auckland)
+
+**פרופיל:**
+- Professor of Surgery, Univ. of Auckland; מומחה HPB Surgery + Pancreatology
+- מחבר עשרות מאמרים על AP, step-up approach, עיכוב ניתוחי
+
+**ציר ההתקשרות (22–28 יוני 2026 — 10 הודעות):**
+1. Netanel שלח הצעת מחקר SAP + שאלה על step-up approach
+2. Windsor: *"What you are attempting to do is spot-on. I think you do need some clinical guidance. You have some very good and useful skills."*
+3. Windsor הסכים לשמש כ-**יועץ קליני** לפרויקט
+4. Windsor סקר את הצעת המחקר המלאה (27.6) ונתן הערות מפורטות
+5. Windsor: ממליץ לעבור למדד **Likelihood Ratios** (חיובי ושלילי) במקום sensitivity/specificity — מדד קליני שמקבלי החלטות מבינים טוב יותר
+6. Windsor: מדגיש מיקוד ב-**"step-up approach"** — התערבות מדורגת לפי חומרה
+7. Netanel (28.6): הודיע על pivot ל-12 מודלי ML עם מיקוד step-up + LR metrics
+
+**משמעות אסטרטגית:**
+- Windsor מהווה גיבוי אקדמי **קריטי** לפרסום בכתב עת מוביל
+- המלצת LR תחייב עדכון validation_plan.md: הוסף LR+ / LR− לכל threshold
+- Step-up approach: שקול לחלק את outcome ל-mild/moderate/severe במקום binary
+
+**פעולות מיידיות:**
+1. הוסף PLR / NLR לכל סף decision (validation_plan.md)
+2. עדכן abstract ה-preprint לפי הערות Windsor
+3. שאל Windsor אם מוכן להיות co-author ב-revision
+
+---
+
+### ב.4 פגישה מאושרת — Dr. James Buxbaum, USC Keck Medical Center
+
+**פרופיל:**
+- Gastroenterologist, Keck Medicine of USC (University of Southern California)
+- מומחה ERCP ו-EUS, pancreatic disease
+
+**ציר ההתקשרות:**
+- פנייה ראשונית: Netanel שלח הצעת שיתוף SAP
+- Buxbaum: *"That is great!"* — תגובה חיובית מיידית
+- אסיסטנטית Cindy Lee: *"Would Monday, July 6th, 10am PACIFIC STANDARD TIME work for you?"*
+- פגישה **מאושרת: יום שני 6.7.2026, 10:00 PST (20:00 ישראל)**
+
+**הכנה לפגישה:**
+- מצגת SAP מוקצרת (10 דקות): AUROC=0.877, 106 features, Chinese cohort
+- שאלות מרכזיות: האם ל-USC Keck יש AP cohort? אפשרות ולידציה חיצונית?
+- הצג את המלצות Windsor (step-up + LR) — רלוונטי לcontextualize הממצאים
+
+---
+
+### ב.5 פרופיל הפגישות המתוכננות הנוספות
 
 **פגישה 1 — Dr. Saurabh Chawla, Emory University**
 - תפקיד: Professor of Medicine, Program Director Gastroenterology Fellowship
@@ -154,8 +201,11 @@ PenuX הוא פרויקט AI קליני עצמאי פתוח-קוד המפתח מ
 
 **3.1.1 — תיקון Preprint וכניסה לכתב עת (0–8 שבועות)**
 - עיון מחדש בטבלאות ביצוע ברמת TRIPOD checklist
+- **[Windsor feedback]** הוספת Positive/Negative Likelihood Ratios (PLR/NLR) לכל threshold
+- **[Windsor feedback]** שקול re-framing ל-3 קטגוריות (mild/moderate/severe AP) לפי step-up approach
 - הוספת Decision-Curve Analysis (DCA) — תוכנן, טרם מומש
 - Calibration reliability curves + ECE + Brier report
+- **[Windsor co-authorship]** שאל Windsor על נכונות להצטרף כ-co-author ב-revision
 - יעד כתב עת: *Pancreatology* (IF ~4.5) או *HPB* (IF ~3.8)
 
 **3.1.2 — ולידציה חיצונית (2–6 חודשים)**
@@ -323,9 +373,12 @@ PenuX הוא פרויקט AI קליני עצמאי פתוח-קוד המפתח מ
 
 | תצפית | לקח אסטרטגי |
 |--------|------------|
+| Windsor: "you need clinical guidance" | אישור: גיוס יועץ קליני לפני submission הכרחי |
+| Windsor: המלצה על Likelihood Ratios | sensitivity/specificity לבד אינם מספיקים — הוסף PLR/NLR |
+| Windsor: step-up approach | outcome binary (severe/non-severe) ← שקול 3-class (mild/moderate/severe) |
+| Buxbaum: "That is great!" | USC Keck — פוטנציאל ולידציה חיצונית ו-co-authorship |
 | תגובת Ceelen: "לא HPB" | בדיקת פרופיל מחקר לפני שליחת פנייה |
 | 8 פניות ביום אחד | Spray-and-pray → לא אפקטיבי; מומלץ 1-2 מוצלבים |
-| אין תגובות מ-USC/Michigan | לחכות 2-3 שבועות לפולואפ אחד בלבד |
 | OHDSI/OMOP participation | הזדמנות: OMOP mapping יפשט ולידציה חיצונית |
 | NEJM AI subscription | publish-or-perish: target high-IF venue for each arm |
 
@@ -335,11 +388,12 @@ PenuX הוא פרויקט AI קליני עצמאי פתוח-קוד המפתח מ
 
 ```
 יוני–יולי 2026 — פגישות קריטיות
+  ├── [28.6+]        Windsor (Auckland) — יועץ קליני פעיל ← המשך התכתבות, יישם LR/step-up
   ├── [30.6 / 1.7]  Zoom — Dr. Chawla, Emory ← אשר מועד ↑ URGENT
-  ├── [10.7]         Zoom — Prof. Kochman, Penn Medicine ← אשר 8:00 EST
+  ├── [6.7, 10:00 PST] Zoom — Dr. Buxbaum, USC Keck ← מאושר! (20:00 ישראל)
+  ├── [10.7, 8:00 EST] Zoom — Prof. Kochman, Penn Medicine ← אשר
   ├── [TBD]          Zoom — Prof. Hegyi, Semmelweis ← ממתין לתאריך
   ├── [אחרי 12.7]   פולואפ — Dr. van den Berg, Amsterdam UMC
-  ├── [אחרי 6.7]    שקול פולואפ — Prof. Calfee (אבל domain שגוי — ARDS)
   └── [ספטמבר]      חזור ל-Prof. Vincent (ICU general)
 
 יולי 2026 — פיתוח
@@ -372,7 +426,8 @@ Q1 2027
 | SAP בכתב עת | קבלת peer-review | Q4 2026 |
 | Sepsis audit | shortcut-free AUROC ≥0.74 | Q3 2026 |
 | Pathogen calibration | ECE ≤0.05 | Q3 2026 |
-| שותף קליני | Zoom ממומש עם ≥1 מוסד | Q3 2026 |
+| יועץ קליני | Windsor (Auckland) — **מאושר 28.6.2026** | ✅ הושג |
+| שותף קליני | Zoom ממומש עם ≥2 מוסדות | **6.7 (Buxbaum) + TBD** |
 | Hadassah Helsinki | protocol submitted | Q4 2026 |
 | MIMIC-IV מלא | גישה מאושרת | Q3 2026 |
 
