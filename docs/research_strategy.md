@@ -67,27 +67,65 @@ PenuX הוא פרויקט AI קליני עצמאי פתוח-קוד המפתח מ
 
 ## חלק ב — ניתוח דוא"ל: מפת שיתופי הפעולה
 
-### ב.1 פניות ממוקדות שנשלחו
+### ב.1 תגובות שהתקבלו — עדיפות ראשונה לפעולה
 
-**מצב שיתופי הפעולה הנוכחי (מתוך ניתוח inbox+sent):**
+> **עדכון קריטי:** ניתוח מעמיק של תיבת הדוא"ל גילה **שלוש הסכמות לפגישת Zoom** ושתי תגובות חיוביות נוספות — מידע שמשנה את סדר העדיפויות.
 
-| חוקר/מוסד | תחום | סטטוס |
-|-----------|------|--------|
-| Prof. Pishgar, USC | SAP + ICU readmission | שנשלח 22.6.26, ממתין לתגובה |
-| Prof. Wiens, Michigan (MLD3) | Sepsis shortcut-learning audit | שנשלח 1.6.26, ממתין לתגובה |
-| Prof. Ceelen, Ghent | SAP | תגובה: "לא מנתח HPB" — מיד מחוץ לתחום |
-| Cristina Dopazo, Vall d'Hebron | SAP | פולואפ שלישי 25.6.26 |
-| Prof. Pavlidis, AUTH | SAP | פולואפ שלישי 25.6.26 |
-| חוקרים סינים (Fudan, ZJU, 163.com) | SAP | פולואפ שלישי 25.6.26 |
-| Prof. Buscail, Toulouse | SAP | פולואפ שלישי 25.6.26 |
-| Molena, UMCU | SAP | פולואפ שלישי 25.6.26 |
-| Hadassah Ein Kerem ICU | Sepsis + AKI validation | תוכנית — לא נשלחה רשמית |
+| חוקר / מוסד | תגובה | פעולה נדרשת |
+|------------|--------|------------|
+| **Dr. Saurabh Chawla, Emory** (Prof. of Medicine) | "Happy to discuss more" → "Monday afternoon ET works" | **פגישת Zoom — ₪ תאם ל-30.6 / 1.7** |
+| **Prof. Michael Kochman, Penn Medicine** (AGAF, MASGE) | "Very interesting... Tuesday July 10 at 8 or 8:30 AM EST" | **פגישת Zoom — אשר 10.7.26 ב-8:00 EST** |
+| **Prof. Peter Hegyi, Semmelweis** (MD, PhD, DSc, MAE, Pitts Awardee) | "A zoom meeting could be a good idea. We will come back to you with possible dates." — CC לשני עמיתים | **פולואפ לקביעת תאריך + כלל מחקר Semmelweis** |
+| **Prof. Cui Yunfeng, China** (163.com) | "OK. Thanks." + "Sorry to be late" | פולואפ עם הצעת Zoom ספציפית |
+| **Prof. Jean-Louis Vincent, ULB** (ICU legend, ISICEM) | "Thanks but not now — lecturing in China then France" | שמור לספטמבר — לא סגור |
+| Prof. Ceelen, Ghent | "I am not a HPB surgeon" | מחק מרשימה — targeting שגוי |
+| Dr. van den Berg, Amsterdam UMC | חופשה עד 12.7 | פולואפ אחרי 12.7.26 |
+| Prof. Calfee, UCSF | חופשה עד 6.7 | שגוי domain (ARDS, לא AP) |
+| Prof. Field Willingham, Emory | עבר ל-Univ. Miami | עדכן כתובת |
+| Prof. Kochman, Penn | auto-reply + תגובה ידנית חיובית | ← כבר ברשימה למעלה |
+| epando@vhebron.net | כשל DNS מתמשך | הסר — כתובת שבורה |
 
-**ממצא מהדוא"ל:** קמפיין הפולואפ של 25 ביוני 2026 (8+ חוקרים ביום אחד) מצביע על צורך *בתיעדוף ואיכותיות* לעומת כמות — יש לרכז אנרגיה ב-2-3 שותפים בעלי התאמה אמיתית.
+**ממצאים מפתיעים:**
+- **Predatory journal:** "Online Journal of Clinical and Medical Case Reports" (Laurin Publishers) שלח בקשת submission עם 60% off APC — **לא לענות / לא לשלוח**
+- השתמש ב-YAMM/Mailmeteor לשליחה מסיבית — גלוי בכותרות המייל
+- epando@vhebron.net נכשל ב-DNS זה 3 ימים — יש לבטל
+
+### ב.2 פניות שלא קיבלו תגובה — ממתינות
+
+| חוקר | מוסד | מעמד |
+|------|------|-------|
+| Prof. Pishgar | USC | SAP + ICU readmission — ממתין לתגובה |
+| Prof. Wiens | Michigan, MLD3 | Sepsis shortcut-learning — ממתין |
+| Cristina Dopazo | Vall d'Hebron | SAP — פולואפ שלישי |
+| Prof. Pavlidis | AUTH | SAP — פולואפ שלישי |
+| חוקרי ZJU, Fudan | סין | SAP — פולואפ שלישי |
+| Prof. Buscail | Toulouse | SAP (נחסם ע"י Mailinblack) |
+| Prof. Besselink | Amsterdam UMC | SAP — ממתין |
+| Prof. Hegyi עמיתים | Semmelweis | szentesiai@gmail.com, tamasszilitorok@gmail.com |
 
 ---
 
-### ב.2 ניטור ספרות מקצועית (מהתיבה)
+### ב.3 פרופיל הפגישות המתוכננות
+
+**פגישה 1 — Dr. Saurabh Chawla, Emory University**
+- תפקיד: Professor of Medicine, Program Director Gastroenterology Fellowship
+- הסכמה: "Monday afternoon eastern time is more convenient for me"
+- **מועד משוער: 30.6 / 1.7.2026**
+- הכנה: מצגת SAP מוקצרת (10 דקות) + שאלות על גישה ל-Emory AP cohort
+
+**פגישה 2 — Prof. Michael Kochman, Penn Medicine**
+- תפקיד: Wilmott Family Professor, AGAF, MASGE (Gastroenterology leader)
+- הסכמה: "Tuesday July 10 at 8 or 8:30 AM EST"
+- **מועד מוסכם: 10.7.2026, 8:00 EST (15:00 ישראל)**
+- הכנה: מיקוד על EUS ו-pancreatic interventions connection לחיזוי SAP + MIMIC-IV cohort discussion
+
+**פגישה 3 — Prof. Peter Hegyi, Semmelweis + University of Pécs**
+- תפקיד: MD, PhD, DSc, MAE; Pitts Awardee 2025; Honorary Prof. CUHK; Research Group Leader
+- הסכמה: "We will come back to you with possible dates" + CC לשני עמיתים
+- **מועד: ממתין לאישור**
+- הכנה: חיבור ל-Hungarian Pancreatic Study Group — ייתכן גישה ל-Hungarian AP cohort + multi-center European study
+
+### ב.4 ניטור ספרות מקצועית (מהתיבה)
 
 ניתוח תיבת הדוא"ל מגלה רישום אקטיבי לערוצי ידע מרכזיים:
 
@@ -261,7 +299,15 @@ PenuX הוא פרויקט AI קליני עצמאי פתוח-קוד המפתח מ
 
 ---
 
-## חלק ז — יומן שגיאות ולקחים
+## חלק ז — ממצאים ייחודיים מניתוח מלא של דוא"ל PenuX
+
+### ז.0 — ממצאי אזהרה מהדוא"ל
+
+| ממצא | פירוש | פעולה |
+|------|--------|--------|
+| **כתובת epando@vhebron.net כשלה ב-DNS** | כתובת מת — 3 ימי ניסיונות כושלים | הסר מרשימה, מצא כתובת חלופית |
+| **Predatory journal** — "Online Journal of Clinical and Medical Case Reports" | APC של 60% off, IF נמוך (0.883), Gmail sender | **לא לשלוח מאמר** |
+| **השגת תשובה ל-mailer-daemon** (נסיון שליחת Zoom link) | בעיה טכנית — נשלח למקום לא נכון | ודא שאתה שולח לכתובת הנכונה |
 
 ### ז.1 לקחים ממסמכי הפרויקט
 
@@ -285,17 +331,25 @@ PenuX הוא פרויקט AI קליני עצמאי פתוח-קוד המפתח מ
 
 ---
 
-## חלק ח — ציר זמן מסכם
+## חלק ח — ציר זמן מסכם (מעודכן עם פגישות אמיתיות)
 
 ```
-יולי 2026
-  ├── SAP: תיקון preprint + submission לכתב עת
+יוני–יולי 2026 — פגישות קריטיות
+  ├── [30.6 / 1.7]  Zoom — Dr. Chawla, Emory ← אשר מועד ↑ URGENT
+  ├── [10.7]         Zoom — Prof. Kochman, Penn Medicine ← אשר 8:00 EST
+  ├── [TBD]          Zoom — Prof. Hegyi, Semmelweis ← ממתין לתאריך
+  ├── [אחרי 12.7]   פולואפ — Dr. van den Berg, Amsterdam UMC
+  ├── [אחרי 6.7]    שקול פולואפ — Prof. Calfee (אבל domain שגוי — ARDS)
+  └── [ספטמבר]      חזור ל-Prof. Vincent (ICU general)
+
+יולי 2026 — פיתוח
+  ├── SAP: תיקון preprint + הוספת DCA + submission לכתב עת
   ├── Sepsis: shortcut audit + feature SHAP analysis
   └── Pathogen: הרחבת map_org() + calibration
 
 אוגוסט–ספטמבר 2026
   ├── SAP: ולידציה על MIMIC-IV מלא
-  ├── Sepsis: אימון מחדש + temporal validation
+  ├── Joint study: הגדרת פרוטוקול משותף עם שותף שהתממש
   └── Hadassah: Helsinki draft + פגישה ראשונה
 
 אוקטובר–נובמבר 2026
@@ -304,8 +358,8 @@ PenuX הוא פרויקט AI קליני עצמאי פתוח-קוד המפתח מ
   └── GSoC: deliverables finalized
 
 Q1 2027
-  ├── SAP: פרסום (עמיתים)
-  ├── Sepsis: joint submission (אם שותף מאוגוסט)
+  ├── SAP: פרסום (עמיתים) + joint study submission
+  ├── Sepsis: submission (אם שותף מאוגוסט)
   └── Hadassah: Phase 1 retrospective results
 ```
 
