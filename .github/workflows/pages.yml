@@ -34,5 +34,5 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Branch: \`claude/pensive-pascal-a0l7a8\`  " >> $GITHUB_STEP_SUMMARY
           echo "Source: \`docs/\`  " >> $GITHUB_STEP_SUMMARY
-          echo "Publish: handled by GitHub's native branch deployment  " >> $GITHUB_STEP_SUMMARY
+          echo "Validation: pre-publish sanity checks for GitHub's native branch deployment  " >> $GITHUB_STEP_SUMMARY
           echo "URL: https://penux.uk" >> $GITHUB_STEP_SUMMARY
