@@ -17,11 +17,14 @@ const TRACKED_CONTACTS = [
 function draftReplyRuleBased(fromName, incomingText) {
   const lower = (incomingText || '').toLowerCase();
   let tone = 'Thank you for your reply.';
+  let meetingLine = 'Please let us know how you would like to proceed, and we will follow up promptly.';
 
   if (lower.includes('yes') || lower.includes('available') || lower.includes('works for me')) {
     tone = 'Wonderful — thank you for confirming!';
+    meetingLine = 'We will send over a Zoom invite shortly — all our meetings are conducted via Zoom for everyone\'s convenience.';
   } else if (lower.includes('cannot') || lower.includes("can't") || lower.includes('unable') || lower.includes('not available')) {
     tone = 'Thank you for letting us know — no problem at all, let\'s find another time.';
+    meetingLine = 'Please share a time that works better for you, and we will send a Zoom invite to match.';
   } else if (lower.includes('question') || lower.includes('?')) {
     tone = 'Thank you for your question — happy to clarify.';
   }
@@ -30,7 +33,7 @@ function draftReplyRuleBased(fromName, incomingText) {
 
 ${tone}
 
-We appreciate you taking the time to respond regarding the PenuX collaboration. Please let us know how you would like to proceed, and we will follow up promptly.
+We appreciate you taking the time to respond regarding the PenuX collaboration. ${meetingLine}
 
 Best regards,
 PenuX Research Team`;
@@ -53,7 +56,7 @@ async function callAnthropicForReply(fromName, incomingText) {
         max_tokens: 400,
         messages: [{
           role: 'user',
-          content: `You are drafting a short, professional follow-up reply on behalf of the PenuX research team, replying to ${fromName || 'a medical collaborator'}. Their message was:\n\n"""${incomingText}"""\n\nWrite only the reply email body (no subject line), in English, warm and professional, 3-5 sentences, signed "Best regards,\\nPenuX Research Team".`,
+          content: `You are drafting a short, professional follow-up reply on behalf of the PenuX research team, replying to ${fromName || 'a medical collaborator'}. Their message was:\n\n"""${incomingText}"""\n\nWrite only the reply email body (no subject line), in English, warm and professional, 3-5 sentences, signed "Best regards,\\nPenuX Research Team". If a meeting is being scheduled or confirmed, state that all PenuX meetings are conducted via Zoom.`,
         }],
       }),
     });
