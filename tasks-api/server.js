@@ -123,6 +123,79 @@ app.delete('/api/tasks/:id', (req, res) => {
   });
 });
 
+// Email templates for follow-ups
+const EMAIL_TEMPLATES = {
+  'buxbaum': {
+    to: 'james.buxbaum@usc.edu',
+    subject: 'Re: PenuX Collaboration — Timeline Coordination',
+    body: `Dear Dr. Buxbaum,
+
+Thank you for your enthusiastic response to the PenuX severe acute pancreatitis severity project. We are very excited about the potential collaboration with USC.
+
+Following up on our conversation, Cindy will be in touch shortly to schedule a meeting at your earliest convenience. We are flexible with timing and happy to work around your schedule.
+
+In the meantime, please let us know if you would like us to send over any preliminary data or methodology details for your review.
+
+Looking forward to connecting soon.
+
+Best regards,
+PenuX Research Team`
+  },
+  'chawla': {
+    to: 'saurabh.chawla@[institution].edu',
+    subject: 'Re: PenuX Study — Meeting Confirmation',
+    body: `Dear Dr. Chawla,
+
+Thank you for your interest in the PenuX project. Following your suggestion, we would like to schedule a meeting for Monday afternoon EST at your convenience.
+
+Could you please confirm:
+• Which Monday works best for you (we are flexible with dates)?
+• Your preferred time window (morning, early afternoon, or late afternoon)?
+• Preferred format (Zoom, phone, or in-person if you are in the New York area)?
+
+Once we hear from you, we will send a calendar invite.
+
+Looking forward to discussing how we can work together.
+
+Best regards,
+PenuX Research Team`
+  },
+  'hegyi': {
+    to: 'peter.hegyi@semmelweis.hu',
+    subject: 'Re: PenuX Collaboration — Follow-up',
+    body: `Dear Prof. Hegyi,
+
+Thank you for your positive response to the PenuX project. We understand you are working on gathering available dates for a potential meeting.
+
+We are very interested in collaborating with Semmelweis University on this important research. Please let us know your availability at your earliest convenience — we are happy to accommodate your schedule.
+
+If you need any additional information about the project to facilitate scheduling, please do not hesitate to reach out.
+
+Best regards,
+PenuX Research Team`
+  }
+};
+
+app.post('/api/tasks/:id/email', (req, res) => {
+  const { template } = req.body;
+  const email = EMAIL_TEMPLATES[template];
+
+  if (!email) {
+    return res.status(400).json({ error: 'Template not found' });
+  }
+
+  res.json({
+    success: true,
+    email: {
+      to: email.to,
+      subject: email.subject,
+      body: email.body,
+      template
+    },
+    instruction: 'Email draft prepared. Click "Open Gmail" to send via your Gmail account.'
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`🎯 PenuX Tasks API running on http://localhost:${PORT}`);
 });

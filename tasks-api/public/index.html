@@ -138,6 +138,33 @@
   .empty-state { text-align: center; padding: 3rem; color: var(--gray); }
   .empty-state .icon { font-size: 2.5rem; margin-bottom: .5rem; }
 
+  /* ── EMAIL MODAL ── */
+  #email-modal {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
+    z-index: 10000; align-items: center; justify-content: center;
+  }
+  #email-modal.show { display: flex; }
+  #email-box {
+    background: #fff; border-radius: 12px; padding: 2rem; max-width: 600px;
+    width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,.3);
+  }
+  #email-box h2 { color: var(--blue); margin-bottom: 1rem; font-size: 1.3rem; }
+  #email-box .form-group { margin-bottom: 1rem; }
+  #email-box label { display: block; font-weight: 600; margin-bottom: .25rem; font-size: .9rem; color: var(--gray); }
+  #email-box input, #email-box textarea {
+    width: 100%; padding: .75rem; border: 1px solid var(--border); border-radius: 6px;
+    font-family: monospace; font-size: .85rem;
+  }
+  #email-box textarea { min-height: 300px; resize: vertical; }
+  #email-box input:focus, #email-box textarea:focus { outline: none; border-color: var(--blue2); }
+  .email-actions { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1.5rem; }
+  .btn-cancel { background: var(--light); color: var(--gray); border: none; padding: .5rem 1rem; border-radius: 6px; cursor: pointer; }
+  .btn-cancel:hover { background: var(--border); }
+  .btn-send { background: var(--green); color: #fff; border: none; padding: .5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  .btn-send:hover { background: #15803D; }
+  .btn-email { background: #EA4335; color: #fff; border: none; padding: .25rem .5rem; border-radius: 4px; cursor: pointer; font-size: .75rem; margin-left: .25rem; }
+  .btn-email:hover { background: #C5221F; }
+
   @media (max-width: 700px) {
     thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
   }
@@ -154,6 +181,30 @@
            onkeydown="if(event.key==='Enter')tryLogin()">
     <button onclick="tryLogin()">Sign In</button>
     <div id="auth-error"></div>
+  </div>
+</div>
+
+<!-- ── EMAIL MODAL ── -->
+<div id="email-modal">
+  <div id="email-box">
+    <h2>Send Follow-Up Email</h2>
+    <div class="form-group">
+      <label>To:</label>
+      <input type="email" id="email-to" readonly>
+    </div>
+    <div class="form-group">
+      <label>Subject:</label>
+      <input type="text" id="email-subject">
+    </div>
+    <div class="form-group">
+      <label>Message:</label>
+      <textarea id="email-body"></textarea>
+    </div>
+    <div class="email-actions">
+      <button class="btn-cancel" onclick="closeEmailModal()">Cancel</button>
+      <button class="btn-send" onclick="copyEmailToClipboard()">📋 Copy to Clipboard</button>
+      <button class="btn-email" onclick="openGmailDraft()">📧 Open Gmail</button>
+    </div>
   </div>
 </div>
 
@@ -381,6 +432,7 @@ function renderTasks() {
     const overdue = t.status !== 'done' && isOverdue(t.due);
     const row = tbody.insertRow();
     if (overdue) row.style.background = '#FFF7F7';
+    const emailTemplate = getEmailTemplate(t.title, t.sub);
     row.innerHTML = `
       <td>
         <div class="task-title" style="${t.status==='done'?'text-decoration:line-through;color:#9CA3AF':''}">
@@ -395,9 +447,60 @@ function renderTasks() {
       <td>${STATUS_BADGE[t.status]||t.status}</td>
       <td style="white-space:nowrap">
         ${t.status!=='done'?`<button class="btn-done" onclick="markDone(${t.id})">✓</button>`:''}
+        ${t.cat==='follow' && emailTemplate ? `<button class="btn-email" onclick="openEmailModal('${emailTemplate}')">✉️</button>` : ''}
         <button class="btn-del" onclick="deleteTask(${t.id})">✕</button>
       </td>`;
   });
+}
+
+function getEmailTemplate(title, sub) {
+  if (title.includes('Buxbaum')) return 'buxbaum';
+  if (title.includes('Chawla')) return 'chawla';
+  if (title.includes('Hegyi')) return 'hegyi';
+  return null;
+}
+
+async function openEmailModal(template) {
+  try {
+    const res = await fetch(`${API}/tasks/0/email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ template })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const email = data.email;
+      document.getElementById('email-to').value = email.to;
+      document.getElementById('email-subject').value = email.subject;
+      document.getElementById('email-body').value = email.body;
+      document.getElementById('email-modal').classList.add('show');
+    }
+  } catch (err) {
+    console.error('Error loading email template:', err);
+  }
+}
+
+function closeEmailModal() {
+  document.getElementById('email-modal').classList.remove('show');
+}
+
+function copyEmailToClipboard() {
+  const to = document.getElementById('email-to').value;
+  const subject = document.getElementById('email-subject').value;
+  const body = document.getElementById('email-body').value;
+  const text = `To: ${to}\nSubject: ${subject}\n\n${body}`;
+  navigator.clipboard.writeText(text);
+  alert('✅ Email copied to clipboard');
+  closeEmailModal();
+}
+
+function openGmailDraft() {
+  const to = document.getElementById('email-to').value;
+  const subject = document.getElementById('email-subject').value;
+  const body = document.getElementById('email-body').value;
+  const gmailUrl = `https://mail.google.com/mail/?ui=2&fs=1&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.open(gmailUrl, '_blank');
+  closeEmailModal();
 }
 
 if (sessionStorage.getItem('penux_auth') === '1') {
