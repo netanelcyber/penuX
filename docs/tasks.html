@@ -329,19 +329,19 @@ const DEFAULT_TASKS = [
   // Meetings
   { id:1, title:'Zoom — Prof. Michael Kochman (UPenn Gastro)', sub:'Confirmed: Tue 10 Jul, 08:00–09:00 EST (15:00 IL)', due:'2026-07-10', cat:'meeting', status:'pending' },
   { id:2, title:'Zoom — Dr. Nauzer Forbes (Calgary)',          sub:'Confirmed: Sun 6 Jul, 12:00 MDT (21:00 IL)',         due:'2026-07-06', cat:'meeting', status:'pending' },
-  { id:3, title:'פגישה — פרופ\' תמנע נפתלי (וולפסון)',          sub:'שלישי 30.6, 10:00 — מכון גסטרו וולפסון',           due:'2026-06-30', cat:'meeting', status:'urgent'  },
+  { id:3, title:'פגישה — פרופ\' תמנע נפתלי (וולפסון)',          sub:'שלישי 30.6, 10:00 — מכון גסטרו וולפסון',           due:'2026-06-30', cat:'meeting', status:'done'  },
   // Follow-Ups
   { id:4, title:'Follow-Up — Dr. James Buxbaum (USC)',         sub:'"Very exciting" — לחכות ל-Cindy לתיאום זמן',         due:'2026-06-30', cat:'follow',   status:'waiting' },
-  { id:5, title:'Follow-Up — Dr. Saurabh Chawla',             sub:'"Monday afternoon EST" — לאשר יום ושעה ספציפיים',   due:'2026-06-30', cat:'follow',   status:'urgent'  },
+  { id:5, title:'Follow-Up — Dr. Saurabh Chawla',             sub:'פגישה אושרה ל-29.6 בשעה 14:00 EST — לוודא שהשיחה התקיימה',   due:'2026-06-30', cat:'follow',   status:'waiting'  },
   { id:6, title:'Follow-Up — Prof. Peter Hegyi (Semmelweis)',  sub:'"Will come back with dates" — לחכות, ואם לא עד 7.7 לשלוח תזכורת', due:'2026-07-07', cat:'follow', status:'waiting' },
   // OOO Returns
-  { id:7, title:'חזרה מחופשה — Prof. Luca Frulloni',           sub:'חוזר 29.6 — לשלוח מעקב PenuX',                     due:'2026-06-29', cat:'follow',   status:'pending' },
+  { id:7, title:'חזרה מחופשה — Prof. Luca Frulloni',           sub:'חוזר 29.6 — לשלוח מעקב PenuX (כתובת אמיתית: luca.frulloni@univr.it)', due:'2026-06-29', cat:'follow',   status:'pending' },
   { id:8, title:'חזרה מחופשה — Panu Mentula',                  sub:'חוזר 13.7 — לשלוח מעקב PenuX',                     due:'2026-07-13', cat:'follow',   status:'pending' },
   { id:9, title:'חזרה מחופשה — נמען הולנדי (STARRED)',         sub:'חוזר 12.7 — לשלוח מעקב PenuX',                     due:'2026-07-12', cat:'follow',   status:'pending' },
   // Research
   { id:10, title:'Submit to OSF Preprints',                    sub:'run: OSF_TOKEN=<token> python3 outreach/submit_osf.py', due:'2026-06-28', cat:'research', status:'urgent'  },
   { id:11, title:'Stage I Protocol — IRB Submission',          sub:'Prepare IRB package from PenuX_SAP_Stage1_Study_Protocol.pdf', due:'2026-07-15', cat:'research', status:'pending' },
-  { id:12, title:'Fix bad email — Prof. Lévy (Paris)',         sub:'philippe.levy@bjn.ap-hop-paris.fr bounced — find correct address', due:'2026-06-30', cat:'admin', status:'pending' },
+  { id:12, title:'Fix bad email — Prof. Lévy (Paris)',         sub:'אין אימייל אישי פומבי — לנסות מזכירות המחלקה: secretariat.pancreato.bjn@aphp.fr', due:'2026-06-30', cat:'admin', status:'pending' },
 ];
 
 function load() {
@@ -461,7 +461,7 @@ Best regards,
 PenuX Research Team`
   },
   chawla: {
-    to: 'saurabh.chawla@[institution].edu',
+    to: 'saurabh.chawla@emory.edu',
     subject: 'Re: PenuX Study — Meeting Confirmation',
     body: `Dear Dr. Chawla,
 
@@ -493,7 +493,7 @@ Best regards,
 PenuX Research Team`
   },
   frulloni: {
-    to: 'luca.frulloni@[institution].it',
+    to: 'luca.frulloni@univr.it',
     subject: 'Re: PenuX Collaboration — Welcome Back',
     body: `Dear Prof. Frulloni,
 

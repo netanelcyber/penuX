@@ -65,16 +65,16 @@ db.serialize(() => {
       const defaultTasks = [
         { title: 'Zoom — Prof. Michael Kochman (UPenn Gastro)', sub: 'Confirmed: Tue 10 Jul, 08:00–09:00 EST (15:00 IL)', due: '2026-07-10', cat: 'meeting', status: 'pending' },
         { title: 'Zoom — Dr. Nauzer Forbes (Calgary)', sub: 'Confirmed: Sun 6 Jul, 12:00 MDT (21:00 IL)', due: '2026-07-06', cat: 'meeting', status: 'pending' },
-        { title: 'Meeting — Prof. Tamara Naftali (Wolfson)', sub: 'Tuesday 30.6, 10:00 — Wolfson Gastro Institute', due: '2026-06-30', cat: 'meeting', status: 'urgent' },
+        { title: 'Meeting — Prof. Tamara Naftali (Wolfson)', sub: 'Tuesday 30.6, 10:00 — Wolfson Gastro Institute', due: '2026-06-30', cat: 'meeting', status: 'done' },
         { title: 'Follow-Up — Dr. James Buxbaum (USC)', sub: '"Very exciting" — wait for Cindy to coordinate time', due: '2026-06-30', cat: 'follow', status: 'waiting' },
-        { title: 'Follow-Up — Dr. Saurabh Chawla', sub: '"Monday afternoon EST" — confirm specific day and time', due: '2026-06-30', cat: 'follow', status: 'urgent' },
+        { title: 'Follow-Up — Dr. Saurabh Chawla', sub: 'Confirmed meeting 6/29 2pm EST — verify call happened / next steps', due: '2026-06-30', cat: 'follow', status: 'waiting' },
         { title: 'Follow-Up — Prof. Peter Hegyi (Semmelweis)', sub: '"Will come back with dates" — wait, send reminder if not by 7.7', due: '2026-07-07', cat: 'follow', status: 'waiting' },
-        { title: 'OOO Return — Prof. Luca Frulloni', sub: 'Returns 29.6 — send PenuX follow-up', due: '2026-06-29', cat: 'follow', status: 'pending' },
+        { title: 'OOO Return — Prof. Luca Frulloni', sub: 'Returns 29.6 — send PenuX follow-up (real address confirmed: luca.frulloni@univr.it)', due: '2026-06-29', cat: 'follow', status: 'pending' },
         { title: 'OOO Return — Panu Mentula', sub: 'Returns 13.7 — send PenuX follow-up', due: '2026-07-13', cat: 'follow', status: 'pending' },
         { title: 'OOO Return — Dutch recipient (STARRED)', sub: 'Returns 12.7 — send PenuX follow-up', due: '2026-07-12', cat: 'follow', status: 'pending' },
         { title: 'Submit to OSF Preprints', sub: 'run: OSF_TOKEN=<token> python3 outreach/submit_osf.py', due: '2026-06-28', cat: 'research', status: 'urgent' },
         { title: 'Stage I Protocol — IRB Submission', sub: 'Prepare IRB package from PenuX_SAP_Stage1_Study_Protocol.pdf', due: '2026-07-15', cat: 'research', status: 'pending' },
-        { title: 'Fix bad email — Prof. Lévy (Paris)', sub: 'philippe.levy@bjn.ap-hop-paris.fr bounced — find correct address', due: '2026-06-30', cat: 'admin', status: 'pending' },
+        { title: 'Fix bad email — Prof. Lévy (Paris)', sub: 'No personal email published — try dept. secretariat: secretariat.pancreato.bjn@aphp.fr', due: '2026-06-30', cat: 'admin', status: 'pending' },
       ];
 
       defaultTasks.forEach(task => {
@@ -172,7 +172,7 @@ Best regards,
 PenuX Research Team`
   },
   'chawla': {
-    to: 'saurabh.chawla@[institution].edu',
+    to: 'saurabh.chawla@emory.edu',
     subject: 'Re: PenuX Study — Meeting Confirmation',
     body: `Dear Dr. Chawla,
 
@@ -199,6 +199,20 @@ Thank you for your positive response to the PenuX project. We understand you are
 We are very interested in collaborating with Semmelweis University on this important research. All our meetings are conducted via Zoom for convenience — please let us know your availability at your earliest convenience and we will send a Zoom invite.
 
 If you need any additional information about the project to facilitate scheduling, please do not hesitate to reach out.
+
+Best regards,
+PenuX Research Team`
+  },
+  'frulloni': {
+    to: 'luca.frulloni@univr.it',
+    subject: 'Re: PenuX Collaboration — Welcome Back',
+    body: `Dear Prof. Frulloni,
+
+Welcome back! We hope you had a restful time away.
+
+We wanted to follow up on the PenuX severe acute pancreatitis severity project and see if you had a chance to review our previous message. We would love to schedule a brief Zoom call to discuss a potential collaboration whenever convenient for you — all our meetings are conducted via Zoom.
+
+Please let us know your availability.
 
 Best regards,
 PenuX Research Team`
