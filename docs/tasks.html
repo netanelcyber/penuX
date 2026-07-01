@@ -147,6 +147,36 @@
   .empty-state { text-align: center; padding: 3rem; color: var(--gray); }
   .empty-state .icon { font-size: 2.5rem; margin-bottom: .5rem; }
 
+  /* ── EMAIL MODAL ── */
+  #email-modal {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
+    z-index: 10000; align-items: center; justify-content: center;
+  }
+  #email-modal.show { display: flex; }
+  #email-box {
+    background: #fff; border-radius: 12px; padding: 2rem; max-width: 600px;
+    width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,.3);
+  }
+  #email-box h2 { color: var(--blue); margin-bottom: 1rem; font-size: 1.3rem; }
+  #email-box .form-group { margin-bottom: 1rem; }
+  #email-box label { display: block; font-weight: 600; margin-bottom: .25rem; font-size: .9rem; color: var(--gray); }
+  #email-box input, #email-box textarea {
+    width: 100%; padding: .75rem; border: 1px solid var(--border); border-radius: 6px;
+    font-family: monospace; font-size: .85rem;
+  }
+  #email-box textarea { min-height: 300px; resize: vertical; }
+  #email-box input:focus, #email-box textarea:focus { outline: none; border-color: var(--blue2); }
+  .email-actions { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1.5rem; flex-wrap: wrap; }
+  .btn-cancel { background: var(--light); color: var(--gray); border: none; padding: .5rem 1rem; border-radius: 6px; cursor: pointer; }
+  .btn-cancel:hover { background: var(--border); }
+  .btn-copy { background: var(--blue2); color: #fff; border: none; padding: .5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  .btn-copy:hover { background: #1d4ed8; }
+  .btn-gmail { background: #EA4335; color: #fff; border: none; padding: .5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  .btn-gmail:hover { background: #C5221F; }
+  .btn-email { background: #EA4335; color: #fff; border: none; border-radius: 5px; padding: .25rem .6rem;
+    font-size: .78rem; cursor: pointer; font-weight: 500; margin-left: .25rem; }
+  .btn-email:hover { background: #C5221F; }
+
   @media (max-width: 700px) {
     thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
   }
@@ -164,6 +194,30 @@
            onkeydown="if(event.key==='Enter')tryLogin()">
     <button onclick="tryLogin()">Sign In</button>
     <div id="auth-error"></div>
+  </div>
+</div>
+
+<!-- ── EMAIL MODAL ── -->
+<div id="email-modal">
+  <div id="email-box">
+    <h2>Send Follow-Up Email</h2>
+    <div class="form-group">
+      <label>To:</label>
+      <input type="email" id="email-to" readonly>
+    </div>
+    <div class="form-group">
+      <label>Subject:</label>
+      <input type="text" id="email-subject">
+    </div>
+    <div class="form-group">
+      <label>Message:</label>
+      <textarea id="email-body"></textarea>
+    </div>
+    <div class="email-actions">
+      <button class="btn-cancel" onclick="closeEmailModal()">Cancel</button>
+      <button class="btn-copy" onclick="copyEmailToClipboard()">📋 Copy to Clipboard</button>
+      <button class="btn-gmail" onclick="openGmailDraft()">📧 Open Gmail</button>
+    </div>
   </div>
 </div>
 
@@ -382,9 +436,133 @@ function renderTasks() {
       <td>${STATUS_BADGE[t.status]||t.status}</td>
       <td style="white-space:nowrap">
         ${t.status!=='done'?`<button class="btn-done" onclick="markDone(${t.id})">✓</button>`:''}
+        ${t.cat==='follow' && getEmailTemplate(t.title) ? `<button class="btn-email" onclick="openEmailModal('${getEmailTemplate(t.title)}')">✉️</button>` : ''}
         <button class="btn-del" onclick="deleteTask(${t.id})">✕</button>
       </td>`;
   });
+}
+
+// ── FOLLOW-UP EMAIL TEMPLATES ────────────────────────────────────────────────
+const EMAIL_TEMPLATES = {
+  buxbaum: {
+    to: 'james.buxbaum@usc.edu',
+    subject: 'Re: PenuX Collaboration — Timeline Coordination',
+    body: `Dear Dr. Buxbaum,
+
+Thank you for your enthusiastic response to the PenuX severe acute pancreatitis severity project. We are very excited about the potential collaboration with USC.
+
+Following up on our conversation, Cindy will be in touch shortly to schedule a meeting at your earliest convenience. We are flexible with timing and happy to work around your schedule.
+
+In the meantime, please let us know if you would like us to send over any preliminary data or methodology details for your review.
+
+Looking forward to connecting soon.
+
+Best regards,
+PenuX Research Team`
+  },
+  chawla: {
+    to: 'saurabh.chawla@[institution].edu',
+    subject: 'Re: PenuX Study — Meeting Confirmation',
+    body: `Dear Dr. Chawla,
+
+Thank you for your interest in the PenuX project. Following your suggestion, we would like to schedule a meeting for Monday afternoon EST at your convenience.
+
+Could you please confirm:
+• Which Monday works best for you (we are flexible with dates)?
+• Your preferred time window (morning, early afternoon, or late afternoon)?
+• Preferred format (Zoom, phone, or in-person if you are in the New York area)?
+
+Once we hear from you, we will send a calendar invite.
+
+Looking forward to discussing how we can work together.
+
+Best regards,
+PenuX Research Team`
+  },
+  hegyi: {
+    to: 'peter.hegyi@semmelweis.hu',
+    subject: 'Re: PenuX Collaboration — Follow-up',
+    body: `Dear Prof. Hegyi,
+
+Thank you for your positive response to the PenuX project. We understand you are working on gathering available dates for a potential meeting.
+
+We are very interested in collaborating with Semmelweis University on this important research. Please let us know your availability at your earliest convenience — we are happy to accommodate your schedule.
+
+If you need any additional information about the project to facilitate scheduling, please do not hesitate to reach out.
+
+Best regards,
+PenuX Research Team`
+  },
+  frulloni: {
+    to: 'luca.frulloni@[institution].it',
+    subject: 'Re: PenuX Collaboration — Welcome Back',
+    body: `Dear Prof. Frulloni,
+
+Welcome back! We hope you had a restful time away.
+
+We wanted to follow up on the PenuX severe acute pancreatitis severity project and see if you had a chance to review our previous message. We would love to schedule a brief call to discuss a potential collaboration whenever convenient for you.
+
+Please let us know your availability.
+
+Best regards,
+PenuX Research Team`
+  },
+  mentula: {
+    to: 'panu.mentula@[institution].fi',
+    subject: 'Re: PenuX Collaboration — Welcome Back',
+    body: `Dear Dr. Mentula,
+
+Welcome back! We hope you had a restful time away.
+
+We wanted to follow up on the PenuX severe acute pancreatitis severity project and see if you had a chance to review our previous message. We would love to schedule a brief call to discuss a potential collaboration whenever convenient for you.
+
+Please let us know your availability.
+
+Best regards,
+PenuX Research Team`
+  }
+};
+
+function getEmailTemplate(title) {
+  if (title.includes('Buxbaum')) return 'buxbaum';
+  if (title.includes('Chawla')) return 'chawla';
+  if (title.includes('Hegyi')) return 'hegyi';
+  if (title.includes('Frulloni')) return 'frulloni';
+  if (title.includes('Mentula')) return 'mentula';
+  return null;
+}
+
+function openEmailModal(template) {
+  const email = EMAIL_TEMPLATES[template];
+  if (!email) return;
+  document.getElementById('email-to').value = email.to;
+  document.getElementById('email-subject').value = email.subject;
+  document.getElementById('email-body').value = email.body;
+  document.getElementById('email-modal').classList.add('show');
+}
+
+function closeEmailModal() {
+  document.getElementById('email-modal').classList.remove('show');
+}
+
+function copyEmailToClipboard() {
+  const to = document.getElementById('email-to').value;
+  const subject = document.getElementById('email-subject').value;
+  const body = document.getElementById('email-body').value;
+  const text = `To: ${to}\nSubject: ${subject}\n\n${body}`;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('✅ Email copied to clipboard');
+    closeEmailModal();
+  });
+}
+
+function openGmailDraft() {
+  const to = document.getElementById('email-to').value;
+  const subject = document.getElementById('email-subject').value;
+  const body = document.getElementById('email-body').value;
+  const gmailUrl = `https://mail.google.com/mail/?ui=2&fs=1&tf=cm&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.open(gmailUrl, '_blank');
+  closeEmailModal();
 }
 
 function addTask() {
