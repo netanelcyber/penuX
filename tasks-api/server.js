@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { startReplyWatcher } from './reply-watcher.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -264,6 +265,77 @@ app.post('/api/tasks/:id/send-email', async (req, res) => {
   }
 });
 
+// ── AUTO-DRAFTED REPLIES (from inbox watcher) ──────────────────────────────
+// The reply-watcher polls Gmail's inbox for new messages from tracked
+// contacts and stores an AI/rule-drafted response here for human review.
+// Nothing is auto-sent — a person must click "Send Now" to actually send it.
+
+app.get('/api/draft-replies', (req, res) => {
+  db.all(
+    `SELECT * FROM draft_replies WHERE status = 'pending' ORDER BY created_at DESC`,
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(rows);
+    }
+  );
+});
+
+app.put('/api/draft-replies/:id', (req, res) => {
+  const { draft_body } = req.body;
+  db.run(
+    'UPDATE draft_replies SET draft_body = ? WHERE id = ?',
+    [draft_body, req.params.id],
+    (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ success: true });
+    }
+  );
+});
+
+app.delete('/api/draft-replies/:id', (req, res) => {
+  db.run(
+    `UPDATE draft_replies SET status = 'discarded' WHERE id = ?`,
+    [req.params.id],
+    (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ success: true });
+    }
+  );
+});
+
+app.post('/api/draft-replies/:id/send', async (req, res) => {
+  if (!transporter) {
+    return res.status(503).json({
+      error: 'Email sending is not configured. Set GMAIL_USER and GMAIL_APP_PASSWORD env vars on the server.'
+    });
+  }
+
+  db.get('SELECT * FROM draft_replies WHERE id = ?', [req.params.id], async (err, draft) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (!draft) return res.status(404).json({ error: 'Draft not found' });
+
+    try {
+      await transporter.sendMail({
+        from: process.env.GMAIL_USER,
+        to: draft.from_addr,
+        subject: draft.subject?.startsWith('Re:') ? draft.subject : `Re: ${draft.subject}`,
+        text: draft.draft_body,
+      });
+
+      db.run(`UPDATE draft_replies SET status = 'sent' WHERE id = ?`, [draft.id]);
+      db.run(
+        'INSERT INTO sent_emails (task_id, to_addr, subject) VALUES (?, ?, ?)',
+        [null, draft.from_addr, draft.subject]
+      );
+
+      res.json({ success: true, message: `Reply sent to ${draft.from_addr}` });
+    } catch (sendErr) {
+      res.status(500).json({ error: 'Failed to send reply: ' + sendErr.message });
+    }
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`🎯 PenuX Tasks API running on http://localhost:${PORT}`);
+  startReplyWatcher(db);
 });

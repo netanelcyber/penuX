@@ -13,6 +13,8 @@
     "sqlite3": "^5.1.6",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
-    "nodemailer": "^6.9.13"
+    "nodemailer": "^6.9.13",
+    "imapflow": "^1.4.3",
+    "node-cron": "^4.5.0"
   }
 }

@@ -168,6 +168,19 @@
   @media (max-width: 700px) {
     thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
   }
+
+  /* ── AUTO-DRAFTED REPLIES ── */
+  .draft-card {
+    background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--amber);
+    border-radius: 8px; padding: 1rem; margin-bottom: .75rem;
+  }
+  .draft-card .draft-from { font-weight: 600; font-size: .9rem; color: var(--blue); }
+  .draft-card .draft-subject { font-size: .8rem; color: var(--gray); margin-bottom: .5rem; }
+  .draft-card textarea {
+    width: 100%; min-height: 140px; border: 1px solid var(--border); border-radius: 6px;
+    padding: .6rem; font-family: monospace; font-size: .82rem; resize: vertical;
+  }
+  .draft-actions { display: flex; gap: .5rem; margin-top: .6rem; flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -225,6 +238,12 @@
       <div class="stat"><div class="stat-val c-red"   id="cnt-urgent">0</div><div class="stat-lbl">Urgent</div></div>
       <div class="stat"><div class="stat-val c-amber" id="cnt-pending">0</div><div class="stat-lbl">Pending</div></div>
       <div class="stat"><div class="stat-val c-green" id="cnt-done">0</div><div class="stat-lbl">Done</div></div>
+    </div>
+
+    <!-- Auto-drafted replies from inbox watcher -->
+    <div id="drafts-section" style="display:none; margin-bottom:1.5rem;">
+      <h2 style="font-size:1.1rem; color:var(--blue); margin-bottom:.5rem;">📬 Auto-Drafted Replies <span id="drafts-count" class="badge badge-waiting"></span></h2>
+      <div id="drafts-list"></div>
     </div>
 
     <div class="add-bar">
@@ -295,6 +314,8 @@ async function tryLogin() {
       document.getElementById('auth-overlay').style.display = 'none';
       document.getElementById('app').style.display = 'block';
       loadTasks();
+      loadDrafts();
+      startDraftsPolling();
     } else {
       document.getElementById('auth-error').textContent = 'Incorrect password.';
       document.getElementById('pw-input').value = '';
@@ -549,10 +570,100 @@ function openGmailDraft() {
   closeEmailModal();
 }
 
+// ── AUTO-DRAFTED REPLIES ──────────────────────────────────────────────────
+let draftsPollHandle = null;
+
+async function loadDrafts() {
+  try {
+    const res = await fetch(`${API}/draft-replies`);
+    if (!res.ok) return; // e.g. old server without this route yet
+    const drafts = await res.json();
+    renderDrafts(drafts);
+  } catch (err) {
+    console.error('Error loading drafts:', err);
+  }
+}
+
+function startDraftsPolling() {
+  if (draftsPollHandle) return;
+  draftsPollHandle = setInterval(loadDrafts, 60000);
+}
+
+function renderDrafts(drafts) {
+  const section = document.getElementById('drafts-section');
+  const list = document.getElementById('drafts-list');
+  const count = document.getElementById('drafts-count');
+
+  if (!drafts.length) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  count.textContent = drafts.length;
+  list.innerHTML = drafts.map(d => `
+    <div class="draft-card" data-id="${d.id}">
+      <div class="draft-from">✉️ Reply detected from ${d.from_addr}</div>
+      <div class="draft-subject">${d.subject || '(no subject)'}</div>
+      <textarea id="draft-body-${d.id}">${d.draft_body}</textarea>
+      <div class="draft-actions">
+        <button class="btn-cancel" onclick="discardDraft(${d.id})">Discard</button>
+        <button class="btn-send" onclick="sendDraft(${d.id})">🚀 Send Reply</button>
+      </div>
+      <div id="draft-status-${d.id}" style="font-size:.8rem; margin-top:.4rem;"></div>
+    </div>
+  `).join('');
+}
+
+async function sendDraft(id) {
+  const body = document.getElementById(`draft-body-${id}`).value;
+  const status = document.getElementById(`draft-status-${id}`);
+
+  if (!confirm('Send this reply now? This cannot be undone.')) return;
+
+  status.style.color = 'var(--gray)';
+  status.textContent = 'Sending…';
+
+  try {
+    // Save any edits first
+    await fetch(`${API}/draft-replies/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ draft_body: body })
+    });
+
+    const res = await fetch(`${API}/draft-replies/${id}/send`, { method: 'POST' });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      status.style.color = 'var(--green)';
+      status.textContent = '✅ ' + data.message;
+      setTimeout(loadDrafts, 1200);
+    } else {
+      status.style.color = 'var(--red)';
+      status.textContent = '❌ ' + (data.error || 'Failed to send');
+    }
+  } catch (err) {
+    status.style.color = 'var(--red)';
+    status.textContent = '❌ ' + err.message;
+  }
+}
+
+async function discardDraft(id) {
+  if (!confirm('Discard this drafted reply?')) return;
+  try {
+    await fetch(`${API}/draft-replies/${id}`, { method: 'DELETE' });
+    loadDrafts();
+  } catch (err) {
+    console.error('Error discarding draft:', err);
+  }
+}
+
 if (sessionStorage.getItem('penux_auth') === '1') {
   document.getElementById('auth-overlay').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   loadTasks();
+  loadDrafts();
+  startDraftsPolling();
 } else {
   setTimeout(() => document.getElementById('pw-input').focus(), 100);
 }
