@@ -153,7 +153,11 @@ app.delete('/api/tasks/:id', (req, res) => {
   });
 });
 
-// Email templates for follow-ups
+// All PenuX Zoom availability is limited to this window, Israel time. If a
+// contact's timezone/schedule genuinely doesn't overlap, templates fall back
+// to offering email-only correspondence instead of insisting on a call.
+const AVAILABILITY_WINDOW = '9:00 AM–7:00 PM Israel time';
+
 const EMAIL_TEMPLATES = {
   'buxbaum': {
     to: 'james.buxbaum@usc.edu',
@@ -162,7 +166,7 @@ const EMAIL_TEMPLATES = {
 
 Thank you for your enthusiastic response to the PenuX severe acute pancreatitis severity project. We are very excited about the potential collaboration with USC.
 
-Following up on our conversation, Cindy will be in touch shortly to schedule a Zoom meeting at your earliest convenience. All our meetings are conducted via Zoom for everyone's convenience, and we are flexible with timing to work around your schedule.
+Following up on our conversation, Cindy will be in touch shortly to schedule a Zoom meeting at your earliest convenience. All our meetings are conducted via Zoom, and we are available ${AVAILABILITY_WINDOW} — if that doesn't overlap well with your schedule, we're also very happy to continue by email instead.
 
 In the meantime, please let us know if you would like us to send over any preliminary data or methodology details for your review.
 
@@ -176,11 +180,9 @@ PenuX Research Team`
     subject: 'Re: PenuX Study — Meeting Confirmation',
     body: `Dear Dr. Chawla,
 
-Thank you for your interest in the PenuX project. Following your suggestion, we would like to schedule a Zoom meeting for Monday afternoon EST at your convenience.
+Thank you for your interest in the PenuX project. Following your suggestion, we would like to schedule a Zoom meeting for Monday at your convenience.
 
-Could you please confirm:
-• Which Monday works best for you (we are flexible with dates)?
-• Your preferred time window (morning, early afternoon, or late afternoon)?
+Could you please confirm a time that falls within ${AVAILABILITY_WINDOW}? We realize a typical US afternoon may fall outside that window — if a suitable overlap isn't possible, we are also very happy to continue this conversation by email instead of Zoom.
 
 All our meetings are conducted via Zoom — once we hear from you, we will send a Zoom invite with the link.
 
@@ -196,7 +198,7 @@ PenuX Research Team`
 
 Thank you for your positive response to the PenuX project. We understand you are working on gathering available dates for a potential Zoom meeting.
 
-We are very interested in collaborating with Semmelweis University on this important research. All our meetings are conducted via Zoom for convenience — please let us know your availability at your earliest convenience and we will send a Zoom invite.
+We are very interested in collaborating with Semmelweis University on this important research. All our meetings are conducted via Zoom, and we are available ${AVAILABILITY_WINDOW} — please let us know a time within that window and we will send a Zoom invite. If that doesn't work for you, we're also happy to continue by email.
 
 If you need any additional information about the project to facilitate scheduling, please do not hesitate to reach out.
 
@@ -210,7 +212,7 @@ PenuX Research Team`
 
 Welcome back! We hope you had a restful time away.
 
-We wanted to follow up on the PenuX severe acute pancreatitis severity project and see if you had a chance to review our previous message. We would love to schedule a brief Zoom call to discuss a potential collaboration whenever convenient for you — all our meetings are conducted via Zoom.
+We wanted to follow up on the PenuX severe acute pancreatitis severity project and see if you had a chance to review our previous message. We would love to schedule a brief Zoom call to discuss a potential collaboration — we are available ${AVAILABILITY_WINDOW}, but are just as happy to continue this conversation by email if that's easier for your schedule.
 
 Please let us know your availability.
 

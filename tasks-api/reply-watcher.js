@@ -11,6 +11,11 @@ const TRACKED_CONTACTS = [
   { match: 'panu.mentula', taskMatch: 'Mentula', key: 'mentula' },
 ];
 
+// All PenuX availability (for scheduling Zoom meetings) is constrained to
+// this window, Israel time. Referenced by both the rule-based drafts below
+// and the Claude prompt instruction.
+const AVAILABILITY_WINDOW = '9:00 AM–7:00 PM Israel time';
+
 // Simple rule-based reply drafting from keywords in the incoming message.
 // If ANTHROPIC_API_KEY is set, callAnthropicForReply() is used instead for
 // genuinely generated (not templated) replies.
@@ -21,10 +26,10 @@ function draftReplyRuleBased(fromName, incomingText) {
 
   if (lower.includes('yes') || lower.includes('available') || lower.includes('works for me')) {
     tone = 'Wonderful — thank you for confirming!';
-    meetingLine = 'We will send over a Zoom invite shortly — all our meetings are conducted via Zoom for everyone\'s convenience.';
+    meetingLine = `We will send over a Zoom invite shortly — all our meetings are conducted via Zoom, and we are available ${AVAILABILITY_WINDOW}. Please let us know if the proposed time falls within that window, or suggest an alternative that does.`;
   } else if (lower.includes('cannot') || lower.includes("can't") || lower.includes('unable') || lower.includes('not available')) {
     tone = 'Thank you for letting us know — no problem at all, let\'s find another time.';
-    meetingLine = 'Please share a time that works better for you, and we will send a Zoom invite to match.';
+    meetingLine = `Please share a time that works better for you within ${AVAILABILITY_WINDOW}, and we will send a Zoom invite to match. If your schedule genuinely does not overlap with that window, we are also very happy to continue this conversation by email instead.`;
   } else if (lower.includes('question') || lower.includes('?')) {
     tone = 'Thank you for your question — happy to clarify.';
   }
@@ -56,7 +61,7 @@ async function callAnthropicForReply(fromName, incomingText) {
         max_tokens: 400,
         messages: [{
           role: 'user',
-          content: `You are drafting a short, professional follow-up reply on behalf of the PenuX research team, replying to ${fromName || 'a medical collaborator'}. Their message was:\n\n"""${incomingText}"""\n\nWrite only the reply email body (no subject line), in English, warm and professional, 3-5 sentences, signed "Best regards,\\nPenuX Research Team". If a meeting is being scheduled or confirmed, state that all PenuX meetings are conducted via Zoom.`,
+          content: `You are drafting a short, professional follow-up reply on behalf of the PenuX research team, replying to ${fromName || 'a medical collaborator'}. Their message was:\n\n"""${incomingText}"""\n\nWrite only the reply email body (no subject line), in English, warm and professional, 3-5 sentences, signed "Best regards,\\nPenuX Research Team". If a meeting is being scheduled or confirmed, state that all PenuX meetings are conducted via Zoom, and that availability is limited to ${AVAILABILITY_WINDOW}. If the contact proposed a time outside that window, politely ask them to pick a time within it instead of accepting it as-is. If their timezone genuinely does not overlap with that window at all, offer to continue the conversation by email instead of insisting on a Zoom call.`,
         }],
       }),
     });
