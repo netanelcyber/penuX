@@ -200,10 +200,12 @@
       <label>Message:</label>
       <textarea id="email-body"></textarea>
     </div>
+    <div id="email-status" style="font-size:.85rem; margin-top:.5rem; min-height:1.2em;"></div>
     <div class="email-actions">
       <button class="btn-cancel" onclick="closeEmailModal()">Cancel</button>
       <button class="btn-send" onclick="copyEmailToClipboard()">📋 Copy to Clipboard</button>
       <button class="btn-email" onclick="openGmailDraft()">📧 Open Gmail</button>
+      <button class="btn-send" id="btn-send-now" style="background:var(--red)" onclick="sendEmailNow()">🚀 Send Now</button>
     </div>
   </div>
 </div>
@@ -447,7 +449,7 @@ function renderTasks() {
       <td>${STATUS_BADGE[t.status]||t.status}</td>
       <td style="white-space:nowrap">
         ${t.status!=='done'?`<button class="btn-done" onclick="markDone(${t.id})">✓</button>`:''}
-        ${t.cat==='follow' && emailTemplate ? `<button class="btn-email" onclick="openEmailModal('${emailTemplate}')">✉️</button>` : ''}
+        ${t.cat==='follow' && emailTemplate ? `<button class="btn-email" onclick="openEmailModal('${emailTemplate}', ${t.id})">✉️</button>` : ''}
         <button class="btn-del" onclick="deleteTask(${t.id})">✕</button>
       </td>`;
   });
@@ -460,7 +462,10 @@ function getEmailTemplate(title, sub) {
   return null;
 }
 
-async function openEmailModal(template) {
+let currentEmailTaskId = null;
+
+async function openEmailModal(template, taskId) {
+  currentEmailTaskId = taskId ?? null;
   try {
     const res = await fetch(`${API}/tasks/0/email`, {
       method: 'POST',
@@ -473,6 +478,9 @@ async function openEmailModal(template) {
       document.getElementById('email-to').value = email.to;
       document.getElementById('email-subject').value = email.subject;
       document.getElementById('email-body').value = email.body;
+      document.getElementById('email-status').textContent = '';
+      document.getElementById('email-status').style.color = '';
+      document.getElementById('btn-send-now').disabled = false;
       document.getElementById('email-modal').classList.add('show');
     }
   } catch (err) {
@@ -482,6 +490,44 @@ async function openEmailModal(template) {
 
 function closeEmailModal() {
   document.getElementById('email-modal').classList.remove('show');
+  currentEmailTaskId = null;
+}
+
+async function sendEmailNow() {
+  const to = document.getElementById('email-to').value;
+  const subject = document.getElementById('email-subject').value;
+  const body = document.getElementById('email-body').value;
+  const status = document.getElementById('email-status');
+  const btn = document.getElementById('btn-send-now');
+
+  if (!confirm(`Send this email to ${to} now? This cannot be undone.`)) return;
+
+  btn.disabled = true;
+  status.style.color = 'var(--gray)';
+  status.textContent = 'Sending…';
+
+  try {
+    const res = await fetch(`${API}/tasks/${currentEmailTaskId ?? 0}/send-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to, subject, body })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      status.style.color = 'var(--green)';
+      status.textContent = '✅ ' + data.message;
+      loadTasks();
+      setTimeout(closeEmailModal, 1500);
+    } else {
+      status.style.color = 'var(--red)';
+      status.textContent = '❌ ' + (data.error || 'Failed to send');
+      btn.disabled = false;
+    }
+  } catch (err) {
+    status.style.color = 'var(--red)';
+    status.textContent = '❌ ' + err.message;
+    btn.disabled = false;
+  }
 }
 
 function copyEmailToClipboard() {

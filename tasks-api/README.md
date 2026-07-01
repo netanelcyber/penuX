@@ -19,6 +19,27 @@ Server runs on `http://localhost:3000`
 - `POST /api/tasks` — Create task
 - `PUT /api/tasks/:id` — Update task status
 - `DELETE /api/tasks/:id` — Delete task
+- `POST /api/tasks/:id/email` — Get a pre-filled email template
+- `POST /api/tasks/:id/send-email` — Actually send the email via Gmail SMTP (requires setup below)
+
+## Sending Emails ("Send Now" button)
+
+The task board's ✉️ button opens a modal with a "🚀 Send Now" option that sends the
+email for real via Gmail, from the server. This requires a Gmail App Password:
+
+1. Enable 2-Step Verification on the sending Gmail account.
+2. Go to https://myaccount.google.com/apppasswords and create an App Password
+   (choose "Mail" / "Other").
+3. Set these env vars on the server (or in `.env`, see `.env.example`):
+   ```
+   GMAIL_USER=your-address@gmail.com
+   GMAIL_APP_PASSWORD=xxxxxxxxxxxxxxxx
+   ```
+4. Restart the server. Without these vars, `/api/tasks/:id/send-email` returns
+   `503` and the "Copy to Clipboard" / "Open Gmail" buttons still work as a
+   manual fallback.
+
+Sending a task's follow-up email automatically marks that task **done**.
 
 ## Authentication
 

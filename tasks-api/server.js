@@ -2,6 +2,7 @@ import express from 'express';
 import sqlite3 from 'sqlite3';
 import cors from 'cors';
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -11,6 +12,23 @@ const PORT = process.env.PORT || 3000;
 const PASSWORD_HASH = '5b1a03055e62917d46aa4e7377050da381f80a98a8e14c40a72677f04c32c9a2'; // SHA-256 of "penux2026"
 
 const db = new sqlite3.Database(join(__dirname, 'tasks.db'));
+
+// ── EMAIL SENDING (Gmail SMTP via App Password) ────────────────────────────
+// Requires env vars: GMAIL_USER, GMAIL_APP_PASSWORD
+// Setup: enable 2FA on the Gmail account, then create an App Password at
+// https://myaccount.google.com/apppasswords and set it as GMAIL_APP_PASSWORD.
+let transporter = null;
+if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
+    },
+  });
+} else {
+  console.warn('⚠️  GMAIL_USER / GMAIL_APP_PASSWORD not set — /api/tasks/:id/send-email will return 503.');
+}
 
 app.use(cors());
 app.use(express.json());
@@ -27,6 +45,16 @@ db.serialize(() => {
       cat TEXT,
       status TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS sent_emails (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      task_id INTEGER,
+      to_addr TEXT,
+      subject TEXT,
+      sent_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
@@ -192,8 +220,47 @@ app.post('/api/tasks/:id/email', (req, res) => {
       body: email.body,
       template
     },
-    instruction: 'Email draft prepared. Click "Open Gmail" to send via your Gmail account.'
+    instruction: 'Email draft prepared. Click "Send Now" to send it, or "Open Gmail" to send manually.'
   });
+});
+
+// Actually sends the email via Gmail SMTP — this is a real, irreversible send.
+app.post('/api/tasks/:id/send-email', async (req, res) => {
+  if (!transporter) {
+    return res.status(503).json({
+      error: 'Email sending is not configured. Set GMAIL_USER and GMAIL_APP_PASSWORD env vars on the server.'
+    });
+  }
+
+  const { to, subject, body } = req.body;
+  if (!to || !subject || !body) {
+    return res.status(400).json({ error: 'to, subject, and body are required' });
+  }
+
+  const taskId = req.params.id;
+
+  try {
+    await transporter.sendMail({
+      from: process.env.GMAIL_USER,
+      to,
+      subject,
+      text: body,
+    });
+
+    db.run(
+      'INSERT INTO sent_emails (task_id, to_addr, subject) VALUES (?, ?, ?)',
+      [taskId, to, subject]
+    );
+
+    // Auto-mark the task done if it corresponds to a real task (not the placeholder id 0)
+    if (taskId && taskId !== '0') {
+      db.run('UPDATE tasks SET status = ? WHERE id = ?', ['done', taskId]);
+    }
+
+    res.json({ success: true, message: `Email sent to ${to}` });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to send email: ' + err.message });
+  }
 });
 
 app.listen(PORT, () => {
