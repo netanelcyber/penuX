@@ -1,0 +1,34 @@
+name: Deploy tasks-api to Railway
+
+on:
+  push:
+    branches:
+      - claude/pensive-pascal-a0l7a8
+    paths:
+      - 'tasks-api/**'
+      - '.github/workflows/deploy-tasks-api.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Railway
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy
+        working-directory: tasks-api
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway up --detach --ci -y
+
+      - name: Summary
+        run: |
+          echo "## 🚂 Deployed tasks-api to Railway" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Branch: \`claude/pensive-pascal-a0l7a8\`" >> $GITHUB_STEP_SUMMARY
+          echo "Check the Railway dashboard for the live URL and logs." >> $GITHUB_STEP_SUMMARY
