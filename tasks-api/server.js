@@ -64,11 +64,11 @@ db.serialize(() => {
     if (rows[0].count === 0) {
       const defaultTasks = [
         { title: 'Zoom — Prof. Michael Kochman (UPenn Gastro)', sub: 'Confirmed: Tue 10 Jul, 08:00–09:00 EST (15:00 IL)', due: '2026-07-10', cat: 'meeting', status: 'pending' },
-        { title: 'Zoom — Dr. Nauzer Forbes (Calgary)', sub: 'Confirmed: Sun 6 Jul, 12:00 MDT (21:00 IL)', due: '2026-07-06', cat: 'meeting', status: 'pending' },
+        { title: 'Zoom — Dr. Nauzer Forbes (Calgary)', sub: 'Renegotiating time — asked 7/1 to reschedule off 6 Jul evening IL; awaiting reply', due: '2026-07-06', cat: 'meeting', status: 'urgent' },
         { title: 'Meeting — Prof. Tamara Naftali (Wolfson)', sub: 'Tuesday 30.6, 10:00 — Wolfson Gastro Institute', due: '2026-06-30', cat: 'meeting', status: 'done' },
-        { title: 'Follow-Up — Dr. James Buxbaum (USC)', sub: '"Very exciting" — wait for Cindy to coordinate time', due: '2026-06-30', cat: 'follow', status: 'waiting' },
-        { title: 'Follow-Up — Dr. Saurabh Chawla', sub: 'Confirmed meeting 6/29 2pm EST — verify call happened / next steps', due: '2026-06-30', cat: 'follow', status: 'waiting' },
-        { title: 'Follow-Up — Prof. Peter Hegyi (Semmelweis)', sub: '"Will come back with dates" — wait, send reminder if not by 7.7', due: '2026-07-07', cat: 'follow', status: 'waiting' },
+        { title: 'Meeting — Dr. James Buxbaum (USC)', sub: 'CONFIRMED via Teams: Mon 6 Jul, 10:00 PST (20:00 IL — outside 9am-7pm window, flagged)', due: '2026-07-06', cat: 'meeting', status: 'urgent' },
+        { title: 'Follow-Up — Dr. Saurabh Chawla', sub: 'Call took place 6/29 2pm EST — confirm outcome / next steps', due: '2026-06-30', cat: 'follow', status: 'waiting' },
+        { title: 'Fix bad email — Prof. Hegyi (Semmelweis)', sub: 'peter.hegyi@semmelweis.hu bounced — real address hegyi2009@gmail.com, resend follow-up', due: '2026-07-07', cat: 'admin', status: 'urgent' },
         { title: 'OOO Return — Prof. Luca Frulloni', sub: 'Returns 29.6 — send PenuX follow-up (real address confirmed: luca.frulloni@univr.it)', due: '2026-06-29', cat: 'follow', status: 'pending' },
         { title: 'OOO Return — Panu Mentula', sub: 'Returns 13.7 — send PenuX follow-up', due: '2026-07-13', cat: 'follow', status: 'pending' },
         { title: 'OOO Return — Dutch recipient (STARRED)', sub: 'Returns 12.7 — send PenuX follow-up', due: '2026-07-12', cat: 'follow', status: 'pending' },
@@ -192,7 +192,7 @@ Best regards,
 PenuX Research Team`
   },
   'hegyi': {
-    to: 'peter.hegyi@semmelweis.hu',
+    to: 'hegyi2009@gmail.com',
     subject: 'Re: PenuX Collaboration — Follow-up',
     body: `Dear Prof. Hegyi,
 

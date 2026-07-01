@@ -331,12 +331,12 @@ const STORE = 'penux_tasks';
 const DEFAULT_TASKS = [
   // Meetings
   { id:1, title:'Zoom — Prof. Michael Kochman (UPenn Gastro)', sub:'Confirmed: Tue 10 Jul, 08:00–09:00 EST (15:00 IL)', due:'2026-07-10', cat:'meeting', status:'pending' },
-  { id:2, title:'Zoom — Dr. Nauzer Forbes (Calgary)',          sub:'Confirmed: Sun 6 Jul, 12:00 MDT (21:00 IL)',         due:'2026-07-06', cat:'meeting', status:'pending' },
+  { id:2, title:'Zoom — Dr. Nauzer Forbes (Calgary)',          sub:'משא ומתן על שעה — ביקשנו ב-1.7 לדחות מ-6.7 בערב IL; ממתינים לתשובה', due:'2026-07-06', cat:'meeting', status:'urgent' },
   { id:3, title:'פגישה — פרופ\' תמנע נפתלי (וולפסון)',          sub:'שלישי 30.6, 10:00 — מכון גסטרו וולפסון',           due:'2026-06-30', cat:'meeting', status:'done'  },
   // Follow-Ups
-  { id:4, title:'Follow-Up — Dr. James Buxbaum (USC)',         sub:'"Very exciting" — לחכות ל-Cindy לתיאום זמן',         due:'2026-06-30', cat:'follow',   status:'waiting' },
-  { id:5, title:'Follow-Up — Dr. Saurabh Chawla',             sub:'פגישה אושרה ל-29.6 בשעה 14:00 EST — לוודא שהשיחה התקיימה',   due:'2026-06-30', cat:'follow',   status:'waiting'  },
-  { id:6, title:'Follow-Up — Prof. Peter Hegyi (Semmelweis)',  sub:'"Will come back with dates" — לחכות, ואם לא עד 7.7 לשלוח תזכורת', due:'2026-07-07', cat:'follow', status:'waiting' },
+  { id:4, title:'פגישה — Dr. James Buxbaum (USC)',         sub:'אושר דרך Teams: שני 6.7, 10:00 PST (20:00 IL — מחוץ לחלון 9-19, מסומן)', due:'2026-07-06', cat:'meeting',   status:'urgent' },
+  { id:5, title:'Follow-Up — Dr. Saurabh Chawla',             sub:'השיחה התקיימה ב-29.6 14:00 EST — לוודא תוצאה / צעדים הבאים',   due:'2026-06-30', cat:'follow',   status:'waiting'  },
+  { id:6, title:'תיקון אימייל שגוי — Prof. Peter Hegyi (Semmelweis)',  sub:'peter.hegyi@semmelweis.hu הוחזר — כתובת אמיתית hegyi2009@gmail.com, לשלוח מעקב שוב', due:'2026-07-07', cat:'admin', status:'urgent' },
   // OOO Returns
   { id:7, title:'חזרה מחופשה — Prof. Luca Frulloni',           sub:'חוזר 29.6 — לשלוח מעקב PenuX (כתובת אמיתית: luca.frulloni@univr.it)', due:'2026-06-29', cat:'follow',   status:'pending' },
   { id:8, title:'חזרה מחופשה — Panu Mentula',                  sub:'חוזר 13.7 — לשלוח מעקב PenuX',                     due:'2026-07-13', cat:'follow',   status:'pending' },
@@ -485,7 +485,7 @@ Best regards,
 PenuX Research Team`
   },
   hegyi: {
-    to: 'peter.hegyi@semmelweis.hu',
+    to: 'hegyi2009@gmail.com',
     subject: 'Re: PenuX Collaboration — Follow-up',
     body: `Dear Prof. Hegyi,
 

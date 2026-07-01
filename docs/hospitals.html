@@ -161,8 +161,9 @@ const HOSPITALS = [
     steps: [
       { id: 'contacted', label: 'Initial outreach sent', state: 'done' },
       { id: 'replied',   label: 'Replied — "Very exciting"', state: 'done' },
-      { id: 'schedule',  label: 'Cindy coordinates meeting time', state: 'current', detail: 'Waiting on Cindy' },
-      { id: 'meeting',   label: 'Zoom meeting (9am–7pm IL time)', state: 'pending' },
+      { id: 'schedule',  label: 'Cindy coordinated meeting time', state: 'done' },
+      { id: 'confirmed', label: 'CONFIRMED: Mon 6 Jul, 10:00 PST via Teams', state: 'done', detail: '20:00 IL time — outside 9am-7pm window, flagged' },
+      { id: 'meeting',   label: 'Teams meeting held', state: 'current' },
       { id: 'followup',  label: 'Post-meeting follow-up', state: 'pending' },
     ]
   },
@@ -174,8 +175,9 @@ const HOSPITALS = [
       { id: 'contacted', label: 'Initial outreach sent', state: 'done' },
       { id: 'replied',   label: 'Replied — proposed 6/29 2pm EST', state: 'done' },
       { id: 'confirmed', label: 'Confirmed ("Ok")', state: 'done' },
-      { id: 'verify',    label: 'Verify call took place', state: 'current' },
-      { id: 'followup',  label: 'Post-call follow-up / next steps', state: 'pending' },
+      { id: 'held',      label: 'Call took place (6/29 2pm EST)', state: 'done' },
+      { id: 'verify',    label: 'Confirm outcome / next steps', state: 'current' },
+      { id: 'followup',  label: 'Post-call follow-up', state: 'pending' },
     ]
   },
   {
@@ -185,9 +187,11 @@ const HOSPITALS = [
     steps: [
       { id: 'contacted', label: 'Initial outreach sent', state: 'done' },
       { id: 'replied',   label: 'Replied positively', state: 'done' },
-      { id: 'dates',     label: 'Gathering available dates', state: 'current', detail: 'Reminder if silent by 7/7' },
+      { id: 'dates',     label: 'Gathering available dates', state: 'done' },
+      { id: 'bounced',   label: 'Follow-up bounced', state: 'blocked', detail: 'peter.hegyi@semmelweis.hu — Recipient Unknown' },
+      { id: 'research',  label: 'Found correct address', state: 'done', detail: 'hegyi2009@gmail.com (Google Scholar profile)' },
+      { id: 'resend',    label: 'Resend follow-up to correct address', state: 'current' },
       { id: 'meeting',   label: 'Zoom meeting (9am–7pm IL time)', state: 'pending' },
-      { id: 'followup',  label: 'Post-meeting follow-up', state: 'pending' },
     ]
   },
   {
@@ -241,8 +245,10 @@ const HOSPITALS = [
     sub: 'Gastroenterology',
     steps: [
       { id: 'contacted', label: 'Initial outreach sent', state: 'done' },
-      { id: 'confirmed', label: 'Zoom confirmed: 6 Jul, 12:00 MDT', state: 'done' },
-      { id: 'meeting',   label: 'Zoom meeting (21:00 IL time)', state: 'current', detail: 'Outside 9am-7pm IL window — flagged' },
+      { id: 'replied',   label: 'Replied — happy to meet', state: 'done' },
+      { id: 'proposed',  label: 'Proposed 6 Jul, 12:00 Calgary (21:00 IL)', state: 'blocked', detail: 'Outside 9am-7pm IL window' },
+      { id: 'renegotiate', label: 'Asked (7/1) to reschedule — awaiting reply', state: 'current' },
+      { id: 'meeting',   label: 'Zoom meeting (9am–7pm IL time)', state: 'pending' },
       { id: 'followup',  label: 'Post-meeting follow-up', state: 'pending' },
     ]
   },

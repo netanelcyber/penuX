@@ -6,7 +6,7 @@ import cron from 'node-cron';
 const TRACKED_CONTACTS = [
   { match: 'james.buxbaum', taskMatch: 'Buxbaum', key: 'buxbaum' },
   { match: 'saurabh.chawla', taskMatch: 'Chawla', key: 'chawla' },
-  { match: 'peter.hegyi', taskMatch: 'Hegyi', key: 'hegyi' },
+  { match: 'hegyi2009', taskMatch: 'Hegyi', key: 'hegyi' },
   { match: 'luca.frulloni', taskMatch: 'Frulloni', key: 'frulloni' },
   { match: 'panu.mentula', taskMatch: 'Mentula', key: 'mentula' },
 ];
