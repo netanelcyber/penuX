@@ -1,0 +1,62 @@
+name: LDAP Directory — Email-Verified User Onboarding
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "enroll (request OTP) or verify (redeem OTP + provision account)"
+        required: true
+        type: choice
+        options: ["enroll", "verify"]
+      email:
+        description: "Email address of the new user"
+        required: true
+        type: string
+      otp:
+        description: "One-time code from the enrollment email (required for verify)"
+        required: false
+        type: string
+
+jobs:
+  onboard:
+    name: ${{ inputs.action }} ${{ inputs.email }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The directory is a JSON file (see scripts/ldap_email_auth.py); it is not
+      # committed to the repo (see .gitignore), so it round-trips between runs
+      # via actions/cache. Cache entries are immutable per key, so the restore
+      # key is a prefix (picks the most recent matching entry) while the save
+      # key is unique per run (so saving never collides). This is a demo/
+      # reference mechanism only — see docs/ldap_hierarchical_auth.md §6 for
+      # the production caveats (a real deployment needs a real database).
+      - name: Restore directory store
+        id: restore-store
+        uses: actions/cache/restore@v4
+        with:
+          path: scripts/data/ldap_directory.json
+          key: ldap-store-${{ github.run_id }}
+          restore-keys: |
+            ldap-store-
+
+      - name: Enroll
+        if: ${{ inputs.action == 'enroll' }}
+        run: python3 scripts/ldap_email_auth.py enroll "${{ inputs.email }}"
+        env:
+          PENUX_SMTP_HOST: mail.penux.uk
+
+      - name: Verify
+        if: ${{ inputs.action == 'verify' }}
+        run: python3 scripts/ldap_email_auth.py verify "${{ inputs.email }}" "${{ inputs.otp }}"
+
+      - name: Show current directory (LDIF)
+        if: always()
+        run: python3 scripts/ldap_email_auth.py export-ldif || true
+
+      - name: Persist directory store
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: scripts/data/ldap_directory.json
+          key: ldap-store-${{ github.run_id }}

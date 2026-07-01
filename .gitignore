@@ -14,3 +14,6 @@ docs/examples/
 .vscode/
 .idea/
 .claude/
+
+# LDAP-style directory store (contains OTP/password hashes; keep out of git)
+scripts/data/ldap_directory.json
