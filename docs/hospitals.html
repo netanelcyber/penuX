@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>PenuX — Hospital Outreach Trees</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  :root {
+    --blue:   #1F497D;
+    --blue2:  #2563EB;
+    --green:  #16A34A;
+    --amber:  #D97706;
+    --red:    #DC2626;
+    --gray:   #6B7280;
+    --light:  #F3F4F6;
+    --border: #E5E7EB;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #F9FAFB; color: #111827; }
+
+  #auth-overlay {
+    position: fixed; inset: 0; background: #0f172a;
+    display: flex; align-items: center; justify-content: center; z-index: 9999;
+  }
+  #auth-box {
+    background: #1e293b; border: 1px solid #334155; border-radius: 12px;
+    padding: 2.5rem; width: 360px; text-align: center;
+  }
+  #auth-box h2 { color: #f1f5f9; font-size: 1.3rem; margin-bottom: .25rem; }
+  #auth-box p  { color: #94a3b8; font-size: .85rem; margin-bottom: 1.5rem; }
+  #auth-box input {
+    width: 100%; padding: .75rem 1rem; background: #0f172a;
+    border: 1px solid #475569; border-radius: 8px; color: #f1f5f9;
+    font-size: 1rem; margin-bottom: .75rem; text-align: center; letter-spacing: .15em;
+  }
+  #auth-box input:focus { outline: none; border-color: #3b82f6; }
+  #auth-box button {
+    width: 100%; padding: .75rem; background: #2563EB; color: #fff;
+    border: none; border-radius: 8px; font-size: 1rem; font-weight: 600;
+    cursor: pointer; transition: background .2s;
+  }
+  #auth-box button:hover { background: #1d4ed8; }
+  #auth-error { color: #f87171; font-size: .85rem; margin-top: .75rem; min-height: 1.2em; }
+  #auth-logo { font-size: 2rem; font-weight: 800; color: #3b82f6; margin-bottom: 1rem; }
+
+  #app { display: none; min-height: 100vh; }
+
+  nav {
+    background: var(--blue); color: #fff; padding: .75rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  nav .brand { font-size: 1.1rem; font-weight: 700; }
+  nav .brand span { opacity: .6; font-weight: 400; font-size: .9rem; margin-left: .5rem; }
+  nav a, nav button {
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+    color: #fff; padding: .35rem .9rem; border-radius: 6px; cursor: pointer; font-size: .85rem;
+    text-decoration: none; margin-left: .5rem;
+  }
+
+  .container { max-width: 1300px; margin: 0 auto; padding: 2rem 1.5rem; }
+  h1 { font-size: 1.5rem; font-weight: 700; color: var(--blue); margin-bottom: .25rem; }
+  .subtitle { color: var(--gray); font-size: .9rem; margin-bottom: 2rem; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.25rem; }
+
+  .hospital-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.25rem 1.25rem 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  }
+  .hospital-card .h-title { font-size: 1.05rem; font-weight: 700; color: var(--blue); }
+  .hospital-card .h-sub   { font-size: .78rem; color: var(--gray); margin-bottom: .9rem; }
+  .h-progress {
+    height: 6px; border-radius: 3px; background: var(--light); overflow: hidden; margin-bottom: 1rem;
+  }
+  .h-progress-fill { height: 100%; background: var(--green); transition: width .3s; }
+
+  /* ── PROCESS TREE ── */
+  .tree { position: relative; padding-left: .5rem; }
+  .tree-node {
+    position: relative; padding: .35rem 0 .35rem 1.6rem; font-size: .86rem; cursor: pointer;
+    display: flex; align-items: flex-start; gap: .5rem;
+  }
+  .tree-node::before {
+    content: ''; position: absolute; left: .55rem; top: 0; bottom: 0; width: 1px; background: var(--border);
+  }
+  .tree-node:last-child::before { bottom: 50%; }
+  .tree-node::after {
+    content: ''; position: absolute; left: .55rem; top: 1.05rem; width: .75rem; height: 1px; background: var(--border);
+  }
+  .tree-root > .tree-node:first-child::before { top: 50%; }
+
+  .node-check {
+    width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border);
+    flex-shrink: 0; margin-top: .05rem; display: flex; align-items: center; justify-content: center;
+    font-size: .65rem; color: #fff; transition: all .15s; z-index: 1; background: #fff;
+  }
+  .node-check.done    { background: var(--green); border-color: var(--green); }
+  .node-check.current { background: var(--amber); border-color: var(--amber); animation: pulse 1.6s infinite; }
+  .node-check.blocked { background: var(--red);   border-color: var(--red); }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+
+  .node-label { line-height: 1.35; }
+  .node-label .node-detail { display: block; font-size: .74rem; color: var(--gray); margin-top: .1rem; }
+  .tree-node.done .node-label { color: var(--gray); text-decoration: line-through; }
+  .tree-node.current .node-label { font-weight: 600; color: #92400E; }
+  .tree-node.blocked .node-label { font-weight: 600; color: #991B1B; }
+
+  .children { margin-left: 1.1rem; }
+
+  .h-status-badge {
+    display: inline-block; padding: .15rem .55rem; border-radius: 20px; font-size: .7rem;
+    font-weight: 600; margin-bottom: .6rem;
+  }
+  .status-active   { background: #DBEAFE; color: #1e40af; }
+  .status-blocked  { background: #FEE2E2; color: #991B1B; }
+  .status-done     { background: #DCFCE7; color: #166534; }
+  .status-waiting  { background: #FEF9C3; color: #92400E; }
+</style>
+</head>
+<body>
+
+<div id="auth-overlay">
+  <div id="auth-box">
+    <div id="auth-logo">PenuX</div>
+    <h2>Hospital Outreach Trees</h2>
+    <p>Protected area — enter password</p>
+    <input type="password" id="pw-input" placeholder="••••••••••"
+           onkeydown="if(event.key==='Enter')tryLogin()">
+    <button onclick="tryLogin()">Sign In</button>
+    <div id="auth-error"></div>
+  </div>
+</div>
+
+<div id="app">
+  <nav>
+    <div class="brand">PenuX <span>Hospital Outreach Trees</span></div>
+    <div>
+      <a href="tasks.html">Task Board</a>
+      <button onclick="logout()">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>Hospital Outreach — Process Trees</h1>
+    <p class="subtitle">Click any step to mark it done, in-progress, or blocked. Progress is saved in your browser.</p>
+    <div class="grid" id="hospitals-grid"></div>
+  </div>
+</div>
+
+<script>
+const STORE = 'penux_hospital_trees';
+
+// ── DATA: one process tree per medical center, seeded from real correspondence ──
+const HOSPITALS = [
+  {
+    id: 'usc',
+    name: 'USC — Dr. James Buxbaum',
+    sub: 'Gastroenterology',
+    steps: [
+      { id: 'contacted', label: 'Initial outreach sent', state: 'done' },
+      { id: 'replied',   label: 'Replied — "Very exciting"', state: 'done' },
+      { id: 'schedule',  label: 'Cindy coordinates meeting time', state: 'current', detail: 'Waiting on Cindy' },
+      { id: 'meeting',   label: 'Zoom meeting (9am–7pm IL time)', state: 'pending' },
+      { id: 'followup',  label: 'Post-meeting follow-up', state: 'pending' },
+    ]
+  },
+  {
+    id: 'emory',
+    name: 'Emory University — Dr. Saurabh Chawla',
+    sub: 'Gastroenterology',
+    steps: [
+      { id: 'contacted', label: 'Initial outreach sent', state: 'done' },
+      { id: 'replied',   label: 'Replied — proposed 6/29 2pm EST', state: 'done' },
+      { id: 'confirmed', label: 'Confirmed ("Ok")', state: 'done' },
+      { id: 'verify',    label: 'Verify call took place', state: 'current' },
+      { id: 'followup',  label: 'Post-call follow-up / next steps', state: 'pending' },
+    ]
+  },
+  {
+    id: 'semmelweis',
+    name: 'Semmelweis University — Prof. Peter Hegyi',
+    sub: 'Budapest, Hungary',
+    steps: [
+      { id: 'contacted', label: 'Initial outreach sent', state: 'done' },
+      { id: 'replied',   label: 'Replied positively', state: 'done' },
+      { id: 'dates',     label: 'Gathering available dates', state: 'current', detail: 'Reminder if silent by 7/7' },
+      { id: 'meeting',   label: 'Zoom meeting (9am–7pm IL time)', state: 'pending' },
+      { id: 'followup',  label: 'Post-meeting follow-up', state: 'pending' },
+    ]
+  },
+  {
+    id: 'verona',
+    name: 'University of Verona — Prof. Luca Frulloni',
+    sub: 'Pancreatology',
+    steps: [
+      { id: 'contacted', label: 'Initial outreach sent', state: 'done' },
+      { id: 'ooo',       label: 'Out-of-office auto-reply', state: 'done' },
+      { id: 'returned',  label: 'Returned from leave (6/29)', state: 'done' },
+      { id: 'followup',  label: 'Send welcome-back follow-up', state: 'current' },
+      { id: 'meeting',   label: 'Zoom meeting (9am–7pm IL time)', state: 'pending' },
+    ]
+  },
+  {
+    id: 'hus',
+    name: 'HUS Helsinki — Dr. Panu Mentula',
+    sub: 'ICU / Acute Pancreatitis',
+    steps: [
+      { id: 'contacted', label: 'Initial outreach sent (multiple follow-ups)', state: 'done' },
+      { id: 'ooo',       label: 'Out-of-office — back 13 Jul', state: 'current' },
+      { id: 'followup',  label: 'Send welcome-back follow-up', state: 'pending' },
+      { id: 'meeting',   label: 'Zoom meeting (9am–7pm IL time)', state: 'pending' },
+    ]
+  },
+  {
+    id: 'wolfson',
+    name: 'Wolfson Medical Center — Prof. Tamara Naftali',
+    sub: 'Gastro Institute, Israel',
+    steps: [
+      { id: 'contacted', label: 'Initial outreach sent', state: 'done' },
+      { id: 'scheduled', label: 'Meeting scheduled (30.6, 10:00)', state: 'done' },
+      { id: 'meeting',   label: 'In-person meeting held', state: 'done' },
+      { id: 'followup',  label: 'Post-meeting follow-up', state: 'current' },
+    ]
+  },
+  {
+    id: 'upenn',
+    name: 'UPenn — Prof. Michael Kochman',
+    sub: 'Gastroenterology',
+    steps: [
+      { id: 'contacted', label: 'Initial outreach sent', state: 'done' },
+      { id: 'confirmed', label: 'Zoom confirmed: 10 Jul, 08:00 EST', state: 'done' },
+      { id: 'meeting',   label: 'Zoom meeting (15:00 IL time)', state: 'current' },
+      { id: 'followup',  label: 'Post-meeting follow-up', state: 'pending' },
+    ]
+  },
+  {
+    id: 'calgary',
+    name: 'University of Calgary — Dr. Nauzer Forbes',
+    sub: 'Gastroenterology',
+    steps: [
+      { id: 'contacted', label: 'Initial outreach sent', state: 'done' },
+      { id: 'confirmed', label: 'Zoom confirmed: 6 Jul, 12:00 MDT', state: 'done' },
+      { id: 'meeting',   label: 'Zoom meeting (21:00 IL time)', state: 'current', detail: 'Outside 9am-7pm IL window — flagged' },
+      { id: 'followup',  label: 'Post-meeting follow-up', state: 'pending' },
+    ]
+  },
+  {
+    id: 'beaujon',
+    name: 'Hôpital Beaujon / AP-HP — Prof. Philippe Lévy',
+    sub: 'Pancréatologie, Paris',
+    steps: [
+      { id: 'contacted', label: 'Initial outreach sent', state: 'done' },
+      { id: 'bounced',   label: 'Personal email bounced', state: 'blocked', detail: 'philippe.levy@bjn.ap-hop-paris.fr' },
+      { id: 'research',  label: 'Researched correct contact', state: 'done', detail: 'No personal email published by AP-HP' },
+      { id: 'secretariat', label: 'Try department secretariat', state: 'current', detail: 'secretariat.pancreato.bjn@aphp.fr' },
+      { id: 'meeting',   label: 'Zoom meeting (9am–7pm IL time)', state: 'pending' },
+    ]
+  },
+  {
+    id: 'dutch',
+    name: 'Dutch Recipient (STARRED)',
+    sub: 'Institution TBD',
+    steps: [
+      { id: 'contacted', label: 'Initial outreach sent', state: 'done' },
+      { id: 'ooo',       label: 'Out-of-office — back 12 Jul', state: 'current' },
+      { id: 'followup',  label: 'Send welcome-back follow-up', state: 'pending' },
+      { id: 'meeting',   label: 'Zoom meeting (9am–7pm IL time)', state: 'pending' },
+    ]
+  },
+];
+
+const STATE_ORDER = ['pending', 'current', 'blocked', 'done'];
+const STATE_ICON = { done: '✓', current: '', blocked: '✕', pending: '' };
+
+function loadOverrides() {
+  try { return JSON.parse(localStorage.getItem(STORE)) || {}; }
+  catch { return {}; }
+}
+function saveOverrides(overrides) {
+  localStorage.setItem(STORE, JSON.stringify(overrides));
+}
+
+function cycleState(current) {
+  const idx = STATE_ORDER.indexOf(current);
+  return STATE_ORDER[(idx + 1) % STATE_ORDER.length];
+}
+
+function effectiveState(hospitalId, step, overrides) {
+  const key = `${hospitalId}.${step.id}`;
+  return overrides[key] || step.state;
+}
+
+function overallStatus(hospital, overrides) {
+  const states = hospital.steps.map(s => effectiveState(hospital.id, s, overrides));
+  if (states.some(s => s === 'blocked')) return { label: 'Blocked', cls: 'status-blocked' };
+  if (states.every(s => s === 'done')) return { label: 'Complete', cls: 'status-done' };
+  if (states.some(s => s === 'current')) return { label: 'In Progress', cls: 'status-active' };
+  return { label: 'Waiting', cls: 'status-waiting' };
+}
+
+function renderHospitals() {
+  const overrides = loadOverrides();
+  const grid = document.getElementById('hospitals-grid');
+  grid.innerHTML = HOSPITALS.map(h => {
+    const status = overallStatus(h, overrides);
+    const doneCount = h.steps.filter(s => effectiveState(h.id, s, overrides) === 'done').length;
+    const pct = Math.round((doneCount / h.steps.length) * 100);
+
+    const nodes = h.steps.map(step => {
+      const state = effectiveState(h.id, step, overrides);
+      const icon = STATE_ICON[state];
+      return `
+        <div class="tree-node ${state}" onclick="toggleStep('${h.id}','${step.id}')">
+          <div class="node-check ${state}">${icon}</div>
+          <div class="node-label">
+            ${step.label}
+            ${step.detail ? `<span class="node-detail">${step.detail}</span>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="hospital-card">
+        <div class="h-title">${h.name}</div>
+        <div class="h-sub">${h.sub}</div>
+        <span class="h-status-badge ${status.cls}">${status.label}</span>
+        <div class="h-progress"><div class="h-progress-fill" style="width:${pct}%"></div></div>
+        <div class="tree tree-root">${nodes}</div>
+      </div>`;
+  }).join('');
+}
+
+function toggleStep(hospitalId, stepId) {
+  const overrides = loadOverrides();
+  const hospital = HOSPITALS.find(h => h.id === hospitalId);
+  const step = hospital.steps.find(s => s.id === stepId);
+  const key = `${hospitalId}.${stepId}`;
+  const current = overrides[key] || step.state;
+  overrides[key] = cycleState(current);
+  saveOverrides(overrides);
+  renderHospitals();
+}
+
+async function tryLogin() {
+  const pw = document.getElementById('pw-input').value;
+  const h = await sha256(pw);
+  if (h === '5b1a03055e62917d46aa4e7377050da381f80a98a8e14c40a72677f04c32c9a2') {
+    sessionStorage.setItem('penux_auth', '1');
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    renderHospitals();
+  } else {
+    document.getElementById('auth-error').textContent = 'Incorrect password.';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+}
+
+async function sha256(msg) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function logout() {
+  sessionStorage.removeItem('penux_auth');
+  location.reload();
+}
+
+if (sessionStorage.getItem('penux_auth') === '1') {
+  document.getElementById('auth-overlay').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderHospitals();
+} else {
+  setTimeout(() => document.getElementById('pw-input').focus(), 100);
+}
+</script>
+</body>
+</html>
