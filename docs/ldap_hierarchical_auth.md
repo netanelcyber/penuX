@@ -116,6 +116,16 @@ Mail delivery uses the `PENUX_SMTP_HOST` environment variable (default
 `mail.penux.uk`), trying STARTTLS on 587 then plaintext on 25 — the same
 ports `imap_dns.yml` opens on the mail server's firewall.
 
+### 5.1 Windows client
+
+`.github/workflows/build_ldap_client_exe.yml` packages the same CLI as a
+standalone `ldap-email-auth.exe` (via PyInstaller on a `windows-latest`
+runner, uploaded as a build artifact) for users without a Python install.
+When frozen, the directory store defaults to
+`%APPDATA%\penux\ldap_directory.json` instead of a path next to the
+script (see `_default_store_path()` in `scripts/ldap_email_auth.py`); pass
+`--store <path>` to override.
+
 ## 6. Out of scope / non-goals
 
 This implementation is a protocol reference and demo, matching this

@@ -45,7 +45,19 @@ ENROLL_RATE_WINDOW = 3600  # ...within this many seconds
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
-DEFAULT_STORE = Path(__file__).resolve().parent / "data" / "ldap_directory.json"
+
+def _default_store_path() -> Path:
+    # When frozen (e.g. the PyInstaller Windows .exe built by
+    # .github/workflows/build_ldap_client_exe.yml), __file__ points into a
+    # throwaway extraction directory, so fall back to a stable per-user
+    # location instead.
+    if getattr(sys, "frozen", False):
+        base = Path(os.environ.get("APPDATA") or Path(sys.executable).resolve().parent)
+        return base / "penux" / "ldap_directory.json"
+    return Path(__file__).resolve().parent / "data" / "ldap_directory.json"
+
+
+DEFAULT_STORE = _default_store_path()
 
 Mailer = Callable[[str, str, str], None]
 

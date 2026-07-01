@@ -1,0 +1,34 @@
+name: Build LDAP Client — Windows .exe
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows-exe:
+    name: PyInstaller build (windows-latest)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+
+      - name: Build ldap-email-auth.exe
+        run: >
+          pyinstaller --onefile --name ldap-email-auth
+          --console
+          scripts/ldap_email_auth.py
+
+      - name: Smoke test the built exe
+        run: .\dist\ldap-email-auth.exe --help
+
+      - name: Upload ldap-email-auth.exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: ldap-email-auth-windows
+          path: dist/ldap-email-auth.exe
+          retention-days: 90
