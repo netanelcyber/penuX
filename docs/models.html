@@ -156,6 +156,17 @@
     .v-md{color:var(--amber);font-weight:500}
     .v-lo{color:var(--red)}
 
+    /* CLINICIAN EMPHASIS — highlight the columns physicians care about most:
+       FN (missed severe cases — the costliest error) and Sensitivity (the
+       metric that quantifies how few are missed). Applies to every model
+       tab since column order (Threshold,TP,FP,FN,TN,Sens,Spec,PPV,F1) is
+       consistent across all of them. */
+    #cm-tabs ~ div table th:nth-child(4),
+    #cm-tabs ~ div table td:nth-child(4){background:var(--red-lt);box-shadow:inset 0 0 0 9999px rgba(220,38,38,.04)}
+    #cm-tabs ~ div table th:nth-child(6),
+    #cm-tabs ~ div table td:nth-child(6){background:var(--green-lt);box-shadow:inset 0 0 0 9999px rgba(22,163,74,.04)}
+    #cm-tabs ~ div table th:nth-child(4),#cm-tabs ~ div table th:nth-child(6){font-weight:800}
+
     /* ROC CANVAS */
     .roc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem;margin-bottom:2rem}
     .roc-card{border:1px solid var(--gray-200);border-radius:var(--radius);padding:1.1rem;background:var(--white)}
@@ -797,6 +808,12 @@
     <p class="lead">Each tab shows TP/FP/FN/TN across thresholds 0.10–0.80 | Ground truth: 1=Severe SAP, 0=Mild SAP</p>
 
     <div class="warn">⚠️ Research only. All figures from 5-fold cross-validation on the same cohort — no external validation set.</div>
+
+    <div class="warn" style="background:var(--blue-lt);border-color:#bfdbfe;border-left-color:var(--blue);color:var(--blue-dk)">
+      <strong>Reading these tables as a clinician:</strong> the two highlighted columns are the ones that matter most at the bedside.
+      <span style="background:var(--red-lt);padding:.05rem .3rem;border-radius:3px">FN (False Negatives)</span> — severe cases the model missed — is the costliest error type in this setting, since a missed SAP diagnosis delays escalation of care.
+      <span style="background:var(--green-lt);padding:.05rem .3rem;border-radius:3px">Sensitivity</span> — the % of true severe cases correctly caught — is therefore the primary metric to optimize, even at the cost of more false alarms (lower Specificity/PPV). The ★ starred row on each tab is the threshold that maximizes F1, but a clinician prioritizing safety may prefer a <em>lower</em> threshold (more rows up) for even higher sensitivity, accepting a higher false-positive rate in exchange for catching more true positives.
+    </div>
 
     <div class="tabs" id="cm-tabs">
       <button class="tab-btn active" data-tab="cm-lr">Logistic Regression</button>
