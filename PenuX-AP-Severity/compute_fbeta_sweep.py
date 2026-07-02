@@ -86,7 +86,7 @@ for beta in BETAS:
         sens = tp/(tp+fn_) if (tp+fn_) else 0
         spec = tn/(tn+fp) if (tn+fp) else 0
         ppv  = tp/(tp+fp) if (tp+fp) else 0
-        degenerate = spec < 0.01  # threshold collapsed to "predict everyone positive"
+        degenerate = bool(spec < 0.01)  # threshold collapsed to "predict everyone positive"
         rows.append({
             "model": name, "beta": beta, "fbeta": round(score,4), "threshold": round(thr,3),
             "sens": round(sens*100,1), "spec": round(spec*100,1), "ppv": round(ppv*100,1),
