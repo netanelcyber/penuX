@@ -227,9 +227,9 @@
 <!-- HERO -->
 <div class="hero">
   <div class="badge">Research Only — Not for Clinical Use</div>
-  <h1>21-Model ML &amp; Deep Learning Comparison</h1>
+  <h1>23-Model ML &amp; Deep Learning Comparison</h1>
   <p>Logistic Regression · Random Forest · Gradient Boosting · MLP · Residual MLP · Attention MLP<br>
-  XGBoost · LightGBM · CatBoost<br>
+  XGBoost · LightGBM · CatBoost · NGBoost · EBM<br>
   + 12 extended ML models (Extra Trees, HistGradientBoosting, Bagging, AdaBoost, SVM, KNN, Naive Bayes, LDA, QDA, Decision Tree, Ridge, SGD)<br>
   Trained and evaluated with 5-fold stratified cross-validation</p>
 </div>
@@ -344,6 +344,26 @@
           <span class="pill pill-violet">F1=0.926</span>
           <span class="pill pill-violet">Sens=95.6%</span>
           <span class="pill pill-violet">T=0.592</span>
+        </div>
+      </div>
+      <div class="stat-card amber2">
+        <div class="model-name">NGBoost</div>
+        <div class="auc">0.854</div>
+        <div class="sub">AUC (5-fold CV)</div>
+        <div class="badges">
+          <span class="pill pill-amber2">F1=0.914</span>
+          <span class="pill pill-amber2">Sens=97.3%</span>
+          <span class="pill pill-amber2">T=0.364</span>
+        </div>
+      </div>
+      <div class="stat-card teal2">
+        <div class="model-name">EBM</div>
+        <div class="auc">0.856</div>
+        <div class="sub">AUC (5-fold CV)</div>
+        <div class="badges">
+          <span class="pill pill-teal2">F1=0.922</span>
+          <span class="pill pill-teal2">Sens=97.1%</span>
+          <span class="pill pill-teal2">T=0.427</span>
         </div>
       </div>
     </div>
@@ -547,6 +567,18 @@
             <td>0.882</td><td>0.926</td><td>0.592</td>
             <td>559</td><td>63</td><td>26</td><td>74</td>
             <td class="v-hi">95.6%</td><td class="v-md">54.0%</td><td class="v-hi">89.9%</td>
+          </tr>
+          <tr>
+            <td>NGBoost</td><td><span class="type-badge type-lstm">GBDT</span></td>
+            <td>0.854</td><td>0.914</td><td>0.364</td>
+            <td>569</td><td>91</td><td>16</td><td>46</td>
+            <td class="v-hi">97.3%</td><td class="v-lo">33.6%</td><td class="v-hi">86.2%</td>
+          </tr>
+          <tr>
+            <td>EBM</td><td><span class="type-badge type-lstm">GBDT</span></td>
+            <td>0.856</td><td>0.922</td><td>0.427</td>
+            <td>568</td><td>79</td><td>17</td><td>58</td>
+            <td class="v-hi">97.1%</td><td class="v-md">42.3%</td><td class="v-hi">87.8%</td>
           </tr>
           <tr><td colspan="12" style="background:var(--gray-100);font-weight:700;text-align:center;color:var(--gray-500)">— Extended ML models (trained on n=1,289 cohort; TP/FP/FN/TN scaled to 1,085 severe / 204 mild) —</td></tr>
           <tr>
@@ -785,6 +817,8 @@
       <button class="tab-btn" data-tab="cm-lstm" data-color="cyan">XGBoost</button>
       <button class="tab-btn" data-tab="cm-slstm" data-color="emerald">LightGBM</button>
       <button class="tab-btn" data-tab="cm-bilstm" data-color="violet">CatBoost</button>
+      <button class="tab-btn" data-tab="cm-ngb" data-color="amber2">NGBoost</button>
+      <button class="tab-btn" data-tab="cm-ebm" data-color="teal2">EBM</button>
     </div>
 
     <div id="cm-lr" class="tab-panel active">
@@ -935,6 +969,40 @@
         <tr><td>0.80</td><td>520</td><td>41</td><td>65</td><td>96</td><td class="v-md">88.9%</td><td class="v-hi">70.1%</td><td class="v-hi">92.7%</td><td>0.908</td></tr>
       </tbody></table></div>
     </div>
+
+    <div id="cm-ngb" class="tab-panel">
+      <div class="tbl-wrap"><table><thead class="amber2"><tr>
+        <th>Threshold</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th>
+        <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th>
+      </tr></thead><tbody>
+        <tr><td>0.10</td><td>582</td><td>116</td><td>3</td><td>21</td><td class="v-hi">99.5%</td><td class="v-lo">15.3%</td><td class="v-hi">83.4%</td><td>0.907</td></tr>
+        <tr><td>0.20</td><td>573</td><td>107</td><td>12</td><td>30</td><td class="v-hi">97.9%</td><td class="v-md">21.9%</td><td class="v-hi">84.3%</td><td>0.906</td></tr>
+        <tr><td>0.30</td><td>571</td><td>95</td><td>14</td><td>42</td><td class="v-hi">97.6%</td><td class="v-md">30.7%</td><td class="v-hi">85.7%</td><td>0.913</td></tr>
+        <tr class="best-row"><td>0.364 ★</td><td>569</td><td>91</td><td>16</td><td>46</td><td class="v-hi">97.3%</td><td class="v-md">33.6%</td><td class="v-hi">86.2%</td><td>0.914</td></tr>
+        <tr><td>0.40</td><td>566</td><td>90</td><td>19</td><td>47</td><td class="v-hi">96.8%</td><td class="v-md">34.3%</td><td class="v-hi">86.3%</td><td>0.912</td></tr>
+        <tr><td>0.50</td><td>557</td><td>85</td><td>28</td><td>52</td><td class="v-hi">95.2%</td><td class="v-md">38.0%</td><td class="v-hi">86.8%</td><td>0.908</td></tr>
+        <tr><td>0.60</td><td>551</td><td>80</td><td>34</td><td>57</td><td class="v-hi">94.2%</td><td class="v-md">41.6%</td><td class="v-hi">87.3%</td><td>0.906</td></tr>
+        <tr><td>0.70</td><td>546</td><td>70</td><td>39</td><td>67</td><td class="v-hi">93.3%</td><td class="v-md">48.9%</td><td class="v-hi">88.6%</td><td>0.909</td></tr>
+        <tr><td>0.80</td><td>537</td><td>60</td><td>48</td><td>77</td><td class="v-hi">91.8%</td><td class="v-md">56.2%</td><td class="v-hi">89.9%</td><td>0.909</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div id="cm-ebm" class="tab-panel">
+      <div class="tbl-wrap"><table><thead class="teal2"><tr>
+        <th>Threshold</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th>
+        <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th>
+      </tr></thead><tbody>
+        <tr><td>0.10</td><td>581</td><td>117</td><td>4</td><td>20</td><td class="v-hi">99.3%</td><td class="v-lo">14.6%</td><td class="v-hi">83.2%</td><td>0.906</td></tr>
+        <tr><td>0.20</td><td>579</td><td>105</td><td>6</td><td>32</td><td class="v-hi">99.0%</td><td class="v-md">23.4%</td><td class="v-hi">84.6%</td><td>0.913</td></tr>
+        <tr><td>0.30</td><td>574</td><td>94</td><td>11</td><td>43</td><td class="v-hi">98.1%</td><td class="v-md">31.4%</td><td class="v-hi">85.9%</td><td>0.916</td></tr>
+        <tr><td>0.40</td><td>568</td><td>85</td><td>17</td><td>52</td><td class="v-hi">97.1%</td><td class="v-md">38.0%</td><td class="v-hi">87.0%</td><td>0.918</td></tr>
+        <tr class="best-row"><td>0.427 ★</td><td>568</td><td>79</td><td>17</td><td>58</td><td class="v-hi">97.1%</td><td class="v-md">42.3%</td><td class="v-hi">87.8%</td><td>0.922</td></tr>
+        <tr><td>0.50</td><td>558</td><td>70</td><td>27</td><td>67</td><td class="v-hi">95.4%</td><td class="v-md">48.9%</td><td class="v-hi">88.9%</td><td>0.920</td></tr>
+        <tr><td>0.60</td><td>542</td><td>58</td><td>43</td><td>79</td><td class="v-hi">92.6%</td><td class="v-md">57.7%</td><td class="v-hi">90.3%</td><td>0.915</td></tr>
+        <tr><td>0.70</td><td>525</td><td>48</td><td>60</td><td>89</td><td class="v-md">89.7%</td><td class="v-md">65.0%</td><td class="v-hi">91.6%</td><td>0.907</td></tr>
+        <tr><td>0.80</td><td>493</td><td>40</td><td>92</td><td>97</td><td class="v-md">84.3%</td><td class="v-hi">70.8%</td><td class="v-hi">92.5%</td><td>0.882</td></tr>
+      </tbody></table></div>
+    </div>
   </div>
 </section>
 
@@ -963,6 +1031,8 @@
       <div class="roc-card"><h4>XGBoost — AUC 0.883</h4><canvas id="roc-lstm"></canvas></div>
       <div class="roc-card"><h4>LightGBM — AUC 0.879</h4><canvas id="roc-slstm"></canvas></div>
       <div class="roc-card"><h4>CatBoost ★ — AUC 0.882</h4><canvas id="roc-bilstm"></canvas></div>
+      <div class="roc-card"><h4>NGBoost — AUC 0.854</h4><canvas id="roc-ngb"></canvas></div>
+      <div class="roc-card"><h4>EBM — AUC 0.856</h4><canvas id="roc-ebm"></canvas></div>
     </div>
   </div>
 </section>
@@ -1032,7 +1102,7 @@
       <div class="algo-card" style="border-top:4px solid var(--cyan)">
         <h3 style="margin-top:0;color:var(--cyan)">XGBoost</h3>
         <p>300 boosted trees (max_depth=4, learning_rate=0.05), with subsample/colsample_bytree=0.8 and L2 regularisation to control overfitting on the small cohort.</p>
-        <p>Key features: D-dimer, Calcium, Base Excess, HBDH, Neutrophil %. AUC 0.883 — highest of the three GBDT models.</p>
+        <p>Key features: D-dimer, Calcium, Base Excess, HBDH, Neutrophil %. AUC 0.883 — highest of all 5 GBDT models.</p>
         <p class="meta">xgboost.XGBClassifier · n_estimators=300 · max_depth=4 · lr=0.05</p>
       </div>
       <div class="algo-card" style="border-top:4px solid var(--emerald)">
@@ -1044,8 +1114,20 @@
       <div class="algo-card" style="border-top:4px solid var(--violet)">
         <h3 style="margin-top:0;color:var(--violet)">CatBoost ★ Best GBDT</h3>
         <p>300 symmetric (oblivious) trees (depth=5, learning_rate=0.05) with ordered boosting to reduce prediction shift/overfitting — CatBoost's key advantage on small datasets like this 722-patient cohort.</p>
-        <p>Key features: Calcium, D-dimer, Lipase, Amylase, WBC. Highest F1 (0.926) and Sensitivity (95.6%) of all 9 core models.</p>
+        <p>Key features: Calcium, D-dimer, Lipase, Amylase, WBC. Highest F1 (0.926) and Sensitivity (95.6%) of all 11 core models.</p>
         <p class="meta">catboost.CatBoostClassifier · iterations=300 · depth=5 · lr=0.05</p>
+      </div>
+      <div class="algo-card" style="border-top:4px solid var(--amber2)">
+        <h3 style="margin-top:0;color:var(--amber2)">NGBoost</h3>
+        <p>Natural-gradient boosting over a Bernoulli distribution (200 estimators, learning_rate=0.03) — produces a full probability distribution per patient rather than a single point estimate, so a calibrated uncertainty interval is available in principle, not just a risk score.</p>
+        <p>Key features: Calcium, D-dimer, Lymphocyte %, WBC, HBDH. AUC 0.854 — the trade-off for probabilistic output is somewhat lower raw discrimination than the point-estimate GBDT models.</p>
+        <p class="meta">ngboost.NGBClassifier · Dist=Bernoulli · n_estimators=200 · lr=0.03</p>
+      </div>
+      <div class="algo-card" style="border-top:4px solid var(--teal2)">
+        <h3 style="margin-top:0;color:var(--teal2)">EBM (Explainable Boosting Machine)</h3>
+        <p>A boosted generalized additive model (GA2M): learns one shape function per feature plus up to 10 pairwise interaction terms, cycling through features one at a time so each one's contribution stays fully separable and plottable — the most interpretable model in this comparison after Logistic Regression, but non-linear.</p>
+        <p>Key features: Calcium, Lipase, Lymphocyte %, D-dimer, Ionized Calcium. AUC 0.856, F1 0.922 — competitive with the black-box GBDT models while remaining fully auditable per-feature.</p>
+        <p class="meta">interpret.glassbox.ExplainableBoostingClassifier · interactions=10 · lr=0.02</p>
       </div>
     </div>
 
@@ -1102,7 +1184,9 @@ const DATA = {
   att:     { roc:[[0.0,0.0],[0.0146,0.135],[0.0292,0.2991],[0.0438,0.3128],[0.0657,0.3521],[0.0803,0.3966],[0.1022,0.4051],[0.1241,0.4513],[0.146,0.506],[0.1679,0.535],[0.1825,0.5624],[0.2117,0.5795],[0.2336,0.6051],[0.2482,0.653],[0.2701,0.6769],[0.292,0.6838],[0.3066,0.7077],[0.3358,0.7214],[0.3504,0.7744],[0.3796,0.7812],[0.3942,0.7846],[0.4088,0.8017],[0.4307,0.8085],[0.4526,0.8444],[0.4818,0.8632],[0.4964,0.8889],[0.5328,0.9128],[0.5547,0.9179],[0.5693,0.9282],[0.5985,0.9316],[0.6277,0.9436],[0.6715,0.947],[0.6934,0.9538],[0.708,0.9658],[0.7372,0.9744],[0.7664,0.9829],[0.8686,0.9863],[0.8832,0.9897],[0.927,0.9949],[1.0,1.0]], color:'#3730a3', auc:0.784, features:[] },
   lstm:    { roc:[[0.0,0.0],[0.0146,0.347],[0.0292,0.4342],[0.0438,0.4991],[0.0584,0.5402],[0.073,0.6256],[0.0876,0.6393],[0.1022,0.641],[0.1168,0.6667],[0.1314,0.694],[0.146,0.7145],[0.1606,0.7419],[0.1679,0.7624],[0.1825,0.7846],[0.1971,0.7966],[0.2117,0.8051],[0.2336,0.8239],[0.2482,0.8291],[0.2628,0.8684],[0.2774,0.8803],[0.2993,0.8821],[0.3212,0.8855],[0.3358,0.8889],[0.3504,0.8991],[0.3723,0.9128],[0.4015,0.9265],[0.438,0.935],[0.4526,0.9436],[0.5328,0.9521],[0.5474,0.9556],[0.562,0.9607],[0.5766,0.9658],[0.5985,0.9692],[0.6204,0.9726],[0.6642,0.9778],[0.708,0.9812],[0.7372,0.988],[0.8029,0.9915],[0.9051,0.9966],[1.0,1.0]], color:'#0e7490', auc:0.883, features:[['D-dimer',1.0],['Calcium',0.942],['Base Excess',0.543],['HBDH',0.474],['Neutrophil %',0.471]] },
   slstm:   { roc:[[0.0,0.0],[0.0073,0.1846],[0.0219,0.3846],[0.0438,0.5368],[0.0657,0.5863],[0.073,0.6496],[0.0876,0.6598],[0.1022,0.6735],[0.1241,0.6855],[0.1387,0.7009],[0.1533,0.7368],[0.1752,0.7675],[0.1825,0.7915],[0.1971,0.8051],[0.2117,0.812],[0.2263,0.8513],[0.2555,0.8581],[0.2847,0.8615],[0.2993,0.8718],[0.3285,0.8769],[0.3358,0.8838],[0.3504,0.8889],[0.3723,0.9043],[0.3869,0.9111],[0.4234,0.9162],[0.438,0.9197],[0.4526,0.9265],[0.4745,0.9368],[0.4891,0.9453],[0.5036,0.9487],[0.5328,0.9521],[0.5693,0.959],[0.6204,0.9658],[0.6496,0.9692],[0.6642,0.9726],[0.708,0.9761],[0.7299,0.9846],[0.7591,0.988],[0.9489,0.9949],[1.0,1.0]], color:'#059669', auc:0.879, features:[['Age',1.0],['Calcium',0.369],['Amylase',0.367],['D-dimer',0.364],['HDL',0.337]] },
-  bilstm:  { roc:[[0.0,0.0],[0.0073,0.3111],[0.0219,0.4308],[0.0365,0.4684],[0.0438,0.494],[0.0584,0.6017],[0.073,0.6154],[0.0876,0.6188],[0.1022,0.6291],[0.1168,0.641],[0.1241,0.6564],[0.1387,0.6752],[0.1533,0.6803],[0.1752,0.7214],[0.1898,0.7487],[0.1971,0.7641],[0.2117,0.8103],[0.2409,0.8222],[0.2628,0.8701],[0.2774,0.8752],[0.2847,0.8838],[0.2993,0.8889],[0.3212,0.894],[0.3504,0.8991],[0.365,0.9128],[0.3723,0.9197],[0.3942,0.9248],[0.4088,0.9419],[0.4453,0.9453],[0.4599,0.9504],[0.4964,0.9573],[0.5474,0.9641],[0.6058,0.9692],[0.6277,0.9709],[0.6861,0.9744],[0.7299,0.9829],[0.7372,0.9915],[0.8248,0.9949],[0.8759,0.9966],[1.0,1.0]], color:'#7c3aed', auc:0.882, features:[['Calcium',1.0],['D-dimer',0.709],['Lipase',0.65],['Amylase',0.411],['WBC',0.402]] }
+  bilstm:  { roc:[[0.0,0.0],[0.0073,0.3111],[0.0219,0.4308],[0.0365,0.4684],[0.0438,0.494],[0.0584,0.6017],[0.073,0.6154],[0.0876,0.6188],[0.1022,0.6291],[0.1168,0.641],[0.1241,0.6564],[0.1387,0.6752],[0.1533,0.6803],[0.1752,0.7214],[0.1898,0.7487],[0.1971,0.7641],[0.2117,0.8103],[0.2409,0.8222],[0.2628,0.8701],[0.2774,0.8752],[0.2847,0.8838],[0.2993,0.8889],[0.3212,0.894],[0.3504,0.8991],[0.365,0.9128],[0.3723,0.9197],[0.3942,0.9248],[0.4088,0.9419],[0.4453,0.9453],[0.4599,0.9504],[0.4964,0.9573],[0.5474,0.9641],[0.6058,0.9692],[0.6277,0.9709],[0.6861,0.9744],[0.7299,0.9829],[0.7372,0.9915],[0.8248,0.9949],[0.8759,0.9966],[1.0,1.0]], color:'#7c3aed', auc:0.882, features:[['Calcium',1.0],['D-dimer',0.709],['Lipase',0.65],['Amylase',0.411],['WBC',0.402]] },
+  ngb:     { roc:[[0.0,0.0],[0.0,0.0222],[0.0073,0.0718],[0.0073,0.094],[0.0146,0.1368],[0.0292,0.1949],[0.0365,0.2684],[0.0511,0.3795],[0.0657,0.4769],[0.0803,0.5573],[0.1022,0.588],[0.1241,0.6171],[0.1387,0.6342],[0.1533,0.7094],[0.1752,0.7333],[0.1971,0.7915],[0.219,0.8034],[0.2336,0.8171],[0.2555,0.8308],[0.2701,0.8359],[0.2847,0.8462],[0.3066,0.853],[0.3358,0.8667],[0.365,0.8769],[0.3869,0.8872],[0.4015,0.9043],[0.438,0.9179],[0.4599,0.9282],[0.4891,0.9316],[0.5182,0.9402],[0.5912,0.9436],[0.6058,0.9504],[0.6277,0.9573],[0.6496,0.9675],[0.6861,0.9726],[0.7664,0.9778],[0.7956,0.9846],[0.8248,0.9932],[0.9781,0.9966],[1.0,1.0]], color:'#b45309', auc:0.854, features:[['Calcium',1.0],['D-dimer',0.515],['Lymphocyte %',0.279],['WBC',0.191],['HBDH',0.186]] },
+  ebm:     { roc:[[0.0,0.0],[0.0073,0.2274],[0.0219,0.3282],[0.0365,0.4239],[0.0511,0.4513],[0.0657,0.4615],[0.0876,0.4906],[0.1022,0.5248],[0.1168,0.5436],[0.1314,0.6222],[0.146,0.641],[0.1606,0.6547],[0.1752,0.6974],[0.1898,0.7162],[0.2044,0.7265],[0.219,0.7436],[0.2336,0.7915],[0.2482,0.8051],[0.2628,0.8154],[0.2774,0.8188],[0.292,0.8581],[0.3066,0.8752],[0.3212,0.8803],[0.3504,0.9026],[0.3723,0.9162],[0.4015,0.9231],[0.4307,0.935],[0.4453,0.9402],[0.4745,0.947],[0.4964,0.9521],[0.5255,0.9556],[0.5547,0.9624],[0.5693,0.9658],[0.6277,0.9709],[0.6788,0.9795],[0.7226,0.9829],[0.7737,0.9897],[0.8613,0.9932],[0.9124,0.9966],[1.0,1.0]], color:'#0f766e', auc:0.856, features:[['Calcium',1.0],['Lipase',0.815],['Lymphocyte %',0.684],['D-dimer',0.673],['Ionized Calcium',0.62]] }
 };
 
 // ── ROC CANVAS ────────────────────────────────────────────────
@@ -1150,6 +1234,8 @@ function buildFeatures() {
     {key:'lstm',title:'XGBoost',cls:''},
     {key:'slstm',title:'LightGBM',cls:'green'},
     {key:'bilstm',title:'CatBoost ★',cls:'purple'},
+    {key:'ngb',title:'NGBoost',cls:''},
+    {key:'ebm',title:'EBM',cls:'green'},
   ];
   defs.forEach(({key,title,cls})=>{
     const feats = DATA[key].features;
@@ -1189,7 +1275,7 @@ document.querySelectorAll('#cm-tabs .tab-btn').forEach(btn=>{
 });
 
 // ── INIT ──────────────────────────────────────────────────────
-const ROC_MAP = [['roc-lr','lr'],['roc-rf','rf'],['roc-gb','gb'],['roc-mlp','mlp'],['roc-res','res'],['roc-att','att'],['roc-lstm','lstm'],['roc-slstm','slstm'],['roc-bilstm','bilstm']];
+const ROC_MAP = [['roc-lr','lr'],['roc-rf','rf'],['roc-gb','gb'],['roc-mlp','mlp'],['roc-res','res'],['roc-att','att'],['roc-lstm','lstm'],['roc-slstm','slstm'],['roc-bilstm','bilstm'],['roc-ngb','ngb'],['roc-ebm','ebm']];
 function drawAll(){ ROC_MAP.forEach(([id,k])=>drawROC(id,k)); }
 window.addEventListener('load',()=>{ buildFeatures(); drawAll(); });
 window.addEventListener('resize',drawAll);

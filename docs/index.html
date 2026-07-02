@@ -283,7 +283,7 @@
   <div class="section-inner">
     <div class="section-header">
       <h2>Model Performance</h2>
-      <p>21 models evaluated with 5-fold stratified cross-validation against Atlanta 2012 labels — 9 ML/DL/GBDT models on the labelled cohort (n=722, 585 severe / 137 mild) plus 12 extended ML models on the n=1,289 cohort. Now reporting likelihood ratios and post-test probability for clinical decision-making.</p>
+      <p>23 models evaluated with 5-fold stratified cross-validation against Atlanta 2012 labels — 11 ML/DL/GBDT models on the labelled cohort (n=722, 585 severe / 137 mild) plus 12 extended ML models on the n=1,289 cohort. Now reporting likelihood ratios and post-test probability for clinical decision-making.</p>
     </div>
 
     <div class="warning-banner">
@@ -296,7 +296,7 @@
       <div class="metric-card highlight">
         <div class="metric-val">0.877</div>
         <div class="metric-name">AUROC — Random Forest</div>
-        <div class="metric-sub">Best across 21 models</div>
+        <div class="metric-sub">Best across 23 models</div>
       </div>
       <div class="metric-card">
         <div class="metric-val">96.8%</div>
@@ -326,8 +326,8 @@
     </div>
 
     <!-- Best-threshold confusion matrix cards -->
-    <h3 style="font-size:1.05rem;font-weight:600;margin-bottom:1rem;">Optimal-Threshold Confusion Matrices (9 core ML/DL/GBDT models)</h3>
-    <p style="font-size:.82rem;color:var(--gray-600);margin:-.5rem 0 1rem;">Plus 12 extended ML models with likelihood ratios &amp; post-test probability — see the full 21-model comparison on the <a href="models.html" style="color:var(--blue);font-weight:600;">Models</a> page.</p>
+    <h3 style="font-size:1.05rem;font-weight:600;margin-bottom:1rem;">Optimal-Threshold Confusion Matrices (11 core ML/DL/GBDT models)</h3>
+    <p style="font-size:.82rem;color:var(--gray-600);margin:-.5rem 0 1rem;">Plus 12 extended ML models with likelihood ratios &amp; post-test probability — see the full 23-model comparison on the <a href="models.html" style="color:var(--blue);font-weight:600;">Models</a> page.</p>
     <div style="overflow-x:auto;border-radius:var(--radius);border:1px solid var(--gray-200);background:var(--white);box-shadow:var(--shadow);margin-bottom:1.5rem;">
       <table>
         <thead><tr>
@@ -345,6 +345,8 @@
           <tr><td>XGBoost</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">GBDT</span></td><td>0.522</td><td>555</td><td>62</td><td>30</td><td>75</td><td style="color:#057a55;font-weight:600">94.9%</td><td>54.7%</td><td style="color:#057a55;font-weight:600">90.0%</td><td>0.923</td><td>0.883</td></tr>
           <tr><td>LightGBM</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">GBDT</span></td><td>0.516</td><td>555</td><td>69</td><td>30</td><td>68</td><td style="color:#057a55;font-weight:600">94.9%</td><td>49.6%</td><td style="color:#057a55;font-weight:600">88.9%</td><td>0.918</td><td>0.879</td></tr>
           <tr style="background:#f0fdf4;font-weight:600"><td>CatBoost ★</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">GBDT</span></td><td>0.592</td><td>559</td><td>63</td><td>26</td><td>74</td><td style="color:#057a55">95.6%</td><td>54.0%</td><td style="color:#057a55">89.9%</td><td>0.926</td><td>0.882</td></tr>
+          <tr><td>NGBoost</td><td><span style="background:#fffbeb;color:#b45309;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">GBDT</span></td><td>0.364</td><td>569</td><td>91</td><td>16</td><td>46</td><td style="color:#057a55;font-weight:600">97.3%</td><td>33.6%</td><td style="color:#057a55;font-weight:600">86.2%</td><td>0.914</td><td>0.854</td></tr>
+          <tr><td>EBM</td><td><span style="background:#f0fdfa;color:#0f766e;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">GBDT</span></td><td>0.427</td><td>568</td><td>79</td><td>17</td><td>58</td><td style="color:#057a55;font-weight:600">97.1%</td><td>42.3%</td><td style="color:#057a55;font-weight:600">87.8%</td><td>0.922</td><td>0.856</td></tr>
         </tbody>
       </table>
     </div>
