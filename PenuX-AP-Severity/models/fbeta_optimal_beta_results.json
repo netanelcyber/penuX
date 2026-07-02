@@ -1,0 +1,161 @@
+{
+  "betas": [
+    1.0,
+    1.25,
+    1.5,
+    1.75,
+    2.0
+  ],
+  "results": {
+    "1.0": {
+      "Gradient Boosting": {
+        "fbeta_mean": 0.9121,
+        "fbeta_std": 0.0033,
+        "threshold_mean": 0.475,
+        "threshold_std": 0.067,
+        "any_degenerate": false
+      },
+      "Random Forest": {
+        "fbeta_mean": 0.9122,
+        "fbeta_std": 0.0021,
+        "threshold_mean": 0.548,
+        "threshold_std": 0.018,
+        "any_degenerate": false
+      },
+      "LightGBM": {
+        "fbeta_mean": 0.9137,
+        "fbeta_std": 0.0035,
+        "threshold_mean": 0.459,
+        "threshold_std": 0.115,
+        "any_degenerate": false
+      },
+      "CatBoost": {
+        "fbeta_mean": 0.9154,
+        "fbeta_std": 0.0036,
+        "threshold_mean": 0.51,
+        "threshold_std": 0.042,
+        "any_degenerate": false
+      }
+    },
+    "1.25": {
+      "Gradient Boosting": {
+        "fbeta_mean": 0.9252,
+        "fbeta_std": 0.002,
+        "threshold_mean": 0.249,
+        "threshold_std": 0.037,
+        "any_degenerate": false
+      },
+      "Random Forest": {
+        "fbeta_mean": 0.926,
+        "fbeta_std": 0.0022,
+        "threshold_mean": 0.516,
+        "threshold_std": 0.017,
+        "any_degenerate": false
+      },
+      "LightGBM": {
+        "fbeta_mean": 0.9261,
+        "fbeta_std": 0.0039,
+        "threshold_mean": 0.256,
+        "threshold_std": 0.02,
+        "any_degenerate": false
+      },
+      "CatBoost": {
+        "fbeta_mean": 0.9294,
+        "fbeta_std": 0.0032,
+        "threshold_mean": 0.295,
+        "threshold_std": 0.029,
+        "any_degenerate": false
+      }
+    },
+    "1.5": {
+      "Gradient Boosting": {
+        "fbeta_mean": 0.9376,
+        "fbeta_std": 0.001,
+        "threshold_mean": 0.199,
+        "threshold_std": 0.012,
+        "any_degenerate": false
+      },
+      "Random Forest": {
+        "fbeta_mean": 0.9398,
+        "fbeta_std": 0.0015,
+        "threshold_mean": 0.479,
+        "threshold_std": 0.015,
+        "any_degenerate": false
+      },
+      "LightGBM": {
+        "fbeta_mean": 0.9374,
+        "fbeta_std": 0.0013,
+        "threshold_mean": 0.142,
+        "threshold_std": 0.015,
+        "any_degenerate": false
+      },
+      "CatBoost": {
+        "fbeta_mean": 0.9385,
+        "fbeta_std": 0.0022,
+        "threshold_mean": 0.242,
+        "threshold_std": 0.031,
+        "any_degenerate": false
+      }
+    },
+    "1.75": {
+      "Gradient Boosting": {
+        "fbeta_mean": 0.9483,
+        "fbeta_std": 0.0017,
+        "threshold_mean": 0.136,
+        "threshold_std": 0.036,
+        "any_degenerate": false
+      },
+      "Random Forest": {
+        "fbeta_mean": 0.9485,
+        "fbeta_std": 0.0006,
+        "threshold_mean": 0.462,
+        "threshold_std": 0.008,
+        "any_degenerate": false
+      },
+      "LightGBM": {
+        "fbeta_mean": 0.9482,
+        "fbeta_std": 0.0028,
+        "threshold_mean": 0.099,
+        "threshold_std": 0.03,
+        "any_degenerate": false
+      },
+      "CatBoost": {
+        "fbeta_mean": 0.949,
+        "fbeta_std": 0.0025,
+        "threshold_mean": 0.186,
+        "threshold_std": 0.042,
+        "any_degenerate": false
+      }
+    },
+    "2.0": {
+      "Gradient Boosting": {
+        "fbeta_mean": 0.956,
+        "fbeta_std": 0.001,
+        "threshold_mean": 0.119,
+        "threshold_std": 0.022,
+        "any_degenerate": false
+      },
+      "Random Forest": {
+        "fbeta_mean": 0.9565,
+        "fbeta_std": 0.0005,
+        "threshold_mean": 0.449,
+        "threshold_std": 0.005,
+        "any_degenerate": false
+      },
+      "LightGBM": {
+        "fbeta_mean": 0.9564,
+        "fbeta_std": 0.0026,
+        "threshold_mean": 0.088,
+        "threshold_std": 0.022,
+        "any_degenerate": false
+      },
+      "CatBoost": {
+        "fbeta_mean": 0.9579,
+        "fbeta_std": 0.0002,
+        "threshold_mean": 0.148,
+        "threshold_std": 0.02,
+        "any_degenerate": false
+      }
+    }
+  }
+}

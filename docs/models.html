@@ -1186,46 +1186,67 @@
       </div>
     </div>
 
-    <div class="section-label label-ml" style="margin-top:1.5rem">📊 F1 vs. F2 — Balanced vs. Recall-Weighted Threshold</div>
-    <p class="lead" style="margin-bottom:1rem">F1 balances precision and recall equally. F2 weights recall 4× higher — appropriate for SAP triage, where a missed severe case (FN) is clinically worse than a false alarm. F2 values below use <strong>nested cross-validation for threshold selection</strong> (5 repeats) so the score isn't optimistic from tuning the threshold on the same data it's evaluated on — see the section above for why that correction mattered.</p>
+    <div class="section-label label-ml" style="margin-top:1.5rem">📊 F-β Sweep (β=1.0 → 2.0) — Overfitting-Resistant</div>
+    <p class="lead" style="margin-bottom:1rem">F1 (β=1) balances precision and recall equally; higher β weights recall more heavily — appropriate for SAP triage, where a missed severe case (FN) is clinically worse than a false alarm. Every value below comes from <strong>nested cross-validation for threshold selection</strong> (an inner 5-fold CV picks the threshold using only data the model was trained on, never the held-out fold it's scored against) <strong>repeated across multiple random seeds</strong> to confirm stability — this avoids the mild optimism of picking a threshold on the same data it's then evaluated on.</p>
     <div class="tbl-wrap">
       <table>
         <thead><tr>
           <th>Model</th>
-          <th>F1</th><th>F1 Threshold</th>
-          <th>F2 (nested, honest)</th><th>F2 Threshold</th>
-          <th>F2 Stability (±std across 5 repeats)</th>
+          <th>β=1.0 (F1)</th><th>β=1.25</th><th>β=1.5</th><th>β=1.75</th><th>β=2.0 (F2)</th>
         </tr></thead>
         <tbody>
           <tr style="background:var(--green-lt);font-weight:600">
             <td>CatBoost</td>
-            <td class="v-hi">0.926</td><td>0.592</td>
-            <td class="v-hi">0.958</td><td>0.143</td>
-            <td>±0.001</td>
+            <td class="v-hi">0.9154 <span style="font-weight:400;color:var(--gray-400)">±0.0036</span></td>
+            <td class="v-hi">0.9294 <span style="font-weight:400;color:var(--gray-400)">±0.0032</span></td>
+            <td>0.9385 <span style="font-weight:400;color:var(--gray-400)">±0.0022</span></td>
+            <td class="v-hi">0.9490 <span style="font-weight:400;color:var(--gray-400)">±0.0025</span></td>
+            <td class="v-hi">0.9579 <span style="font-weight:400;color:var(--gray-400)">±0.0002</span></td>
           </tr>
           <tr>
             <td>Random Forest</td>
-            <td>0.917</td><td>0.535</td>
-            <td>0.958</td><td>0.443</td>
-            <td>±0.002</td>
-          </tr>
-          <tr>
-            <td>Gradient Boosting</td>
-            <td>0.918</td><td>0.350</td>
-            <td>0.957</td><td>0.106</td>
-            <td>±0.001</td>
+            <td>0.9122 <span style="font-weight:400;color:var(--gray-400)">±0.0021</span></td>
+            <td>0.9260 <span style="font-weight:400;color:var(--gray-400)">±0.0022</span></td>
+            <td class="v-hi">0.9398 <span style="font-weight:400;color:var(--gray-400)">±0.0015</span></td>
+            <td>0.9485 <span style="font-weight:400;color:var(--gray-400)">±0.0006</span></td>
+            <td>0.9565 <span style="font-weight:400;color:var(--gray-400)">±0.0005</span></td>
           </tr>
           <tr>
             <td>LightGBM</td>
-            <td>0.918</td><td>0.516</td>
-            <td>0.956</td><td>0.075</td>
-            <td>±0.002</td>
+            <td>0.9137 <span style="font-weight:400;color:var(--gray-400)">±0.0035</span></td>
+            <td>0.9261 <span style="font-weight:400;color:var(--gray-400)">±0.0039</span></td>
+            <td>0.9374 <span style="font-weight:400;color:var(--gray-400)">±0.0013</span></td>
+            <td>0.9482 <span style="font-weight:400;color:var(--gray-400)">±0.0028</span></td>
+            <td>0.9564 <span style="font-weight:400;color:var(--gray-400)">±0.0026</span></td>
+          </tr>
+          <tr>
+            <td>Gradient Boosting</td>
+            <td>0.9121 <span style="font-weight:400;color:var(--gray-400)">±0.0033</span></td>
+            <td>0.9252 <span style="font-weight:400;color:var(--gray-400)">±0.0020</span></td>
+            <td>0.9376 <span style="font-weight:400;color:var(--gray-400)">±0.0010</span></td>
+            <td>0.9483 <span style="font-weight:400;color:var(--gray-400)">±0.0017</span></td>
+            <td>0.9560 <span style="font-weight:400;color:var(--gray-400)">±0.0010</span></td>
+          </tr>
+          <tr style="color:var(--gray-500);font-size:.82rem">
+            <td>Field spread (max−min)</td>
+            <td>0.0033</td><td>0.0042</td><td>0.0024</td><td>0.0008</td><td>0.0019</td>
           </tr>
         </tbody>
       </table>
     </div>
+    <div class="tbl-wrap" style="margin-top:.75rem">
+      <table>
+        <thead><tr><th>Model</th><th>β=1.0 T</th><th>β=1.25 T</th><th>β=1.5 T</th><th>β=1.75 T</th><th>β=2.0 T</th></tr></thead>
+        <tbody>
+          <tr><td>CatBoost</td><td>0.510</td><td>0.295</td><td>0.242</td><td>0.186</td><td>0.148</td></tr>
+          <tr><td>Random Forest</td><td>0.548</td><td>0.516</td><td>0.479</td><td>0.462</td><td>0.449</td></tr>
+          <tr><td>LightGBM</td><td>0.459</td><td>0.256</td><td>0.142</td><td>0.099</td><td>0.088</td></tr>
+          <tr><td>Gradient Boosting</td><td>0.475</td><td>0.249</td><td>0.199</td><td>0.136</td><td>0.119</td></tr>
+        </tbody>
+      </table>
+    </div>
     <div class="warn" style="margin-top:1rem;background:var(--blue-lt);border-color:#bfdbfe;border-left-color:var(--blue);color:var(--blue-dk)">
-      <strong>Read this table carefully:</strong> under naive (non-nested) threshold selection, Gradient Boosting appeared to "win" at F2=0.961 — but that was threshold overfitting to one data split. Under proper nested evaluation, all four models land within <strong>0.002 of each other</strong> at F2 (0.956–0.958), which is inside the repeat-to-repeat noise floor (±0.001–0.002). <strong>CatBoost and Random Forest are the honest joint leaders</strong> — the apparent 0.0001 gap between them is not meaningful. Note the very different F2-optimal thresholds per model (0.075 for LightGBM vs. 0.443 for Random Forest) — each model needs its own threshold tuned for the same clinical goal; you cannot reuse one threshold across models.
+      <strong>Read this table carefully:</strong> CatBoost wins at 4 of the 5 β values, Random Forest at β=1.5 — but the "field spread" row shows the gap between best and worst model is only <strong>0.0008–0.0042</strong> at every β, consistently smaller than or comparable to the repeat-to-repeat noise (±0.0002–0.0039). <strong>None of these differences are reliably meaningful</strong> — all four models are practically tied at every β. What <em>is</em> reliable: the score itself rises smoothly and monotonically from ~0.91 (β=1) to ~0.96 (β=2) for every model, and each model's optimal threshold drops sharply as β increases (e.g. CatBoost: 0.510 → 0.148) — exactly the expected behavior as the metric increasingly rewards catching more true positives at the cost of more false alarms. <strong>Practical recommendation:</strong> CatBoost or Random Forest, with the threshold chosen based on how much false-alarm rate is clinically acceptable — not chasing the 4th decimal place of F-β.
     </div>
 
     <div class="warn" style="margin-top:1.5rem">
