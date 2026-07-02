@@ -1186,6 +1186,48 @@
       </div>
     </div>
 
+    <div class="section-label label-ml" style="margin-top:1.5rem">📊 F1 vs. F2 — Balanced vs. Recall-Weighted Threshold</div>
+    <p class="lead" style="margin-bottom:1rem">F1 balances precision and recall equally. F2 weights recall 4× higher — appropriate for SAP triage, where a missed severe case (FN) is clinically worse than a false alarm. F2 values below use <strong>nested cross-validation for threshold selection</strong> (5 repeats) so the score isn't optimistic from tuning the threshold on the same data it's evaluated on — see the section above for why that correction mattered.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Model</th>
+          <th>F1</th><th>F1 Threshold</th>
+          <th>F2 (nested, honest)</th><th>F2 Threshold</th>
+          <th>F2 Stability (±std across 5 repeats)</th>
+        </tr></thead>
+        <tbody>
+          <tr style="background:var(--green-lt);font-weight:600">
+            <td>CatBoost</td>
+            <td class="v-hi">0.926</td><td>0.592</td>
+            <td class="v-hi">0.958</td><td>0.143</td>
+            <td>±0.001</td>
+          </tr>
+          <tr>
+            <td>Random Forest</td>
+            <td>0.917</td><td>0.535</td>
+            <td>0.958</td><td>0.443</td>
+            <td>±0.002</td>
+          </tr>
+          <tr>
+            <td>Gradient Boosting</td>
+            <td>0.918</td><td>0.350</td>
+            <td>0.957</td><td>0.106</td>
+            <td>±0.001</td>
+          </tr>
+          <tr>
+            <td>LightGBM</td>
+            <td>0.918</td><td>0.516</td>
+            <td>0.956</td><td>0.075</td>
+            <td>±0.002</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="warn" style="margin-top:1rem;background:var(--blue-lt);border-color:#bfdbfe;border-left-color:var(--blue);color:var(--blue-dk)">
+      <strong>Read this table carefully:</strong> under naive (non-nested) threshold selection, Gradient Boosting appeared to "win" at F2=0.961 — but that was threshold overfitting to one data split. Under proper nested evaluation, all four models land within <strong>0.002 of each other</strong> at F2 (0.956–0.958), which is inside the repeat-to-repeat noise floor (±0.001–0.002). <strong>CatBoost and Random Forest are the honest joint leaders</strong> — the apparent 0.0001 gap between them is not meaningful. Note the very different F2-optimal thresholds per model (0.075 for LightGBM vs. 0.443 for Random Forest) — each model needs its own threshold tuned for the same clinical goal; you cannot reuse one threshold across models.
+    </div>
+
     <div class="warn" style="margin-top:1.5rem">
       <strong>Limitations:</strong> No external test set — all figures from cross-validation on the same Chinese cohort (n=722). Class imbalance: 585 severe vs 137 mild. Dataset sourced from a single institution and has not been validated on Western or multi-site cohorts. Deep learning and GBDT models are sensitive to random seed and training variance; results may differ slightly on re-training.
     </div>
