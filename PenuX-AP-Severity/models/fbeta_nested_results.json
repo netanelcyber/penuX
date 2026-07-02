@@ -1,0 +1,86 @@
+{
+  "Gradient Boosting": {
+    "beta": 2,
+    "fbeta_mean": 0.9566,
+    "fbeta_std": 0.0011,
+    "threshold_mean": 0.106,
+    "threshold_std": 0.023,
+    "repeat_scores": [
+      0.9572,
+      0.9547,
+      0.9559,
+      0.9579,
+      0.957
+    ],
+    "repeat_thresholds": [
+      0.117,
+      0.093,
+      0.147,
+      0.08,
+      0.094
+    ]
+  },
+  "Random Forest": {
+    "beta": 2,
+    "fbeta_mean": 0.9579,
+    "fbeta_std": 0.0018,
+    "threshold_mean": 0.443,
+    "threshold_std": 0.018,
+    "repeat_scores": [
+      0.9558,
+      0.957,
+      0.9567,
+      0.9605,
+      0.9593
+    ],
+    "repeat_thresholds": [
+      0.45,
+      0.442,
+      0.455,
+      0.41,
+      0.458
+    ]
+  },
+  "LightGBM": {
+    "beta": 2,
+    "fbeta_mean": 0.9563,
+    "fbeta_std": 0.002,
+    "threshold_mean": 0.075,
+    "threshold_std": 0.024,
+    "repeat_scores": [
+      0.956,
+      0.9535,
+      0.9598,
+      0.9557,
+      0.9564
+    ],
+    "repeat_thresholds": [
+      0.064,
+      0.117,
+      0.084,
+      0.061,
+      0.05
+    ]
+  },
+  "CatBoost": {
+    "beta": 2,
+    "fbeta_mean": 0.958,
+    "fbeta_std": 0.001,
+    "threshold_mean": 0.143,
+    "threshold_std": 0.021,
+    "repeat_scores": [
+      0.9577,
+      0.9579,
+      0.9581,
+      0.9567,
+      0.9598
+    ],
+    "repeat_thresholds": [
+      0.175,
+      0.128,
+      0.142,
+      0.156,
+      0.114
+    ]
+  }
+}
