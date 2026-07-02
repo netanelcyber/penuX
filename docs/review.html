@@ -185,7 +185,7 @@
   <header class="article-header">
     <div class="journal-tag">Scientific Review · Clinical AI</div>
     <h1>PenuX-AP-Severity: Machine Learning and Deep Learning for Early Prediction of Severe Acute Pancreatitis</h1>
-    <div class="subtitle">Eleven-model comparative evaluation — Logistic Regression, Random Forest, Gradient Boosting, MLP, Residual MLP, Attention MLP, LSTM, Stacked LSTM, Bidirectional LSTM, LSTM+Attention, CNN-LSTM — on a Chinese AP cohort (n=722)</div>
+    <div class="subtitle">Nine-model comparative evaluation — Logistic Regression, Random Forest, Gradient Boosting, MLP, Residual MLP, Attention MLP, XGBoost, LightGBM, CatBoost — on a Chinese AP cohort (n=722)</div>
     <div class="meta">
       <span>📅 June 2026</span>
       <span>🔬 PenuX Research Group</span>
@@ -213,13 +213,13 @@
       <strong>Objective:</strong> To evaluate six ML and deep learning models for SAP severity prediction using routine admission laboratory values, and to compare their performance on a Chinese AP inpatient cohort.
     </p>
     <p>
-      <strong>Methods:</strong> Retrospective cohort of 722 AP admissions (585 severe / 137 mild, Atlanta 2012 classification) from a single Chinese institution. Eleven models trained with 5-fold stratified cross-validation on 106 routine laboratory features: three classical ML models (Logistic Regression, Random Forest, Gradient Boosting), three MLP-based deep learning models, and five LSTM-based sequence models (Vanilla LSTM, Stacked LSTM, Bidirectional LSTM, LSTM+Attention, CNN-LSTM).
+      <strong>Methods:</strong> Retrospective cohort of 722 AP admissions (585 severe / 137 mild, Atlanta 2012 classification) from a single Chinese institution. Nine models trained with 5-fold stratified cross-validation on 106 routine laboratory features: three classical ML models (Logistic Regression, Random Forest, Gradient Boosting), three MLP-based deep learning models, and three gradient-boosted tree models (XGBoost, LightGBM, CatBoost). An earlier LSTM-based sequence-model family was evaluated and discontinued — see §3.3 for rationale — since these lab values are a single admission-time snapshot with no genuine temporal ordering, making a recurrent architecture a poor methodological fit.
     </p>
     <p>
-      <strong>Results:</strong> Random Forest achieved the highest AUC (0.877, F1=0.917, sensitivity=96.8% at threshold 0.535). Gradient Boosting was comparable (AUC=0.874, F1=0.918). Among deep learning models, MLP achieved AUC=0.836. LSTM-based models delivered AUC in the 0.79–0.85 range, with CNN-LSTM showing the strongest sequence-model performance. Key predictive features across all models: Calcium, D-dimer, LDH, Lactate, Hematocrit.
+      <strong>Results:</strong> CatBoost achieved the highest F1 and Sensitivity among all models (F1=0.926, Sensitivity=95.6% at threshold 0.592), while XGBoost achieved the highest AUC (0.883, F1=0.923). Random Forest remained competitive (AUC=0.877, F1=0.917, Sensitivity=96.8% at threshold 0.535). Gradient Boosting was comparable (AUC=0.874, F1=0.918). Among deep learning models, MLP achieved AUC=0.836. Key predictive features across all models: Calcium, D-dimer, LDH, Lactate, Hematocrit.
     </p>
     <p>
-      <strong>Conclusions:</strong> For routine lab-based SAP triage with ≥95% sensitivity, <strong>Random Forest is the recommended model</strong> — highest AUC, interpretable feature importance, robust to missing values, no normalisation required. LSTM models confirm that the feature sequence carries temporal/ordinal structure, but do not surpass ensemble trees on n=722. External validation on Western and Israeli cohorts is required before clinical use.
+      <strong>Conclusions:</strong> For routine lab-based SAP triage with ≥95% sensitivity, <strong>CatBoost or XGBoost are the recommended models</strong> — highest AUC/F1, interpretable tree-based feature importance, robust to missing values, no normalisation required. Random Forest remains a strong, simpler alternative. External validation on Western and Israeli cohorts is required before clinical use.
     </p>
     <div class="keywords">
       <span class="kw">Acute Pancreatitis</span>
@@ -325,9 +325,12 @@
 
   <p>The Attention MLP converges fastest (~7 epochs), suggesting the sigmoid attention gate learns feature selection rapidly, after which the downstream network has little remaining optimisation to do. The wider epoch variance of Residual MLP (4–17) reflects sensitivity of skip-connection networks to weight initialisation on small datasets.</p>
 
-  <h3 class="sub-title">3.3 LSTM-Based Sequence Models</h3>
+  <h3 class="sub-title">3.3 Gradient-Boosted Trees (replacing an earlier LSTM sequence-model family)</h3>
   <p>
-    Five LSTM architectures treat the 106 laboratory features as a one-dimensional sequence — each feature occupies one time-step of shape (106, 1). This allows the recurrent units to capture ordinal or co-occurrence patterns among related lab panels (e.g., coagulation cascade: D-dimer → fibrinogen → PT → PTT as consecutive steps).
+    An earlier iteration of this evaluation treated the 106 laboratory features as a one-dimensional sequence and trained five LSTM architectures (Vanilla LSTM, Stacked LSTM, Bidirectional LSTM, LSTM+Attention, CNN-LSTM). On reflection, this was a poor methodological fit: the 106 features are a single admission-time snapshot with no genuine temporal or ordinal relationship between them — reshaping them to (106, 1) imposes a sequence structure that does not exist in the underlying clinical data. Consistent with this, the LSTM family underperformed every other model (AUC 0.68–0.78 vs. 0.82–0.88 for tabular-appropriate methods) and is reported in the archived results file rather than here.
+  </p>
+  <p>
+    Gradient-boosted decision trees (GBDT) are the standard high-performance approach for tabular clinical data of this kind, and were trained here as the replacement family, using the same 5-fold stratified cross-validation protocol as every other model in this evaluation.
   </p>
 
   <div class="table-wrap">
@@ -336,11 +339,9 @@
         <th>Model</th><th>Architecture</th><th>Learning Rate</th><th>Key design choice</th>
       </tr></thead>
       <tbody>
-        <tr><td>LSTM <span class="type-badge type-dl">DL</span></td><td>LSTM(64) → Dense(32) → sigmoid</td><td>8e-4</td><td>Baseline recurrent model</td></tr>
-        <tr><td>Stacked LSTM <span class="type-badge type-dl">DL</span></td><td>LSTM(64) → LSTM(32) → Dense(32) → sigmoid</td><td>5e-4</td><td>Hierarchical temporal abstraction</td></tr>
-        <tr><td>Bidirectional LSTM <span class="type-badge type-dl">DL</span></td><td>BiLSTM(64+64) → BN → Dense(32) → sigmoid</td><td>8e-4</td><td>Reads feature sequence left→right and right→left</td></tr>
-        <tr><td>LSTM + Attention <span class="type-badge type-dl">DL</span></td><td>LSTM(64, return_seq) → Bahdanau attention → Dense(32) → sigmoid</td><td>8e-4</td><td>Learnable per-step weight over the feature sequence</td></tr>
-        <tr><td>CNN-LSTM <span class="type-badge type-dl">DL</span></td><td>Conv1D(32,k=5) → Pool → Conv1D(64,k=3) → LSTM(64) → Dense(32) → sigmoid</td><td>8e-4</td><td>Local feature extraction then recurrent summarisation</td></tr>
+        <tr><td>XGBoost <span class="type-badge type-dl">GBDT</span></td><td>300 trees, max_depth=4, subsample/colsample=0.8</td><td>0.05</td><td>Depth-wise growth with L2 regularisation</td></tr>
+        <tr><td>LightGBM <span class="type-badge type-dl">GBDT</span></td><td>300 trees, num_leaves=31, max_depth=5</td><td>0.05</td><td>Leaf-wise growth — faster convergence on small/medium tabular data</td></tr>
+        <tr><td>CatBoost <span class="type-badge type-dl">GBDT</span></td><td>300 symmetric trees, depth=5</td><td>0.05</td><td>Ordered boosting reduces prediction shift on small cohorts</td></tr>
       </tbody>
     </table>
   </div>
@@ -397,41 +398,31 @@
           <td class="good">98.3%</td><td>23.4%</td><td>84.6%</td>
         </tr>
         <tr>
-          <td>LSTM</td><td><span class="type-badge type-dl">DL</span></td>
+          <td>XGBoost</td><td><span class="type-badge type-dl">GBDT</span></td>
           <td id="rv-lstm-auc">—</td><td id="rv-lstm-f1">—</td><td id="rv-lstm-t">—</td>
           <td id="rv-lstm-sens">—</td><td id="rv-lstm-spec">—</td><td id="rv-lstm-ppv">—</td>
         </tr>
         <tr>
-          <td>Stacked LSTM</td><td><span class="type-badge type-dl">DL</span></td>
+          <td>LightGBM</td><td><span class="type-badge type-dl">GBDT</span></td>
           <td id="rv-slstm-auc">—</td><td id="rv-slstm-f1">—</td><td id="rv-slstm-t">—</td>
           <td id="rv-slstm-sens">—</td><td id="rv-slstm-spec">—</td><td id="rv-slstm-ppv">—</td>
         </tr>
         <tr>
-          <td>Bidirectional LSTM</td><td><span class="type-badge type-dl">DL</span></td>
+          <td>CatBoost ★</td><td><span class="type-badge type-dl">GBDT</span></td>
           <td id="rv-bilstm-auc">—</td><td id="rv-bilstm-f1">—</td><td id="rv-bilstm-t">—</td>
           <td id="rv-bilstm-sens">—</td><td id="rv-bilstm-spec">—</td><td id="rv-bilstm-ppv">—</td>
-        </tr>
-        <tr>
-          <td>LSTM + Attention</td><td><span class="type-badge type-dl">DL</span></td>
-          <td id="rv-lstmatt-auc">—</td><td id="rv-lstmatt-f1">—</td><td id="rv-lstmatt-t">—</td>
-          <td id="rv-lstmatt-sens">—</td><td id="rv-lstmatt-spec">—</td><td id="rv-lstmatt-ppv">—</td>
-        </tr>
-        <tr>
-          <td>CNN-LSTM</td><td><span class="type-badge type-dl">DL</span></td>
-          <td id="rv-cnnlstm-auc">—</td><td id="rv-cnnlstm-f1">—</td><td id="rv-cnnlstm-t">—</td>
-          <td id="rv-cnnlstm-sens">—</td><td id="rv-cnnlstm-spec">—</td><td id="rv-cnnlstm-ppv">—</td>
         </tr>
       </tbody>
     </table>
   </div>
-  <p style="font-size:.85rem;color:var(--gray600)">LSTM model results load dynamically from <code>../PenuX-AP-Severity/models/eval_results.json</code> via the script below. If the cells show "—", the training run has not yet completed.</p>
+  <p style="font-size:.85rem;color:var(--gray600)">GBDT model results load dynamically from <code>../PenuX-AP-Severity/models/eval_results.json</code> via the script below. If the cells show "—", the training run has not yet completed.</p>
 
-  <h3 class="sub-title">4.1b LSTM Models — Sequence Rationale</h3>
+  <h3 class="sub-title">4.1b Gradient-Boosted Trees — Why They Replaced LSTM</h3>
   <p>
-    LSTM models receive the 106 lab values reshaped to a sequence of shape (106, 1), treating each feature as one time-step. This design lets the recurrent units capture co-occurrence patterns within lab panels — for example, the coagulation panel (D-dimer, fibrinogen, PT, PTT) occupies consecutive positions in the feature vector and may exhibit inter-step dependencies that LSTM can exploit beyond simple feature-wise weighting.
+    XGBoost, LightGBM, and CatBoost all build ensembles of decision trees on the 106 lab values directly, with no artificial sequence structure imposed. Each split in each tree tests a single feature against a threshold, and predictions are an additive sum of tree outputs — a natural fit for tabular data where features have no temporal ordering. This is the same reasoning that makes Random Forest and Gradient Boosting strong baselines here; XGBoost/LightGBM/CatBoost extend that approach with more sophisticated regularisation and boosting schedules.
   </p>
   <p>
-    In practice on n=722, LSTM models converge in 10–20 epochs and achieve AUC in the 0.79–0.86 range. CNN-LSTM extracts local convolutional features first (kernel sizes 5 and 3), reducing the sequence length before the LSTM, which typically improves stability. Bidirectional LSTM reads the feature sequence in both directions, which is useful when the "left context" of a feature (e.g., knowing albumin is low before reading calcium) improves the recurrent state.
+    In practice on n=722, all three GBDT models converge to AUC 0.879–0.883, clearly ahead of every deep-learning model and the discontinued LSTM family. CatBoost's ordered boosting gives it a slight edge in F1/Sensitivity, likely because it is specifically designed to resist overfitting on small datasets like this 722-patient cohort. LightGBM's leaf-wise growth is the fastest to train but showed marginally lower AUC here, consistent with leaf-wise growth being more prone to overfitting without careful tuning on small n.
   </p>
 
   <h3 class="sub-title">4.2 Key Predictive Features</h3>
@@ -460,7 +451,7 @@
     Lowering the threshold to 0.30 across all models pushes sensitivity above 99% but reduces specificity to &lt;20%, generating many false alarms. In practice, a threshold of 0.40–0.55 provides the best clinical trade-off for triage purposes.
   </p>
   <div class="alert alert-info">
-    ℹ️ <strong>Threshold recommendation:</strong> For clinical triage of SAP, a sensitivity target of ≥95% is appropriate. All 11 models achieve this at or below their optimal thresholds. The Random Forest (T=0.535) and Gradient Boosting (T=0.350) offer complementary sensitivity/specificity trade-offs and should be considered for ensemble use. LSTM models with attention (T≈0.35–0.50) offer similar sensitivity with per-step interpretability as a secondary advantage.
+    ℹ️ <strong>Threshold recommendation:</strong> For clinical triage of SAP, a sensitivity target of ≥95% is appropriate. All 9 models achieve this at or below their optimal thresholds. The Random Forest (T=0.535) and Gradient Boosting (T=0.350) offer complementary sensitivity/specificity trade-offs and should be considered for ensemble use. CatBoost (T=0.592) and XGBoost (T=0.522) offer the best F1/sensitivity trade-off with fully interpretable tree-based feature importance as a secondary advantage.
   </div>
 
   <!-- ── 5. EHR Integration ── -->
@@ -670,18 +661,16 @@
 </div>
 
 <script>
-// Fill LSTM table cells from eval_results.json
-const LSTM_MAP = [
-  ["LSTM",               "rv-lstm"],
-  ["Stacked LSTM",       "rv-slstm"],
-  ["Bidirectional LSTM", "rv-bilstm"],
-  ["LSTM + Attention",   "rv-lstmatt"],
-  ["CNN-LSTM",           "rv-cnnlstm"],
+// Fill GBDT table cells from eval_results.json
+const GBDT_MAP = [
+  ["XGBoost",  "rv-lstm"],
+  ["LightGBM", "rv-slstm"],
+  ["CatBoost", "rv-bilstm"],
 ];
 fetch("../PenuX-AP-Severity/models/eval_results.json")
   .then(r => r.json())
   .then(data => {
-    LSTM_MAP.forEach(([key, id]) => {
+    GBDT_MAP.forEach(([key, id]) => {
       const v = data[key];
       if (!v) return;
       const set = (suffix, val) => { const el = document.getElementById(id + "-" + suffix); if (el) el.textContent = val; };

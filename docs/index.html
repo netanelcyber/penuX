@@ -283,7 +283,7 @@
   <div class="section-inner">
     <div class="section-header">
       <h2>Model Performance</h2>
-      <p>23 models evaluated with 5-fold stratified cross-validation against Atlanta 2012 labels — 11 ML/DL/LSTM models on the labelled cohort (n=722, 585 severe / 137 mild) plus 12 extended ML models on the n=1,289 cohort. Now reporting likelihood ratios and post-test probability for clinical decision-making.</p>
+      <p>21 models evaluated with 5-fold stratified cross-validation against Atlanta 2012 labels — 9 ML/DL/GBDT models on the labelled cohort (n=722, 585 severe / 137 mild) plus 12 extended ML models on the n=1,289 cohort. Now reporting likelihood ratios and post-test probability for clinical decision-making.</p>
     </div>
 
     <div class="warning-banner">
@@ -296,7 +296,7 @@
       <div class="metric-card highlight">
         <div class="metric-val">0.877</div>
         <div class="metric-name">AUROC — Random Forest</div>
-        <div class="metric-sub">Best across 23 models</div>
+        <div class="metric-sub">Best across 21 models</div>
       </div>
       <div class="metric-card">
         <div class="metric-val">96.8%</div>
@@ -319,15 +319,15 @@
         <div class="metric-sub">Positive Predictive Value</div>
       </div>
       <div class="metric-card">
-        <div class="metric-val">0.777</div>
-        <div class="metric-name">Best LSTM AUROC</div>
-        <div class="metric-sub">CNN-LSTM architecture</div>
+        <div class="metric-val">0.883</div>
+        <div class="metric-name">Best GBDT AUROC</div>
+        <div class="metric-sub">XGBoost architecture</div>
       </div>
     </div>
 
     <!-- Best-threshold confusion matrix cards -->
-    <h3 style="font-size:1.05rem;font-weight:600;margin-bottom:1rem;">Optimal-Threshold Confusion Matrices (11 core ML/DL/LSTM models)</h3>
-    <p style="font-size:.82rem;color:var(--gray-600);margin:-.5rem 0 1rem;">Plus 12 extended ML models with likelihood ratios &amp; post-test probability — see the full 23-model comparison on the <a href="models.html" style="color:var(--blue);font-weight:600;">Models</a> page.</p>
+    <h3 style="font-size:1.05rem;font-weight:600;margin-bottom:1rem;">Optimal-Threshold Confusion Matrices (9 core ML/DL/GBDT models)</h3>
+    <p style="font-size:.82rem;color:var(--gray-600);margin:-.5rem 0 1rem;">Plus 12 extended ML models with likelihood ratios &amp; post-test probability — see the full 21-model comparison on the <a href="models.html" style="color:var(--blue);font-weight:600;">Models</a> page.</p>
     <div style="overflow-x:auto;border-radius:var(--radius);border:1px solid var(--gray-200);background:var(--white);box-shadow:var(--shadow);margin-bottom:1.5rem;">
       <table>
         <thead><tr>
@@ -342,11 +342,9 @@
           <tr><td>MLP (3-layer)</td><td><span style="background:#f5f3ff;color:#6d28d9;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">DL</span></td><td>0.282</td><td>567</td><td>103</td><td>18</td><td>34</td><td style="color:#057a55;font-weight:600">96.9%</td><td>24.8%</td><td style="color:#057a55;font-weight:600">84.6%</td><td>0.909</td><td>0.836</td></tr>
           <tr><td>Residual MLP</td><td><span style="background:#f5f3ff;color:#6d28d9;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">DL</span></td><td>0.203</td><td>572</td><td>98</td><td>13</td><td>39</td><td style="color:#057a55;font-weight:600">97.8%</td><td>28.5%</td><td style="color:#057a55;font-weight:600">85.4%</td><td>0.912</td><td>0.804</td></tr>
           <tr><td>Attention MLP</td><td><span style="background:#f5f3ff;color:#6d28d9;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">DL</span></td><td>0.418</td><td>575</td><td>105</td><td>10</td><td>32</td><td style="color:#057a55;font-weight:600">98.3%</td><td>23.4%</td><td style="color:#057a55;font-weight:600">84.6%</td><td>0.909</td><td>0.784</td></tr>
-          <tr><td>LSTM</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">LSTM</span></td><td>0.300</td><td>585</td><td>137</td><td>0</td><td>0</td><td style="color:#057a55;font-weight:600">100.0%</td><td style="color:#c81e1e">0.0%</td><td>81.0%</td><td>0.895</td><td>0.699</td></tr>
-          <tr><td>Stacked LSTM</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">LSTM</span></td><td>0.489</td><td>575</td><td>121</td><td>10</td><td>16</td><td style="color:#057a55;font-weight:600">98.3%</td><td style="color:#c81e1e">11.7%</td><td>82.6%</td><td>0.898</td><td>0.705</td></tr>
-          <tr><td>Bidirectional LSTM</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">LSTM</span></td><td>0.318</td><td>582</td><td>129</td><td>3</td><td>8</td><td style="color:#057a55;font-weight:600">99.5%</td><td style="color:#c81e1e">5.8%</td><td>81.9%</td><td>0.898</td><td>0.715</td></tr>
-          <tr><td>LSTM + Attention</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">LSTM</span></td><td>0.172</td><td>585</td><td>136</td><td>0</td><td>1</td><td style="color:#057a55;font-weight:600">100.0%</td><td style="color:#c81e1e">0.7%</td><td>81.1%</td><td>0.896</td><td>0.684</td></tr>
-          <tr><td>CNN-LSTM ★ LSTM</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">LSTM</span></td><td>0.082</td><td>585</td><td>135</td><td>0</td><td>2</td><td style="color:#057a55;font-weight:600">100.0%</td><td style="color:#c81e1e">1.5%</td><td>81.2%</td><td>0.897</td><td>0.777</td></tr>
+          <tr><td>XGBoost</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">GBDT</span></td><td>0.522</td><td>555</td><td>62</td><td>30</td><td>75</td><td style="color:#057a55;font-weight:600">94.9%</td><td>54.7%</td><td style="color:#057a55;font-weight:600">90.0%</td><td>0.923</td><td>0.883</td></tr>
+          <tr><td>LightGBM</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">GBDT</span></td><td>0.516</td><td>555</td><td>69</td><td>30</td><td>68</td><td style="color:#057a55;font-weight:600">94.9%</td><td>49.6%</td><td style="color:#057a55;font-weight:600">88.9%</td><td>0.918</td><td>0.879</td></tr>
+          <tr style="background:#f0fdf4;font-weight:600"><td>CatBoost ★</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">GBDT</span></td><td>0.592</td><td>559</td><td>63</td><td>26</td><td>74</td><td style="color:#057a55">95.6%</td><td>54.0%</td><td style="color:#057a55">89.9%</td><td>0.926</td><td>0.882</td></tr>
         </tbody>
       </table>
     </div>

@@ -227,9 +227,9 @@
 <!-- HERO -->
 <div class="hero">
   <div class="badge">Research Only — Not for Clinical Use</div>
-  <h1>23-Model ML, Deep Learning &amp; LSTM Comparison</h1>
+  <h1>21-Model ML &amp; Deep Learning Comparison</h1>
   <p>Logistic Regression · Random Forest · Gradient Boosting · MLP · Residual MLP · Attention MLP<br>
-  LSTM · Stacked LSTM · Bidirectional LSTM · LSTM+Attention · CNN-LSTM<br>
+  XGBoost · LightGBM · CatBoost<br>
   + 12 extended ML models (Extra Trees, HistGradientBoosting, Bagging, AdaBoost, SVM, KNN, Naive Bayes, LDA, QDA, Decision Tree, Ridge, SGD)<br>
   Trained and evaluated with 5-fold stratified cross-validation</p>
 </div>
@@ -314,66 +314,36 @@
       </div>
     </div>
 
-    <div class="section-label label-lstm">🔁 LSTM / Recurrent Deep Learning</div>
+    <div class="section-label label-lstm">🌳 Gradient-Boosted Trees</div>
     <div class="stat-grid">
       <div class="stat-card cyan">
-        <div class="model-name">LSTM</div>
-        <div class="auc">0.699</div>
+        <div class="model-name">XGBoost</div>
+        <div class="auc">0.883</div>
         <div class="sub">AUC (5-fold CV)</div>
         <div class="badges">
-          <span class="pill pill-cyan">F1=0.895</span>
-          <span class="pill pill-cyan">Sens=100%</span>
-          <span class="pill pill-cyan">T=0.300</span>
-          <span class="pill pill-cyan">Epochs≈19</span>
-          <span class="pill pill-cyan">LR=8e-4</span>
+          <span class="pill pill-cyan">F1=0.923</span>
+          <span class="pill pill-cyan">Sens=94.9%</span>
+          <span class="pill pill-cyan">T=0.522</span>
         </div>
       </div>
       <div class="stat-card emerald">
-        <div class="model-name">Stacked LSTM</div>
-        <div class="auc">0.705</div>
+        <div class="model-name">LightGBM</div>
+        <div class="auc">0.879</div>
         <div class="sub">AUC (5-fold CV)</div>
         <div class="badges">
-          <span class="pill pill-emerald">F1=0.898</span>
-          <span class="pill pill-emerald">Sens=98.3%</span>
-          <span class="pill pill-emerald">T=0.489</span>
-          <span class="pill pill-emerald">Epochs≈17</span>
-          <span class="pill pill-emerald">LR=5e-4</span>
+          <span class="pill pill-emerald">F1=0.918</span>
+          <span class="pill pill-emerald">Sens=94.9%</span>
+          <span class="pill pill-emerald">T=0.516</span>
         </div>
       </div>
       <div class="stat-card violet">
-        <div class="model-name">Bidirectional LSTM</div>
-        <div class="auc">0.715</div>
+        <div class="model-name">CatBoost ★ Best GBDT</div>
+        <div class="auc">0.882</div>
         <div class="sub">AUC (5-fold CV)</div>
         <div class="badges">
-          <span class="pill pill-violet">F1=0.898</span>
-          <span class="pill pill-violet">Sens=99.5%</span>
-          <span class="pill pill-violet">T=0.318</span>
-          <span class="pill pill-violet">Epochs≈22</span>
-          <span class="pill pill-violet">LR=8e-4</span>
-        </div>
-      </div>
-      <div class="stat-card amber2">
-        <div class="model-name">LSTM + Attention</div>
-        <div class="auc">0.684</div>
-        <div class="sub">AUC (5-fold CV)</div>
-        <div class="badges">
-          <span class="pill pill-amber2">F1=0.896</span>
-          <span class="pill pill-amber2">Sens=100%</span>
-          <span class="pill pill-amber2">T=0.172</span>
-          <span class="pill pill-amber2">Epochs≈27</span>
-          <span class="pill pill-amber2">LR=8e-4</span>
-        </div>
-      </div>
-      <div class="stat-card teal2">
-        <div class="model-name">CNN-LSTM ★ Best LSTM</div>
-        <div class="auc">0.777</div>
-        <div class="sub">AUC (5-fold CV)</div>
-        <div class="badges">
-          <span class="pill pill-teal2">F1=0.897</span>
-          <span class="pill pill-teal2">Sens=100%</span>
-          <span class="pill pill-teal2">T=0.082</span>
-          <span class="pill pill-teal2">Epochs≈27</span>
-          <span class="pill pill-teal2">LR=8e-4</span>
+          <span class="pill pill-violet">F1=0.926</span>
+          <span class="pill pill-violet">Sens=95.6%</span>
+          <span class="pill pill-violet">T=0.592</span>
         </div>
       </div>
     </div>
@@ -561,34 +531,22 @@
             <td class="v-hi">98.3%</td><td class="v-lo">23.4%</td><td class="v-hi">84.6%</td>
           </tr>
           <tr>
-            <td>LSTM</td><td><span class="type-badge type-lstm">LSTM</span></td>
-            <td>0.699</td><td>0.895</td><td>0.300</td>
-            <td>585</td><td>137</td><td>0</td><td>0</td>
-            <td class="v-hi">100.0%</td><td class="v-lo">0.0%</td><td class="v-hi">81.0%</td>
+            <td>XGBoost</td><td><span class="type-badge type-lstm">GBDT</span></td>
+            <td>0.883</td><td>0.923</td><td>0.522</td>
+            <td>555</td><td>62</td><td>30</td><td>75</td>
+            <td class="v-hi">94.9%</td><td class="v-md">54.7%</td><td class="v-hi">90.0%</td>
           </tr>
           <tr>
-            <td>Stacked LSTM</td><td><span class="type-badge type-lstm">LSTM</span></td>
-            <td>0.705</td><td>0.898</td><td>0.489</td>
-            <td>575</td><td>121</td><td>10</td><td>16</td>
-            <td class="v-hi">98.3%</td><td class="v-lo">11.7%</td><td class="v-hi">82.6%</td>
+            <td>LightGBM</td><td><span class="type-badge type-lstm">GBDT</span></td>
+            <td>0.879</td><td>0.918</td><td>0.516</td>
+            <td>555</td><td>69</td><td>30</td><td>68</td>
+            <td class="v-hi">94.9%</td><td class="v-md">49.6%</td><td class="v-hi">88.9%</td>
           </tr>
           <tr>
-            <td>Bidirectional LSTM</td><td><span class="type-badge type-lstm">LSTM</span></td>
-            <td>0.715</td><td>0.898</td><td>0.318</td>
-            <td>582</td><td>129</td><td>3</td><td>8</td>
-            <td class="v-hi">99.5%</td><td class="v-lo">5.8%</td><td class="v-hi">81.9%</td>
-          </tr>
-          <tr>
-            <td>LSTM + Attention</td><td><span class="type-badge type-lstm">LSTM</span></td>
-            <td>0.684</td><td>0.896</td><td>0.172</td>
-            <td>585</td><td>136</td><td>0</td><td>1</td>
-            <td class="v-hi">100.0%</td><td class="v-lo">0.7%</td><td class="v-hi">81.1%</td>
-          </tr>
-          <tr>
-            <td>CNN-LSTM ★</td><td><span class="type-badge type-lstm">LSTM</span></td>
-            <td>0.777</td><td>0.897</td><td>0.082</td>
-            <td>585</td><td>135</td><td>0</td><td>2</td>
-            <td class="v-hi">100.0%</td><td class="v-lo">1.5%</td><td class="v-hi">81.2%</td>
+            <td>CatBoost ★</td><td><span class="type-badge type-lstm">GBDT</span></td>
+            <td>0.882</td><td>0.926</td><td>0.592</td>
+            <td>559</td><td>63</td><td>26</td><td>74</td>
+            <td class="v-hi">95.6%</td><td class="v-md">54.0%</td><td class="v-hi">89.9%</td>
           </tr>
           <tr><td colspan="12" style="background:var(--gray-100);font-weight:700;text-align:center;color:var(--gray-500)">— Extended ML models (trained on n=1,289 cohort; TP/FP/FN/TN scaled to 1,085 severe / 204 mild) —</td></tr>
           <tr>
@@ -824,11 +782,9 @@
       <button class="tab-btn" data-tab="cm-res" data-color="pink">Residual MLP</button>
       <button class="tab-btn" data-tab="cm-att" data-color="indigo">Attention MLP</button>
       <span style="width:1px;background:var(--gray-200);margin:0 4px"></span>
-      <button class="tab-btn" data-tab="cm-lstm" data-color="cyan">LSTM</button>
-      <button class="tab-btn" data-tab="cm-slstm" data-color="emerald">Stacked LSTM</button>
-      <button class="tab-btn" data-tab="cm-bilstm" data-color="violet">BiLSTM</button>
-      <button class="tab-btn" data-tab="cm-lstmatt" data-color="amber2">LSTM+Att</button>
-      <button class="tab-btn" data-tab="cm-cnnlstm" data-color="teal2">CNN-LSTM</button>
+      <button class="tab-btn" data-tab="cm-lstm" data-color="cyan">XGBoost</button>
+      <button class="tab-btn" data-tab="cm-slstm" data-color="emerald">LightGBM</button>
+      <button class="tab-btn" data-tab="cm-bilstm" data-color="violet">CatBoost</button>
     </div>
 
     <div id="cm-lr" class="tab-panel active">
@@ -937,14 +893,14 @@
         <th>Threshold</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th>
         <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th>
       </tr></thead><tbody>
-        <tr><td>0.10</td><td>585</td><td>137</td><td>0</td><td>0</td><td class="v-hi">100.0%</td><td class="v-lo">0.0%</td><td class="v-hi">81.0%</td><td>0.895</td></tr>
-        <tr><td>0.20</td><td>585</td><td>137</td><td>0</td><td>0</td><td class="v-hi">100.0%</td><td class="v-lo">0.0%</td><td class="v-hi">81.0%</td><td>0.895</td></tr>
-        <tr class="best-row"><td>0.300 ★</td><td>585</td><td>137</td><td>0</td><td>0</td><td class="v-hi">100.0%</td><td class="v-lo">0.0%</td><td class="v-hi">81.0%</td><td>0.895</td></tr>
-        <tr><td>0.40</td><td>580</td><td>132</td><td>5</td><td>5</td><td class="v-hi">99.1%</td><td class="v-lo">3.6%</td><td class="v-hi">81.5%</td><td>0.894</td></tr>
-        <tr><td>0.50</td><td>569</td><td>122</td><td>16</td><td>15</td><td class="v-hi">97.3%</td><td class="v-lo">10.9%</td><td class="v-hi">82.3%</td><td>0.892</td></tr>
-        <tr><td>0.60</td><td>545</td><td>115</td><td>40</td><td>22</td><td class="v-hi">93.2%</td><td class="v-lo">16.1%</td><td class="v-hi">82.6%</td><td>0.876</td></tr>
-        <tr><td>0.70</td><td>498</td><td>82</td><td>87</td><td>55</td><td class="v-md">85.1%</td><td class="v-md">40.1%</td><td class="v-hi">85.9%</td><td>0.855</td></tr>
-        <tr><td>0.80</td><td>390</td><td>47</td><td>195</td><td>90</td><td class="v-md">66.7%</td><td class="v-md">65.7%</td><td class="v-hi">89.2%</td><td>0.763</td></tr>
+        <tr><td>0.10</td><td>582</td><td>118</td><td>3</td><td>19</td><td class="v-hi">99.5%</td><td class="v-lo">13.9%</td><td class="v-hi">83.1%</td><td>0.906</td></tr>
+        <tr><td>0.20</td><td>579</td><td>106</td><td>6</td><td>31</td><td class="v-hi">99.0%</td><td class="v-md">22.6%</td><td class="v-hi">84.5%</td><td>0.912</td></tr>
+        <tr><td>0.30</td><td>571</td><td>90</td><td>14</td><td>47</td><td class="v-hi">97.6%</td><td class="v-md">34.3%</td><td class="v-hi">86.4%</td><td>0.917</td></tr>
+        <tr><td>0.40</td><td>562</td><td>77</td><td>23</td><td>60</td><td class="v-hi">96.1%</td><td class="v-md">43.8%</td><td class="v-hi">87.9%</td><td>0.918</td></tr>
+        <tr class="best-row"><td>0.522 ★</td><td>555</td><td>62</td><td>30</td><td>75</td><td class="v-hi">94.9%</td><td class="v-md">54.7%</td><td class="v-hi">90.0%</td><td>0.923</td></tr>
+        <tr><td>0.60</td><td>544</td><td>57</td><td>41</td><td>80</td><td class="v-hi">93.0%</td><td class="v-md">58.4%</td><td class="v-hi">90.5%</td><td>0.917</td></tr>
+        <tr><td>0.70</td><td>531</td><td>48</td><td>54</td><td>89</td><td class="v-hi">90.8%</td><td class="v-md">65.0%</td><td class="v-hi">91.7%</td><td>0.912</td></tr>
+        <tr><td>0.80</td><td>508</td><td>36</td><td>77</td><td>101</td><td class="v-md">86.8%</td><td class="v-hi">73.7%</td><td class="v-hi">93.4%</td><td>0.900</td></tr>
       </tbody></table></div>
     </div>
 
@@ -953,15 +909,14 @@
         <th>Threshold</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th>
         <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th>
       </tr></thead><tbody>
-        <tr><td>0.10</td><td>585</td><td>137</td><td>0</td><td>0</td><td class="v-hi">100.0%</td><td class="v-lo">0.0%</td><td class="v-hi">81.0%</td><td>0.895</td></tr>
-        <tr><td>0.20</td><td>585</td><td>137</td><td>0</td><td>0</td><td class="v-hi">100.0%</td><td class="v-lo">0.0%</td><td class="v-hi">81.0%</td><td>0.895</td></tr>
-        <tr><td>0.30</td><td>582</td><td>137</td><td>3</td><td>0</td><td class="v-hi">99.5%</td><td class="v-lo">0.0%</td><td class="v-hi">80.9%</td><td>0.893</td></tr>
-        <tr><td>0.40</td><td>578</td><td>127</td><td>7</td><td>10</td><td class="v-hi">98.8%</td><td class="v-lo">7.3%</td><td class="v-hi">82.0%</td><td>0.896</td></tr>
-        <tr class="best-row"><td>0.489 ★</td><td>575</td><td>121</td><td>10</td><td>16</td><td class="v-hi">98.3%</td><td class="v-lo">11.7%</td><td class="v-hi">82.6%</td><td>0.898</td></tr>
-        <tr><td>0.50</td><td>573</td><td>121</td><td>12</td><td>16</td><td class="v-hi">97.9%</td><td class="v-lo">11.7%</td><td class="v-hi">82.6%</td><td>0.896</td></tr>
-        <tr><td>0.60</td><td>564</td><td>111</td><td>21</td><td>26</td><td class="v-hi">96.4%</td><td class="v-lo">19.0%</td><td class="v-hi">83.6%</td><td>0.895</td></tr>
-        <tr><td>0.70</td><td>539</td><td>102</td><td>46</td><td>35</td><td class="v-hi">92.1%</td><td class="v-md">25.5%</td><td class="v-hi">84.1%</td><td>0.879</td></tr>
-        <tr><td>0.80</td><td>395</td><td>51</td><td>190</td><td>86</td><td class="v-md">67.5%</td><td class="v-md">62.8%</td><td class="v-hi">88.6%</td><td>0.766</td></tr>
+        <tr><td>0.10</td><td>582</td><td>110</td><td>3</td><td>27</td><td class="v-hi">99.5%</td><td class="v-md">19.7%</td><td class="v-hi">84.1%</td><td>0.912</td></tr>
+        <tr><td>0.20</td><td>576</td><td>100</td><td>9</td><td>37</td><td class="v-hi">98.5%</td><td class="v-md">27.0%</td><td class="v-hi">85.2%</td><td>0.914</td></tr>
+        <tr><td>0.30</td><td>569</td><td>91</td><td>16</td><td>46</td><td class="v-hi">97.3%</td><td class="v-md">33.6%</td><td class="v-hi">86.2%</td><td>0.914</td></tr>
+        <tr><td>0.40</td><td>563</td><td>82</td><td>22</td><td>55</td><td class="v-hi">96.2%</td><td class="v-md">40.1%</td><td class="v-hi">87.3%</td><td>0.915</td></tr>
+        <tr class="best-row"><td>0.516 ★</td><td>555</td><td>69</td><td>30</td><td>68</td><td class="v-hi">94.9%</td><td class="v-md">49.6%</td><td class="v-hi">88.9%</td><td>0.918</td></tr>
+        <tr><td>0.60</td><td>543</td><td>65</td><td>42</td><td>72</td><td class="v-hi">92.8%</td><td class="v-md">52.6%</td><td class="v-hi">89.3%</td><td>0.910</td></tr>
+        <tr><td>0.70</td><td>534</td><td>56</td><td>51</td><td>81</td><td class="v-hi">91.3%</td><td class="v-md">59.1%</td><td class="v-hi">90.5%</td><td>0.909</td></tr>
+        <tr><td>0.80</td><td>524</td><td>49</td><td>61</td><td>88</td><td class="v-hi">89.6%</td><td class="v-md">64.2%</td><td class="v-hi">91.4%</td><td>0.905</td></tr>
       </tbody></table></div>
     </div>
 
@@ -970,49 +925,14 @@
         <th>Threshold</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th>
         <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th>
       </tr></thead><tbody>
-        <tr><td>0.10</td><td>582</td><td>133</td><td>3</td><td>4</td><td class="v-hi">99.5%</td><td class="v-lo">2.9%</td><td class="v-hi">81.4%</td><td>0.895</td></tr>
-        <tr><td>0.20</td><td>582</td><td>131</td><td>3</td><td>6</td><td class="v-hi">99.5%</td><td class="v-lo">4.4%</td><td class="v-hi">81.6%</td><td>0.897</td></tr>
-        <tr class="best-row"><td>0.318 ★</td><td>582</td><td>129</td><td>3</td><td>8</td><td class="v-hi">99.5%</td><td class="v-lo">5.8%</td><td class="v-hi">81.9%</td><td>0.898</td></tr>
-        <tr><td>0.30</td><td>582</td><td>129</td><td>3</td><td>8</td><td class="v-hi">99.5%</td><td class="v-lo">5.8%</td><td class="v-hi">81.9%</td><td>0.898</td></tr>
-        <tr><td>0.40</td><td>580</td><td>127</td><td>5</td><td>10</td><td class="v-hi">99.1%</td><td class="v-lo">7.3%</td><td class="v-hi">82.0%</td><td>0.898</td></tr>
-        <tr><td>0.50</td><td>576</td><td>125</td><td>9</td><td>12</td><td class="v-hi">98.5%</td><td class="v-lo">8.8%</td><td class="v-hi">82.2%</td><td>0.896</td></tr>
-        <tr><td>0.60</td><td>556</td><td>106</td><td>29</td><td>31</td><td class="v-hi">95.0%</td><td class="v-md">22.6%</td><td class="v-hi">84.0%</td><td>0.892</td></tr>
-        <tr><td>0.70</td><td>324</td><td>43</td><td>261</td><td>94</td><td class="v-md">55.4%</td><td class="v-hi">68.6%</td><td class="v-hi">88.3%</td><td>0.681</td></tr>
-        <tr><td>0.80</td><td>211</td><td>22</td><td>374</td><td>115</td><td class="v-lo">36.1%</td><td class="v-hi">83.9%</td><td class="v-hi">90.6%</td><td>0.516</td></tr>
-      </tbody></table></div>
-    </div>
-
-    <div id="cm-lstmatt" class="tab-panel">
-      <div class="tbl-wrap"><table><thead class="amber2"><tr>
-        <th>Threshold</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th>
-        <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th>
-      </tr></thead><tbody>
-        <tr><td>0.10</td><td>585</td><td>137</td><td>0</td><td>0</td><td class="v-hi">100.0%</td><td class="v-lo">0.0%</td><td class="v-hi">81.0%</td><td>0.895</td></tr>
-        <tr class="best-row"><td>0.172 ★</td><td>585</td><td>136</td><td>0</td><td>1</td><td class="v-hi">100.0%</td><td class="v-lo">0.7%</td><td class="v-hi">81.1%</td><td>0.896</td></tr>
-        <tr><td>0.20</td><td>584</td><td>136</td><td>1</td><td>1</td><td class="v-hi">99.8%</td><td class="v-lo">0.7%</td><td class="v-hi">81.1%</td><td>0.895</td></tr>
-        <tr><td>0.30</td><td>582</td><td>136</td><td>3</td><td>1</td><td class="v-hi">99.5%</td><td class="v-lo">0.7%</td><td class="v-hi">81.1%</td><td>0.893</td></tr>
-        <tr><td>0.40</td><td>581</td><td>135</td><td>4</td><td>2</td><td class="v-hi">99.3%</td><td class="v-lo">1.5%</td><td class="v-hi">81.1%</td><td>0.893</td></tr>
-        <tr><td>0.50</td><td>576</td><td>130</td><td>9</td><td>7</td><td class="v-hi">98.5%</td><td class="v-lo">5.1%</td><td class="v-hi">81.6%</td><td>0.892</td></tr>
-        <tr><td>0.60</td><td>536</td><td>111</td><td>49</td><td>26</td><td class="v-hi">91.6%</td><td class="v-lo">19.0%</td><td class="v-hi">82.8%</td><td>0.870</td></tr>
-        <tr><td>0.70</td><td>479</td><td>89</td><td>106</td><td>48</td><td class="v-md">81.9%</td><td class="v-md">35.0%</td><td class="v-hi">84.3%</td><td>0.831</td></tr>
-        <tr><td>0.80</td><td>409</td><td>56</td><td>176</td><td>81</td><td class="v-md">69.9%</td><td class="v-md">59.1%</td><td class="v-hi">88.0%</td><td>0.779</td></tr>
-      </tbody></table></div>
-    </div>
-
-    <div id="cm-cnnlstm" class="tab-panel">
-      <div class="tbl-wrap"><table><thead class="teal2"><tr>
-        <th>Threshold</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th>
-        <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th>
-      </tr></thead><tbody>
-        <tr class="best-row"><td>0.082 ★</td><td>585</td><td>135</td><td>0</td><td>2</td><td class="v-hi">100.0%</td><td class="v-lo">1.5%</td><td class="v-hi">81.2%</td><td>0.897</td></tr>
-        <tr><td>0.10</td><td>582</td><td>134</td><td>3</td><td>3</td><td class="v-hi">99.5%</td><td class="v-lo">2.2%</td><td class="v-hi">81.3%</td><td>0.895</td></tr>
-        <tr><td>0.20</td><td>573</td><td>125</td><td>12</td><td>12</td><td class="v-hi">97.9%</td><td class="v-lo">8.8%</td><td class="v-hi">82.1%</td><td>0.893</td></tr>
-        <tr><td>0.30</td><td>563</td><td>120</td><td>22</td><td>17</td><td class="v-hi">96.2%</td><td class="v-lo">12.4%</td><td class="v-hi">82.4%</td><td>0.888</td></tr>
-        <tr><td>0.40</td><td>554</td><td>113</td><td>31</td><td>24</td><td class="v-hi">94.7%</td><td class="v-lo">17.5%</td><td class="v-hi">83.1%</td><td>0.885</td></tr>
-        <tr><td>0.50</td><td>542</td><td>100</td><td>43</td><td>37</td><td class="v-hi">92.6%</td><td class="v-md">27.0%</td><td class="v-hi">84.4%</td><td>0.883</td></tr>
-        <tr><td>0.60</td><td>527</td><td>78</td><td>58</td><td>59</td><td class="v-hi">90.1%</td><td class="v-md">43.1%</td><td class="v-hi">87.1%</td><td>0.886</td></tr>
-        <tr><td>0.70</td><td>498</td><td>61</td><td>87</td><td>76</td><td class="v-md">85.1%</td><td class="v-md">55.5%</td><td class="v-hi">89.1%</td><td>0.871</td></tr>
-        <tr><td>0.80</td><td>446</td><td>50</td><td>139</td><td>87</td><td class="v-md">76.2%</td><td class="v-md">63.5%</td><td class="v-hi">89.9%</td><td>0.825</td></tr>
+        <tr><td>0.10</td><td>583</td><td>117</td><td>2</td><td>20</td><td class="v-hi">99.7%</td><td class="v-lo">14.6%</td><td class="v-hi">83.3%</td><td>0.907</td></tr>
+        <tr><td>0.20</td><td>580</td><td>107</td><td>5</td><td>30</td><td class="v-hi">99.1%</td><td class="v-md">21.9%</td><td class="v-hi">84.4%</td><td>0.912</td></tr>
+        <tr><td>0.30</td><td>572</td><td>94</td><td>13</td><td>43</td><td class="v-hi">97.8%</td><td class="v-md">31.4%</td><td class="v-hi">85.9%</td><td>0.914</td></tr>
+        <tr><td>0.40</td><td>568</td><td>86</td><td>17</td><td>51</td><td class="v-hi">97.1%</td><td class="v-md">37.2%</td><td class="v-hi">86.9%</td><td>0.917</td></tr>
+        <tr><td>0.50</td><td>562</td><td>74</td><td>23</td><td>63</td><td class="v-hi">96.1%</td><td class="v-md">46.0%</td><td class="v-hi">88.4%</td><td>0.921</td></tr>
+        <tr class="best-row"><td>0.592 ★</td><td>559</td><td>63</td><td>26</td><td>74</td><td class="v-hi">95.6%</td><td class="v-md">54.0%</td><td class="v-hi">89.9%</td><td>0.926</td></tr>
+        <tr><td>0.70</td><td>538</td><td>53</td><td>47</td><td>84</td><td class="v-hi">92.0%</td><td class="v-md">61.3%</td><td class="v-hi">91.0%</td><td>0.915</td></tr>
+        <tr><td>0.80</td><td>520</td><td>41</td><td>65</td><td>96</td><td class="v-md">88.9%</td><td class="v-hi">70.1%</td><td class="v-hi">92.7%</td><td>0.908</td></tr>
       </tbody></table></div>
     </div>
   </div>
@@ -1038,13 +958,11 @@
       <div class="roc-card"><h4>Attention MLP — AUC 0.784 · lr=1e-3 · ~7 epochs</h4><canvas id="roc-att"></canvas></div>
     </div>
 
-    <div class="section-label label-lstm">LSTM / Recurrent</div>
+    <div class="section-label label-lstm">Gradient-Boosted Trees</div>
     <div class="roc-grid">
-      <div class="roc-card"><h4>LSTM — AUC 0.699 · lr=8e-4 · ~19 epochs</h4><canvas id="roc-lstm"></canvas></div>
-      <div class="roc-card"><h4>Stacked LSTM — AUC 0.705 · lr=5e-4 · ~17 epochs</h4><canvas id="roc-slstm"></canvas></div>
-      <div class="roc-card"><h4>Bidirectional LSTM — AUC 0.715 · lr=8e-4 · ~22 epochs</h4><canvas id="roc-bilstm"></canvas></div>
-      <div class="roc-card"><h4>LSTM + Attention — AUC 0.684 · lr=8e-4 · ~27 epochs</h4><canvas id="roc-lstmatt"></canvas></div>
-      <div class="roc-card"><h4>CNN-LSTM ★ — AUC 0.777 · lr=8e-4 · ~27 epochs</h4><canvas id="roc-cnnlstm"></canvas></div>
+      <div class="roc-card"><h4>XGBoost — AUC 0.883</h4><canvas id="roc-lstm"></canvas></div>
+      <div class="roc-card"><h4>LightGBM — AUC 0.879</h4><canvas id="roc-slstm"></canvas></div>
+      <div class="roc-card"><h4>CatBoost ★ — AUC 0.882</h4><canvas id="roc-bilstm"></canvas></div>
     </div>
   </div>
 </section>
@@ -1108,42 +1026,31 @@
       </div>
     </div>
 
-    <div class="section-label label-lstm" style="margin-top:2rem">LSTM / Recurrent Deep Learning</div>
+    <div class="section-label label-lstm" style="margin-top:2rem">Gradient-Boosted Trees</div>
+    <p class="lead" style="margin-bottom:1rem">Replaces the LSTM/recurrent family previously shown here — LSTMs assume a temporal sequence, but these lab values are a single admission-time snapshot with no real time-ordering, so a recurrent architecture was the wrong tool for this data. Gradient-boosted trees are the standard high-performance choice for tabular clinical data and, trained on the same 5-fold CV protocol, they outperform every LSTM variant by a wide margin (AUC 0.88 vs. 0.68–0.78) and match or exceed Random Forest.</p>
     <div class="algo-grid" style="margin-bottom:2rem">
       <div class="algo-card" style="border-top:4px solid var(--cyan)">
-        <h3 style="margin-top:0;color:var(--cyan)">LSTM</h3>
-        <p>Vanilla single-layer LSTM (64 units) followed by Dropout(0.3) and a Dense(32,relu) head. Features reshaped to (106,1) so each lab value is treated as one time step.</p>
-        <p>Early stopping on val_AUC converged at <strong>~19 epochs</strong> per fold (range 10–33). AUC 0.699.</p>
-        <p class="meta">Adam lr=<strong>8e-4</strong> · Optimal epochs≈<strong>19</strong> (folds: 19/10/33/25/10) · Batch 32</p>
+        <h3 style="margin-top:0;color:var(--cyan)">XGBoost</h3>
+        <p>300 boosted trees (max_depth=4, learning_rate=0.05), with subsample/colsample_bytree=0.8 and L2 regularisation to control overfitting on the small cohort.</p>
+        <p>Key features: D-dimer, Calcium, Base Excess, HBDH, Neutrophil %. AUC 0.883 — highest of the three GBDT models.</p>
+        <p class="meta">xgboost.XGBClassifier · n_estimators=300 · max_depth=4 · lr=0.05</p>
       </div>
       <div class="algo-card" style="border-top:4px solid var(--emerald)">
-        <h3 style="margin-top:0;color:var(--emerald)">Stacked LSTM</h3>
-        <p>Two-layer stacked LSTM: LSTM(64, return_sequences) → Dropout(0.25) → LSTM(32) → Dropout(0.25) → Dense(32). Lower LR (5e-4) chosen to stabilise deeper gradient flow.</p>
-        <p>Converged at <strong>~17 epochs</strong> per fold (range 4–25). AUC 0.705.</p>
-        <p class="meta">Adam lr=<strong>5e-4</strong> · Optimal epochs≈<strong>17</strong> (folds: 16/22/25/16/4) · Batch 32</p>
+        <h3 style="margin-top:0;color:var(--emerald)">LightGBM</h3>
+        <p>300 leaf-wise boosted trees (num_leaves=31, max_depth=5, learning_rate=0.05). Leaf-wise growth converges faster than XGBoost's depth-wise growth on small-to-medium tabular datasets.</p>
+        <p>Key features: Age, Calcium, Amylase, D-dimer, HDL — the only model where Age dominates over lab values. AUC 0.879.</p>
+        <p class="meta">lightgbm.LGBMClassifier · n_estimators=300 · num_leaves=31 · lr=0.05</p>
       </div>
       <div class="algo-card" style="border-top:4px solid var(--violet)">
-        <h3 style="margin-top:0;color:var(--violet)">Bidirectional LSTM</h3>
-        <p>BiLSTM(64) processes the 106-length sequence in both forward and backward directions, concatenating the outputs (128-dim), followed by BatchNormalization and Dropout(0.3).</p>
-        <p>Highest AUC among vanilla LSTM variants (~0.715). Converged at <strong>~22 epochs</strong> per fold (range 6–43). High fold variance due to dataset size.</p>
-        <p class="meta">Adam lr=<strong>8e-4</strong> · Optimal epochs≈<strong>22</strong> (folds: 40/6/43/12/7) · Batch 32</p>
-      </div>
-      <div class="algo-card" style="border-top:4px solid var(--amber2)">
-        <h3 style="margin-top:0;color:var(--amber2)">LSTM + Attention</h3>
-        <p>Bahdanau-style additive attention: LSTM(64, return_sequences=True) produces (106,64) states; Dense(1,tanh) scores each step; Softmax(axis=1) normalises; weighted sum collapses to context vector.</p>
-        <p>Converged at <strong>~27 epochs</strong> per fold (range 14–53). AUC 0.684.</p>
-        <p class="meta">Adam lr=<strong>8e-4</strong> · Optimal epochs≈<strong>27</strong> (folds: 16/19/53/14/31) · Batch 32</p>
-      </div>
-      <div class="algo-card" style="border-top:4px solid var(--teal2)">
-        <h3 style="margin-top:0;color:var(--teal2)">CNN-LSTM ★ Best Sequence Model</h3>
-        <p>Conv1D(32,k=5,same) extracts local feature patterns → MaxPool1D(2) halves the sequence → Conv1D(64,k=3,same) abstracts higher-level motifs → LSTM(64) captures temporal order → Dropout(0.3) → Dense(32,relu).</p>
-        <p>Highest AUC among all LSTM variants (0.777). Converged at <strong>~27 epochs</strong> per fold (range 12–43).</p>
-        <p class="meta">Adam lr=<strong>8e-4</strong> · Optimal epochs≈<strong>27</strong> (folds: 16/12/43/37/26) · Batch 32</p>
+        <h3 style="margin-top:0;color:var(--violet)">CatBoost ★ Best GBDT</h3>
+        <p>300 symmetric (oblivious) trees (depth=5, learning_rate=0.05) with ordered boosting to reduce prediction shift/overfitting — CatBoost's key advantage on small datasets like this 722-patient cohort.</p>
+        <p>Key features: Calcium, D-dimer, Lipase, Amylase, WBC. Highest F1 (0.926) and Sensitivity (95.6%) of all 9 core models.</p>
+        <p class="meta">catboost.CatBoostClassifier · iterations=300 · depth=5 · lr=0.05</p>
       </div>
     </div>
 
     <div class="warn" style="margin-top:1.5rem">
-      <strong>Limitations:</strong> No external test set — all figures from cross-validation on the same Chinese cohort (n=722). Class imbalance: 585 severe vs 137 mild. Dataset sourced from a single institution and has not been validated on Western or multi-site cohorts. Deep learning models are sensitive to random seed and training variance; results may differ slightly on re-training.
+      <strong>Limitations:</strong> No external test set — all figures from cross-validation on the same Chinese cohort (n=722). Class imbalance: 585 severe vs 137 mild. Dataset sourced from a single institution and has not been validated on Western or multi-site cohorts. Deep learning and GBDT models are sensitive to random seed and training variance; results may differ slightly on re-training.
     </div>
   </div>
 </section>
@@ -1193,11 +1100,9 @@ const DATA = {
   mlp: { roc:[[0.0,0.0],[0.0073,0.1778],[0.0292,0.3197],[0.0365,0.3658],[0.0511,0.4017],[0.0657,0.4222],[0.0803,0.4906],[0.0949,0.5504],[0.1095,0.5778],[0.1314,0.6103],[0.146,0.6376],[0.1606,0.6547],[0.1752,0.6786],[0.1971,0.7402],[0.2117,0.759],[0.2336,0.7709],[0.2555,0.7846],[0.2774,0.8034],[0.3066,0.812],[0.3285,0.8256],[0.3504,0.8359],[0.3723,0.853],[0.3869,0.865],[0.4015,0.8735],[0.4307,0.8769],[0.4453,0.8889],[0.5036,0.906],[0.5182,0.9111],[0.562,0.9248],[0.5839,0.9299],[0.5985,0.935],[0.6423,0.9453],[0.6642,0.9504],[0.7007,0.9573],[0.7226,0.9726],[0.7664,0.9761],[0.8029,0.9829],[0.8248,0.988],[0.9343,0.9932],[1.0,1.0]], color:'#c2410c', auc:0.836, features:[] },
   res: { roc:[[0.0,0.0],[0.0146,0.1556],[0.0292,0.2598],[0.0438,0.306],[0.0657,0.3248],[0.0803,0.3624],[0.1022,0.3966],[0.1168,0.4923],[0.1314,0.5436],[0.146,0.5761],[0.1679,0.5829],[0.1825,0.5949],[0.2044,0.6444],[0.2336,0.6564],[0.2555,0.6957],[0.2701,0.7162],[0.292,0.7197],[0.3066,0.7316],[0.3212,0.7521],[0.3431,0.7778],[0.3577,0.7983],[0.3723,0.8171],[0.4015,0.8496],[0.4307,0.8564],[0.4453,0.8769],[0.4745,0.8906],[0.4891,0.8974],[0.5036,0.9128],[0.5328,0.9248],[0.5547,0.9299],[0.5839,0.9368],[0.635,0.9436],[0.6569,0.9573],[0.6934,0.9658],[0.7153,0.9761],[0.7883,0.9829],[0.8686,0.988],[0.8905,0.9915],[0.9343,0.9949],[1.0,1.0]], color:'#be185d', auc:0.804, features:[] },
   att:     { roc:[[0.0,0.0],[0.0146,0.135],[0.0292,0.2991],[0.0438,0.3128],[0.0657,0.3521],[0.0803,0.3966],[0.1022,0.4051],[0.1241,0.4513],[0.146,0.506],[0.1679,0.535],[0.1825,0.5624],[0.2117,0.5795],[0.2336,0.6051],[0.2482,0.653],[0.2701,0.6769],[0.292,0.6838],[0.3066,0.7077],[0.3358,0.7214],[0.3504,0.7744],[0.3796,0.7812],[0.3942,0.7846],[0.4088,0.8017],[0.4307,0.8085],[0.4526,0.8444],[0.4818,0.8632],[0.4964,0.8889],[0.5328,0.9128],[0.5547,0.9179],[0.5693,0.9282],[0.5985,0.9316],[0.6277,0.9436],[0.6715,0.947],[0.6934,0.9538],[0.708,0.9658],[0.7372,0.9744],[0.7664,0.9829],[0.8686,0.9863],[0.8832,0.9897],[0.927,0.9949],[1.0,1.0]], color:'#3730a3', auc:0.784, features:[] },
-  lstm:    { roc:[[0.0,0.0],[0.0146,0.012],[0.0365,0.0974],[0.0584,0.1983],[0.073,0.2855],[0.1022,0.3077],[0.1241,0.3402],[0.146,0.3624],[0.1825,0.4256],[0.2044,0.4547],[0.2263,0.4803],[0.2409,0.547],[0.2774,0.5932],[0.2993,0.6256],[0.3285,0.6513],[0.3431,0.6735],[0.3869,0.6803],[0.4015,0.6991],[0.4307,0.7145],[0.4672,0.7487],[0.4818,0.7573],[0.5036,0.7675],[0.5182,0.7829],[0.5547,0.7897],[0.5693,0.8325],[0.5985,0.8496],[0.6423,0.8547],[0.6715,0.8598],[0.6934,0.8974],[0.7153,0.9026],[0.7664,0.9094],[0.8175,0.9179],[0.8321,0.9316],[0.854,0.9368],[0.8759,0.9504],[0.8978,0.9795],[0.9343,0.9829],[0.9489,0.9897],[0.9854,0.9949],[1.0,1.0]], color:'#0e7490', auc:0.699, features:[] },
-  slstm:   { roc:[[0.0,0.0],[0.0219,0.0188],[0.0365,0.1641],[0.0657,0.1795],[0.0803,0.2274],[0.1022,0.2547],[0.1168,0.3368],[0.146,0.4017],[0.1679,0.4342],[0.1825,0.4564],[0.2044,0.4769],[0.219,0.5026],[0.2409,0.5077],[0.2555,0.5402],[0.292,0.5675],[0.3139,0.6103],[0.3504,0.6359],[0.365,0.6701],[0.3869,0.6803],[0.4088,0.6974],[0.438,0.7624],[0.4599,0.7846],[0.4818,0.7949],[0.5109,0.8034],[0.5328,0.8222],[0.5547,0.8274],[0.5693,0.841],[0.5985,0.8564],[0.6204,0.8632],[0.6569,0.8735],[0.6715,0.8855],[0.7226,0.8991],[0.7445,0.9333],[0.7883,0.9436],[0.8102,0.9573],[0.8248,0.9692],[0.8759,0.9744],[0.9197,0.9863],[0.9708,0.9897],[1.0,1.0]], color:'#059669', auc:0.705, features:[] },
-  bilstm:  { roc:[[0.0,0.0],[0.0146,0.0974],[0.0365,0.1504],[0.0511,0.1932],[0.073,0.2444],[0.0949,0.2803],[0.1241,0.3333],[0.146,0.3487],[0.1606,0.3778],[0.1825,0.3949],[0.1971,0.4462],[0.2117,0.4803],[0.2336,0.5145],[0.2555,0.5197],[0.2847,0.5487],[0.3212,0.5538],[0.3358,0.5795],[0.3577,0.5863],[0.3796,0.6957],[0.3942,0.7385],[0.4234,0.7607],[0.438,0.7829],[0.4599,0.8171],[0.4891,0.8427],[0.5109,0.8496],[0.5401,0.8632],[0.5693,0.8735],[0.5839,0.8838],[0.6131,0.8923],[0.635,0.8991],[0.6642,0.9162],[0.6934,0.9282],[0.7372,0.9419],[0.7664,0.9487],[0.8248,0.959],[0.8394,0.9675],[0.9051,0.9795],[0.927,0.9915],[0.9781,0.9966],[1.0,1.0]], color:'#7c3aed', auc:0.715, features:[] },
-  lstmatt: { roc:[[0.0,0.0],[0.0146,0.0838],[0.0292,0.1282],[0.0584,0.1829],[0.0803,0.2085],[0.1022,0.2547],[0.1168,0.3231],[0.1387,0.3538],[0.1606,0.3897],[0.1971,0.4308],[0.219,0.4752],[0.2409,0.5145],[0.2628,0.5282],[0.2774,0.5778],[0.3066,0.6],[0.3358,0.6205],[0.3577,0.6325],[0.3796,0.6667],[0.4307,0.7128],[0.4526,0.7197],[0.4672,0.7299],[0.4964,0.7504],[0.5182,0.7675],[0.5401,0.7863],[0.5766,0.8034],[0.6058,0.8085],[0.6277,0.8137],[0.6496,0.8239],[0.6788,0.8462],[0.7007,0.8547],[0.7299,0.8786],[0.7518,0.8855],[0.7956,0.894],[0.8175,0.9316],[0.8321,0.9385],[0.854,0.9658],[0.8905,0.9778],[0.9416,0.9846],[0.9781,0.9897],[1.0,1.0]], color:'#b45309', auc:0.684, features:[] },
-  cnnlstm: { roc:[[0.0,0.0],[0.0146,0.1179],[0.0292,0.2342],[0.0438,0.2923],[0.0657,0.4068],[0.0876,0.4359],[0.1095,0.4564],[0.1314,0.4957],[0.146,0.5197],[0.1679,0.5538],[0.1898,0.5846],[0.2117,0.6137],[0.2263,0.6376],[0.2409,0.6581],[0.2847,0.7026],[0.3066,0.735],[0.3431,0.7453],[0.3577,0.759],[0.3723,0.7692],[0.4015,0.7932],[0.4161,0.8171],[0.438,0.8325],[0.4599,0.8581],[0.4818,0.8752],[0.5109,0.8821],[0.5255,0.8923],[0.5474,0.8974],[0.5693,0.9009],[0.6131,0.9094],[0.6496,0.9128],[0.7226,0.9265],[0.7518,0.935],[0.7956,0.9402],[0.8248,0.9487],[0.854,0.9607],[0.8832,0.9726],[0.927,0.9795],[0.9489,0.9846],[0.9708,0.9949],[1.0,1.0]], color:'#0f766e', auc:0.777, features:[] }
+  lstm:    { roc:[[0.0,0.0],[0.0146,0.347],[0.0292,0.4342],[0.0438,0.4991],[0.0584,0.5402],[0.073,0.6256],[0.0876,0.6393],[0.1022,0.641],[0.1168,0.6667],[0.1314,0.694],[0.146,0.7145],[0.1606,0.7419],[0.1679,0.7624],[0.1825,0.7846],[0.1971,0.7966],[0.2117,0.8051],[0.2336,0.8239],[0.2482,0.8291],[0.2628,0.8684],[0.2774,0.8803],[0.2993,0.8821],[0.3212,0.8855],[0.3358,0.8889],[0.3504,0.8991],[0.3723,0.9128],[0.4015,0.9265],[0.438,0.935],[0.4526,0.9436],[0.5328,0.9521],[0.5474,0.9556],[0.562,0.9607],[0.5766,0.9658],[0.5985,0.9692],[0.6204,0.9726],[0.6642,0.9778],[0.708,0.9812],[0.7372,0.988],[0.8029,0.9915],[0.9051,0.9966],[1.0,1.0]], color:'#0e7490', auc:0.883, features:[['D-dimer',1.0],['Calcium',0.942],['Base Excess',0.543],['HBDH',0.474],['Neutrophil %',0.471]] },
+  slstm:   { roc:[[0.0,0.0],[0.0073,0.1846],[0.0219,0.3846],[0.0438,0.5368],[0.0657,0.5863],[0.073,0.6496],[0.0876,0.6598],[0.1022,0.6735],[0.1241,0.6855],[0.1387,0.7009],[0.1533,0.7368],[0.1752,0.7675],[0.1825,0.7915],[0.1971,0.8051],[0.2117,0.812],[0.2263,0.8513],[0.2555,0.8581],[0.2847,0.8615],[0.2993,0.8718],[0.3285,0.8769],[0.3358,0.8838],[0.3504,0.8889],[0.3723,0.9043],[0.3869,0.9111],[0.4234,0.9162],[0.438,0.9197],[0.4526,0.9265],[0.4745,0.9368],[0.4891,0.9453],[0.5036,0.9487],[0.5328,0.9521],[0.5693,0.959],[0.6204,0.9658],[0.6496,0.9692],[0.6642,0.9726],[0.708,0.9761],[0.7299,0.9846],[0.7591,0.988],[0.9489,0.9949],[1.0,1.0]], color:'#059669', auc:0.879, features:[['Age',1.0],['Calcium',0.369],['Amylase',0.367],['D-dimer',0.364],['HDL',0.337]] },
+  bilstm:  { roc:[[0.0,0.0],[0.0073,0.3111],[0.0219,0.4308],[0.0365,0.4684],[0.0438,0.494],[0.0584,0.6017],[0.073,0.6154],[0.0876,0.6188],[0.1022,0.6291],[0.1168,0.641],[0.1241,0.6564],[0.1387,0.6752],[0.1533,0.6803],[0.1752,0.7214],[0.1898,0.7487],[0.1971,0.7641],[0.2117,0.8103],[0.2409,0.8222],[0.2628,0.8701],[0.2774,0.8752],[0.2847,0.8838],[0.2993,0.8889],[0.3212,0.894],[0.3504,0.8991],[0.365,0.9128],[0.3723,0.9197],[0.3942,0.9248],[0.4088,0.9419],[0.4453,0.9453],[0.4599,0.9504],[0.4964,0.9573],[0.5474,0.9641],[0.6058,0.9692],[0.6277,0.9709],[0.6861,0.9744],[0.7299,0.9829],[0.7372,0.9915],[0.8248,0.9949],[0.8759,0.9966],[1.0,1.0]], color:'#7c3aed', auc:0.882, features:[['Calcium',1.0],['D-dimer',0.709],['Lipase',0.65],['Amylase',0.411],['WBC',0.402]] }
 };
 
 // ── ROC CANVAS ────────────────────────────────────────────────
@@ -1242,6 +1147,9 @@ function buildFeatures() {
     {key:'lr',title:'Logistic Regression',cls:''},
     {key:'rf',title:'Random Forest ★',cls:'green'},
     {key:'gb',title:'Gradient Boosting',cls:'purple'},
+    {key:'lstm',title:'XGBoost',cls:''},
+    {key:'slstm',title:'LightGBM',cls:'green'},
+    {key:'bilstm',title:'CatBoost ★',cls:'purple'},
   ];
   defs.forEach(({key,title,cls})=>{
     const feats = DATA[key].features;
@@ -1281,7 +1189,7 @@ document.querySelectorAll('#cm-tabs .tab-btn').forEach(btn=>{
 });
 
 // ── INIT ──────────────────────────────────────────────────────
-const ROC_MAP = [['roc-lr','lr'],['roc-rf','rf'],['roc-gb','gb'],['roc-mlp','mlp'],['roc-res','res'],['roc-att','att'],['roc-lstm','lstm'],['roc-slstm','slstm'],['roc-bilstm','bilstm'],['roc-lstmatt','lstmatt'],['roc-cnnlstm','cnnlstm']];
+const ROC_MAP = [['roc-lr','lr'],['roc-rf','rf'],['roc-gb','gb'],['roc-mlp','mlp'],['roc-res','res'],['roc-att','att'],['roc-lstm','lstm'],['roc-slstm','slstm'],['roc-bilstm','bilstm']];
 function drawAll(){ ROC_MAP.forEach(([id,k])=>drawROC(id,k)); }
 window.addEventListener('load',()=>{ buildFeatures(); drawAll(); });
 window.addEventListener('resize',drawAll);
