@@ -231,6 +231,7 @@
   <p>Logistic Regression · Random Forest · Gradient Boosting · MLP · Residual MLP · Attention MLP<br>
   XGBoost · LightGBM · CatBoost · NGBoost · EBM<br>
   + 12 extended ML models (Extra Trees, HistGradientBoosting, Bagging, AdaBoost, SVM, KNN, Naive Bayes, LDA, QDA, Decision Tree, Ridge, SGD)<br>
+  + 2 ensemble/tuning experiments attempting to beat CatBoost (negative result — see Algorithm Descriptions)<br>
   Trained and evaluated with 5-fold stratified cross-validation</p>
 </div>
 
@@ -364,6 +365,31 @@
           <span class="pill pill-teal2">F1=0.922</span>
           <span class="pill pill-teal2">Sens=97.1%</span>
           <span class="pill pill-teal2">T=0.427</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label" style="background:var(--gray-100);color:var(--gray-500)">🧪 Ensemble &amp; Hyperparameter-Tuning Experiments — Negative Result</div>
+    <p class="lead" style="margin-bottom:1rem">Two attempts to beat CatBoost (AUC=0.882, F1=0.926) — neither succeeded. Included here for transparency: on a cohort this small (n=722), both a stacking meta-learner and a hyperparameter search over CatBoost itself failed to improve on CatBoost's own sensible defaults. See the algorithm notes below for why.</p>
+    <div class="stat-grid">
+      <div class="stat-card" style="border-top-color:var(--gray-400)">
+        <div class="model-name" style="color:var(--gray-600)">Stacking Ensemble <span style="font-weight:400;color:var(--gray-400)">✗ ties, doesn't beat</span></div>
+        <div class="auc" style="color:var(--gray-600)">0.882</div>
+        <div class="sub">AUC (5-fold CV, nested)</div>
+        <div class="badges">
+          <span class="pill" style="background:var(--gray-100);color:var(--gray-600)">F1=0.924</span>
+          <span class="pill" style="background:var(--gray-100);color:var(--gray-600)">Sens=97.9%</span>
+          <span class="pill" style="background:var(--gray-100);color:var(--gray-600)">T=0.401</span>
+        </div>
+      </div>
+      <div class="stat-card" style="border-top-color:var(--gray-400)">
+        <div class="model-name" style="color:var(--gray-600)">Tuned CatBoost <span style="font-weight:400;color:var(--gray-400)">✗ worse</span></div>
+        <div class="auc" style="color:var(--gray-600)">0.869</div>
+        <div class="sub">AUC (5-fold CV, nested search)</div>
+        <div class="badges">
+          <span class="pill" style="background:var(--gray-100);color:var(--gray-600)">F1=0.920</span>
+          <span class="pill" style="background:var(--gray-100);color:var(--gray-600)">Sens=97.3%</span>
+          <span class="pill" style="background:var(--gray-100);color:var(--gray-600)">T=0.500</span>
         </div>
       </div>
     </div>
@@ -579,6 +605,19 @@
             <td>0.856</td><td>0.922</td><td>0.427</td>
             <td>568</td><td>79</td><td>17</td><td>58</td>
             <td class="v-hi">97.1%</td><td class="v-md">42.3%</td><td class="v-hi">87.8%</td>
+          </tr>
+          <tr><td colspan="12" style="background:var(--gray-100);font-weight:700;text-align:center;color:var(--gray-500)">— Ensemble / tuning experiments (negative result — neither beat CatBoost) —</td></tr>
+          <tr style="color:var(--gray-500)">
+            <td>Stacking Ensemble</td><td><span class="type-badge" style="background:var(--gray-100);color:var(--gray-500)">EXP</span></td>
+            <td>0.882</td><td>0.924</td><td>0.401</td>
+            <td>573</td><td>82</td><td>12</td><td>55</td>
+            <td>97.9%</td><td>40.1%</td><td>87.5%</td>
+          </tr>
+          <tr style="color:var(--gray-500)">
+            <td>Tuned CatBoost</td><td><span class="type-badge" style="background:var(--gray-100);color:var(--gray-500)">EXP</span></td>
+            <td>0.869</td><td>0.920</td><td>0.500</td>
+            <td>568</td><td>83</td><td>17</td><td>54</td>
+            <td>97.3%</td><td>39.4%</td><td>87.3%</td>
           </tr>
           <tr><td colspan="12" style="background:var(--gray-100);font-weight:700;text-align:center;color:var(--gray-500)">— Extended ML models (trained on n=1,289 cohort; TP/FP/FN/TN scaled to 1,085 severe / 204 mild) —</td></tr>
           <tr>
@@ -1128,6 +1167,22 @@
         <p>A boosted generalized additive model (GA2M): learns one shape function per feature plus up to 10 pairwise interaction terms, cycling through features one at a time so each one's contribution stays fully separable and plottable — the most interpretable model in this comparison after Logistic Regression, but non-linear.</p>
         <p>Key features: Calcium, Lipase, Lymphocyte %, D-dimer, Ionized Calcium. AUC 0.856, F1 0.922 — competitive with the black-box GBDT models while remaining fully auditable per-feature.</p>
         <p class="meta">interpret.glassbox.ExplainableBoostingClassifier · interactions=10 · lr=0.02</p>
+      </div>
+    </div>
+
+    <div class="section-label" style="background:var(--gray-100);color:var(--gray-500);margin-top:1.5rem">🧪 Ensemble &amp; Tuning Experiments — Why They Didn't Beat CatBoost</div>
+    <div class="algo-grid" style="margin-bottom:1.5rem">
+      <div class="algo-card" style="border-top:4px solid var(--gray-400)">
+        <h3 style="margin-top:0;color:var(--gray-600)">Stacking Ensemble</h3>
+        <p>Base learners RF, GB, XGBoost, LightGBM, and CatBoost feed a Logistic Regression meta-learner. Evaluated with a proper nested 5-fold-in-5-fold CV (inner folds generate leakage-free meta-features; outer folds hold out the final test data) — so the AUC=0.882 tie with CatBoost is a genuine result, not an artifact of leakage.</p>
+        <p>The meta-learner essentially learned to weight CatBoost's own predictions most heavily, since CatBoost already captures most of what the other four base models capture. With only 722 patients, there isn't enough independent signal across 5 correlated tree-based models for a meta-learner to meaningfully outperform the strongest individual one — stacking's benefit shows up on much larger datasets where base models can specialize on genuinely different subpopulations.</p>
+        <p class="meta">sklearn.LogisticRegression meta-learner · nested 5-fold × 5-fold CV · no data leakage</p>
+      </div>
+      <div class="algo-card" style="border-top:4px solid var(--gray-400)">
+        <h3 style="margin-top:0;color:var(--gray-600)">Tuned CatBoost</h3>
+        <p>RandomizedSearchCV (15 candidate configurations, inner 3-fold CV) over iterations/depth/learning_rate/l2_leaf_reg/bagging_temperature, nested inside the same outer 5-fold CV used everywhere else.</p>
+        <p>This performed <em>worse</em> than default CatBoost (AUC 0.869 vs. 0.882) — a textbook small-<em>n</em> hyperparameter-search failure mode. The search selected a different "best" configuration in every one of the 5 outer folds (see training log), meaning it was fitting noise in the inner-CV score rather than finding a genuinely better setting. CatBoost's published defaults are themselves tuned across many benchmark datasets and are hard to beat with a small in-sample search on only 722 patients.</p>
+        <p class="meta">sklearn.RandomizedSearchCV · n_iter=15 · nested 5-fold × 3-fold CV</p>
       </div>
     </div>
 
