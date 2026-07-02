@@ -1131,6 +1131,38 @@
   </div>
 </section>
 
+<!-- FOR CLINICIANS -->
+<section style="background:var(--gray-50)">
+  <div class="container">
+    <h2>For Clinicians — How to Read These Results</h2>
+    <p class="lead">A plain-language translation of the metrics above, aimed at bedside decision-making rather than machine-learning benchmarking.</p>
+
+    <div class="algo-grid" style="margin-bottom:1.5rem">
+      <div class="algo-card" style="border-top:4px solid var(--blue)">
+        <h3 style="margin-top:0;color:var(--blue-dk)">What the model actually does</h3>
+        <p>Logistic Regression calculates a weighted risk score from ~5 key lab values — similar in spirit to a clinical scoring system like BISAP, but the weights are learned directly from patient outcomes rather than expert consensus.</p>
+        <p>Unlike the Random Forest / Gradient Boosting / deep-learning models, its coefficients are fully transparent: you can see exactly which lab value pushed the prediction up or down for any individual patient.</p>
+      </div>
+      <div class="algo-card" style="border-top:4px solid var(--green)">
+        <h3 style="margin-top:0;color:var(--green)">Direction of key features</h3>
+        <p>↑ <strong>Lactate</strong> → ↑ SAP risk (tissue hypoperfusion — consistent with known severity markers)</p>
+        <p>↓ <strong>Calcium</strong> → ↑ SAP risk (established marker of fat necrosis / severity, mirrors Ranson criteria)</p>
+        <p>↑ <strong>Creatinine</strong> → ↑ SAP risk (renal involvement, a recognized organ-failure marker)</p>
+      </div>
+      <div class="algo-card" style="border-top:4px solid var(--purple)">
+        <h3 style="margin-top:0;color:var(--purple)">Metrics in bedside language</h3>
+        <p><strong>AUC 0.817</strong> — correctly ranks a random severe case above a random mild case ~82% of the time.</p>
+        <p><strong>Sensitivity 93.8%</strong> — catches ~94 of 100 truly severe cases; few are missed.</p>
+        <p><strong>Threshold 0.575</strong> — the cutoff was chosen to favor not missing severe cases over avoiding false alarms.</p>
+      </div>
+    </div>
+
+    <div class="warn" style="background:var(--blue-lt);border-color:#bfdbfe;border-left-color:var(--blue);color:var(--blue-dk)">
+      <strong>How this fits into your workflow:</strong> PenuX is not a replacement for clinical judgment or the Revised Atlanta Classification — it is validated against that same gold standard. Its role is to give an earlier signal: BISAP and APACHE II require 24–48 hours of observation, while PenuX estimates risk at admission using routine labs already being drawn. Use the likelihood-ratio and post-test-probability figures elsewhere on this page to update your own pretest suspicion, the same way you would with any other diagnostic test.
+    </div>
+  </div>
+</section>
+
 <footer>
   <p>PenuX · <a href="https://github.com/netanelcyber/penuX" target="_blank">GitHub</a> · Research Only — Not for Clinical Use · MIT License</p>
 </footer>
