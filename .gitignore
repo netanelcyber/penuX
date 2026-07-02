@@ -22,3 +22,4 @@ docs/examples/
 *.bbl
 *.blg
 *.synctex.gz
+catboost_info/
