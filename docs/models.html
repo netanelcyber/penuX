@@ -1249,6 +1249,49 @@
       <strong>Read this table carefully:</strong> CatBoost wins at 4 of the 5 β values, Random Forest at β=1.5 — but the "field spread" row shows the gap between best and worst model is only <strong>0.0008–0.0042</strong> at every β, consistently smaller than or comparable to the repeat-to-repeat noise (±0.0002–0.0039). <strong>None of these differences are reliably meaningful</strong> — all four models are practically tied at every β. What <em>is</em> reliable: the score itself rises smoothly and monotonically from ~0.91 (β=1) to ~0.96 (β=2) for every model, and each model's optimal threshold drops sharply as β increases (e.g. CatBoost: 0.510 → 0.148) — exactly the expected behavior as the metric increasingly rewards catching more true positives at the cost of more false alarms. <strong>Practical recommendation:</strong> CatBoost or Random Forest, with the threshold chosen based on how much false-alarm rate is clinically acceptable — not chasing the 4th decimal place of F-β.
     </div>
 
+    <div class="section-label label-ml" style="margin-top:1.5rem">🎯 F1.5 &amp; F2 — Quick Reference (5-repeat nested CV)</div>
+    <p class="lead" style="margin-bottom:1rem">The two most clinically relevant operating points from the sweep above, computed with 5 repeats (vs. 3 in the full sweep) for tighter stability estimates: <strong>F1.5</strong> as a moderate recall-priority compromise, and <strong>F2</strong> as the strongest recall-priority point that stayed non-degenerate.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Model</th>
+          <th>F1.5 (5-repeat)</th><th>F1.5 Threshold</th>
+          <th>F2 (5-repeat)</th><th>F2 Threshold</th>
+        </tr></thead>
+        <tbody>
+          <tr style="background:var(--green-lt);font-weight:600">
+            <td>CatBoost</td>
+            <td class="v-hi">0.9398 <span style="font-weight:400;color:var(--gray-400)">±0.0025</span></td>
+            <td>0.213 <span style="font-weight:400;color:var(--gray-400)">±0.048</span></td>
+            <td class="v-hi">0.9580 <span style="font-weight:400;color:var(--gray-400)">±0.0010</span></td>
+            <td>0.143 <span style="font-weight:400;color:var(--gray-400)">±0.021</span></td>
+          </tr>
+          <tr>
+            <td>Random Forest</td>
+            <td class="v-hi">0.9404 <span style="font-weight:400;color:var(--gray-400)">±0.0017</span></td>
+            <td>0.472 <span style="font-weight:400;color:var(--gray-400)">±0.015</span></td>
+            <td>0.9579 <span style="font-weight:400;color:var(--gray-400)">±0.0018</span></td>
+            <td>0.443 <span style="font-weight:400;color:var(--gray-400)">±0.018</span></td>
+          </tr>
+          <tr>
+            <td>LightGBM</td>
+            <td>0.9386 <span style="font-weight:400;color:var(--gray-400)">±0.0018</span></td>
+            <td>0.131 <span style="font-weight:400;color:var(--gray-400)">±0.018</span></td>
+            <td>0.9563 <span style="font-weight:400;color:var(--gray-400)">±0.0020</span></td>
+            <td>0.075 <span style="font-weight:400;color:var(--gray-400)">±0.024</span></td>
+          </tr>
+          <tr>
+            <td>Gradient Boosting</td>
+            <td>0.9383 <span style="font-weight:400;color:var(--gray-400)">±0.0013</span></td>
+            <td>0.186 <span style="font-weight:400;color:var(--gray-400)">±0.025</span></td>
+            <td>0.9566 <span style="font-weight:400;color:var(--gray-400)">±0.0011</span></td>
+            <td>0.106 <span style="font-weight:400;color:var(--gray-400)">±0.023</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:.82rem;color:var(--gray-500);margin-top:.5rem">At F1.5, Random Forest edges out CatBoost by 0.0006 — well inside both models' std, i.e. not a meaningful difference. At F2, CatBoost and Random Forest are effectively tied (0.9580 vs 0.9579).</p>
+
     <div class="warn" style="margin-top:1.5rem">
       <strong>Limitations:</strong> No external test set — all figures from cross-validation on the same Chinese cohort (n=722). Class imbalance: 585 severe vs 137 mild. Dataset sourced from a single institution and has not been validated on Western or multi-site cohorts. Deep learning and GBDT models are sensitive to random seed and training variance; results may differ slightly on re-training.
     </div>
