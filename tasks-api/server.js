@@ -75,6 +75,8 @@ db.serialize(() => {
         { title: 'Submit to OSF Preprints', sub: 'run: OSF_TOKEN=<token> python3 outreach/submit_osf.py', due: '2026-06-28', cat: 'research', status: 'urgent' },
         { title: 'Stage I Protocol — IRB Submission', sub: 'Prepare IRB package from PenuX_SAP_Stage1_Study_Protocol.pdf', due: '2026-07-15', cat: 'research', status: 'pending' },
         { title: 'Fix bad email — Prof. Lévy (Paris)', sub: 'No personal email published — try dept. secretariat: secretariat.pancreato.bjn@aphp.fr', due: '2026-06-30', cat: 'admin', status: 'pending' },
+        { title: 'Follow-Up — Dr. Amir Dagan (Shaare Zedek)', sub: 'Personalized email sent (Liver & Pancreatic Surgery Unit) — 3.7 — awaiting reply', due: '2026-07-03', cat: 'follow', status: 'waiting' },
+        { title: 'Follow-Up — Dr. Michael Neuman (Shaare Zedek)', sub: 'Email sent (cardiac surgeon, not GI/pancreas — asked for referral) — 3.7 — awaiting reply', due: '2026-07-03', cat: 'follow', status: 'waiting' },
       ];
 
       defaultTasks.forEach(task => {

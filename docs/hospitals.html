@@ -275,6 +275,27 @@ const HOSPITALS = [
       { id: 'meeting',   label: 'Zoom meeting (9am–7pm IL time)', state: 'pending' },
     ]
   },
+  {
+    id: 'shaarezedek-dagan',
+    name: 'Shaare Zedek — Dr. Amir Dagan',
+    sub: 'Liver & Pancreatic Surgery Unit',
+    steps: [
+      { id: 'research',  label: 'Researched background', state: 'done', detail: 'Senior physician, Liver & Pancreatic Surgery since 2019; published on pancreaticoduodenectomy outcomes' },
+      { id: 'contacted', label: 'Personalized outreach sent (3 Jul)', state: 'current', detail: 'Referenced his specific research + proposed dept.-data validation angle' },
+      { id: 'replied',   label: 'Awaiting reply', state: 'pending' },
+      { id: 'meeting',   label: 'Zoom meeting (9am–7pm IL time)', state: 'pending' },
+    ]
+  },
+  {
+    id: 'shaarezedek-neuman',
+    name: 'Shaare Zedek — Dr. Michael Neuman',
+    sub: 'Cardiac/Cardiothoracic Surgery (not GI-affiliated)',
+    steps: [
+      { id: 'research',  label: 'Researched background', state: 'done', detail: 'Appears to be cardiac surgeon — no pancreas/GI connection found' },
+      { id: 'contacted', label: 'Outreach sent (3 Jul)', state: 'current', detail: 'Honest framing — asked for general view or referral to the right dept., no overclaimed relevance' },
+      { id: 'replied',   label: 'Awaiting reply / referral', state: 'pending' },
+    ]
+  },
 ];
 
 const STATE_ORDER = ['pending', 'current', 'blocked', 'done'];
