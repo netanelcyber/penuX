@@ -20,6 +20,18 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: system-ui, -apple-system, sans-serif; background: #F9FAFB; color: #111827; }
 
+  /* ── SHABBAT/HOLIDAY GATE (highest z-index — blocks everything else) ── */
+  #shabbat-gate {
+    display: none; position: fixed; inset: 0; background: #0f172a;
+    align-items: center; justify-content: center; z-index: 10000; text-align: center;
+    padding: 2rem;
+  }
+  #shabbat-gate .box { max-width: 420px; }
+  #shabbat-gate .icon { font-size: 3rem; margin-bottom: 1rem; }
+  #shabbat-gate h2 { color: #f1f5f9; font-size: 1.4rem; margin-bottom: .75rem; }
+  #shabbat-gate p { color: #94a3b8; font-size: .95rem; line-height: 1.6; margin-bottom: .5rem; }
+  #shabbat-gate .until { color: #60a5fa; font-weight: 600; margin-top: 1rem; }
+
   #auth-overlay {
     position: fixed; inset: 0; background: #0f172a;
     display: flex; align-items: center; justify-content: center; z-index: 9999;
@@ -120,6 +132,16 @@
 </style>
 </head>
 <body>
+
+<!-- ── SHABBAT / HOLIDAY GATE ── -->
+<div id="shabbat-gate">
+  <div class="box">
+    <div class="icon">🕯️</div>
+    <h2 id="shabbat-title">האתר סגור לרגל שבת</h2>
+    <p id="shabbat-sub">שבת שלום! האתר ייפתח מחדש עם צאת השבת.</p>
+    <p class="until" id="shabbat-until"></p>
+  </div>
+</div>
 
 <div id="auth-overlay">
   <div id="auth-box">
@@ -395,13 +417,92 @@ function logout() {
   location.reload();
 }
 
-if (sessionStorage.getItem('penux_auth') === '1') {
-  document.getElementById('auth-overlay').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  renderHospitals();
-} else {
-  setTimeout(() => document.getElementById('pw-input').focus(), 100);
+// ── SHABBAT / ISRAELI HOLIDAY GATE ──────────────────────────────────────────
+// Blocks the site during Shabbat and Israeli Yom Tov, using the client's own
+// geolocation (falls back to Jerusalem if denied/unavailable). Fails OPEN on
+// any error — a network hiccup should never permanently lock someone out.
+const SHABBAT_CACHE_KEY = 'penux_shabbat_cache_v1';
+const SHABBAT_CACHE_TTL_MS = 30 * 60 * 1000; // 30 min
+
+function getClientPosition() {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) return resolve(null);
+    navigator.geolocation.getCurrentPosition(
+      pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+      () => resolve(null),
+      { timeout: 4000, maximumAge: 3600000 }
+    );
+  });
 }
+
+function showShabbatGate(untilDate, isHoliday) {
+  document.getElementById('shabbat-title').textContent = isHoliday ? 'האתר סגור לרגל החג' : 'האתר סגור לרגל שבת';
+  document.getElementById('shabbat-sub').textContent = isHoliday
+    ? 'מועדים טובים! האתר ייפתח מחדש עם צאת החג.'
+    : 'שבת שלום! האתר ייפתח מחדש עם צאת השבת.';
+  if (untilDate) {
+    document.getElementById('shabbat-until').textContent =
+      'ייפתח מחדש: ' + untilDate.toLocaleString('he-IL', { weekday: 'long', hour: '2-digit', minute: '2-digit' });
+  }
+  document.getElementById('shabbat-gate').style.display = 'flex';
+  document.getElementById('auth-overlay').style.display = 'none';
+  document.getElementById('app').style.display = 'none';
+  document.documentElement.style.overflow = 'hidden';
+}
+
+async function checkShabbatGate() {
+  try {
+    let items;
+    const cached = JSON.parse(localStorage.getItem(SHABBAT_CACHE_KEY) || 'null');
+    if (cached && (Date.now() - cached.fetchedAt) < SHABBAT_CACHE_TTL_MS) {
+      items = cached.items;
+    } else {
+      const pos = (await getClientPosition()) || { lat: 31.7683, lon: 35.2137 }; // fallback: Jerusalem
+      const today = new Date();
+      const start = new Date(today); start.setDate(start.getDate() - 1);
+      const end = new Date(today); end.setDate(end.getDate() + 5);
+      const fmt = d => d.toISOString().slice(0, 10);
+      const tzid = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Jerusalem';
+      const url = `https://www.hebcal.com/hebcal?cfg=json&maj=on&c=on&il=on&geo=pos` +
+        `&latitude=${pos.lat}&longitude=${pos.lon}&tzid=${encodeURIComponent(tzid)}` +
+        `&start=${fmt(start)}&end=${fmt(end)}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Hebcal API error ' + res.status);
+      const data = await res.json();
+      items = data.items || [];
+      localStorage.setItem(SHABBAT_CACHE_KEY, JSON.stringify({ fetchedAt: Date.now(), items }));
+    }
+
+    const candles = items.filter(i => i.category === 'candles').map(i => new Date(i.date)).sort((a, b) => a - b);
+    const havdalahs = items.filter(i => i.category === 'havdalah').map(i => new Date(i.date)).sort((a, b) => a - b);
+    const holidays = items.filter(i => i.yomtov === true).map(i => new Date(i.date));
+
+    const now = new Date();
+    for (const c of candles) {
+      const nextHavdalah = havdalahs.filter(h => h > c).sort((a, b) => a - b)[0];
+      if (nextHavdalah && now >= c && now < nextHavdalah) {
+        const isHoliday = holidays.some(hd => hd >= c && hd <= nextHavdalah);
+        showShabbatGate(nextHavdalah, isHoliday);
+        return true;
+      }
+    }
+    return false;
+  } catch (err) {
+    console.warn('Shabbat gate check failed — defaulting to open:', err);
+    return false;
+  }
+}
+
+checkShabbatGate().then(isClosed => {
+  if (isClosed) return;
+  if (sessionStorage.getItem('penux_auth') === '1') {
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    renderHospitals();
+  } else {
+    setTimeout(() => document.getElementById('pw-input').focus(), 100);
+  }
+});
 </script>
 </body>
 </html>
