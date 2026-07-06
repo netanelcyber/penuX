@@ -134,6 +134,15 @@ PenuX-AP-Severity/
 
 ---
 
+## Analysis Write-Up
+
+- `docs/sap_severity_gbdt_analysis_he.md` — Hebrew review/analysis article covering GBDT
+  (XGBoost/LightGBM/CatBoost) results on the two registered public datasets, including
+  F1-optimal thresholds and a high-sensitivity (≥98%) filtering threshold analysis.
+  Exploratory secondary analysis only — not clinically validated.
+
+---
+
 ## Ethical & Legal Notes
 
 - This is a retrospective model-development study
