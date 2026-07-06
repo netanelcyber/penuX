@@ -166,20 +166,45 @@
       .wrapper { padding: 1.5rem 1rem 3rem; }
       .article-header { padding: 1.8rem 1.2rem 1.5rem; }
     }
+
+    /* ── Language toggle ── */
+    .lang-switch { display: flex; gap: .35rem; }
+    .lang-switch button {
+      background: rgba(255,255,255,.12); color: #e0f2fe; border: 1px solid rgba(255,255,255,.28);
+      padding: .2rem .6rem; border-radius: 6px; font-size: .78rem; font-weight: 600; cursor: pointer;
+      font-family: inherit;
+    }
+    .lang-switch button.active { background: #fff; color: var(--navy); }
+    .t-he { display: none; }
+    html[data-lang="he"] .t-en { display: none; }
+    html[data-lang="he"] .t-he { display: inline; }
+    html[data-lang="he"] #content-en { display: none; }
+    html:not([data-lang="he"]) #content-he { display: none; }
+    html[dir="rtl"] .topbar { flex-direction: row-reverse; }
+    html[dir="rtl"] ol.refs,
+    html[dir="rtl"] ul[style] { padding-left: 0; padding-right: 1.5rem; }
+    html[dir="rtl"] .type-badge { margin-left: 0; margin-right: .3rem; }
+    html[dir="rtl"] th, html[dir="rtl"] td { text-align: right; }
   </style>
 </head>
 <body>
 
 <div class="topbar">
   <a href="/">← penux.uk</a>
-  <a href="journey.html">Patient Journey</a>
-  <a href="models.html">Models &amp; Matrices</a>
-  <a href="predict.html">Predict</a>
-  <a href="tasks.html">📋 Tasks</a>
-  <span class="badge">Review Article · 2026</span>
+  <a href="journey.html"><span class="t-en">Patient Journey</span><span class="t-he">מסע המטופל</span></a>
+  <a href="models.html"><span class="t-en">Models &amp; Matrices</span><span class="t-he">מודלים ומטריצות</span></a>
+  <a href="predict.html"><span class="t-en">Predict</span><span class="t-he">חיזוי</span></a>
+  <a href="tasks.html"><span class="t-en">📋 Tasks</span><span class="t-he">📋 משימות</span></a>
+  <span class="badge"><span class="t-en">Review Article · 2026</span><span class="t-he">מאמר סקירה · 2026</span></span>
+  <div class="lang-switch">
+    <button id="btn-en" class="active" onclick="setReviewLang('en')" type="button">EN</button>
+    <button id="btn-he" onclick="setReviewLang('he')" type="button">עברית</button>
+  </div>
 </div>
 
 <div class="wrapper">
+
+<div id="content-en">
 
   <!-- ── Article header ── -->
   <header class="article-header">
@@ -658,10 +683,508 @@
     ⚠️ <strong>Usage warning:</strong> This system is a research prototype only and is not certified for clinical use. Do not use it for therapeutic decision-making.
   </div>
 
-</div>
+</div><!-- /content-en -->
+
+<div id="content-he" dir="rtl" lang="he">
+
+  <!-- ── כותרת המאמר ── -->
+  <header class="article-header">
+    <div class="journal-tag">סקירה מדעית · בינה מלאכותית קלינית</div>
+    <h1>PenuX-AP-Severity: למידת מכונה ולמידה עמוקה לחיזוי מוקדם של דלקת לבלב חריפה קשה</h1>
+    <div class="subtitle">השוואה בין תשעה מודלים — רגרסיה לוגיסטית, יער אקראי (Random Forest), Gradient Boosting, MLP, Residual MLP, Attention MLP, XGBoost, LightGBM, CatBoost — על קוהורט סיני של דלקת לבלב חריפה (n=722)</div>
+    <div class="meta">
+      <span>📅 יוני 2026</span>
+      <span>🔬 קבוצת המחקר PenuX</span>
+      <span>🏥 מחקר עוקבה רטרוספקטיבי</span>
+      <span>📊 מאגר נתונים סיני AP · HL7 R4 · Camelion</span>
+    </div>
+  </header>
+
+  <!-- ── הודעת מחקר אימות ── -->
+  <div class="alert alert-green" style="margin-bottom:1.5rem;">
+    &#10003; <div>
+      <strong>שלב 0 — מחפשים שותפי נתונים מבתי חולים</strong> —
+      אנו בונים הסכמי שותפות נתונים מול בתי חולים בטרם תחילת האימות הפורמלי (שלב I). מוסדות מעוניינים מוזמנים ליצור קשר עם החוקר הראשי.
+      <a href="mailto:nsh531@gmail.com" style="color:#14532d;font-weight:600;">לפרוטוקול המלא / יצירת קשר עם החוקר הראשי</a>
+    </div>
+  </div>
+
+  <!-- ── תקציר ── -->
+  <div class="abstract">
+    <h2>תקציר</h2>
+    <p>
+      <strong>רקע:</strong> דלקת לבלב חריפה קשה (SAP) נושאת שיעור תמותה של 20–30% ומחייבת הערכת סיכון מוקדמת. כלי ניקוד קלאסיים — BISAP, Ranson, APACHE II — דורשים 24–48 שעות של נתוני מעקב ואינם מיועדים לשילוב אוטומטי עם רשומות רפואיות ממוחשבות (EHR).
+    </p>
+    <p>
+      <strong>מטרה:</strong> להעריך שישה מודלים של למידת מכונה ולמידה עמוקה לחיזוי חומרת SAP באמצעות ערכי מעבדה שגרתיים בעת הקבלה, ולהשוות את ביצועיהם על קוהורט סיני של מאושפזים עם דלקת לבלב חריפה.
+    </p>
+    <p>
+      <strong>שיטות:</strong> קוהורט רטרוספקטיבי של 722 אשפוזי AP (585 קשים / 137 קלים, לפי סיווג אטלנטה 2012) ממוסד סיני יחיד. תשעה מודלים אומנו באמצעות אימות צולב מדורג בן 5 קפלים (5-fold stratified cross-validation) על 106 מאפייני מעבדה שגרתיים: שלושה מודלים קלאסיים של למידת מכונה (רגרסיה לוגיסטית, יער אקראי, Gradient Boosting), שלושה מודלים מבוססי MLP של למידה עמוקה, ושלושה מודלים של עצי החלטה מחוזקי-גרדיאנט (XGBoost, LightGBM, CatBoost). משפחת מודלים מוקדמת מבוססת LSTM נבחנה והופסקה — ראו סעיף 3.3 לנימוק — משום שערכי המעבדה הללו הם תמונת מצב חד-פעמית בעת הקבלה, ללא סדר זמני אמיתי, מה שהופך ארכיטקטורה רקורנטית להתאמה מתודולוגית גרועה.
+    </p>
+    <p>
+      <strong>תוצאות:</strong> CatBoost השיג את ציון ה-F1 והרגישות הגבוהים ביותר מבין כל המודלים (F1=0.926, רגישות=95.6% בסף 0.592), בעוד ש-XGBoost השיג את ה-AUC הגבוה ביותר (0.883, F1=0.923). יער אקראי נותר תחרותי (AUC=0.877, F1=0.917, רגישות=96.8% בסף 0.535). Gradient Boosting היה דומה (AUC=0.874, F1=0.918). מבין מודלי הלמידה העמוקה, MLP השיג AUC=0.836. מאפיינים מנבאים מרכזיים בכל המודלים: סידן (Calcium), D-dimer, LDH, לקטט, המטוקריט.
+    </p>
+    <p>
+      <strong>מסקנות:</strong> עבור מיון SAP המבוסס על מעבדה שגרתית, עם רגישות ≥95%, <strong>מומלצים המודלים CatBoost או XGBoost</strong> — בעלי ה-AUC/F1 הגבוהים ביותר, חשיבות מאפיינים מבוססת-עצים הניתנת לפרשנות, עמידות לערכים חסרים, וללא צורך בנורמליזציה. יער אקראי נותר חלופה חזקה ופשוטה יותר. נדרש אימות חיצוני על קוהורטות מערביות וישראליות בטרם שימוש קליני.
+    </p>
+    <div class="keywords">
+      <span class="kw">דלקת לבלב חריפה</span>
+      <span class="kw">SAP</span>
+      <span class="kw">למידת מכונה</span>
+      <span class="kw">למידה עמוקה</span>
+      <span class="kw">יער אקראי</span>
+      <span class="kw">Attention MLP</span>
+      <span class="kw">FHIR R4</span>
+      <span class="kw">Camelion HIS</span>
+      <span class="kw">BISAP</span>
+      <span class="kw">חיזוי קליני</span>
+    </div>
+  </div>
+
+  <!-- ── 1. רקע ── -->
+  <h2 class="section-title">1. רקע ומוטיבציה</h2>
+  <p>
+    דלקת לבלב חריפה (Acute Pancreatitis, AP) היא אחת הסיבות השכיחות ביותר לאשפוז דחוף במערכת העיכול, עם שכיחות של כ-34 מקרים לכל 100,000 נפש בשנה. כ-20% מהמקרים מתקדמים לדלקת לבלב חריפה קשה (SAP), המאופיינת באי-ספיקת איברים ונמק לבלבי, ונושאת שיעור תמותה של 20–30%.
+  </p>
+  <p>
+    מערכות ניקוד קלאסיות — Ranson (1974), APACHE II, BISAP (2008) — פותחו לפני עידן הרשומות הרפואיות הממוחשבות ומחייבות 24–48 שעות של תצפיות סדרתיות. מחקרים מאוחרים יותר דיווחו על יכולת ניבוי צנועה (AUROC 0.73–0.83 בסדרות שונות). הסיווג המתוקן של אטלנטה (2012) קבע את הצורך בהערכת חומרה מהירה ומדויקת יותר כבר בעת הקבלה.
+  </p>
+  <p>
+    PenuX-AP-Severity מציע גישה מודרנית: שימוש בערכי מעבדה שגרתיים הזמינים בתוך 2–4 שעות מהקבלה, המוערכים באמצעות שש ארכיטקטורות של למידת מכונה ולמידה עמוקה, עם שילוב ישיר עם מערכות רפואיות ממוחשבות דרך FHIR R4, HL7 v2.x, ומערכת המידע הרפואית הישראלית Camelion.
+  </p>
+  <p>
+    ממצא מרכזי בניתוח קוהורט זה הוא <strong>אפקט היפוך תוויות (label inversion)</strong>: חולי "AP קל" (בעיקר ממקור בילארי עם דלקת דרכי מרה נלווית — cholangitis) הראו ערכי WBC, CRP וליפאז גבוהים יותר מחולי "AP קשה" (בעיקר נמק לבלבי). ממצא זה מסביר מדוע היוריסטיקות משוקללות קלאסיות מסוג BISAP/Ranson התפקדו בצורה גרועה על מאגר הנתונים הסיני, ומדוע נדרשים מודלים מבוססי-נתונים המאומנים ישירות על הקוהורט.
+  </p>
+
+  <!-- ── 2. מאגר הנתונים ── -->
+  <h2 class="section-title">2. מאגר הנתונים ומאפייני הקוהורט</h2>
+
+  <h3 class="sub-title">2.1 תיאור הקוהורט</h3>
+  <p>
+    מאגר הנתונים מורכב מ-722 אשפוזי AP ממוסד סיני יחיד, מיוצא כקובץ <code>ap_lnn_sanitized.csv</code>. תוויות אמת-הבסיס עוקבות אחר סיווג אטלנטה 2012 (קידוד ICD). הקוהורט כולל 106 מאפייני מעבדה שגרתיים שנאספו בסמוך להקבלה, וכוללים פאנלים המטולוגיים, ביוכימיים, קרישה, גזים בדם ותפקודי כבד.
+  </p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-val">722</div>
+      <div class="card-lbl">סך אשפוזי AP</div>
+    </div>
+    <div class="card">
+      <div class="card-val">585</div>
+      <div class="card-lbl">AP קשה (81%)</div>
+    </div>
+    <div class="card">
+      <div class="card-val">137</div>
+      <div class="card-lbl">AP קל (19%)</div>
+    </div>
+    <div class="card">
+      <div class="card-val">106</div>
+      <div class="card-lbl">מאפייני מעבדה</div>
+    </div>
+  </div>
+
+  <h3 class="sub-title">2.2 היפוך תוויות — תובנה קלינית</h3>
+  <p>
+    ניתוח ערכים ממוצעים לפי קבוצת חומרה חשף דפוס לא אינטואיטיבי: חולי AP קל הראו WBC גבוה יותר (15.1 לעומת 11.7 ×10⁹/L), CRP גבוה יותר (102.5 לעומת 50.4 מ"ג/ל), וליפאז גבוה יותר (1,857 לעומת 904 יחב"ל) בהשוואה לחולי AP קשה. לעומת זאת, AP קשה הראה אלבומין נמוך יותר (36.7 לעומת 41.0 גר'/ל) וסידן נמוך יותר (1.96 לעומת 2.23 ממול/ל).
+  </p>
+  <p>
+    היפוך זה משקף ככל הנראה את תמהיל האטיולוגיה: מקרי AP בילארי המתויגים כ"קלים" עם דלקת דרכי מרה נלווית מייצרים תגובה דלקתית חזקה (WBC/CRP/ליפאז מוגברים) ללא התקדמות לאי-ספיקת איברים, בעוד שמקרים המתויגים כ"קשים" מייצגים נמק לבלבי עם היפואלבומינמיה והיפוקלצמיה כמאפיינים דומיננטיים. חשוב לציין כי 13–14 חולים עם ציוני סיכון גבוהים לספסיס לבלבי תויגו כ"קלים" — ייתכן שמדובר בסיווג שגוי של נמק לבלבי מזוהם.
+  </p>
+  <div class="alert alert-warn">
+    ⚠️ <strong>השלכה על מודלים היוריסטיים:</strong> מודלים לוגיסטיים משוקללי Ranson/BISAP שהופעלו על קוהורט זה הניבו AUC &lt; 0.5 (גרוע מסיכוי אקראי), משום שכיווני המאפיינים שלהם מניחים פתופיזיולוגיה של אוכלוסייה מערבית. כל ששת המודלים אומנו באופן מבוסס-נתונים על הקוהורט עצמו, ולא על משקלים שמקורם בספרות.
+  </div>
+
+  <!-- ── 3. מודלים ── -->
+  <h2 class="section-title">3. ארכיטקטורות המודלים</h2>
+
+  <h3 class="sub-title">3.1 למידת מכונה קלאסית</h3>
+  <p>שלושת המודלים הקלאסיים אומנו על מאפיינים מנורמלים בשיטת StandardScaler, עם אימות צולב מדורג בן 5 קפלים. הסף האופטימלי נבחר לפי ציון F1 מרבי על תחזיות out-of-fold.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>מודל</th><th>היפר-פרמטרים</th><th>בחירת סף</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>רגרסיה לוגיסטית <span class="type-badge type-ml">ML</span></td><td>L2, C=0.5, max_iter=1000</td><td>F1 מרבי על תחזיות OOF</td></tr>
+        <tr><td>יער אקראי <span class="type-badge type-ml">ML</span></td><td>n_estimators=200, max_depth=6, min_samples_leaf=5</td><td>F1 מרבי על תחזיות OOF</td></tr>
+        <tr><td>Gradient Boosting <span class="type-badge type-ml">ML</span></td><td>n_estimators=150, max_depth=3, lr=0.05</td><td>F1 מרבי על תחזיות OOF</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">3.2 למידה עמוקה (TensorFlow / Keras)</h3>
+  <p>כל מודלי הלמידה העמוקה אומנו עם אופטימייזר Adam, עצירה מוקדמת לפי val_AUC (patience=8), גודל אצווה 32, ומקסימום 60 אפוקים לכל קיפול. המאפיינים נורמלו בשיטת StandardScaler בתוך כל קיפול בנפרד. ההתכנסות הייתה מהירה — 7–11 אפוקים בממוצע — המשקפת את עומק התועלת המוגבל האפשרי על n=722.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>מודל</th><th>ארכיטקטורה</th><th>קצב למידה</th><th>אפוקים אופטימליים (ממוצע)</th><th>טווח בין קפלים</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>MLP <span class="type-badge type-dl">DL</span></td><td>256→128→64→1, BN+Dropout (0.35/0.30/0.20)</td><td>1e-3</td><td>~11</td><td>8–16</td></tr>
+        <tr><td>Residual MLP <span class="type-badge type-dl">DL</span></td><td>הטלה ל-128 מימדים + 2 בלוקי שארית + חיבורי דילוג (skip connections)</td><td>8e-4</td><td>~10</td><td>4–17</td></tr>
+        <tr><td>Attention MLP <span class="type-badge type-dl">DL</span></td><td>שער תשומת-לב סיגמואידי (106→106) ← 256→128→64→1</td><td>1e-3</td><td>~7</td><td>2–14</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>ה-Attention MLP מתכנס המהיר ביותר (כ-7 אפוקים), מה שמרמז ששער תשומת-הלב הסיגמואידי לומד בררת מאפיינים במהירות, ולאחר מכן נותר לרשת ההמשך מעט מאוד אופטימיזציה לבצע. השונות הרחבה יותר במספר האפוקים של Residual MLP (4–17) משקפת רגישות של רשתות עם חיבורי דילוג לאתחול המשקלים על מערכי נתונים קטנים.</p>
+
+  <h3 class="sub-title">3.3 עצי החלטה מחוזקי-גרדיאנט (מחליפים משפחת מודלים מוקדמת מבוססת LSTM)</h3>
+  <p>
+    איטרציה מוקדמת יותר של הערכה זו התייחסה ל-106 מאפייני המעבדה כאל רצף חד-ממדי, ואימנה חמש ארכיטקטורות LSTM (Vanilla LSTM, Stacked LSTM, Bidirectional LSTM, LSTM+Attention, CNN-LSTM). בבחינה מחודשת, זו הייתה התאמה מתודולוגית גרועה: 106 המאפיינים מייצגים תמונת מצב חד-פעמית בעת הקבלה, ללא יחס זמני או סידורי אמיתי ביניהם — עיצוב מחדש שלהם לצורת (106, 1) כופה מבנה רצפי שאינו קיים בנתונים הקליניים הבסיסיים. בהתאם לכך, משפחת ה-LSTM הניבה ביצועים נחותים מכל מודל אחר (AUC 0.68–0.78 לעומת 0.82–0.88 בשיטות המתאימות לנתונים טבלאיים), והיא מדווחת בקובץ התוצאות בארכיון ולא כאן.
+  </p>
+  <p>
+    עצי החלטה מחוזקי-גרדיאנט (GBDT) הם הגישה הסטנדרטית בעלת הביצועים הגבוהים ביותר עבור נתונים קליניים טבלאיים מסוג זה, ואומנו כאן כמשפחה המחליפה, באמצעות אותו פרוטוקול אימות צולב מדורג בן 5 קפלים ששימש לכל מודל אחר בהערכה זו.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>מודל</th><th>ארכיטקטורה</th><th>קצב למידה</th><th>בחירת עיצוב מרכזית</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>XGBoost <span class="type-badge type-dl">GBDT</span></td><td>300 עצים, max_depth=4, subsample/colsample=0.8</td><td>0.05</td><td>גדילה לפי עומק עם רגולריזציית L2</td></tr>
+        <tr><td>LightGBM <span class="type-badge type-dl">GBDT</span></td><td>300 עצים, num_leaves=31, max_depth=5</td><td>0.05</td><td>גדילה לפי עלה — התכנסות מהירה יותר על נתונים טבלאיים בגודל קטן/בינוני</td></tr>
+        <tr><td>CatBoost <span class="type-badge type-dl">GBDT</span></td><td>300 עצים סימטריים, depth=5</td><td>0.05</td><td>Ordered boosting מפחית הטיית תחזית על קוהורטות קטנות</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── 4. תוצאות ── -->
+  <h2 class="section-title">4. תוצאות — אימות צולב מדורג בן 5 קפלים</h2>
+
+  <!-- קריאת המודל המוביל -->
+  <div class="alert alert-green">
+    ✅ <div>
+      <strong>המודל המומלץ למיון SAP מבוסס מעבדה שגרתית: יער אקראי (Random Forest)</strong><br>
+      AUC=0.877 · F1=0.917 · רגישות=96.8% · סגוליות=38.7% בסף 0.535<br>
+      <em>מדוע:</em> ה-AUC הגבוה ביותר מבין כל 11 המודלים. אינו דורש נורמליזציית מאפיינים. עמיד לערכי מעבדה חסרים (fillna=0). מפיק ציוני הסתברות באופן טבעי. חשיבות המאפיינים ניתנת לפרשנות ישירה. מפספס רק 19/585 מקרים קשים בסף האופטימלי.
+    </div>
+  </div>
+
+  <h3 class="sub-title">4.1 טבלת ביצועים מלאה — כל 11 המודלים</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>מודל</th><th>סוג</th><th>AUC</th><th>F1</th><th>סף</th>
+        <th>רגישות</th><th>סגוליות</th><th>PPV</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td>רגרסיה לוגיסטית</td><td><span class="type-badge type-ml">ML</span></td>
+          <td>0.817</td><td>0.907</td><td>0.575</td>
+          <td class="good">93.8%</td><td>43.8%</td><td class="good">87.7%</td>
+        </tr>
+        <tr class="best-row">
+          <td>יער אקראי ★</td><td><span class="type-badge type-ml">ML</span></td>
+          <td>0.877</td><td>0.917</td><td>0.535</td>
+          <td class="good">96.8%</td><td>38.7%</td><td class="good">87.1%</td>
+        </tr>
+        <tr>
+          <td>Gradient Boosting</td><td><span class="type-badge type-ml">ML</span></td>
+          <td>0.874</td><td>0.918</td><td>0.350</td>
+          <td class="good">97.1%</td><td>38.0%</td><td class="good">87.0%</td>
+        </tr>
+        <tr>
+          <td>MLP (3 שכבות)</td><td><span class="type-badge type-dl">DL</span></td>
+          <td>0.836</td><td>0.909</td><td>0.282</td>
+          <td class="good">96.9%</td><td>24.8%</td><td>84.6%</td>
+        </tr>
+        <tr>
+          <td>Residual MLP</td><td><span class="type-badge type-dl">DL</span></td>
+          <td>0.804</td><td>0.912</td><td>0.203</td>
+          <td class="good">97.8%</td><td>28.5%</td><td>85.4%</td>
+        </tr>
+        <tr>
+          <td>Attention MLP</td><td><span class="type-badge type-dl">DL</span></td>
+          <td>0.784</td><td>0.909</td><td>0.418</td>
+          <td class="good">98.3%</td><td>23.4%</td><td>84.6%</td>
+        </tr>
+        <tr>
+          <td>XGBoost</td><td><span class="type-badge type-dl">GBDT</span></td>
+          <td id="rv-lstm-auc-he">—</td><td id="rv-lstm-f1-he">—</td><td id="rv-lstm-t-he">—</td>
+          <td id="rv-lstm-sens-he">—</td><td id="rv-lstm-spec-he">—</td><td id="rv-lstm-ppv-he">—</td>
+        </tr>
+        <tr>
+          <td>LightGBM</td><td><span class="type-badge type-dl">GBDT</span></td>
+          <td id="rv-slstm-auc-he">—</td><td id="rv-slstm-f1-he">—</td><td id="rv-slstm-t-he">—</td>
+          <td id="rv-slstm-sens-he">—</td><td id="rv-slstm-spec-he">—</td><td id="rv-slstm-ppv-he">—</td>
+        </tr>
+        <tr>
+          <td>CatBoost ★</td><td><span class="type-badge type-dl">GBDT</span></td>
+          <td id="rv-bilstm-auc-he">—</td><td id="rv-bilstm-f1-he">—</td><td id="rv-bilstm-t-he">—</td>
+          <td id="rv-bilstm-sens-he">—</td><td id="rv-bilstm-spec-he">—</td><td id="rv-bilstm-ppv-he">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:.85rem;color:var(--gray600)">תוצאות מודלי ה-GBDT נטענות באופן דינמי מתוך <code>../PenuX-AP-Severity/models/eval_results.json</code> באמצעות הסקריפט שבתחתית העמוד. אם התאים מציגים "—", ריצת האימון טרם הושלמה.</p>
+
+  <h3 class="sub-title">4.1ב עצי החלטה מחוזקי-גרדיאנט — מדוע החליפו את ה-LSTM</h3>
+  <p>
+    XGBoost, LightGBM ו-CatBoost בונים כולם אנסמבלים של עצי החלטה על 106 ערכי המעבדה ישירות, ללא הטלת מבנה רצפי מלאכותי. כל פיצול בכל עץ בוחן מאפיין בודד מול סף, והתחזיות הן סכום תוספתי של פלטי העצים — התאמה טבעית לנתונים טבלאיים שבהם אין למאפיינים סדר זמני. זהו אותו היגיון שהופך את יער אקראי ו-Gradient Boosting לקווי בסיס חזקים כאן; XGBoost/LightGBM/CatBoost מרחיבים גישה זו עם רגולריזציה ולוחות זמני חיזוק מתוחכמים יותר.
+  </p>
+  <p>
+    בפועל, על n=722, שלושת מודלי ה-GBDT מתכנסים ל-AUC של 0.879–0.883, לפני כל מודל למידה עמוקה ולפני משפחת ה-LSTM שהופסקה. ה-ordered boosting של CatBoost מעניק לו יתרון קל ב-F1/רגישות, ככל הנראה משום שהוא מתוכנן במיוחד לעמוד בפני התאמת-יתר על מערכי נתונים קטנים כמו קוהורט זה של 722 חולים. הגדילה לפי עלה של LightGBM היא המהירה ביותר לאימון, אך הראתה AUC נמוך במעט כאן, בהתאמה לכך שגדילה לפי עלה נוטה יותר להתאמת-יתר ללא כוונון קפדני על n קטן.
+  </p>
+
+  <h3 class="sub-title">4.2 מאפיינים מנבאים מרכזיים</h3>
+  <p>ניתוח חשיבות המאפיינים על פני המודלים מזהה באופן עקבי את אותו אשכול סמנים ביולוגיים כבעלי כוח הניבוי הגבוה ביותר:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>מאפיין</th><th>LR (|מקדם|)</th><th>RF (חשיבות)</th><th>GB (חשיבות)</th><th>רציונל קליני</th></tr></thead>
+      <tbody>
+        <tr><td><strong>סידן (Calcium)</strong></td><td class="highlight">2</td><td class="highlight">1</td><td class="highlight">2</td><td>היפוקלצמיה — סבוניזציה בשומן נמקי; קריטריון Ranson קלאסי</td></tr>
+        <tr><td><strong>D-dimer</strong></td><td>4</td><td class="highlight">2</td><td class="highlight">1</td><td>קרישיות-יתר / DIC במחלה קשה</td></tr>
+        <tr><td><strong>LDH</strong></td><td>5</td><td>3</td><td>3</td><td>סמן נמק רקמתי; קריטריון Ranson (&gt;250 יחב"ל/ל)</td></tr>
+        <tr><td><strong>לקטט</strong></td><td>4</td><td>4</td><td>4</td><td>תת-זלוף / תפקוד לקוי של איברים</td></tr>
+        <tr><td><strong>המטוקריט</strong></td><td>—</td><td>5</td><td>5</td><td>המוקונצנטרציה — סמן מוקדם לדלקת לבלב נמקית</td></tr>
+        <tr><td><strong>לימפוציטים</strong></td><td class="highlight">1</td><td>—</td><td>—</td><td>לימפופניה בתגובה דלקתית מערכתית</td></tr>
+        <tr><td><strong>קריאטינין</strong></td><td>3</td><td>9</td><td>10</td><td>פגיעת כליות חדה (AKI) — קריטריון Ranson</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">4.3 ניתוח סף — פרשנות קלינית</h3>
+  <p>
+    בהקשר קליני, <strong>מזעור שליליים כוזבים (מקרי SAP שהוחמצו)</strong> הוא היעד המרכזי. סריקת הסף על פני כל המודלים מראה שרגישות &gt;95% ניתנת להשגה בספים של 0.20–0.55, בהתאם למודל. יער אקראי בסף ברירת המחדל שלו (0.535) משיג רגישות של 96.8% — ומחמיץ רק 19 מתוך 585 מקרים קשים.
+  </p>
+  <p>
+    הורדת הסף ל-0.30 בכל המודלים דוחפת את הרגישות מעל 99%, אך מפחיתה את הסגוליות לפחות מ-20%, ומייצרת התרעות שווא רבות. בפועל, סף של 0.40–0.55 מספק את הפשרה הקלינית הטובה ביותר למטרות מיון.
+  </p>
+  <div class="alert alert-info">
+    ℹ️ <strong>המלצת סף:</strong> למיון קליני של SAP, יעד רגישות של ≥95% הולם. כל 9 המודלים משיגים זאת בסף האופטימלי שלהם או מתחתיו. יער אקראי (T=0.535) ו-Gradient Boosting (T=0.350) מציעים פשרות משלימות של רגישות/סגוליות וכדאי לשקול אותם לשימוש באנסמבל. CatBoost (T=0.592) ו-XGBoost (T=0.522) מציעים את הפשרה הטובה ביותר בין F1 לרגישות, עם חשיבות מאפיינים מבוססת-עצים הניתנת לפרשנות מלאה כיתרון משני.
+  </div>
+
+  <!-- ── 5. שילוב עם מערכות רפואיות ── -->
+  <h2 class="section-title">5. שילוב עם מערכות רפואיות (EHR)</h2>
+
+  <h3 class="sub-title">5.1 FHIR R4 — תקן בינלאומי</h3>
+  <p>
+    ה-API מקבל משאבי FHIR R4 Bundle המכילים משאב Patient ורשימת משאבי Observation עם קודי LOINC. התגובה מוחזרת כמשאב RiskAssessment עם קודי קבוצת סיכון SNOMED CT:
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>רמת סיכון</th><th>קוד SNOMED CT</th><th>סף הסתברות</th></tr></thead>
+      <tbody>
+        <tr><td class="good">נמוכה</td><td>723505004</td><td>&lt;0.30</td></tr>
+        <tr><td class="warn">בינונית</td><td>723506003</td><td>0.30–0.60</td></tr>
+        <tr><td style="color:var(--red);font-weight:700">גבוהה</td><td>723507007</td><td>&gt;0.60</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">5.2 HL7 v2.x — תאימות למערכות ותיקות</h3>
+  <p>
+    ממשק HL7 v2.x מפענח הודעות ORU^R01, ומחלץ גיל/מין משדה PID וערכי מעבדה מקטעי OBX. המערכת תומכת בקודי LOINC ובקודי LIS ספציפיים לספק (Epic, Cerner, OpenEMR, VistA, Allscripts), ומאפשרת שילוב ללא שינויי קוד בצד ה-EHR.
+  </p>
+
+  <h3 class="sub-title">5.3 Camelion — מערכת המידע הרפואית הישראלית</h3>
+  <p>
+    Camelion (מלם-תים) היא מערכת המידע הרפואית הנפוצה ביותר בישראל. PenuX-AP-Severity כולל מתאם ייעודי התומך ב:
+  </p>
+  <ul style="padding-left:1.5rem;margin-bottom:.9rem;color:var(--gray800)">
+    <li><strong>שמות שדות בעברית/אנגלית:</strong> שדות מתקבלים הן במפתחות עבריים והן באנגליים</li>
+    <li><strong>שער FHIR R4:</strong> גישה דרך SMART on FHIR עם authorization_code / client_credentials</li>
+    <li><strong>תגובה דו-לשונית:</strong> פלט החיזוי מוחזר הן באנגלית והן בעברית</li>
+  </ul>
+
+  <div class="alert alert-info">
+    ℹ️ לגישת sandbox לסביבת Camelion, יש ליצור קשר עם מלם-תים לבקשת אישורי SMART on FHIR: <strong>api-support@malam.co.il</strong>
+  </div>
+
+  <!-- ── 6. פרטיות ── -->
+  <h2 class="section-title">6. פרטיות ואבטחת מידע</h2>
+  <p>
+    PenuX-AP-Severity תוכנן מתוך עקרון Privacy by Design מלכתחילה:
+  </p>
+  <ul style="padding-left:1.5rem;margin-bottom:.9rem;color:var(--gray800)">
+    <li>מזהי חולים (מספר זהות, שם, מספר תיק) מוסרים לפני העברה לשרת החיזוי</li>
+    <li>אין רישום (logging) של ערכים אישיים בצד השרת</li>
+    <li>כל הבקשות מעובדות בזיכרון בלבד ואינן נשמרות באף מסד נתונים</li>
+    <li>עומד בתקן HIPAA Minimum Necessary ובחוק הגנת הפרטיות הישראלי</li>
+  </ul>
+  <div class="alert alert-green">
+    ✅ חיזוי SAP הוא <strong>כלי חיזוי בלבד</strong> — לא אבחנה. כל ההחלטות הקליניות נותרות באחריותו הבלעדית של הרופא המטפל.
+  </div>
+
+  <!-- ── 7. השוואה ── -->
+  <h2 class="section-title">7. השוואה מול כלי ניקוד קיימים</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>כלי ניקוד</th><th>AUROC (בספרות)</th><th>זמן לתוצאה</th><th>פרמטרים</th><th>שילוב עם EHR</th></tr>
+      </thead>
+      <tbody>
+        <tr class="best-row">
+          <td><strong>PenuX — יער אקראי ★</strong></td><td class="good">0.877 (קוהורט זה, 5-fold CV)</td>
+          <td class="good">2–4 שעות</td><td>106 בדיקות מעבדה שגרתיות</td><td class="good">FHIR · HL7 · Camelion</td>
+        </tr>
+        <tr>
+          <td><strong>PenuX — Gradient Boosting</strong></td><td class="good">0.874</td>
+          <td class="good">2–4 שעות</td><td>106 בדיקות מעבדה שגרתיות</td><td class="good">FHIR · HL7 · Camelion</td>
+        </tr>
+        <tr>
+          <td><strong>PenuX — MLP</strong></td><td>0.836</td>
+          <td class="good">2–4 שעות</td><td>106 בדיקות מעבדה שגרתיות</td><td class="good">FHIR · HL7 · Camelion</td>
+        </tr>
+        <tr><td>BISAP</td><td>0.82</td><td>24 שעות</td><td>5</td><td>ידני</td></tr>
+        <tr><td>Ranson (בקבלה)</td><td>0.73</td><td>קבלה</td><td>5 מתוך 11</td><td>ידני</td></tr>
+        <tr><td>APACHE II</td><td>0.83</td><td>24 שעות</td><td>12 + גיל + מחלות רקע</td><td>ידני</td></tr>
+        <tr><td>Harmless AP Score</td><td>0.88</td><td>קבלה</td><td>3</td><td>לא</td></tr>
+        <tr><td>CTSI (מבוסס CT)</td><td>0.87</td><td>לאחר CT</td><td>CT בלבד</td><td>PACS בלבד</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    יער אקראי של PenuX (AUC=0.877) משתווה או עולה על BISAP ומתקרב לביצועי APACHE II ו-CTSI, עם היתרון המרכזי שהתוצאות זמינות תוך 2–4 שעות מהקבלה, באמצעות בדיקות דם שגרתיות בלבד — ללא צורך ב-CT, ללא המתנה של 24 שעות, עם שילוב API מלא לתהליכי עבודה אוטומטיים.
+  </p>
+
+  <!-- ── 7ב. מדוע נדרשות 48 שעות לאימות ── -->
+  <h3 class="sub-title">7.1 מדוע כלי ניקוד קלאסיים דורשים 48 שעות לאישור חומרה?</h3>
+
+  <p>
+    מגבלה קלינית מרכזית של Ranson, Glasgow (Imrie), ומערכות ניקוד קרובות היא שהציון הסופי שלהן אינו ניתן לחישוב בעת הקבלה — תת-קבוצה של הקריטריונים ניתנת להערכה רק לאחר 48 שעות של תצפית. עיכוב זה אינו שרירותי: הוא משקף את התגובה הפיזיולוגית הדו-גלית של הגוף לפגיעה לבלבית חריפה.
+  </p>
+
+  <h4 style="font-weight:600;color:var(--gray900);margin:1.2rem 0 .5rem">גל 1 — שחרור אנזימטי מיידי (0–24 שעות)</h4>
+  <ul style="padding-left:1.5rem;color:var(--gray800);margin-bottom:1rem">
+    <li>עמילאז וליפאז משתחררים לזרם הדם תוך שעות מפגיעה בתאי אצינר — ערכים אלו זמינים כבר בקבלה ומאשרים את אבחנת ה-AP.</li>
+    <li>תגובה דלקתית מקומית מתחילה; לויקוציטוזיס מופיע מוקדם.</li>
+    <li>בשלב זה, ההשפעה המערכתית על איברים עדיין אינה ניתנת למדידה.</li>
+  </ul>
+
+  <h4 style="font-weight:600;color:var(--gray900);margin:1.2rem 0 .5rem">גל 2 — תגובה דלקתית מערכתית (24–48 שעות)</h4>
+  <ul style="padding-left:1.5rem;color:var(--gray800);margin-bottom:1rem">
+    <li><strong>התגבשות SIRS:</strong> סערת ציטוקינים (IL-6, TNF-α) מגיעה לשיא ב-24–48 שעות, ומניעה את התגובה המערכתית הקובעת את החומרה.</li>
+    <li><strong>תגובת איברי מטרה:</strong> כליות (עלייה בקריאטינין / BUN), ריאות (ירידה ביחס PaO₂/FiO₂), מערכת הלב וכלי הדם — כולם דורשים זמן כדי לבטא תפקוד לקוי הניתן למדידה.</li>
+    <li><strong>חלוקה מחדש של נוזלים:</strong> אובדן למרחב שלישי, המוקונצנטרציה (ירידה בהמטוקריט של ≥10%), וקישור סידן לשומן נמקי (ירידת Ca²⁺) — כל אלה מתפתחים על פני 24–48 שעות.</li>
+  </ul>
+
+  <h4 style="font-weight:600;color:var(--gray900);margin:1.2rem 0 .5rem">אילו פרמטרים דורשים חלון של 48 שעות</h4>
+  <div class="table-wrap" style="margin-bottom:1.2rem">
+    <table>
+      <thead>
+        <tr><th>כלי ניקוד</th><th>פרמטרים לאחר 48 שעות</th><th>הסיבה לעיכוב</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Ranson (1974)</strong></td>
+          <td>ΔBUN ≥5 מ"ג/ד"ל · ΔהמטוקריT ≥10% · Ca²⁺ &lt;8 מ"ג/ד"ל · PaO₂ &lt;60 מ"מ כספית · חסר בסיס &gt;4 mEq/L · הצטברות נוזלים &gt;6 ליטר</td>
+          <td>כולם <em>ערכי דלתא דינמיים</em> — דורשים שתי נקודות זמן לחישוב</td>
+        </tr>
+        <tr>
+          <td><strong>Glasgow / Imrie</strong></td>
+          <td>PaO₂ · אלבומין · סידן · LDH (נמדדים מחדש ב-48 שעות)</td>
+          <td>הערכים מגיעים לשיא או לשפל ב-24–48 שעות; ערכי הקבלה מעריכים בחסר את החומרה</td>
+        </tr>
+        <tr>
+          <td><strong>BISAP</strong></td>
+          <td>BUN &gt;25 מ"ג/ד"ל (24 השעות הראשונות)</td>
+          <td>BUN מנופח לפני מתן נוזלים תוך-ורידי — אמין יותר לאחר טיפול נוזלים ראשוני</td>
+        </tr>
+        <tr>
+          <td><strong>מדד חומרת CT</strong></td>
+          <td>סריקת CT מבוצעת ב-48–72 שעות</td>
+          <td>נמק לבלבי אינו נראה ב-CT מוקדם (&lt;48 שעות) — הגברת ניגודיות מעריכה בחסר רקמה שאינה בת-קיימא</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="font-weight:600;color:var(--gray900);margin:1.2rem 0 .5rem">העלות הקלינית של חלון 48 השעות</h4>
+  <p>
+    במקרים קשים, עיכוב אבחנתי של 48 שעות הוא מסוכן קלינית. חולים שיפתחו נמק לבלבי מזוהם, תסמונת תא-בטן, או תפקוד לקוי רב-מערכתי מראים לרוב אותות אזהרה מוקדמים — שינויים במגמות ערכי המעבדה, עליית סמנים דלקתיים — שמודל מבוסס-נתונים יכול לזהות כבר בבדיקת הדם הראשונה.
+    מחקר פרוספקטיבי של Mounzer ועמיתיו (2012, <em>Gastroenterology</em>) הראה כי BISAP ו-APACHE II עולים על Ranson ב-24 שעות, אך נותרים נחותים ממודלים המשתמשים בו-זמנית בסמנים ביולוגיים בעת הקבלה כגון BUN, המטוקריט וקריטריוני SIRS.
+  </p>
+
+  <div style="background:var(--blue-lt,#eff6ff);border-left:4px solid var(--blue,#2563eb);padding:1rem 1.2rem;border-radius:0 .5rem .5rem 0;margin-bottom:1.5rem">
+    <strong>היתרון של PenuX:</strong> באמצעות למידה מ-106 ערכי מעבדה בעת הקבלה בו-זמנית — כולל אותם סמנים דלקתיים ומטבוליים שכלים קלאסיים מעריכים באופן סדרתי — מודל היער האקראי משיג הבחנה שווה או עולה (AUC 0.877) מ<em>בדיקת דם בודדת בעת הקבלה</em>, תוך ביטול מוחלט של חלון האימות בן 24–48 השעות.
+  </div>
+
+  <!-- ── 8. מגבלות ── -->
+  <h2 class="section-title">8. מגבלות וכיווני המשך</h2>
+  <ul style="padding-left:1.5rem;color:var(--gray800);margin-bottom:1rem">
+    <li style="margin-bottom:.5rem"><strong>קוהורט ממוסד יחיד:</strong> כל 722 האשפוזים מקורם בבית חולים סיני אחד. תמהיל האטיולוגיה, טווחי הייחוס של המעבדה, וסיווג החומרה עשויים להיות שונים באוכלוסיות ישראליות או מערביות.</li>
+    <li style="margin-bottom:.5rem"><strong>ללא מערך אימות חיצוני:</strong> כל נתוני הביצועים מגיעים מאימות צולב מדורג בן 5 קפלים על אותו קוהורט. נדרש מערך הפרדה בלתי-תלוי או מחקר אימות פרוספקטיבי.</li>
+    <li style="margin-bottom:.5rem"><strong>חוסר איזון בין מחלקות:</strong> 585 קשים לעומת 137 קלים (יחס 4.3:1). המודלים מותאמים לרגישות; הסגוליות נמוכה יותר (22–44%) בכל המודלים בסף האופטימלי.</li>
+    <li style="margin-bottom:.5rem"><strong>גודל מערך הנתונים ללמידה עמוקה:</strong> n=722 קרוב לגבול התחתון של התועלת מלמידה עמוקה על נתונים טבלאיים. התכנסות מהירה (7–11 אפוקים) ו-AUC נמוך יותר לעומת עצי אנסמבל מאששים זאת. מערך נתונים גדול יותר ורב-מוסדי צפוי לצמצם את הפער.</li>
+    <li style="margin-bottom:.5rem"><strong>איכות התיוג:</strong> 13–14 חולים עם ציוני סיכון גבוהים לספסיס לבלבי תויגו כ"קלים" — ייתכן סיווג ICD שגוי של נמק לבלבי מזוהם, העלול להנמיך את הביצועים האמיתיים של המודל.</li>
+    <li style="margin-bottom:.5rem"><strong>מעמד רגולטורי:</strong> שימוש קליני מחייב אישור ועדת אתיקה, הסמכת משרד הבריאות, ורישום כתוכנה כמכשיר רפואי (SaMD, MDR Class IIa).</li>
+  </ul>
+
+  <h3 class="sub-title">כיווני המשך</h3>
+  <ul style="padding-left:1.5rem;color:var(--gray800);margin-bottom:1rem">
+    <li>אימון על נתונים רב-מוסדיים ישראליים (שיבא, הדסה, רמב"ם) באישור ועדת הלסינקי</li>
+    <li>שילוב ממצאי CT (Modified CTSI) דרך משאבי FHIR ImagingStudy</li>
+    <li>למידה פדרטיבית (Federated Learning) — אימון מבוזר ללא שיתוף נתונים בין מוסדות</li>
+    <li>אפליקציית נייד לנקודת טיפול עבור רופאי מיון</li>
+    <li>הערכת XGBoost ו-TabNet לשיפור AUC פוטנציאלי על מערכי נתונים גדולים יותר</li>
+    <li>אימות זמני — מעקב פרוספקטיבי אחר ביצועי המודל לאורך זמן</li>
+  </ul>
+
+  <!-- ── 9. מסקנה ── -->
+  <h2 class="section-title">9. מסקנות</h2>
+  <p>
+    PenuX-AP-Severity מדגים כי ערכי מעבדה שגרתיים בעת הקבלה, המעובדים על ידי מודלי למידת מכונה מבוססי-נתונים, יכולים לזהות דלקת לבלב חריפה קשה עם AUC של עד 0.877 — בהשוואה שווה או עולה על כלי ניקוד קלאסיים ליד המיטה, הדורשים 24 שעות מעקב. יער אקראי הוא בעל הביצועים הטובים ביותר; Gradient Boosting מציע את ה-F1 והרגישות הגבוהים ביותר. מודלי למידה עמוקה תחרותיים, אך אינם מציעים יתרון ברור על פני שיטות אנסמבל בגודל מערך נתונים זה.
+  </p>
+  <p>
+    ממצא היפוך התוויות — מקרי AP בילארי קלים המציגים WBC/CRP/ליפאז גבוהים יותר מ-AP קשה ונמקי — הוא תובנה משמעותית מבחינה קלינית, המזהה ככל הנראה תת-קבוצה של מקרי נמק לבלבי מזוהם (IPN) המסווגים בטעות, המצדיקה מחקר פרוספקטיבי.
+  </p>
+  <p>
+    הפלטפורמה מספקת שילוב מלא עם FHIR R4, HL7 v2.x ו-Camelion, ומאפשרת ניקוד סיכון SAP אוטומטי תוך שעות מהקבלה. בסיס הקוד הוא קוד פתוח, ושיתוף פעולה מצד חוקרים, קלינאים ומפתחי מערכות מידע רפואיות יתקבל בברכה.
+  </p>
+
+  <!-- ── מקורות ── -->
+  <h2 class="section-title">מקורות</h2>
+  <ol class="refs">
+    <li>Banks PA, et al. <span>Classification of acute pancreatitis — 2012: revision of the Atlanta classification and definitions by international consensus.</span> Gut. 2013;62(1):102–111.</li>
+    <li>Wu BU, et al. <span>The early prediction of mortality in acute pancreatitis: a large population-based study.</span> Gut. 2008;57(12):1698–1703. [BISAP]</li>
+    <li>Ranson JH, et al. <span>Prognostic signs and the role of operative management in acute pancreatitis.</span> Surg Gynecol Obstet. 1974;139(1):69–81.</li>
+    <li>Johnson AEW, et al. <span>MIMIC-IV, a freely accessible electronic health record dataset.</span> Sci Data. 2023;10(1):1.</li>
+    <li>HL7 International. <span>HL7 FHIR R4 Specification.</span> 2019. https://hl7.org/fhir/R4/</li>
+    <li>Bollen TL, et al. <span>Comparative evaluation of the modified CT severity index and CT severity index in assessing severity of acute pancreatitis.</span> AJR. 2011;197(2):386–392.</li>
+    <li>Dellinger EP, et al. <span>Determinant-based classification of acute pancreatitis severity.</span> Ann Surg. 2012;256(6):875–880.</li>
+    <li>Cho JH, Kim TN, et al. <span>Harmless Acute Pancreatitis Score to predict absence of organ failure at admission.</span> Pancreatology. 2015;15(3):229–233.</li>
+    <li>Breiman L. <span>Random Forests.</span> Machine Learning. 2001;45(1):5–32.</li>
+    <li>Friedman JH. <span>Greedy function approximation: a gradient boosting machine.</span> Ann Stat. 2001;29(5):1189–1232.</li>
+    <li>Vaswani A, et al. <span>Attention is all you need.</span> NeurIPS. 2017.</li>
+  </ol>
+
+  <!-- ── כותרת תחתונה ── -->
+  <div class="article-footer">
+    <strong>חוקר ראשי:</strong> נתנאל שטרן &mdash; <a href="mailto:nsh531@gmail.com" style="color:#94a3b8;">nsh531@gmail.com</a> &middot; +972-55-970-8708<br/>
+    <strong>ניגודי עניינים:</strong> אין. <strong>מימון:</strong> ללא מימון חיצוני. <strong>קוד מקור:</strong> github.com/netanelcyber/penuX (רישיון MIT). <strong>נתונים:</strong> קוהורט אשפוזי AP סיני, ממוסד יחיד (אנונימי; ללא שמירת מזהי חולים). <strong>אתיקה:</strong> ניתוח רטרוספקטיבי של נתונים אנונימיים — פטור מוועדת הלסינקי לפי מדיניות המוסד. <br/><br/>
+    ⚠️ <strong>אזהרת שימוש:</strong> מערכת זו הינה אב-טיפוס מחקרי בלבד ואינה מוסמכת לשימוש קליני. אין להשתמש בה לקבלת החלטות טיפוליות.
+  </div>
+
+</div><!-- /content-he -->
+
+</div><!-- /wrapper -->
 
 <script>
-// Fill GBDT table cells from eval_results.json
+// Language toggle (EN / Hebrew)
+function setReviewLang(lang) {
+  document.documentElement.setAttribute("data-lang", lang);
+  document.documentElement.setAttribute("dir", lang === "he" ? "rtl" : "ltr");
+  document.documentElement.setAttribute("lang", lang === "he" ? "he" : "en");
+  document.getElementById("btn-en").classList.toggle("active", lang === "en");
+  document.getElementById("btn-he").classList.toggle("active", lang === "he");
+  try { localStorage.setItem("penux-review-lang", lang); } catch (e) {}
+}
+(function () {
+  var saved;
+  try { saved = localStorage.getItem("penux-review-lang"); } catch (e) {}
+  if (saved === "he") setReviewLang("he");
+})();
+
+// Fill GBDT table cells from eval_results.json (both EN and HE tables)
 const GBDT_MAP = [
   ["XGBoost",  "rv-lstm"],
   ["LightGBM", "rv-slstm"],
@@ -673,7 +1196,12 @@ fetch("../PenuX-AP-Severity/models/eval_results.json")
     GBDT_MAP.forEach(([key, id]) => {
       const v = data[key];
       if (!v) return;
-      const set = (suffix, val) => { const el = document.getElementById(id + "-" + suffix); if (el) el.textContent = val; };
+      const set = (suffix, val) => {
+        ["", "-he"].forEach(langSuffix => {
+          const el = document.getElementById(id + "-" + suffix + langSuffix);
+          if (el) el.textContent = val;
+        });
+      };
       set("auc",  v.auc);
       set("f1",   v.f1);
       set("t",    v.threshold);
