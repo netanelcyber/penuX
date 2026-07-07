@@ -108,6 +108,80 @@ with the Python XGBoost configurations benchmarked in
 training/inference logic is independently implemented, not linked against
 the `xgboost` package.
 
+## Pseudocode
+
+### Logistic regression (`logreg_from_scratch.f90`)
+
+```text
+load CSV -> X (n x p), y_raw (n)              # last column = target
+y <- 1 - y_raw                                 # raw 0 = SAP, flip so 1 = SAP
+
+(train_idx, test_idx) <- stratified_split(y, train_frac=0.8)
+Xtr, ytr <- X[train_idx], y[train_idx]
+Xte, yte <- X[test_idx],  y[test_idx]
+
+mu, sigma <- column_mean(Xtr), column_std(Xtr)        # fit on train only
+Xtr <- (Xtr - mu) / sigma
+Xte <- (Xte - mu) / sigma                              # apply train stats to test
+
+w <- zeros(p); b <- 0
+for it in 1..n_iter:
+    z    <- Xtr @ w + b
+    p̂    <- sigmoid(z)
+    grad_w <- Xtr^T @ (p̂ - ytr) / n_train + lambda * w   # L2 penalty
+    grad_b <- mean(p̂ - ytr)
+    w <- w - lr * grad_w
+    b <- b - lr * grad_b
+
+proba_test <- sigmoid(Xte @ w + b)
+report AUROC(proba_test, yte), confusion_matrix(proba_test, yte, threshold=0.5)
+```
+
+### Gradient-boosted trees, XGBoost-style (`xgboost_from_scratch.f90`)
+
+```text
+load CSV -> X (n x p), y_raw (n)
+y <- 1 - y_raw
+(train_idx, test_idx) <- stratified_split(y, train_frac=0.8)
+
+rate  <- mean(ytr) clipped to [0.01, 0.99]
+F     <- log(rate / (1 - rate))  for every training row     # log-odds init
+
+for m in 1..n_estimators:
+    p̂    <- sigmoid(F)
+    g    <- p̂ - ytr                        # first-order gradient  (per row)
+    h    <- p̂ * (1 - p̂)                    # second-order gradient (per row)
+    tree <- BUILD_TREE(Xtr, g, h, depth=0)
+    F    <- F + learning_rate * tree.predict(Xtr)
+
+function BUILD_TREE(X, g, h, idx, depth):
+    G <- sum(g[idx]); H <- sum(h[idx])
+    if depth >= max_depth or |idx| < 2 or H < 2*min_child_weight:
+        return LEAF(value = -G / (H + lambda))
+
+    best_gain <- 0; best_split <- none
+    for each feature f in 1..p:
+        sort idx by X[idx, f]
+        GL <- 0; HL <- 0
+        for each candidate split point k (between distinct sorted values):
+            GL += g[k]; HL += h[k]
+            GR <- G - GL; HR <- H - HL
+            if HL < min_child_weight or HR < min_child_weight: continue
+            gain <- 0.5 * ( GL^2/(HL+lambda) + GR^2/(HR+lambda) - G^2/(H+lambda) ) - gamma
+            if gain > best_gain: best_gain, best_split <- gain, (f, threshold_k)
+
+    if best_split is none:
+        return LEAF(value = -G / (H + lambda))
+
+    left_idx, right_idx <- partition idx by X[idx, best_split.f] <= best_split.threshold
+    return NODE(best_split.f, best_split.threshold,
+                left  = BUILD_TREE(X, g, h, left_idx,  depth+1),
+                right = BUILD_TREE(X, g, h, right_idx, depth+1))
+
+proba_test <- sigmoid( F_init + learning_rate * sum(tree.predict(Xte) for tree in trees) )
+report AUROC(proba_test, yte), confusion_matrix(proba_test, yte, threshold=0.5)
+```
+
 ## What both programs assume about the input
 
 - Last CSV column is the raw binary target; all other columns are numeric
