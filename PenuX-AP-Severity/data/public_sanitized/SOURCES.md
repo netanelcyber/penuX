@@ -14,12 +14,22 @@ used under their original open-source licenses.
 | License | MIT |
 | Origin | Second Affiliated Hospital of Guilin Medical University, 2016–2024 |
 | N patients | 1,289 |
-| N SAP (label=1) | 204 (15.8%) |
-| N non-SAP (label=0) | 1,085 |
+| N SAP (raw value 0) | 204 (15.8%) |
+| N non-SAP (raw value 1) | 1,085 |
 | Features | 60 (after identifier removal) |
-| Target column | `Diagnostic Result` (0=non-SAP, 1=SAP) |
+| Target column | `Diagnostic Result` (**raw 0=SAP, raw 1=non-SAP** — reversed vs. the usual 0/1 convention; verified against `value_counts()`) |
 | Identifiers removed | `ID No.`, `Name` |
 | Sanitized by | penux_ap.datasets.sanitize_identifiers |
+
+> ⚠️ The raw column's `1` value is the *majority* (non-SAP) group, not SAP.
+> `scripts/run_baseline.py` and `penux_ap.labels.binarize_target` do **not**
+> flip this automatically — they pass the raw 0/1 values through as-is. Any
+> script computing threshold-based metrics (F1, sensitivity, specificity,
+> PPV, NPV) must invert the label first (`y = 1 - y`) or those metrics will
+> silently reflect prediction of the non-SAP majority class instead of SAP.
+> AUROC is unaffected by the flip (it is invariant to jointly flipping label
+> and score), but every other metric is not.
+> `scripts/benchmark_model_zoo.py` exposes `--positive-value 0` for this.
 
 ### Usage
 ```bash
@@ -40,13 +50,13 @@ python scripts/run_baseline.py \
 | License | Apache-2.0 |
 | Origin | Second Affiliated Hospital of Guilin Medical University, 2020–2024 |
 | N patients | 722 |
-| N SAP (label=1) | 137 (19.0%) |
-| N non-SAP (label=0) | 585 |
+| N SAP (raw value 0) | 137 (19.0%) |
+| N non-SAP (raw value 1) | 585 |
 | Features | 107 (after identifier removal) |
-| Target column | `严重程度` (severity; 0=non-SAP, 1=SAP) |
+| Target column | `严重程度` (severity; **raw 0=SAP, raw 1=non-SAP** — reversed, same caveat as the multiml dataset) |
 | Identifiers removed | `序号` (serial number), `姓名` (name) |
 | Sanitized by | penux_ap.datasets.sanitize_identifiers |
-| Note | Column names are in Chinese. Use with `--target-column 严重程度` |
+| Note | Column names are in Chinese. Use with `--target-column 严重程度`. See raw-label-direction warning above. |
 
 ### Usage
 ```bash
