@@ -253,7 +253,7 @@ def build_model_zoo() -> list[tuple[str, object]]:
     # CatBoost: iterations x depth x learning_rate (100)
     try:
         from catboost import CatBoostClassifier
-        for n, depth, lr in itertools.product([100, 200, 300, 500, 800], [4, 6, 8, 10, 12], [0.01, 0.05, 0.1, 0.2]):
+        for n, depth, lr in itertools.product([100, 200, 300, 500, 800], [4, 5, 6, 7, 8], [0.01, 0.05, 0.1, 0.2]):
             add(
                 f"catboost_n{n}_d{depth}_lr{lr}",
                 CatBoostClassifier(
