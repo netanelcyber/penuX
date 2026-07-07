@@ -49,6 +49,13 @@ def main():
     parser.add_argument("--target-column", default=None, help="Target column name.")
     parser.add_argument("--outdir", default="outputs/demo", help="Output directory.")
     parser.add_argument("--cv-folds", type=int, default=5, help="Stratified CV folds for out-of-fold predictions.")
+    parser.add_argument(
+        "--positive-value", type=int, default=1, choices=[0, 1],
+        help="Which raw binarized value denotes the positive (SAP) class. "
+             "Both registered public datasets store SAP as raw value 0 "
+             "(see docs/dataset_sources.md caveat on reversed raw label direction) "
+             "-- pass --positive-value 0 for those.",
+    )
     args = parser.parse_args()
 
     outdir = ensure_dir(args.outdir)
@@ -59,8 +66,10 @@ def main():
 
     y = binarize_target(df[target_col])
     y = y.dropna().astype(int)
+    if args.positive_value == 0:
+        y = 1 - y
     df = df.loc[y.index]
-    log.info("Target distribution: %s", describe_target(y))
+    log.info("Target distribution (1=SAP): %s", describe_target(y))
 
     feature_types = infer_feature_types(df, target_col)
     X = df.drop(columns=[target_col])
