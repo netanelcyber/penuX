@@ -130,6 +130,53 @@ python scripts/run_baseline.py \
 
 ---
 
+## 6א. השוואה מול 171 מודלים אחרים
+
+מעבר לשלושת מודלי ה־GBDT המרכזיים, נבנה "zoo" חקרני של 171 קונפיגורציות מודלים
+שונות — רגרסיה לוגיסטית, Ridge, SGD, Perceptron, SVM ליניארי ו־kernel, KNN,
+Naive Bayes, עצי החלטה, Random Forest, Extra Trees, Gradient Boosting של
+scikit-learn, HistGradientBoosting, AdaBoost, Bagging, MLP, Linear/Quadratic
+Discriminant Analysis, Gaussian Process, וכן מגוון קונפיגורציות נוספות של
+XGBoost, LightGBM ו־CatBoost (ראו `scripts/model_zoo.py`). כל המודלים הוערכו
+בשיטת out-of-fold עם 5-fold Stratified CV זהה, כדי לאפשר השוואה הוגנת
+(`scripts/benchmark_model_zoo.py`).
+
+> ⚠️ הריצה הראשונית של ההשוואה חשפה תקלה במקור: עמודת היעד הגולמית בשני
+> המאגרים הפוכה ביחס למתועד — הערך הגולמי `0` הוא בפועל SAP (204/137 המקרים
+> המתועדים), והערך `1` הוא הרוב (non-SAP). AUC אינו מושפע מהיפוך זה (הוא
+> אינווריאנטי להיפוך משותף של תווית וניקוד), אך AUPRC, F1, רגישות, סגוליות,
+> PPV ו־NPV כן מושפעים. ההשוואה שלהלן מבוצעת עם היפוך מתוקן
+> (`--positive-value 0`). ראו `docs/dataset_sources.md` ו־
+> `data/public_sanitized/SOURCES.md` לפרטים.
+
+### תוצאות ההשוואה (מיון לפי AUC, out-of-fold, 5-fold CV)
+
+| מאגר    | מודל (קונפיגורציה עיקרית)      |  AUC  | דירוג מתוך 170 שהוערכו הצליחו |
+| ------- | -------------------------------- | :---: | :----------------------------: |
+| multiml | LightGBM (`n=200, lr=0.1`)      | 0.850 |               10               |
+| multiml | XGBoost (`n=200, depth=5, lr=0.1`) | 0.842 |               47               |
+| multiml | CatBoost (`n=200, depth=6, lr=0.1`) | 0.829 |               93               |
+| lnn     | LightGBM (`n=200, lr=0.1`)      | 0.885 |                3               |
+| lnn     | XGBoost (`n=200, depth=5, lr=0.1`) | 0.881 |               20               |
+| lnn     | CatBoost (`n=200, depth=6, lr=0.1`) | 0.876 |               48               |
+
+(מקור מלא: `outputs/multiml/model_zoo_benchmark.csv`, `outputs/lnn/model_zoo_benchmark.csv`, 170/171 קונפיגורציות הצליחו בכל מאגר — כשל בודד ב־QDA עקב matrix קולינארי.)
+
+**המודל הטוב ביותר מתוך 171 בכל מאגר:**
+
+* **multiml**: `LightGBM (n=300, leaves=31, lr=0.05)`, AUC=0.8537 — שיפור שולי בלבד מעל קונפיגורציית ה־LightGBM הראשית (0.8499).
+* **lnn**: `HistGradientBoostingClassifier (n=100, lr=0.1)` של scikit-learn, AUC=0.8865 — קרוב מאוד ל־LightGBM (0.8864–0.8853).
+
+**תובנות מרכזיות:**
+
+1. **אף מודל לא עוקף באופן משמעותי את ה־GBDT.** בשני המאגרים, ה־AUC הטוב ביותר מבין 171 הקונפיגורציות (≈0.854 ו־≈0.886) קרוב מאוד ל־AUC של מודלי ה־GBDT הראשיים שהוצגו בסעיף 6 (0.84–0.88). אין קפיצת ביצועים דרמטית ממודל אחר.
+2. **המודלים המובילים כולם מבוססי עצים/boosting.** בשני המאגרים, 10-15 המקומות הראשונים מאוכלסים כמעט אך ורק על ידי LightGBM, Random Forest, Extra Trees, HistGradientBoosting ו־XGBoost בקונפיגורציות שונות — לא מודלים ליניאריים, SVM, KNN או רשתות נוירונים.
+3. **CatBoost דורג נמוך יחסית משאר משפחת ה־GBDT** בשני המאגרים (93/170 ו־48/170), אך עדיין הרבה מעל החציון.
+4. **המודלים החלשים ביותר** בשני המאגרים הם עצי החלטה בודדים (`DecisionTreeClassifier`, `ExtraTreeClassifier`) ללא ensemble — AUC של 0.59–0.65 בלבד, מה שמדגיש את התרומה של שיטות ensemble/boosting לביצועים.
+5. **המסקנה המתודולוגית** נותרת כפי שתוארה למעלה: מודלי GBDT (ובפרט LightGBM) הם בחירה סבירה וחזקה עבור המשימה הזו על המאגרים הציבוריים שנבדקו, אך השיפור מעבר לחלופות ensemble אחרות (Random Forest, HistGradientBoosting) הוא שולי ולא מהותי. אין בכך כדי לשנות את מגבלות הניתוח (ניתוח משני חקרני, ללא ולידציה חיצונית) המפורטות בסעיפים 10 ו־15.
+
+---
+
 ## 7. סינון לפי יעד רגישות ≥98%
 
 לאחר בחינת הסף הקבוע `P≥0.30`, נמצא כי הוא מחמיץ שיעור גבוה מדי של מקרי SAP. לכן בוצע כיול סף לפי יעד רגישות של לפחות 98%.
