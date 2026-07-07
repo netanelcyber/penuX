@@ -102,12 +102,14 @@ def build_model_zoo() -> list[tuple[str, object]]:
         )
 
     # Kernel SVC: kernel x C (28) + poly degree x C (9) = 37
+    # max_iter caps worst-case runtime -- libsvm's dual solver can take minutes
+    # per fold at high C with the linear kernel on near-separable data.
     for kernel, c in itertools.product(["rbf", "linear", "poly", "sigmoid"], [0.001, 0.01, 0.1, 1, 10, 100, 1000]):
-        add(f"svc_{kernel}_C{c}", SVC(kernel=kernel, C=c, probability=True, random_state=RANDOM_SEED))
+        add(f"svc_{kernel}_C{c}", SVC(kernel=kernel, C=c, probability=True, random_state=RANDOM_SEED, max_iter=2000))
     for degree, c in itertools.product([2, 3, 4], [0.1, 1, 10]):
         add(
             f"svc_poly_deg{degree}_C{c}",
-            SVC(kernel="poly", degree=degree, C=c, probability=True, random_state=RANDOM_SEED),
+            SVC(kernel="poly", degree=degree, C=c, probability=True, random_state=RANDOM_SEED, max_iter=2000),
         )
 
     # KNN: n_neighbors x weights (26) + metric x n_neighbors (6) = 32
