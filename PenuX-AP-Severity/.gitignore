@@ -20,3 +20,6 @@ outputs/reports/*.json
 outputs/reports/*.csv
 notebooks/.ipynb_checkpoints/
 .DS_Store
+fortran/logreg_from_scratch
+fortran/*.o
+fortran/*.mod
