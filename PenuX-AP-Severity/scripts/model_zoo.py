@@ -414,6 +414,59 @@ def build_model_zoo() -> list[tuple[str, object]]:
     except ImportError:
         log.info("torch not installed; skipping DNN/ConvNet variants.")
 
+    # --- 900 more deep-learning configs: 300 DNN, 300 ConvNet (wider grids
+    # than the ~96 above, using a "_v2" prefix to avoid name collisions),
+    # and 300 hybrid DNN+ConvNet+GBDT ensembles (fixed-weight combination of
+    # all three sub-models' predicted probabilities).
+    try:
+        from penux_ap.torch_models import TorchConvNetClassifier, TorchDNNClassifier
+        from penux_ap.hybrid_models import HybridDNNConvGBDTClassifier
+
+        # DNN v2: hidden_sizes(10) x dropout(3) x lr(2) x weight_decay(5) = 300
+        dnn_hidden_grid = [
+            (16,), (32,), (64,), (128,), (32, 16), (64, 32), (128, 64),
+            (64, 32, 16), (128, 64, 32), (256, 128, 64),
+        ]
+        for hidden, dropout, lr, wd in itertools.product(
+            dnn_hidden_grid, [0.1, 0.2, 0.4], [1e-3, 5e-3], [1e-5, 1e-4, 1e-3, 1e-2, 1e-1],
+        ):
+            add(
+                f"dnn_v2_{hidden}_drop{dropout}_lr{lr}_wd{wd}",
+                TorchDNNClassifier(hidden_sizes=hidden, dropout=dropout, lr=lr, weight_decay=wd),
+            )
+
+        # ConvNet v2: channels(5) x kernel_size(3) x dropout(4) x lr(5) = 300
+        conv_channels_grid = [(8,), (8, 16), (16, 32), (32, 64), (8, 16, 32)]
+        for channels, kernel_size, dropout, lr in itertools.product(
+            conv_channels_grid, [3, 5, 7], [0.1, 0.2, 0.3, 0.4],
+            [5e-4, 1e-3, 3e-3, 5e-3, 1e-2],
+        ):
+            add(
+                f"convnet_v2_{channels}_k{kernel_size}_drop{dropout}_lr{lr}",
+                TorchConvNetClassifier(channels=channels, kernel_size=kernel_size, dropout=dropout, lr=lr),
+            )
+
+        # Hybrid DNN+ConvNet+GBDT: dnn_arch(5) x conv_arch(5) x gbdt_config(4) x combo_method(3) = 300
+        hybrid_dnn_archs = [(32,), (64,), (64, 32), (128, 64), (64, 32, 16)]
+        hybrid_conv_archs = [(8, 16), (16, 32), (32, 64), (8, 16, 32), (16,)]
+        hybrid_gbdt_configs = [
+            (50, 3, 0.1), (100, 3, 0.1), (100, 5, 0.05), (200, 5, 0.05),
+        ]
+        for (dnn_h, conv_c, (gb_n, gb_d, gb_lr), combo) in itertools.product(
+            hybrid_dnn_archs, hybrid_conv_archs, hybrid_gbdt_configs,
+            ["average", "gbdt_heavy", "nn_heavy"],
+        ):
+            add(
+                f"hybrid_dnn{dnn_h}_conv{conv_c}_gbdt{gb_n}-{gb_d}-{gb_lr}_{combo}",
+                HybridDNNConvGBDTClassifier(
+                    dnn_hidden=dnn_h, conv_channels=conv_c,
+                    gbdt_n_estimators=gb_n, gbdt_max_depth=gb_d, gbdt_learning_rate=gb_lr,
+                    combo_method=combo,
+                ),
+            )
+    except ImportError:
+        log.info("torch/lightgbm not installed; skipping v2 DNN/ConvNet/hybrid variants.")
+
     return zoo
 
 
