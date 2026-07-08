@@ -161,6 +161,45 @@ def build_model_zoo() -> list[tuple[str, object]]:
     for leaf in [5, 10, 20]:
         add(f"extra_tree_leaf{leaf}", ExtraTreeClassifier(min_samples_leaf=leaf, random_state=RANDOM_SEED))
 
+    # "10K-node" trees: max_leaf_nodes controls tree size directly (a binary
+    # tree with L leaves has 2L-1 total nodes, so max_leaf_nodes=5000 ->
+    # ~10,000 nodes if the tree grows that large; these datasets have only
+    # ~700-1300 rows, so in practice most such trees grow until every leaf is
+    # pure or min_samples_leaf is hit, well short of the cap -- included to
+    # explicitly test "let the tree get as big as the data allows."
+    # Single trees: criterion x max_leaf_nodes (6)
+    for criterion, max_leaf_nodes in itertools.product(["gini", "entropy"], [1000, 2500, 5000]):
+        add(
+            f"dtree_{criterion}_leafnodes{max_leaf_nodes}",
+            DecisionTreeClassifier(criterion=criterion, max_leaf_nodes=max_leaf_nodes, random_state=RANDOM_SEED),
+        )
+    for max_leaf_nodes in [1000, 2500, 5000]:
+        add(
+            f"extra_tree_leafnodes{max_leaf_nodes}",
+            ExtraTreeClassifier(max_leaf_nodes=max_leaf_nodes, random_state=RANDOM_SEED),
+        )
+    # Forests of huge trees: n_estimators x max_leaf_nodes x class_weight (8)
+    for n, max_leaf_nodes, cw in itertools.product([100, 300], [2500, 5000], ["balanced", None]):
+        add(
+            f"rf_huge_n{n}_leafnodes{max_leaf_nodes}_{cw}",
+            RandomForestClassifier(
+                n_estimators=n, max_leaf_nodes=max_leaf_nodes, class_weight=cw,
+                random_state=RANDOM_SEED, n_jobs=N_JOBS,
+            ),
+        )
+    # Extra trees forest of huge trees: n_estimators x max_leaf_nodes (4)
+    for n, max_leaf_nodes in itertools.product([100, 300], [2500, 5000]):
+        add(
+            f"extra_trees_huge_n{n}_leafnodes{max_leaf_nodes}",
+            ExtraTreesClassifier(n_estimators=n, max_leaf_nodes=max_leaf_nodes, random_state=RANDOM_SEED, n_jobs=N_JOBS),
+        )
+    # HistGradientBoosting with huge trees: max_iter x max_leaf_nodes (4)
+    for n, max_leaf_nodes in itertools.product([100, 200], [1000, 5000]):
+        add(
+            f"histgbdt_huge_n{n}_leafnodes{max_leaf_nodes}",
+            HistGradientBoostingClassifier(max_iter=n, max_leaf_nodes=max_leaf_nodes, random_state=RANDOM_SEED),
+        )
+
     # Random forest: n_estimators x max_depth x class_weight (60)
     for n, depth, cw in itertools.product([100, 200, 300, 500, 800], [None, 5, 10, 15, 20, 30], ["balanced", None]):
         add(
