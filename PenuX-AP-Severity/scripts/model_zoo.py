@@ -348,6 +348,33 @@ def build_model_zoo() -> list[tuple[str, object]]:
             ScratchGBDTClassifier(n_estimators=n, max_depth=depth, learning_rate=lr),
         )
 
+    # --- Deep learning (PyTorch, CPU): feedforward DNN and 1D ConvNet over
+    # the tabular feature vector (~96 configs), added to check whether deep
+    # nets can beat the GBDT/ensemble models on these small clinical datasets.
+    try:
+        from penux_ap.torch_models import TorchConvNetClassifier, TorchDNNClassifier
+
+        # DNN: hidden_sizes x dropout x lr x batch_size (64)
+        for hidden, dropout, lr, batch_size in itertools.product(
+            [(32,), (64,), (128,), (64, 32), (128, 64), (256, 128), (64, 32, 16), (128, 64, 32)],
+            [0.1, 0.3], [1e-3, 3e-3], [16, 32],
+        ):
+            add(
+                f"dnn_{hidden}_drop{dropout}_lr{lr}_bs{batch_size}",
+                TorchDNNClassifier(hidden_sizes=hidden, dropout=dropout, lr=lr, batch_size=batch_size),
+            )
+
+        # 1D ConvNet: channels x kernel_size x dropout x lr (32)
+        for channels, kernel_size, dropout, lr in itertools.product(
+            [(8, 16), (16, 32), (32, 64), (16, 32, 64)], [3, 5], [0.1, 0.3], [1e-3, 3e-3],
+        ):
+            add(
+                f"convnet_{channels}_k{kernel_size}_drop{dropout}_lr{lr}",
+                TorchConvNetClassifier(channels=channels, kernel_size=kernel_size, dropout=dropout, lr=lr),
+            )
+    except ImportError:
+        log.info("torch not installed; skipping DNN/ConvNet variants.")
+
     return zoo
 
 
