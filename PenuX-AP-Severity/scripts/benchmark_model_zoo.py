@@ -12,6 +12,7 @@ No dataset is bundled. Add a legally usable, de-identified dataset to
 data/public_sanitized/ before running this script.
 """
 import argparse
+import csv
 import sys
 import time
 import warnings
@@ -78,30 +79,53 @@ def main():
     log.info("Model zoo size: %d configurations", len(zoo))
 
     cv = StratifiedKFold(n_splits=args.cv_folds, shuffle=True, random_state=42)
-    rows = []
 
-    for i, (name, estimator) in enumerate(zoo, start=1):
-        t0 = time.time()
-        try:
-            y_proba = np.full(len(y), np.nan)
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                for train_idx, test_idx in cv.split(X, y):
-                    preprocessor = build_preprocessor(feature_types["numeric"], feature_types["categorical"])
-                    pipe = Pipeline([("preprocessor", preprocessor), ("classifier", clone(estimator))])
-                    pipe.fit(X.iloc[train_idx], y.iloc[train_idx])
-                    y_proba[test_idx] = predict_proba_safe(pipe, X.iloc[test_idx])
-            metrics = evaluate_binary_classifier(y.values, y_proba)
-            metrics["model"] = name
-            metrics["status"] = "ok"
-            metrics["seconds"] = round(time.time() - t0, 2)
-            rows.append(metrics)
-            log.info("[%d/%d] %s -> AUC=%.4f (%.1fs)", i, len(zoo), name, metrics["auroc"], metrics["seconds"])
-        except Exception as e:
-            log.warning("[%d/%d] %s failed: %s", i, len(zoo), name, e)
-            rows.append({"model": name, "status": f"failed: {e}", "auroc": float("nan")})
+    # Checkpointing: each model's result is flushed to disk immediately, and
+    # already-completed models are skipped on restart -- this script's runs
+    # have repeatedly been killed by container restarts partway through the
+    # full 784-model zoo, and re-doing hours of finished work each time is
+    # wasteful.
+    fieldnames = [
+        "model", "status", "seconds", "auroc", "auprc", "brier_score", "accuracy",
+        "sensitivity", "specificity", "ppv", "npv", "f1", "threshold", "tp", "tn", "fp", "fn",
+    ]
+    checkpoint_path = outdir / "model_zoo_checkpoint.csv"
+    done_names = set()
+    if checkpoint_path.exists():
+        done_names = set(pd.read_csv(checkpoint_path, usecols=["model"])["model"])
+        log.info("Resuming from checkpoint: %d models already done.", len(done_names))
 
-    results = pd.DataFrame(rows)
+    with open(checkpoint_path, "a", newline="") as ckpt_f:
+        writer = csv.DictWriter(ckpt_f, fieldnames=fieldnames, extrasaction="ignore")
+        if checkpoint_path.stat().st_size == 0:
+            writer.writeheader()
+
+        for i, (name, estimator) in enumerate(zoo, start=1):
+            if name in done_names:
+                continue
+            t0 = time.time()
+            try:
+                y_proba = np.full(len(y), np.nan)
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    for train_idx, test_idx in cv.split(X, y):
+                        preprocessor = build_preprocessor(feature_types["numeric"], feature_types["categorical"])
+                        pipe = Pipeline([("preprocessor", preprocessor), ("classifier", clone(estimator))])
+                        pipe.fit(X.iloc[train_idx], y.iloc[train_idx])
+                        y_proba[test_idx] = predict_proba_safe(pipe, X.iloc[test_idx])
+                metrics = evaluate_binary_classifier(y.values, y_proba)
+                metrics.pop("confusion_matrix", None)
+                metrics["model"] = name
+                metrics["status"] = "ok"
+                metrics["seconds"] = round(time.time() - t0, 2)
+                log.info("[%d/%d] %s -> AUC=%.4f (%.1fs)", i, len(zoo), name, metrics["auroc"], metrics["seconds"])
+            except Exception as e:
+                metrics = {"model": name, "status": f"failed: {e}", "auroc": float("nan")}
+                log.warning("[%d/%d] %s failed: %s", i, len(zoo), name, e)
+            writer.writerow(metrics)
+            ckpt_f.flush()
+
+    results = pd.read_csv(checkpoint_path)
     results = results.sort_values("auroc", ascending=False, na_position="last").reset_index(drop=True)
     results.insert(0, "rank", range(1, len(results) + 1))
     results.to_csv(outdir / "model_zoo_benchmark.csv", index=False)

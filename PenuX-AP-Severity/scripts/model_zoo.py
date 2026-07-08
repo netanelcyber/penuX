@@ -10,6 +10,7 @@ registry in `penux_ap.models`.
 """
 import itertools
 import logging
+import os
 
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 from sklearn.ensemble import (
@@ -37,6 +38,14 @@ from sklearn.tree import DecisionTreeClassifier, ExtraTreeClassifier
 from penux_ap.config import RANDOM_SEED
 
 log = logging.getLogger(__name__)
+
+# Explicit thread cap for multi-threaded estimators. Benchmark runs of this
+# zoo have been run one dataset at a time (see scripts/benchmark_model_zoo.py) --
+# running two such processes concurrently on a small number of cores causes
+# severe thread oversubscription (XGBoost/LightGBM/CatBoost/RandomForest/
+# ExtraTrees/HistGradientBoosting all parallelize internally), observed to
+# slow individual model fits by 100x or more.
+N_JOBS = os.cpu_count() or 1
 
 
 def build_model_zoo() -> list[tuple[str, object]]:
@@ -157,7 +166,7 @@ def build_model_zoo() -> list[tuple[str, object]]:
         add(
             f"rf_n{n}_d{depth}_{cw}",
             RandomForestClassifier(
-                n_estimators=n, max_depth=depth, class_weight=cw, random_state=RANDOM_SEED, n_jobs=-1
+                n_estimators=n, max_depth=depth, class_weight=cw, random_state=RANDOM_SEED, n_jobs=N_JOBS
             ),
         )
 
@@ -165,7 +174,7 @@ def build_model_zoo() -> list[tuple[str, object]]:
     for n, depth in itertools.product([100, 200, 300, 500, 800], [None, 5, 10, 15, 20, 30]):
         add(
             f"extra_trees_n{n}_d{depth}",
-            ExtraTreesClassifier(n_estimators=n, max_depth=depth, random_state=RANDOM_SEED, n_jobs=-1),
+            ExtraTreesClassifier(n_estimators=n, max_depth=depth, random_state=RANDOM_SEED, n_jobs=N_JOBS),
         )
 
     # Gradient boosting (sklearn): n_estimators x learning_rate x subsample (36)
@@ -190,7 +199,7 @@ def build_model_zoo() -> list[tuple[str, object]]:
     for n, max_samples in itertools.product([10, 50, 100, 200, 300, 500], [0.5, 0.8, 1.0]):
         add(
             f"bagging_n{n}_ms{max_samples}",
-            BaggingClassifier(n_estimators=n, max_samples=max_samples, random_state=RANDOM_SEED, n_jobs=-1),
+            BaggingClassifier(n_estimators=n, max_samples=max_samples, random_state=RANDOM_SEED, n_jobs=N_JOBS),
         )
 
     # MLP: hidden layers x activation (33) + alpha variants (3) = 36
@@ -232,7 +241,7 @@ def build_model_zoo() -> list[tuple[str, object]]:
                 f"xgboost_n{n}_d{depth}_lr{lr}",
                 XGBClassifier(
                     n_estimators=n, max_depth=depth, learning_rate=lr,
-                    random_state=RANDOM_SEED, eval_metric="logloss", verbosity=0,
+                    random_state=RANDOM_SEED, eval_metric="logloss", verbosity=0, n_jobs=N_JOBS,
                 ),
             )
     except ImportError:
@@ -246,7 +255,7 @@ def build_model_zoo() -> list[tuple[str, object]]:
                 f"lightgbm_n{n}_leaves{leaves}_lr{lr}",
                 LGBMClassifier(
                     n_estimators=n, num_leaves=leaves, learning_rate=lr,
-                    random_state=RANDOM_SEED, verbose=-1,
+                    random_state=RANDOM_SEED, verbose=-1, n_jobs=N_JOBS,
                 ),
             )
     except ImportError:
@@ -260,7 +269,7 @@ def build_model_zoo() -> list[tuple[str, object]]:
                 f"catboost_n{n}_d{depth}_lr{lr}",
                 CatBoostClassifier(
                     iterations=n, depth=depth, learning_rate=lr,
-                    random_state=RANDOM_SEED, verbose=False, allow_writing_files=False,
+                    random_state=RANDOM_SEED, verbose=False, allow_writing_files=False, thread_count=N_JOBS,
                 ),
             )
     except ImportError:
