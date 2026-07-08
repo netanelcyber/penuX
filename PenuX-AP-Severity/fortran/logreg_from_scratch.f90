@@ -142,10 +142,37 @@ contains
     test_idx(n_pos - pos_train + 1:n_test) = neg_idx(neg_train + 1:n_neg)
   end subroutine stratified_split
 
+  ! exp(x) via Taylor series, not the intrinsic exp(): reduce the argument
+  ! by repeated halving until |r| < 0.5 (where the Taylor series converges
+  ! in a handful of terms with no cancellation issues), then undo the
+  ! reduction by squaring exp(r) back up: exp(x) = exp(x/2^k)^(2^k).
+  elemental function taylor_exp(x) result(y)
+    real(dp), intent(in) :: x
+    real(dp) :: y
+    real(dp) :: r, term, s
+    integer :: i, k
+    r = x
+    k = 0
+    do while (abs(r) > 0.5_dp)
+      r = r * 0.5_dp
+      k = k + 1
+    end do
+    s = 1.0_dp
+    term = 1.0_dp
+    do i = 1, 20
+      term = term * r / real(i, dp)
+      s = s + term
+    end do
+    y = s
+    do i = 1, k
+      y = y * y
+    end do
+  end function taylor_exp
+
   elemental function sigmoid(z) result(s)
     real(dp), intent(in) :: z
     real(dp) :: s
-    s = 1.0_dp / (1.0_dp + exp(-z))
+    s = 1.0_dp / (1.0_dp + taylor_exp(-z))
   end function sigmoid
 
   ! Full-batch gradient descent with L2 regularization.
