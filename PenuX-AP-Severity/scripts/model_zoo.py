@@ -233,10 +233,10 @@ def build_model_zoo() -> list[tuple[str, object]]:
     add("gaussian_process_rbf", GaussianProcessClassifier(kernel=RBF(), random_state=RANDOM_SEED))
     add("gaussian_process_matern", GaussianProcessClassifier(kernel=Matern(), random_state=RANDOM_SEED))
 
-    # XGBoost: n_estimators x max_depth x learning_rate (100)
+    # XGBoost: n_estimators x max_depth x learning_rate (125)
     try:
         from xgboost import XGBClassifier
-        for n, depth, lr in itertools.product([100, 200, 300, 500, 800], [3, 5, 7, 9, 11], [0.01, 0.05, 0.1, 0.2]):
+        for n, depth, lr in itertools.product([100, 200, 300, 500, 800], [3, 5, 7, 9, 11], [0.001, 0.01, 0.05, 0.1, 0.2]):
             add(
                 f"xgboost_n{n}_d{depth}_lr{lr}",
                 XGBClassifier(
@@ -247,10 +247,10 @@ def build_model_zoo() -> list[tuple[str, object]]:
     except ImportError:
         log.info("xgboost not installed; skipping variants.")
 
-    # LightGBM: n_estimators x num_leaves x learning_rate (100)
+    # LightGBM: n_estimators x num_leaves x learning_rate (125)
     try:
         from lightgbm import LGBMClassifier
-        for n, leaves, lr in itertools.product([100, 200, 300, 500, 800], [15, 31, 63, 127, 255], [0.01, 0.05, 0.1, 0.2]):
+        for n, leaves, lr in itertools.product([100, 200, 300, 500, 800], [15, 31, 63, 127, 255], [0.001, 0.01, 0.05, 0.1, 0.2]):
             add(
                 f"lightgbm_n{n}_leaves{leaves}_lr{lr}",
                 LGBMClassifier(
@@ -261,10 +261,10 @@ def build_model_zoo() -> list[tuple[str, object]]:
     except ImportError:
         log.info("lightgbm not installed; skipping variants.")
 
-    # CatBoost: iterations x depth x learning_rate (100)
+    # CatBoost: iterations x depth x learning_rate (125)
     try:
         from catboost import CatBoostClassifier
-        for n, depth, lr in itertools.product([100, 200, 300, 500, 800], [4, 5, 6, 7, 8], [0.01, 0.05, 0.1, 0.2]):
+        for n, depth, lr in itertools.product([100, 200, 300, 500, 800], [4, 5, 6, 7, 8], [0.001, 0.01, 0.05, 0.1, 0.2]):
             add(
                 f"catboost_n{n}_d{depth}_lr{lr}",
                 CatBoostClassifier(
