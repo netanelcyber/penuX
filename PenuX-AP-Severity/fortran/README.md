@@ -13,14 +13,24 @@ datasets).
 
 No BLAS/LAPACK, no ML library, no external dependency beyond a Fortran
 2008 compiler (`gfortran`). Both programs' `sigmoid()` even avoids the
-compiler's intrinsic `exp()`: it calls a hand-written `taylor_exp(x)` that
-computes e^x via a Taylor series with range reduction (repeatedly halve x
-until the remainder r has |r|<0.5, sum the Taylor series for e^r -- fast
-and numerically safe at that magnitude -- then undo the reduction by
-squaring the result back up: e^x = (e^(x/2^k))^(2^k)). Verified accurate
-to ~1e-15 relative error against the intrinsic `exp()` across
-x in [-20, 20], and end-to-end AUROC/F1 results are unchanged after the
-swap.
+compiler's intrinsic `exp()`. Two from-scratch implementations of e^x are
+included, both using the same range-reduction scheme (repeatedly halve x
+until the remainder r has |r|<0.5, approximate e^r there, then undo the
+reduction by squaring the result back up: e^x = (e^(x/2^k))^(2^k)):
+
+- `taylor_exp(x)`: a 20-term Taylor series for e^r. Accurate to ~1e-15
+  relative error against the intrinsic `exp()` across x in [-20, 20].
+- `pade_exp(x)`: the **[3/3] Pade approximant** for e^r -- a *ratio of two
+  cubic polynomials*, P(r)/Q(r) = (1 + r/2 + r^2/10 + r^3/120) /
+  (1 - r/2 + r^2/10 - r^3/120), rather than a single polynomial. A
+  rational function of this degree captures e^x with far fewer terms than
+  a Taylor polynomial would need for the same accuracy. Accurate to
+  ~1e-7 relative error (>=7 correct significant digits, matching to all
+  4 decimal places requested) across x in [-20, 20].
+
+`sigmoid()` currently calls `pade_exp`. Both were verified end-to-end: the
+AUROC/F1 results reported below are identical regardless of which of the
+two (or the intrinsic `exp()`) computes the exponential.
 
 ## 1. Logistic regression (`logreg_from_scratch.f90`)
 
@@ -131,6 +141,21 @@ function taylor_exp(x):
         sum <- sum + term
     result <- sum
     for _ in 1..k:               # undo the reduction: e^x = (e^r)^(2^k)
+        result <- result * result
+    return result
+```
+
+### exp(x) via the [3/3] Pade approximant -- ratio of two polynomials (used by `sigmoid`)
+
+```text
+function pade_exp(x):
+    r <- x; k <- 0
+    while |r| > 0.5:             # same range reduction as taylor_exp
+        r <- r / 2; k <- k + 1
+    num <- 1 + r/2 + r^2/10 + r^3/120     # numerator: cubic polynomial P(r)
+    den <- 1 - r/2 + r^2/10 - r^3/120     # denominator: cubic polynomial Q(r)
+    result <- num / den                   # e^r  ~=  P(r) / Q(r)
+    for _ in 1..k:
         result <- result * result
     return result
 ```
