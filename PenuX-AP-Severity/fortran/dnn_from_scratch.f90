@@ -319,6 +319,28 @@ contains
     deallocate (dZ)
   end subroutine backward_and_update
 
+  ! Dump every layer's full W and b to a plain-text file, one layer per
+  ! block: a header line "# layer L: fan_in x fan_out", then fan_in rows
+  ! of fan_out space-separated W values, then one row of fan_out b values.
+  subroutine save_weights(net, n_layers, fname)
+    integer, intent(in) :: n_layers
+    type(layer_t), intent(in) :: net(n_layers - 1)
+    character(len=*), intent(in) :: fname
+    integer :: unit, l, i, fan_in, fan_out
+    open (newunit=unit, file=fname, status='replace', action='write')
+    do l = 1, n_layers - 1
+      fan_in = size(net(l)%W, 1)
+      fan_out = size(net(l)%W, 2)
+      write (unit, '(A,I0,A,I0,A,I0)') '# layer ', l, ': W is ', fan_in, ' x ', fan_out
+      do i = 1, fan_in
+        write (unit, '(*(ES16.8,1X))') net(l)%W(i, :)
+      end do
+      write (unit, '(A,I0,A,I0)') '# layer ', l, ': b is ', fan_out
+      write (unit, '(*(ES16.8,1X))') net(l)%b
+    end do
+    close (unit)
+  end subroutine save_weights
+
   function auroc(scores, y, n) result(auc)
     integer, intent(in) :: n
     real(dp), intent(in) :: scores(n)
@@ -490,6 +512,9 @@ program main
       print '(A,I5,A,I0,A,F10.5)', '  epoch ', epoch, '/', n_epochs, '  train BCE loss = ', loss
     end if
   end do
+
+  call save_weights(net, n_layers, 'dnn_weights.txt')
+  print '(A)', 'Full trained weights written to dnn_weights.txt'
 
   proba_test = forward(net, n_layers, Xte, n_test)
   auc = auroc(proba_test, yte, n_test)

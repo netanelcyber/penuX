@@ -22,6 +22,8 @@ notebooks/.ipynb_checkpoints/
 .DS_Store
 fortran/logreg_from_scratch
 fortran/xgboost_from_scratch
+fortran/dnn_from_scratch
+fortran/dnn_weights.txt
 fortran/*.o
 fortran/*.mod
 outputs/*/model_zoo_checkpoint.csv
