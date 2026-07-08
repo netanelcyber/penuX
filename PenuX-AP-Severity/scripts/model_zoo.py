@@ -275,6 +275,79 @@ def build_model_zoo() -> list[tuple[str, object]]:
     except ImportError:
         log.info("catboost not installed; skipping variants.")
 
+    # --- Additional boosting *algorithms* (not just more hyperparameters of
+    # the three above): XGBoost's DART booster (dropout trees, Rashmi &
+    # Gilad-Bachrach 2015), LightGBM's DART and GOSS boosting modes (Ke et
+    # al. 2017), and CatBoost's Plain boosting (the non-ordered baseline
+    # ordered boosting was designed to fix, Prokhorenkova et al. 2018).
+
+    # XGBoost DART: n_estimators x max_depth x learning_rate x rate_drop (36)
+    try:
+        from xgboost import XGBClassifier
+        for n, depth, lr, rate_drop in itertools.product(
+            [100, 200, 300], [3, 5, 7], [0.05, 0.1], [0.1, 0.3]
+        ):
+            add(
+                f"xgboost_dart_n{n}_d{depth}_lr{lr}_drop{rate_drop}",
+                XGBClassifier(
+                    booster="dart", n_estimators=n, max_depth=depth, learning_rate=lr, rate_drop=rate_drop,
+                    random_state=RANDOM_SEED, eval_metric="logloss", verbosity=0, n_jobs=N_JOBS,
+                ),
+            )
+    except ImportError:
+        log.info("xgboost not installed; skipping DART variants.")
+
+    # LightGBM DART: n_estimators x num_leaves x learning_rate (18)
+    try:
+        from lightgbm import LGBMClassifier
+        for n, leaves, lr in itertools.product([100, 200, 300], [15, 31, 63], [0.05, 0.1]):
+            add(
+                f"lightgbm_dart_n{n}_leaves{leaves}_lr{lr}",
+                LGBMClassifier(
+                    boosting_type="dart", n_estimators=n, num_leaves=leaves, learning_rate=lr,
+                    random_state=RANDOM_SEED, verbose=-1, n_jobs=N_JOBS,
+                ),
+            )
+        # LightGBM GOSS: n_estimators x num_leaves x learning_rate (18)
+        for n, leaves, lr in itertools.product([100, 200, 300], [15, 31, 63], [0.05, 0.1]):
+            add(
+                f"lightgbm_goss_n{n}_leaves{leaves}_lr{lr}",
+                LGBMClassifier(
+                    boosting_type="goss", n_estimators=n, num_leaves=leaves, learning_rate=lr,
+                    random_state=RANDOM_SEED, verbose=-1, n_jobs=N_JOBS,
+                ),
+            )
+    except ImportError:
+        log.info("lightgbm not installed; skipping DART/GOSS variants.")
+
+    # CatBoost Plain boosting: iterations x depth x learning_rate (18)
+    try:
+        from catboost import CatBoostClassifier
+        for n, depth, lr in itertools.product([100, 200, 300], [4, 6, 8], [0.05, 0.1]):
+            add(
+                f"catboost_plain_n{n}_d{depth}_lr{lr}",
+                CatBoostClassifier(
+                    boosting_type="Plain", iterations=n, depth=depth, learning_rate=lr,
+                    random_state=RANDOM_SEED, verbose=False, allow_writing_files=False, thread_count=N_JOBS,
+                ),
+            )
+    except ImportError:
+        log.info("catboost not installed; skipping Plain-boosting variants.")
+
+    # From-scratch GBDT (penux_ap.scratch_gbdt.ScratchGBDTClassifier): classic
+    # Friedman TreeBoost -- CART regression trees built from scratch and
+    # split on residual variance reduction, with a Newton leaf-value
+    # correction applied afterwards. Algorithmically distinct from every
+    # other GBDT entry above, none of which use this project's own tree code
+    # (they all call XGBoost/LightGBM/CatBoost/sklearn's C/Cython internals).
+    # n_estimators x max_depth x learning_rate (12)
+    from penux_ap.scratch_gbdt import ScratchGBDTClassifier
+    for n, depth, lr in itertools.product([50, 100], [2, 3, 4], [0.05, 0.1]):
+        add(
+            f"scratch_gbdt_n{n}_d{depth}_lr{lr}",
+            ScratchGBDTClassifier(n_estimators=n, max_depth=depth, learning_rate=lr),
+        )
+
     return zoo
 
 
