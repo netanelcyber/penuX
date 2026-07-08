@@ -25,6 +25,7 @@ _SCORE_FIELDS = {
         "hematocrit", "wbc", "glasgow_coma_scale", "age", "chronic_health",
     ],
     "modified_ctsi": ["pancreatic_necrosis_pct", "ctsi_grade"],
+    "quasi_sofa_labs": ["creatinine_umol_l", "bilirubin_umol_l", "platelets_e9_l"],
 }
 
 
@@ -147,3 +148,51 @@ def compute_modified_ctsi(row: pd.Series) -> int | float:
     necrosis = row["pancreatic_necrosis_pct"]
     necrosis_score = 0 if necrosis == 0 else (2 if necrosis < 30 else (4 if necrosis < 50 else 6))
     return min(grade_score + necrosis_score, 10)
+
+
+def compute_quasi_sofa_labs(row: pd.Series) -> int | float:
+    """Lab-only organ-dysfunction score, methodologically adapted from the
+    Sepsis-3 SOFA score's renal/hepatic/coagulation components.
+
+    NOT a validated SOFA score: true SOFA also requires respiratory
+    (PaO2/FiO2), cardiovascular (MAP/vasopressors), and neurological (GCS)
+    components, none of which are present in these lab-only sanitized
+    datasets. This is a research proxy inspired by the same systemic
+    organ-dysfunction methodology used in sepsis screening (see the
+    PenuX-AP-Severity project's exploration of PhysioNet Challenge 2019
+    sepsis data for methodological reference, docs/dataset_sources.md) --
+    applied here to available labs only, to test whether an
+    organ-dysfunction framing (rather than AP-specific criteria like
+    Ranson/BISAP) adds signal for SAP.
+
+    Clinical review required before any use beyond this research context.
+
+    Requires (SI units): creatinine_umol_l, bilirubin_umol_l, platelets_e9_l.
+    Optional additions (add 1 point each if provided and abnormal):
+    wbc_e9_l (SIRS-style leukocyte abnormality, <4 or >12),
+    lactate_mmol_l (>2, the Sepsis-3 septic-shock lactate threshold).
+    """
+    missing = _check_fields(row, ["creatinine_umol_l", "bilirubin_umol_l", "platelets_e9_l"])
+    if missing:
+        log.debug("quasi_sofa_labs: missing fields %s", missing)
+        return float("nan")
+
+    cr = row["creatinine_umol_l"]
+    renal = 0 if cr < 110 else (1 if cr < 171 else (2 if cr < 300 else (3 if cr < 440 else 4)))
+
+    bili = row["bilirubin_umol_l"]
+    hepatic = 0 if bili < 20 else (1 if bili < 33 else (2 if bili < 102 else (3 if bili < 204 else 4)))
+
+    plt = row["platelets_e9_l"]
+    coag = 0 if plt >= 150 else (1 if plt >= 100 else (2 if plt >= 50 else (3 if plt >= 20 else 4)))
+
+    score = renal + hepatic + coag
+
+    if "wbc_e9_l" in row.index and not pd.isna(row.get("wbc_e9_l")):
+        wbc = row["wbc_e9_l"]
+        score += 1 if (wbc < 4.0 or wbc > 12.0) else 0
+
+    if "lactate_mmol_l" in row.index and not pd.isna(row.get("lactate_mmol_l")):
+        score += 1 if row["lactate_mmol_l"] > 2.0 else 0
+
+    return score
