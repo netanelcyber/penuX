@@ -140,6 +140,9 @@ PenuX-AP-Severity/
   (XGBoost/LightGBM/CatBoost) results on the two registered public datasets, including
   F1-optimal thresholds and a high-sensitivity (≥98%) filtering threshold analysis.
   Exploratory secondary analysis only — not clinically validated.
+- `docs/sap_severity_extended_analysis_he.md` — Hebrew follow-up article: the extended
+  ~1,982-model comparison (DART/GOSS/Plain boosting, DNN/ConvNet/Hybrid, a quasi-SOFA
+  engineered feature, statistical significance testing). Also exploratory only.
 
 ---
 

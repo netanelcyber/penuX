@@ -423,6 +423,10 @@ PenuX-AP-Severity הוא אב־טיפוס מחקרי בלבד. אין להשתמ
 
 ---
 
+**המשך:** ראו `docs/sap_severity_extended_analysis_he.md` להרחבת הניתוח ל-1,982 קונפיגורציות מודלים, אלגוריתמי boosting נוספים (DART/GOSS/Plain), רשתות עמוקות (DNN/ConvNet/Hybrid), מבחני מובהקות סטטיסטית, ופרמטר קליני נוסף (quasi-SOFA).
+
+---
+
 ## 19. מקורות נתונים
 
 1. Longshike et al. `Predicting-acute-pancreatitis-severity-with-multi-machine-learning-models`. Original file: `data_V7.0-non-normalize.xlsx`. License: MIT. Source reported by dataset authors: Second Affiliated Hospital of Guilin Medical University, 2016–2024.
