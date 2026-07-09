@@ -1,12 +1,19 @@
+
+Exploratory Analysis · Research Use Only · Not Peer-Reviewed
+
 # PenuX-AP-Severity: A Broad Model-Space Exploration for Early Severity Prediction in Acute Pancreatitis, Including an Engineered Organ-Dysfunction Parameter
 
 An exploratory secondary-analysis report — public datasets, no external validation, no clinical use
 
-PenuX Research Group — Corresponding author: Netanel Stern (netanel@penux.uk)
+PenuX Research Group<sup>1</sup> — Corresponding author: Netanel Stern<sup>1</sup> (netanel@penux.uk)
+
+<sup>1</sup>PenuX Research Group, independent research project (not affiliated with any academic institution, hospital, or publisher).
+
+This document's typography is formatted in the visual style of a two-column scientific-journal article for readability and presentation quality. It is an independent, non-peer-reviewed research report and is not affiliated with, reviewed by, or published in Nature, any Nature Portfolio journal, or Springer Nature.
 
 **Research use only.** This report describes an exploratory secondary analysis of two publicly available, de-identified tabular datasets. It is not a clinical validation study, has not undergone external validation, has not been prospectively evaluated, and has received no regulatory or institutional review board approval for clinical use. Nothing in this report should be used to guide diagnosis, triage, admission, discharge, treatment, or any other patient-care decision. All clinical decisions must be made exclusively by qualified medical professionals. See Section 9 (Limitations) and Section 11 (Statement of Use).
 
-### Abstract
+Abstract
 
 **Background.** Severe acute pancreatitis (SAP) carries substantial morbidity and mortality, and early identification of patients at risk is a long-standing clinical challenge. Traditional severity scores (Ranson, BISAP, APACHE II, CT Severity Index) are validated but have practical limitations: several require serial measurements over 24–48 hours, and none was designed for automated integration into clinical information systems.
 
@@ -35,6 +42,8 @@ The present report describes a substantially expanded secondary analysis built o
 ### 2.1 Datasets
 
 Two datasets were used, both reportedly originating from the Second Affiliated Hospital of Guilin Medical University and released publicly by their original authors under open-source licenses:
+
+<span class="bar">Table 1 \|</span> The two public datasets used in this analysis
 
 | Dataset    | Source                                                                                                                                  | License    | Years     | N     | SAP / non-SAP       | Features                |
 |------------|-----------------------------------------------------------------------------------------------------------------------------------------|------------|-----------|-------|---------------------|-------------------------|
@@ -85,6 +94,8 @@ All statistical-significance and ranking analyses in this report (Sections 3.2, 
 
 The compared model space grew across the analysis from an initial 171 configurations to 1,982, in five stages (Table 2). 1,981 of 1,982 configurations were evaluated successfully on both datasets; the sole consistent failure was quadratic discriminant analysis, which raised a collinearity error on both datasets.
 
+<span class="bar">Table 2 \|</span> Staged growth of the compared model space, 171 → 1,982 configurations
+
 | Stage                                                         | Total configurations | Increment |
 |---------------------------------------------------------------|----------------------|-----------|
 | Initial GBDT-focused zoo                                      | 171                  | —         |
@@ -97,6 +108,8 @@ The compared model space grew across the analysis from an initial 171 configurat
 On the multiml dataset, a hybrid ensemble configuration (`hybrid_dnn(64,)_conv(8,16)_gbdt(n=100,depth=5,lr=0.05)_gbdt-heavy`) achieved the highest AUROC of all 1,981 evaluated configurations (0.8566), narrowly ahead of the best single-family LightGBM configuration (0.8537, rank 2) and considerably ahead of the three original headline GBDT configurations (LightGBM rank 102/1,981, AUROC=0.8499; XGBoost rank 506/1,981, AUROC=0.8421; CatBoost rank 1,020/1,981, AUROC=0.8290). On the lnn dataset, the best-ranked configuration remained a LightGBM model (n=800, leaves=15, learning rate=0.01; AUROC=0.8892), with the best hybrid ensemble ranked 168th (AUROC=0.8799) and the three headline configurations ranked 25th (LightGBM, AUROC=0.8853), 145th (XGBoost, AUROC=0.8810), and 334th (CatBoost, AUROC=0.8758).
 
 ### 4.2 New boosting algorithm variants
+
+<span class="bar">Table 3 \|</span> Best AUROC by algorithm family, additional boosting variants and deep-learning architectures
 
 | Family                                    | multiml best AUROC (rank/1,981) | lnn best AUROC (rank/1,981) |
 |-------------------------------------------|---------------------------------|-----------------------------|
@@ -119,6 +132,8 @@ Using the unpaired Hanley–McNeil approach described in Section 3.2, zero of 1
 
 Among statistically significant models, the configuration with the highest F1 score while minimizing missed SAP cases (false negatives) was identified for each dataset (Table 4). A single random-forest configuration achieved the lowest false-negative count within each dataset's significant-model set, and simultaneously the highest F1 score among that low-false-negative group, i.e. a Pareto-optimal point requiring no trade-off within the group considered.
 
+<span class="bar">Table 4 \|</span> Highest-F1, lowest-false-negative significant configuration per dataset
+
 | Dataset          | Model                | F1    | Sensitivity | Specificity | False negatives |
 |------------------|----------------------|-------|-------------|-------------|-----------------|
 | multiml (90% CI) | rf_n800_d15_balanced | 0.524 | 46.1%       | —           | 110/204         |
@@ -131,6 +146,8 @@ Separately, one deep-learning configuration on multiml (`dnn_v2_(16,)_dropout0.1
 As a standalone predictor, the lab-only quasi-SOFA score reached AUROC 0.663 (multiml) and 0.678 (lnn) — substantially weaker than any full multivariable model, as expected for a 3–5-variable composite score, but with a favorable sensitivity of 69.3% (42/137 false negatives) at its own F1-optimal threshold on lnn.
 
 Adding quasi-SOFA as an additional engineered feature to the best hybrid ensemble produced mixed results (Table 5): a decrease in both AUROC and F1 on multiml, and a small AUROC decrease alongside an F1 increase and a five-case reduction in false negatives on lnn.
+
+<span class="bar">Table 5 \|</span> Effect of adding the quasi-SOFA feature to the best hybrid model
 
 | Dataset | Variant               | AUROC     | F1        | False negatives |
 |---------|-----------------------|-----------|-----------|-----------------|
@@ -162,6 +179,8 @@ Benchmarking 1,982 configurations across 5 folds and 2 datasets (19,820 individu
 ## 5. Related Work: A Structured Comparison with Published AP Severity-Prediction Studies
 
 Table 6 situates the present analysis, at a coarse level, against a sample of previously published machine-learning studies targeting AP severity or a closely related AP outcome. This is not a formal systematic review (no systematic search protocol, dual screening, or formal risk-of-bias extraction was performed, in contrast to the meta-analysis in reference \[113\]); it is included to give the present model-space exploration context within the broader literature, and to make explicit how unusual its combination of a very large compared-model space and the absence of external validation is relative to typical practice in this area.
+
+<span class="bar">Table 6 \|</span> Structured comparison with published AP severity-prediction studies
 
 | Study (reference)                                                               | Outcome                 | Reported best discrimination                  | External validation            | Approx. model-space size           |
 |---------------------------------------------------------------------------------|-------------------------|-----------------------------------------------|--------------------------------|------------------------------------|
@@ -234,6 +253,8 @@ PenuX-AP-Severity, and the exploratory analysis described in this report, are re
 ## Appendix A. Model-Zoo Hyperparameter Grids
 
 Table 7 lists the exact hyperparameter grids used to construct the 1,982-configuration model zoo (Section 3.1), reproduced directly from the project's model-construction code for accuracy.
+
+<span class="bar">Table 7 \|</span> Full model-zoo hyperparameter grids by family
 
 | Family                                    | Hyperparameters varied                                                                                                                              | Configurations |
 |-------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|----------------|
@@ -330,12 +351,12 @@ The same calculation for the lnn dataset's best-ranked configuration (LightGBM, 
 
 ## References
 
-1.  Banks PA, Bollen TL, Dervenis C, et al.; Acute Pancreatitis Classification Working Group. Classification of acute pancreatitis—2012: revision of the Atlanta classification and definitions by international consensus. *Gut*. 2013;62(1):102–111.
+1.  Banks PA, Bollen TL, Dervenis C, et al.; Acute Pancreatitis Classification Working Group. Classification of acute pancreatitis—2012: revision of the Atlanta classification and definitions by international consensus. *Gut* 62(1), 102–111 (2013).
 2.  GBD collaborators. The global, regional, and national burden of acute pancreatitis in 204 countries and territories, 1990–2019. PMC8390209.
 3.  Acute pancreatitis \[review\]. PubMed PMID: 32891214.
 4.  A narrative review of the mechanism of acute pancreatitis and recent advances in its clinical management. PMC8014344.
 5.  Diagnosis and Management of Acute Pancreatitis. PMC11816589.
-6.  Insights into Acute Pancreatitis: Pathogenesis, Diagnosis, and Management. *J Clin Med*. 2026;15:2819.
+6.  Insights into Acute Pancreatitis: Pathogenesis, Diagnosis, and Management. *J Clin Med* 15, 2819 (2026).
 7.  Acute Pancreatitis: A Narrative Review. PMC12799804.
 8.  Zheng et al. A narrative review of acute pancreatitis and its diagnosis, pathogenetic mechanism, and management. *Ann Transl Med*.
 9.  A comparison of APACHE II, BISAP, Ranson's score and modified CTSI in predicting the severity of acute pancreatitis based on the 2012 revised Atlanta Classification. *Gastroenterol Rep (Oxf)*. PMC5952961.
@@ -384,38 +405,38 @@ The same calculation for the lnn dataset's best-ranked configuration (LightGBM, 
 52. Total serum calcium and corrected calcium as a predictor of severity in acute pancreatitis. *Int Surg J*.
 53. Relationship between intra-abdominal hypertension, outcome and the revised Atlanta and determinant-based classifications in acute pancreatitis. PMC5989946.
 54. Association Between Severity and the Determinant-Based Classification, Atlanta 2012 and Atlanta 1992, in Acute Pancreatitis: A Clinical Retrospective Study. PMC4554029.
-55. Singer M, Deutschman CS, Seymour CW, et al. The Third International Consensus Definitions for Sepsis and Septic Shock (Sepsis-3). *JAMA*. 2016;315(8):801–810.
-56. Reyna MA, Josef CS, Jeter R, et al. Early Prediction of Sepsis From Clinical Data: The PhysioNet/Computing in Cardiology Challenge 2019. *Crit Care Med*. 2020;48(2):210–217.
-57. Johnson AEW, Pollard TJ, Shen L, et al. MIMIC-III, a freely accessible critical care database. *Sci Data*. 2016;3:160035.
-58. Johnson AEW, Bulgarelli L, Shen L, et al. MIMIC-IV, a freely accessible electronic health record dataset. *Sci Data*. 2023;10:1.
+55. Singer M, Deutschman CS, Seymour CW, et al. The Third International Consensus Definitions for Sepsis and Septic Shock (Sepsis-3). *JAMA* 315(8), 801–810 (2016).
+56. Reyna MA, Josef CS, Jeter R, et al. Early Prediction of Sepsis From Clinical Data: The PhysioNet/Computing in Cardiology Challenge 2019. *Crit Care Med* 48(2), 210–217 (2020).
+57. Johnson AEW, Pollard TJ, Shen L, et al. MIMIC-III, a freely accessible critical care database. *Sci Data* 3, 160035 (2016).
+58. Johnson AEW, Bulgarelli L, Shen L, et al. MIMIC-IV, a freely accessible electronic health record dataset. *Sci Data* 10, 1 (2023).
 59. Goldberger AL, Amaral LAN, Glass L, et al. PhysioBank, PhysioToolkit, and PhysioNet: components of a new research resource for complex physiologic signals. *Circulation*. 2000;101(23):e215–e220.
 60. HL7 International. HL7 FHIR (Fast Healthcare Interoperability Resources) Specification. Available at: https://hl7.org/fhir/.
 61. World Medical Association. WMA Declaration of Helsinki – Ethical Principles for Medical Research Involving Human Subjects (2013 revision).
 62. Chen T, Guestrin C. XGBoost: A Scalable Tree Boosting System. In: *Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining* (KDD '16). 2016:785–794.
-63. Ke G, Meng Q, Finley T, Wang T, Chen W, Ma W, Ye Q, Liu TY. LightGBM: A Highly Efficient Gradient Boosting Decision Tree. *Adv Neural Inf Process Syst*. 2017;30.
-64. Prokhorenkova L, Gusev G, Vorobev A, Dorogush AV, Gulin A. CatBoost: unbiased boosting with categorical features. *Adv Neural Inf Process Syst*. 2018;31:6638–6648.
+63. Ke G, Meng Q, Finley T, Wang T, Chen W, Ma W, Ye Q, Liu TY. LightGBM: A Highly Efficient Gradient Boosting Decision Tree. *Adv Neural Inf Process Syst* 30 (2017).
+64. Prokhorenkova L, Gusev G, Vorobev A, Dorogush AV, Gulin A. CatBoost: unbiased boosting with categorical features. *Adv Neural Inf Process Syst* 31, 6638–6648 (2018).
 65. Rashmi KV, Gilad-Bachrach R. DART: Dropouts meet Multiple Additive Regression Trees. 2015.
-66. Friedman JH. Greedy Function Approximation: A Gradient Boosting Machine. *Ann Stat*. 2001;29(5):1189–1232.
-67. Breiman L. Random Forests. *Mach Learn*. 2001;45:5–32.
-68. Geurts P, Ernst D, Wehenkel L. Extremely randomized trees. *Mach Learn*. 2006;63:3–42.
-69. Freund Y, Schapire RE. A decision-theoretic generalization of on-line learning and an application to boosting. *J Comput Syst Sci*. 1997;55(1):119–139.
+66. Friedman JH. Greedy Function Approximation: A Gradient Boosting Machine. *Ann Stat* 29(5), 1189–1232 (2001).
+67. Breiman L. Random Forests. *Mach Learn* 45, 5–32 (2001).
+68. Geurts P, Ernst D, Wehenkel L. Extremely randomized trees. *Mach Learn* 63, 3–42 (2006).
+69. Freund Y, Schapire RE. A decision-theoretic generalization of on-line learning and an application to boosting. *J Comput Syst Sci* 55(1), 119–139 (1997).
 70. Borisov V, Leemann T, Seßler K, Haug J, Pawelczyk M, Kasneci G. Tabular Data: Deep Learning is Not All You Need. arXiv:2106.03253.
-71. Rumelhart DE, Hinton GE, Williams RJ. Learning representations by back-propagating errors. *Nature*. 1986;323:533–536.
+71. Rumelhart DE, Hinton GE, Williams RJ. Learning representations by back-propagating errors. *Nature* 323, 533–536 (1986).
 72. Nair V, Hinton GE. Rectified Linear Units Improve Restricted Boltzmann Machines. In: *Proceedings of the 27th International Conference on Machine Learning* (ICML). 2010.
-73. Srivastava N, Hinton G, Krizhevsky A, Sutskever I, Salakhutdinov R. Dropout: A Simple Way to Prevent Neural Networks from Overfitting. *J Mach Learn Res*. 2014;15(1):1929–1958.
+73. Srivastava N, Hinton G, Krizhevsky A, Sutskever I, Salakhutdinov R. Dropout: A Simple Way to Prevent Neural Networks from Overfitting. *J Mach Learn Res* 15(1), 1929–1958 (2014).
 74. Kingma DP, Ba J. Adam: A Method for Stochastic Optimization. In: *Proceedings of the 3rd International Conference on Learning Representations* (ICLR). 2015.
 75. Ioffe S, Szegedy C. Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift. In: *Proceedings of the 32nd International Conference on Machine Learning* (ICML). 2015.
 76. Glorot X, Bengio Y. Understanding the difficulty of training deep feedforward neural networks. In: *Proceedings of the 13th International Conference on Artificial Intelligence and Statistics* (AISTATS). 2010.
 77. He K, Zhang X, Ren S, Sun J. Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification. In: *Proceedings of the IEEE International Conference on Computer Vision* (ICCV). 2015.
-78. Lundberg SM, Lee SI. A Unified Approach to Interpreting Model Predictions. *Adv Neural Inf Process Syst*. 2017;30.
+78. Lundberg SM, Lee SI. A Unified Approach to Interpreting Model Predictions. *Adv Neural Inf Process Syst* 30 (2017).
 79. Kohavi R. A Study of Cross-Validation and Bootstrap for Accuracy Estimation and Model Selection. In: *Proceedings of the 14th International Joint Conference on Artificial Intelligence* (IJCAI). 1995:1137–1145.
-80. Chawla NV, Bowyer KW, Hall LO, Kegelmeyer WP. SMOTE: Synthetic Minority Over-sampling Technique. *J Artif Intell Res*. 2002;16:321–357.
-81. Hanley JA, McNeil BJ. The meaning and use of the area under a receiver operating characteristic (ROC) curve. *Radiology*. 1982;143(1):29–36.
-82. DeLong ER, DeLong DM, Clarke-Pearson DL. Comparing the areas under two or more correlated receiver operating characteristic curves: a nonparametric approach. *Biometrics*. 1988;44(3):837–845.
+80. Chawla NV, Bowyer KW, Hall LO, Kegelmeyer WP. SMOTE: Synthetic Minority Over-sampling Technique. *J Artif Intell Res* 16, 321–357 (2002).
+81. Hanley JA, McNeil BJ. The meaning and use of the area under a receiver operating characteristic (ROC) curve. *Radiology* 143(1), 29–36 (1982).
+82. DeLong ER, DeLong DM, Clarke-Pearson DL. Comparing the areas under two or more correlated receiver operating characteristic curves: a nonparametric approach. *Biometrics* 44(3), 837–845 (1988).
 83. Longshike. Predicting-acute-pancreatitis-severity-with-multi-machine-learning-models \[software/data repository\]. GitHub. Available at: https://github.com/longshike/Predicting-acute-pancreatitis-severity-with-multi-machine-learning-models.
 84. Longshike. LNN-for-SAP-Prediction \[software/data repository\]. GitHub. Available at: https://github.com/longshike/LNN-for-SAP-Prediction.
-85. Pedregosa F, Varoquaux G, Gramfort A, et al. Scikit-learn: Machine Learning in Python. *J Mach Learn Res*. 2011;12:2825–2830.
-86. Paszke A, Gross S, Massa F, et al. PyTorch: An Imperative Style, High-Performance Deep Learning Library. *Adv Neural Inf Process Syst*. 2019;32.
+85. Pedregosa F, Varoquaux G, Gramfort A, et al. Scikit-learn: Machine Learning in Python. *J Mach Learn Res* 12, 2825–2830 (2011).
+86. Paszke A, Gross S, Massa F, et al. PyTorch: An Imperative Style, High-Performance Deep Learning Library. *Adv Neural Inf Process Syst* 32 (2019).
 87. Acute biliary pancreatitis management during the COVID-19 pandemic. *medRxiv*. 2021.
 88. Understanding acute pancreatitis in end-stage renal disease: unraveling etiologies, clinical presentations, management strategies, and complications—a narrative review. *J Pancreatol*.
 89. Epidemiology, pathophysiology and management of acute pancreatitis: A literature review. *Res Soc Dev*.
@@ -423,22 +444,22 @@ The same calculation for the lnn dataset's best-ranked configuration (LightGBM, 
 91. Measuring the Coverage of the HL7® FHIR® Standard in Supporting Data Acquisition for 3 Public Health Registries. PMC10853080.
 92. Evaluation of four scoring systems in prognostication of acute pancreatitis for elderly patients. PMC7268671.
 93. Role of Scoring Systems in Prognosticating Outcomes of Patients With Acute Pancreatitis: A Prospective Cohort Study. PMC11953751.
-94. Collins GS, Reitsma JB, Altman DG, Moons KGM. Transparent reporting of a multivariable prediction model for individual prognosis or diagnosis (TRIPOD): the TRIPOD statement. *Ann Intern Med*. 2015;162(1):55–63.
+94. Collins GS, Reitsma JB, Altman DG, Moons KGM. Transparent reporting of a multivariable prediction model for individual prognosis or diagnosis (TRIPOD): the TRIPOD statement. *Ann Intern Med* 162(1), 55–63 (2015).
 95. Collins GS, Moons KGM, Dhiman P, et al. TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods. *BMJ*. 2024;385:e078378.
-96. Wolff RF, Moons KGM, Riley RD, et al.; PROBAST Group. PROBAST: A Tool to Assess the Risk of Bias and Applicability of Prediction Model Studies. *Ann Intern Med*. 2019;170(1):51–58.
+96. Wolff RF, Moons KGM, Riley RD, et al.; PROBAST Group. PROBAST: A Tool to Assess the Risk of Bias and Applicability of Prediction Model Studies. *Ann Intern Med* 170(1), 51–58 (2019).
 97. Collins GS, Whittle R, Riley RD, Moons KGM, et al. PROBAST+AI: an updated quality, risk of bias, and applicability assessment tool for prediction models using regression or artificial intelligence methods.
-98. von Elm E, Altman DG, Egger M, Pocock SJ, Gøtzsche PC, Vandenbroucke JP; STROBE Initiative. The Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) statement: guidelines for reporting observational studies. *Lancet*. 2007;370(9596):1453–1457.
-99. Vickers AJ, Elkin EB. Decision curve analysis: a novel method for evaluating prediction models. *Med Decis Making*. 2006;26(6):565–574.
+98. von Elm E, Altman DG, Egger M, Pocock SJ, Gøtzsche PC, Vandenbroucke JP; STROBE Initiative. The Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) statement: guidelines for reporting observational studies. *Lancet* 370(9596), 1453–1457 (2007).
+99. Vickers AJ, Elkin EB. Decision curve analysis: a novel method for evaluating prediction models. *Med Decis Making* 26(6), 565–574 (2006).
 100. Platt J. Probabilistic Outputs for Support Vector Machines and Comparisons to Regularized Likelihood Methods. In: *Advances in Large Margin Classifiers*. MIT Press; 1999.
 101. Niculescu-Mizil A, Caruana R. Predicting good probabilities with supervised learning. In: *Proceedings of the 22nd International Conference on Machine Learning* (ICML). 2005:625–632.
 102. Davis J, Goadrich M. The relationship between precision-recall and ROC curves. In: *Proceedings of the 23rd International Conference on Machine Learning* (ICML). 2006:233–240.
 103. Akiba T, Sano S, Yanase T, Ohta T, Koyama M. Optuna: A Next-generation Hyperparameter Optimization Framework. In: *Proceedings of the 25th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining* (KDD). 2019:2623–2631.
-104. Breiman L. Bagging predictors. *Mach Learn*. 1996;24(2):123–140.
-105. Wolpert DH. Stacked generalization. *Neural Netw*. 1992;5(2):241–259.
+104. Breiman L. Bagging predictors. *Mach Learn* 24(2), 123–140 (1996).
+105. Wolpert DH. Stacked generalization. *Neural Netw* 5(2), 241–259 (1992).
 106. He H, Bai Y, Garcia EA, Li S. ADASYN: Adaptive synthetic sampling approach for imbalanced learning. In: *Proceedings of the IEEE International Joint Conference on Neural Networks* (IJCNN). 2008:1322–1328.
-107. Lemaître G, Nogueira F, Aridas CK. Imbalanced-learn: A Python Toolbox to Tackle the Curse of Imbalanced Datasets in Machine Learning. *J Mach Learn Res*. 2017;18(1):559–563.
-108. van Buuren S, Groothuis-Oudshoorn K. mice: Multivariate Imputation by Chained Equations in R. *J Stat Softw*. 2011;45(3):1–67.
-109. Efron B. Bootstrap methods: another look at the jackknife. *Ann Stat*. 1979;7(1):1–26.
+107. Lemaître G, Nogueira F, Aridas CK. Imbalanced-learn: A Python Toolbox to Tackle the Curse of Imbalanced Datasets in Machine Learning. *J Mach Learn Res* 18(1), 559–563 (2017).
+108. van Buuren S, Groothuis-Oudshoorn K. mice: Multivariate Imputation by Chained Equations in R. *J Stat Softw* 45(3), 1–67 (2011).
+109. Efron B. Bootstrap methods: another look at the jackknife. *Ann Stat* 7(1), 1–26 (1979).
 110. Elkan C. The foundations of cost-sensitive learning. In: *Proceedings of the 17th International Joint Conference on Artificial Intelligence* (IJCAI). 2001:973–978.
 111. European Parliament and Council of the European Union. Regulation (EU) 2024/1689 laying down harmonised rules on artificial intelligence (Artificial Intelligence Act). *Official Journal of the European Union*. 2024.
 112. U.S. Food and Drug Administration. Artificial Intelligence and Machine Learning (AI/ML)-Enabled Medical Devices; Good Machine Learning Practice for Medical Device Development. 2021–2024 guidance series.
@@ -450,8 +471,8 @@ The same calculation for the lnn dataset's best-ranked configuration (LightGBM, 
 118. Regulation (EU) 2016/679 of the European Parliament and of the Council on the protection of natural persons with regard to the processing of personal data (General Data Protection Regulation). *Official Journal of the European Union*. 2016.
 119. U.S. Department of Health and Human Services. Health Insurance Portability and Accountability Act (HIPAA) Privacy Rule. 45 CFR Parts 160 and 164.
 120. Zadrozny B, Elkan C. Learning and making decisions when costs and probabilities are both unknown. In: *Proceedings of the 7th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining* (KDD). 2001:204–213.
-121. Provost F, Fawcett T. Robust classification for imprecise environments. *Mach Learn*. 2001;42(3):203–231.
-122. Huang J, Ling CX. Using AUC and accuracy in evaluating learning algorithms. *IEEE Trans Knowl Data Eng*. 2005;17(3):299–310.
+121. Provost F, Fawcett T. Robust classification for imprecise environments. *Mach Learn* 42(3), 203–231 (2001).
+122. Huang J, Ling CX. Using AUC and accuracy in evaluating learning algorithms. *IEEE Trans Knowl Data Eng* 17(3), 299–310 (2005).
 123. Saito T, Rehmsmeier M. The precision-recall plot is more informative than the ROC plot when evaluating binary classifiers on imbalanced datasets. *PLoS One*. 2015;10(3):e0118432.
 
 This document is an exploratory secondary-analysis report generated as part of the PenuX-AP-Severity research project. It is not a peer-reviewed publication. Reference entries lacking a full author list reflect the information available from the original search of publicly indexed abstracts at the time of writing; readers wishing to cite the underlying primary literature should verify full bibliographic details against the original source before citation in a formal academic work.
