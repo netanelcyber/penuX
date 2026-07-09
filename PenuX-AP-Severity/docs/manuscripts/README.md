@@ -23,9 +23,17 @@ charge (APC) on acceptance (roughly $1,750–$2,490). JAMIA is $0 only if the
 optional OA route is declined. The two genuinely $0-fee-under-any-option
 venues, prepared as full drafts here, are:
 
-- `JMLR_manuscript_DRAFT.docx` — Journal of Machine Learning Research.
-  Diamond open access, no APC, not anonymized (author block as normal).
-  Submit via the tracker linked from jmlr.org.
+- `JMLR_manuscript_DRAFT.docx` / `.pdf` / `jmlr_latex/` — Journal of Machine
+  Learning Research. Diamond open access, no APC, not anonymized (author
+  block as normal). Submit via https://jmlr.csail.mit.edu/manudb/
+  (register → "submit manuscript"); pick 3–5 suggested Action Editors from
+  JMLR's board. **`jmlr_latex/` contains a real, verified-compiling LaTeX
+  submission** (`JMLR_manuscript_DRAFT.tex` + the official `jmlr2e.sty`
+  from JmlrOrg/jmlr-style-file, using the `preprint` package option since
+  no volume/issue/paper-id has been assigned yet) — compiled locally with
+  `pdflatex` with zero errors (only cosmetic overfull-hbox warnings from a
+  couple of long unbreakable tokens); `JMLR_manuscript_DRAFT.pdf` at this
+  level is that compiled output, not a re-rendered `.docx`.
 - `TMLR_manuscript_DRAFT.docx` — Transactions on Machine Learning Research.
   Diamond open access, no APC, submitted and reviewed via OpenReview.net.
   **This draft is anonymized for TMLR's double-blind review process** —

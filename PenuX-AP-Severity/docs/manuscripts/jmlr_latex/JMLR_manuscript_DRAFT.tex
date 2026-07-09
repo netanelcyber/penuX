@@ -1,0 +1,172 @@
+\documentclass[twoside,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[preprint]{jmlr2e}
+
+% preprint mode: JMLR has not yet assigned volume/pages/dates/paper-id,
+% since this has not been submitted/accepted yet -- those fields are
+% unused in preprint-mode headers/footers, only year and author names
+% appear in the copyright line.
+\jmlrheading{}{2026}{}{}{}{}{Netanel Stern}
+
+\ShortHeadings{Model-space exploration for acute pancreatitis severity}{Stern}
+\firstpageno{1}
+
+\begin{document}
+
+\title{Benchmarking 1,982 classifier configurations for early severity prediction in acute pancreatitis: an exploratory multi-dataset analysis}
+
+\author{\name Netanel Stern \email netanel@penux.uk \\
+       \addr PenuX Research Group (independent research project; not affiliated with an academic institution or hospital)}
+
+\editor{To be assigned}
+
+\maketitle
+
+\begin{abstract}
+Large-scale, systematic comparisons across many algorithm families remain uncommon in applied machine learning on small tabular clinical datasets, where most prior studies compare only a handful of models and rarely test whether the best-ranked model's advantage is statistically distinguishable from noise. We assemble a zoo of 1,982 classifier configurations - linear models, support vector machines, tree ensembles, six independent gradient-boosting implementations, two additional boosting-algorithm variants (DART, GOSS), feedforward and convolutional neural networks, and a fixed-weight hybrid ensemble, including a from-scratch NumPy implementation of classical gradient-boosted TreeBoost that uses none of the standard libraries' internals - and evaluate all of them under one identical 5-fold cross-validation protocol on two independent, publicly available clinical datasets (n=1,289 and n=722) predicting severe acute pancreatitis. A hybrid DNN+ConvNet+LightGBM ensemble ranks first on the smaller dataset (AUROC=0.857); LightGBM alone remains best on the larger dataset (AUROC=0.889). Using the Hanley-McNeil approximate standard error against a logistic-regression baseline, the top-ranked configuration does not reach conventional statistical significance on the smaller, more imbalanced dataset (one-sided p=0.054), while 690 of 1,981 configurations do on the larger dataset - a difference attributable to statistical power, not a qualitative difference between datasets. An engineered, domain-motivated feature (a lab-only organ-dysfunction score inspired by Sepsis-3 methodology) gives mixed, not uniformly positive, results when added to the best model, illustrating that feature-engineering value depends on whether a model already has access to the underlying information. We report all of this - including the negative and mixed findings - honestly, and release the full model-configuration list, benchmark results, and from-scratch reference implementations openly to support replication.
+\end{abstract}
+
+\begin{keywords}
+  acute pancreatitis; severity prediction; gradient boosting; machine learning; deep learning; benchmarking; SOFA; class imbalance
+\end{keywords}
+
+\section{Introduction}
+
+Acute pancreatitis (AP) ranges from a mild, self-limited illness to a severe, systemic condition with organ failure and substantial mortality [1--3]. The 2012 Revised Atlanta Classification stratifies AP into mild, moderately severe, and severe categories based on the presence and persistence of organ failure [1], and severe acute pancreatitis (SAP) --- persistent organ failure beyond 48 hours --- carries mortality estimates ranging roughly from 15\% to 40\% across published cohorts [1,2,4].
+
+Several validated severity-scoring systems exist --- Ranson's criteria, the Bedside Index for Severity in Acute Pancreatitis (BISAP), the Acute Physiology and Chronic Health Evaluation II (APACHE II) score, and the (Modified) CT Severity Index --- and have been compared extensively [5--10]. Each has practical limitations for early, automated use: Ranson's criteria require values at admission and again at 48 hours; APACHE II requires more than a dozen variables including several not routinely available at every institution; the CT Severity Index requires imaging typically obtained 72--96 hours after symptom onset [5,6,9]. BISAP was designed to be calculable at admission from a small number of routine variables and performs comparably to APACHE II in several studies, though findings vary by cohort [5,6,7,8].
+
+Supervised machine learning has increasingly been applied to SAP prediction using routinely collected admission laboratory values [11--18]. Reported studies span logistic regression, random forests, gradient-boosted decision trees (GBDT), and deep learning, including convolutional networks applied to CT imaging [16,17]. Reported discrimination is frequently high (AUROC often exceeding 0.90), though external validation on independent institutions or populations is uncommon [12,13,14]. A 2024 systematic review and meta-analysis of machine-learning-based AP severity studies concluded that such models generally match or modestly exceed traditional scoring systems, while noting substantial between-study heterogeneity in cohort definitions and outcome operationalization [19].
+
+Most prior comparative studies evaluate a small number of algorithm families (commonly logistic regression, one tree ensemble, and one boosting or deep-learning model). We are not aware of a prior study that benchmarks a comparably large model space --- spanning classical linear models through six independent gradient-boosting implementations, two additional boosting-algorithm variants, deep feedforward and convolutional architectures, and a hybrid ensemble --- under one identical cross-validation protocol on two independent public datasets, together with formal statistical-significance testing against a common baseline. The present study addresses this gap. We additionally test whether an engineered, lab-only organ-dysfunction score inspired by the Sepsis-3 Sequential Organ Failure Assessment (SOFA) framework [20], built using only its scoring methodology (not any sepsis patient data), improves the best-performing model.
+
+\section{Methods}
+
+Datasets. Two de-identified, publicly released tabular datasets were used, both reportedly originating from the Second Affiliated Hospital of Guilin Medical University: ``ap\_multiml'' (n=1,289; 204 SAP cases, 15.8\%; 59 features after sanitization; MIT license) [21] and ``ap\_lnn'' (n=722; 137 SAP cases, 19.0\%; 106 features after sanitization; Apache-2.0 license) [22]. Both consist exclusively of routine admission laboratory values (complete blood count, coagulation panel, liver and renal function, electrolytes, inflammatory markers, and, in ap\_lnn, lactate) plus age and sex; neither includes vital signs, imaging, or Glasgow Coma Scale. Direct patient identifiers were absent from the released files; no re-identification was attempted. During sanitization we identified and corrected a label-direction inconsistency in the source files (the majority, non-SAP class was coded 1 in both datasets) that would have affected all threshold-dependent metrics (F1, sensitivity, specificity) had it not been corrected; area-under-the-ROC-curve (AUROC) values are invariant to a joint label/score flip and were unaffected.
+
+Model zoo. We programmatically assembled 1,982 classifier configurations spanning: logistic regression, ridge classification, stochastic gradient descent (multiple losses/penalties), perceptron, linear and kernel support vector machines; k-nearest neighbors; Gaussian and Bernoulli naive Bayes; decision trees and extremely randomized trees (including unconstrained-leaf variants); random forests [23] and extremely randomized tree ensembles [24]; AdaBoost [25]; bagging; scikit-learn's GradientBoostingClassifier (classical TreeBoost [26]) and HistGradientBoostingClassifier; XGBoost [27]; LightGBM [28]; CatBoost [29]; a from-scratch NumPy implementation of Friedman-style TreeBoost, using none of the above libraries' internals; XGBoost's DART (dropout-tree) booster [30]; LightGBM's DART and GOSS boosting modes [28,30]; CatBoost's Plain (non-ordered) boosting mode [29]; feedforward and one-dimensional convolutional neural networks implemented in PyTorch [31], using batch normalization [32], dropout [33], and the Adam optimizer [34]; and a hybrid ensemble combining a feedforward network, a convolutional network, and LightGBM via one of three fixed weighting schemes. All scikit-learn-family models used scikit-learn [35]. Every configuration used an identical preprocessing pipeline (median imputation, standardization) and identical 5-fold stratified cross-validation [36], with all reported metrics computed on out-of-fold predictions. Class imbalance (15.8\%/19.0\% SAP prevalence) was handled per-model via built-in class-weighting options where available and via custom class-balanced gradient weighting in the from-scratch implementations; oversampling methods such as SMOTE [37] were not used.
+
+Statistical significance testing. Each model's AUROC was compared against a single, fixed logistic-regression baseline using the Hanley--McNeil approximate standard error for AUROC [38] and a one-sided, unpaired z-test (testing whether the candidate's AUROC significantly exceeds the baseline's). This approach is conservative: because every model was evaluated on the same cross-validation folds, a properly paired test such as DeLong's method [39] would generally have higher power to detect differences than the unpaired approximation used here; a paired analysis was not performed because per-model out-of-fold prediction vectors were not retained for all 1,982 configurations during benchmarking.
+
+Engineered feature: a lab-only quasi-SOFA score. Motivated by the Sepsis-3 SOFA framework's organ-dysfunction scoring methodology [20] --- used here only as a scoring methodology, not with any sepsis patient data --- we constructed a lab-only ``quasi-SOFA'' score summing renal (creatinine), hepatic (bilirubin), and coagulation (platelet count) sub-scores using SOFA's threshold bands, with optional additive terms for leukocyte abnormality and, where available, lactate above 2 mmol/L. This is not a validated SOFA score: full SOFA additionally requires respiratory, cardiovascular, and neurological components not available in either dataset used here. We evaluated quasi-SOFA both as a standalone predictor and as an added feature to the best-performing hybrid model.
+
+Software and reproducibility. All models used a fixed random seed. Analysis code, the full model-configuration list, and benchmark checkpoints are openly available (Data Availability Statement).
+
+\section{Results}
+
+Model-space growth and overall ranking. The compared model space grew from an initial 171 gradient-boosting-focused configurations to 1,982, across five expansion stages (linear/SVM/KNN/tree/ensemble/GBDT hyperparameter expansion; DART/GOSS/Plain boosting and a from-scratch GBDT; a learning-rate grid extension; unconstrained-leaf ``huge-tree'' variants; and deep-learning/hybrid architectures). Of 1,982 configurations, 1,981 were evaluated successfully on both datasets; the sole consistent failure was quadratic discriminant analysis, which raised a collinearity error on both datasets.
+
+On ap\_multiml, a hybrid ensemble configuration (feedforward network + one-dimensional convolutional network + LightGBM, GBDT-heavy weighting) achieved the highest AUROC of all 1,981 evaluated configurations (0.8566), narrowly ahead of the best single-library LightGBM configuration (0.8537, rank 2) and ahead of the three headline single-library GBDT configurations used in our earlier three-library comparison (LightGBM rank 102/1,981, AUROC=0.8499; XGBoost rank 506/1,981, AUROC=0.8421; CatBoost rank 1,020/1,981, AUROC=0.8290). On ap\_lnn, the best-ranked configuration remained a LightGBM model (AUROC=0.8892), with the best hybrid ensemble ranked 168th (AUROC=0.8799).
+
+New boosting-algorithm variants. XGBoost's DART booster, LightGBM's DART and GOSS modes, and CatBoost's Plain boosting mode each performed comparably to, but did not exceed, their respective standard-boosting counterparts on either dataset (best AUROC range 0.836--0.847 on ap\_multiml and 0.866--0.885 on ap\_lnn). Neither the feedforward network nor the convolutional network alone matched the best gradient-boosted tree ensembles, consistent with prior reports that tree ensembles remain competitive with, and often superior to, deep learning on small-to-moderate tabular datasets [40]; the fixed-weight hybrid combination, however, outperformed every individual family on ap\_multiml.
+
+Statistical significance against a logistic-regression baseline. Using the unpaired Hanley--McNeil approach (baseline AUROC=0.8158 on ap\_multiml, 0.8087 on ap\_lnn), zero of 1,981 configurations reached p<0.05 on ap\_multiml --- including the top-ranked hybrid model itself (one-sided p=0.054). At p<0.10, 154 configurations reached significance on ap\_multiml. On ap\_lnn, 690 of 1,981 configurations reached p<0.05, including the top-ranked LightGBM configuration (one-sided p$\approx$0.0037). This asymmetry reflects statistical power: with only 204 SAP cases in ap\_multiml, an AUROC gap of 0.041 over baseline is difficult to distinguish from noise under this conservative unpaired test, even though a comparable or larger absolute gap is readily distinguished on ap\_lnn.
+
+Sensitivity, specificity, and false-negative trade-offs. Among statistically significant models, a random-forest configuration achieved both the lowest false-negative count and, simultaneously, the highest F1 score within that low-false-negative group on each dataset (ap\_multiml: F1=0.524, sensitivity=46.1\%, 110/204 false negatives; ap\_lnn: F1=0.631, sensitivity=68.6\%, specificity=88.5\%, 43/137 false negatives). Separately, one deep-learning configuration on ap\_multiml reached 75.5\% sensitivity (50/204 false negatives) at a nearly identical F1 (0.518) to the random-forest configuration, illustrating that F1 alone can obscure clinically relevant differences in the sensitivity/specificity balance.
+
+Quasi-SOFA feature. As a standalone predictor, quasi-SOFA reached AUROC 0.663 (ap\_multiml) and 0.678 (ap\_lnn). Adding it as a feature to the best hybrid ensemble produced mixed results: AUROC and F1 both decreased slightly on ap\_multiml (0.857$\to$0.848; 0.547$\to$0.540), while on ap\_lnn AUROC decreased slightly (0.880$\to$0.878) but F1 increased (0.607$\to$0.620) alongside a five-case reduction in false negatives (62$\to$57).
+
+\section{Discussion}
+
+Two findings stand out. First, expanding the compared model space by roughly an order of magnitude beyond a typical three-library gradient-boosting comparison did not substantially change the qualitative conclusion: gradient-boosted tree ensembles and closely related methods (random forests, extremely randomized trees) occupy essentially all top-ranked positions on both datasets, and the single best result found across the entire space --- the hybrid ensemble on ap\_multiml --- exceeded the best pure-GBDT result by only 0.003 AUROC, a difference that itself does not reach conventional statistical significance against even a simple baseline. This is consistent with reports that deep learning does not reliably surpass gradient boosting on small-to-moderate tabular datasets [40], and suggests that further architecture search alone is unlikely to yield a qualitatively different result on datasets of this size without additional data.
+
+Second, the quasi-SOFA feature-engineering result illustrates a common, easily overlooked pitfall: a feature motivated by domain knowledge from an adjacent clinical field (sepsis) did not reliably improve a model that already had direct access to the same underlying raw laboratory values used to construct that feature. A plausible explanation is that the hybrid model's gradient-boosted component can already learn comparable interaction terms directly from creatinine, bilirubin, and platelet count; the hand-crafted composite therefore adds little information the model could not otherwise learn. We report this as a genuine negative/mixed result rather than omitting it.
+
+This study has several limitations. It is a secondary analysis of two publicly released datasets from a single reporting institution; no data were collected prospectively by the authors, and no external validation on an independent institution or population was performed. The significance testing used an unpaired approximation; a properly paired test (DeLong [39]) evaluated on the same cross-validation folds would likely have higher power and was not performed because per-model out-of-fold prediction vectors were not retained during large-scale benchmarking. The quasi-SOFA score is a research approximation that omits SOFA's respiratory, cardiovascular, and neurological components, none of which are available in either dataset. Evaluating 1,982 configurations on the same folds within each dataset increases the risk that the single best-ranked configuration reflects some degree of selection on noise, which the significance testing was specifically intended to address (and is precisely why the top-ranked hybrid model's failure to reach p<0.05 is a meaningful, not merely technical, finding). Model calibration and decision-curve analysis were not performed across the full model zoo; all comparisons here concern discrimination only, which is necessary but not sufficient to establish clinical usefulness. Finally, this report inherits the limitations of any retrospective, non-externally-validated model-development study: it is not validated for clinical use and should not inform patient care.
+
+\section{Conclusion}
+
+Across a model space roughly an order of magnitude larger than typically reported in this literature, no single algorithm family dominates; a hybrid, hand-weighted combination of gradient boosting and deep learning achieved the best rank on one dataset without reaching conventional statistical significance against a simple baseline, and an engineered organ-dysfunction feature did not consistently improve performance. These findings do not change the fundamental limitations of secondary analysis on small, single-institution public datasets: external validation, prospective evaluation, and clinical/regulatory review remain prerequisites for any clinical use. We release all code, model configurations, and benchmark results openly to support replication and extension by others.
+
+\acks{This research received no external, institutional, or industry funding.\ The author declares no competing interests.\ All code, model configurations, benchmark
+results, and from-scratch reference implementations described in this
+manuscript are openly available at
+\url{https://github.com/netanelcyber/penuX} (PenuX-AP-Severity subdirectory).}
+
+\newpage
+\section*{References}
+\begin{small}
+\noindent [1] Banks PA, Bollen TL, Dervenis C, et al.; Acute Pancreatitis Classification Working Group. Classification of acute pancreatitis-2012: revision of the Atlanta classification and definitions by international consensus. Gut. 2013;62(1):102-111.
+
+\noindent [2] GBD 2019 Diseases and Injuries Collaborators. Global, regional, and national burden of acute pancreatitis, 1990-2019. Lancet Gastroenterol Hepatol (PMC8390209).
+
+\noindent [3] Boxhoorn L, Voermans RP, Bouwense SA, et al. Acute pancreatitis. Lancet. 2020 (PubMed PMID: 32891214).
+
+\noindent [4] Lee PJ, Papachristou GI. New insights into acute pancreatitis. Nat Rev Gastroenterol Hepatol. (PMC8014344).
+
+\noindent [5] Diagnosis and Management of Acute Pancreatitis (PMC11816589).
+
+\noindent [6] Wan J, Ouyang Y, et al. A comparison of APACHE II, BISAP, Ranson's score and modified CTSI in predicting the severity of acute pancreatitis based on the 2012 revised Atlanta Classification. Gastroenterol Rep (Oxf) (PMC5952961).
+
+\noindent [7] Evaluation of the BISAP scoring system in prognostication of acute pancreatitis - a prospective observational study. Ann Med Surg.
+
+\noindent [8] Predictive value of the Ranson and BISAP scoring systems for the severity and prognosis of acute pancreatitis: a systematic review and meta-analysis. PLoS One. 2024.
+
+\noindent [9] Gao W, Yang HX, Ma CE. The value of BISAP score for predicting mortality and severity in acute pancreatitis: a systematic review and meta-analysis. PLoS One. 2015.
+
+\noindent [10] Clinical usefulness of scoring systems to predict severe acute pancreatitis: a systematic review and meta-analysis with pre- and post-test probability assessment (PMC10637128).
+
+\noindent [11] Automated Machine Learning for the Early Prediction of the Severity of Acute Pancreatitis in Hospitals (PMC9226483).
+
+\noindent [12] Prediction of the severity of acute pancreatitis using machine learning models. Postgrad Med. 2022. doi:10.1080/00325481.2022.2099193.
+
+\noindent [13] Development of a machine learning-based early prediction model for disease severity in acute pancreatitis. Eur J Med Res. 2025.
+
+\noindent [14] Usefulness of Random Forest Algorithm in Predicting Severe Acute Pancreatitis (PMC9226542).
+
+\noindent [15] EASY-APP: An artificial intelligence model and application for early and easy prediction of severity in acute pancreatitis (PMC9162438).
+
+\noindent [16] Predicting acute pancreatitis severity with enhanced computed tomography scans using convolutional neural networks. Sci Rep. 2023. doi:10.1038/s41598-023-44828-7.
+
+\noindent [17] Construction of a Multi-View Deep Learning Model for the Severity Classification of Acute Pancreatitis. Discov Med. 2025.
+
+\noindent [18] Early prediction of severe acute pancreatitis based on improved machine learning models. J Army Med Univ. 2024.
+
+\noindent [19] Predictive value of machine learning for the severity of acute pancreatitis: a systematic review and meta-analysis. iLIVER/ScienceDirect. 2024.
+
+\noindent [20] Singer M, Deutschman CS, Seymour CW, et al. The Third International Consensus Definitions for Sepsis and Septic Shock (Sepsis-3). JAMA. 2016;315(8):801-810.
+
+\noindent [21] Longshike. Predicting-acute-pancreatitis-severity-with-multi-machine-learning-models [software/data repository]. GitHub.
+
+\noindent [22] Longshike. LNN-for-SAP-Prediction [software/data repository]. GitHub.
+
+\noindent [23] Breiman L. Random Forests. Mach Learn. 2001;45:5-32.
+
+\noindent [24] Geurts P, Ernst D, Wehenkel L. Extremely randomized trees. Mach Learn. 2006;63:3-42.
+
+\noindent [25] Freund Y, Schapire RE. A decision-theoretic generalization of on-line learning and an application to boosting. J Comput Syst Sci. 1997;55(1):119-139.
+
+\noindent [26] Friedman JH. Greedy Function Approximation: A Gradient Boosting Machine. Ann Stat. 2001;29(5):1189-1232.
+
+\noindent [27] Chen T, Guestrin C. XGBoost: A Scalable Tree Boosting System. In: Proc. 22nd ACM SIGKDD KDD. 2016:785-794.
+
+\noindent [28] Ke G, Meng Q, Finley T, et al. LightGBM: A Highly Efficient Gradient Boosting Decision Tree. Adv Neural Inf Process Syst. 2017;30.
+
+\noindent [29] Prokhorenkova L, Gusev G, Vorobev A, Dorogush AV, Gulin A. CatBoost: unbiased boosting with categorical features. Adv Neural Inf Process Syst. 2018;31:6638-6648.
+
+\noindent [30] Rashmi KV, Gilad-Bachrach R. DART: Dropouts meet Multiple Additive Regression Trees. 2015.
+
+\noindent [31] Paszke A, Gross S, Massa F, et al. PyTorch: An Imperative Style, High-Performance Deep Learning Library. Adv Neural Inf Process Syst. 2019;32.
+
+\noindent [32] Ioffe S, Szegedy C. Batch Normalization. In: Proc. 32nd ICML. 2015.
+
+\noindent [33] Srivastava N, Hinton G, Krizhevsky A, Sutskever I, Salakhutdinov R. Dropout: A Simple Way to Prevent Neural Networks from Overfitting. J Mach Learn Res. 2014;15(1):1929-1958.
+
+\noindent [34] Kingma DP, Ba J. Adam: A Method for Stochastic Optimization. In: Proc. 3rd ICLR. 2015.
+
+\noindent [35] Pedregosa F, Varoquaux G, Gramfort A, et al. Scikit-learn: Machine Learning in Python. J Mach Learn Res. 2011;12:2825-2830.
+
+\noindent [36] Kohavi R. A Study of Cross-Validation and Bootstrap for Accuracy Estimation and Model Selection. In: Proc. 14th IJCAI. 1995:1137-1145.
+
+\noindent [37] Chawla NV, Bowyer KW, Hall LO, Kegelmeyer WP. SMOTE: Synthetic Minority Over-sampling Technique. J Artif Intell Res. 2002;16:321-357.
+
+\noindent [38] Hanley JA, McNeil BJ. The meaning and use of the area under a receiver operating characteristic (ROC) curve. Radiology. 1982;143(1):29-36.
+
+\noindent [39] DeLong ER, DeLong DM, Clarke-Pearson DL. Comparing the areas under two or more correlated ROC curves: a nonparametric approach. Biometrics. 1988;44(3):837-845.
+
+\noindent [40] Borisov V, Leemann T, Seßler K, Haug J, Pawelczyk M, Kasneci G. Deep Neural Networks and Tabular Data: A Survey. IEEE Trans Neural Netw Learn Syst. arXiv:2110.01889.
+\end{small}
+
+\end{document}
