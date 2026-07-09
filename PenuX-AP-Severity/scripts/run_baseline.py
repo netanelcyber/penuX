@@ -1,7 +1,7 @@
 """Train baseline models on a sanitized dataset and save results.
 
 Usage:
-    python scripts/run_baseline.py --data data/public_sanitized/file.csv \\
+    python scripts/run_baseline.py --data data/public_sanitized/file.csv \
         --target-column severe --outdir outputs/demo
 
 No dataset is bundled. Add a legally usable, de-identified dataset to
@@ -17,7 +17,12 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from penux_ap.datasets import load_dataset, detect_target_column
-from penux_ap.labels import binarize_target, describe_target
+from penux_ap.labels import (
+    apply_positive_value,
+    binarize_target,
+    describe_target,
+    infer_positive_value,
+)
 from penux_ap.preprocessing import (
     build_preprocessor, infer_feature_types, make_train_test_split, summarize_missingness
 )
@@ -34,6 +39,16 @@ def main():
     parser.add_argument("--data", required=True, help="Path to sanitized dataset.")
     parser.add_argument("--target-column", default=None, help="Target column name.")
     parser.add_argument("--outdir", default="outputs/demo", help="Output directory.")
+    parser.add_argument(
+        "--positive-value",
+        default="auto",
+        choices=["auto", "0", "1"],
+        help=(
+            "Which raw binarized value denotes the positive SAP class. "
+            "Use 'auto' to flip the registered public AP datasets where raw 0=SAP; "
+            "unknown datasets default to raw 1=SAP."
+        ),
+    )
     args = parser.parse_args()
 
     outdir = ensure_dir(args.outdir)
@@ -44,8 +59,11 @@ def main():
 
     y = binarize_target(df[target_col])
     y = y.dropna().astype(int)
+    positive_value = infer_positive_value(target_col, args.data, args.positive_value)
+    y = apply_positive_value(y, positive_value)
     df = df.loc[y.index]
-    log.info("Target distribution: %s", describe_target(y))
+    log.info("Positive raw value for SAP: %s", positive_value)
+    log.info("Target distribution (1=SAP): %s", describe_target(y))
 
     feature_types = infer_feature_types(df, target_col)
     X = df.drop(columns=[target_col])
@@ -64,8 +82,9 @@ def main():
             model = train_model(name, X_train, y_train, preprocessor)
             y_proba = predict_proba_safe(model, X_test)
             metrics = evaluate_binary_classifier(y_test.values, y_proba)
+            metrics["positive_value"] = positive_value
             all_metrics[name] = metrics
-            log.info("%s → AUROC=%.3f AUPRC=%.3f", name, metrics["auroc"], metrics["auprc"])
+            log.info("%s -> AUROC=%.3f AUPRC=%.3f", name, metrics["auroc"], metrics["auprc"])
             if metrics["auroc"] > best_auroc:
                 best_auroc = metrics["auroc"]
                 best_model = model
@@ -83,6 +102,7 @@ def main():
         y_proba_best = predict_proba_safe(best_model, X_test)
 
         tt = threshold_table(y_test.values, y_proba_best)
+        tt.insert(0, "positive_value", positive_value)
         tt.to_csv(outdir / "threshold_table.csv", index=False)
 
         # Confusion matrices at standard thresholds
