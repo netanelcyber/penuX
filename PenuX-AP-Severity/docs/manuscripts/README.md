@@ -11,6 +11,21 @@ the submission conventions of three realistic target journals:
   flagship *Nature* journal, which is not a realistic target for this study).
 - `BMC_MedInformDecisMak_manuscript_DRAFT.docx` — BMC Medical Informatics
   and Decision Making (structured abstract, clinical-ML focus).
+- `JAMIA_manuscript_DRAFT.docx` — Journal of the American Medical Informatics
+  Association (Oxford University Press). $0 author fee if the optional
+  open-access route is declined at acceptance (standard subscription-access
+  publication) — confirmed against academic.oup.com/jamia at the time of
+  writing; re-check current policy before submitting, since publisher terms
+  change.
+
+PLOS ONE, Scientific Reports, and BMC MIDM all charge an article-processing
+charge (APC) on acceptance (roughly $1,750–$2,490). JAMIA is the only
+$0-fee option among these four unless the optional OA route is chosen.
+Fully free (diamond open access, $0 both to read and publish) alternatives
+worth considering if reframing this as a machine-learning methodology paper
+rather than a clinical-informatics one: **JMLR** (Journal of Machine
+Learning Research) and **TMLR** (Transactions on Machine Learning
+Research) — both genuinely free, peer-reviewed, no APC.
 
 ## Before actually submitting
 
