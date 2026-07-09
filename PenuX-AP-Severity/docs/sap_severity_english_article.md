@@ -2,7 +2,7 @@
 
 An exploratory secondary-analysis report — public datasets, no external validation, no clinical use
 
-PenuX Research Group
+PenuX Research Group — Corresponding author: Netanel Stern (netanel@penux.uk)
 
 **Research use only.** This report describes an exploratory secondary analysis of two publicly available, de-identified tabular datasets. It is not a clinical validation study, has not undergone external validation, has not been prospectively evaluated, and has received no regulatory or institutional review board approval for clinical use. Nothing in this report should be used to guide diagnosis, triage, admission, discharge, treatment, or any other patient-care decision. All clinical decisions must be made exclusively by qualified medical professionals. See Section 12 (Limitations) and Section 13 (Statement of Use).
 
