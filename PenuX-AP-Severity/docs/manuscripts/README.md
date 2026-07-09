@@ -19,13 +19,26 @@ the submission conventions of three realistic target journals:
   change.
 
 PLOS ONE, Scientific Reports, and BMC MIDM all charge an article-processing
-charge (APC) on acceptance (roughly $1,750–$2,490). JAMIA is the only
-$0-fee option among these four unless the optional OA route is chosen.
-Fully free (diamond open access, $0 both to read and publish) alternatives
-worth considering if reframing this as a machine-learning methodology paper
-rather than a clinical-informatics one: **JMLR** (Journal of Machine
-Learning Research) and **TMLR** (Transactions on Machine Learning
-Research) — both genuinely free, peer-reviewed, no APC.
+charge (APC) on acceptance (roughly $1,750–$2,490). JAMIA is $0 only if the
+optional OA route is declined. The two genuinely $0-fee-under-any-option
+venues, prepared as full drafts here, are:
+
+- `JMLR_manuscript_DRAFT.docx` — Journal of Machine Learning Research.
+  Diamond open access, no APC, not anonymized (author block as normal).
+  Submit via the tracker linked from jmlr.org.
+- `TMLR_manuscript_DRAFT.docx` — Transactions on Machine Learning Research.
+  Diamond open access, no APC, submitted and reviewed via OpenReview.net.
+  **This draft is anonymized for TMLR's double-blind review process** —
+  no author name/affiliation/email, and the GitHub repository URL is
+  withheld from the Reproducibility Statement (it would otherwise reveal
+  the corresponding author's GitHub handle). Restore identity only in the
+  post-decision camera-ready version, and provide reviewers an anonymized
+  code mirror (e.g. anonymous.4open.science) on request during review.
+
+Both are framed slightly more toward an ML-methodology audience (emphasis
+on benchmarking scale and rigor) than the clinical-informatics framing used
+in the PLOS ONE/Scientific Reports/BMC MIDM/JAMIA drafts, though the
+underlying results are identical.
 
 ## Before actually submitting
 
