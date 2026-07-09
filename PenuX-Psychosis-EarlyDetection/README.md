@@ -23,19 +23,38 @@ clinical presentation, using a large comparative model-zoo methodology (in the s
 sibling `PenuX-AP-Severity` project, ultimately scaling to a comparably large — here, ~12,000
 configuration — model space).
 
-## Status: dataset search, not yet started modeling
+## Status: methodology demonstration on clearly-labeled simulated data only
 
-**No dataset has been added to this project yet, and none is bundled.** Before any model is
-built, this project needs a real, ethically-sourced, legally usable dataset that actually
-supports the stated question (routine labs, with a genuine ~24-month lead time before a
-documented first psychotic episode). See `docs/dataset_landscape.md` for what was found so far
-and why this is a substantially harder data-access problem than the public CSV datasets used in
-`PenuX-AP-Severity`.
+**No real dataset was found or used.** `docs/dataset_landscape.md` documents a real search for
+a dataset matching the stated question (routine labs, genuine ~24-month lead time before a
+documented first psychotic episode) — none exists as an open, freely accessible download; the
+closest real precedent (a 2026 Frontiers in Medicine study) uses routine blood biomarkers but
+collected at/near first-episode presentation, and its exact reported numbers were inaccessible
+(publisher site and PMC both blocked scraper access).
 
-**This project will not proceed to model-building on synthetic, simulated, or placeholder data
-presented as if it were real.** If a real dataset cannot be secured, the honest fallback (as
-was done for the quasi-SOFA feature in `PenuX-AP-Severity`) is to describe and reason about
-*methodology* only, not to fabricate results.
+Per an explicit decision made with the corresponding researcher, this project proceeded with a
+**model-zoo benchmarking exercise on a synthetic dataset that is labeled as synthetic
+everywhere it appears** (an `is_simulated` column the benchmark script refuses to run without;
+prominent warnings in every document) — this is different from, and does not walk back, the
+original commitment never to present fabricated data as real. See
+`docs/simulation_article_he.md` (Hebrew) for the full write-up:
+
+- `src/penux_psychosis/simulate_data.py` — generates 180 "case" / 214 "control" rows across 6
+  routine lab features, using generic clinical reference ranges and commonly-discussed
+  directional shifts from general literature (explicitly **not** Frontiers 2026's actual
+  reported statistics, which were inaccessible).
+- `scripts/model_zoo_psychosis.py` — 11,903 classifier configurations (linear/SVM/KNN/NB/tree/
+  ensemble/GBDT families, plus a from-scratch sklearn-compatible PyTorch DNN wrapper).
+- `scripts/benchmark_psychosis.py` — 5-fold stratified CV, checkpointed, parallelized across
+  models; refuses to run on any dataset without `is_simulated=True`.
+- Result: best configuration reached AUROC 0.809 (`gbdt_sklearn_n90_lr0.05_sub0.7`), which did
+  **not** reach conventional statistical significance against a logistic-regression baseline
+  (Hanley-McNeil, p≈0.18) — reported honestly, matching `PenuX-AP-Severity`'s practice of not
+  suppressing negative/null findings.
+
+**No model or number here should be interpreted as evidence about real psychosis prediction.**
+If a real dataset becomes available in the future (e.g., via UK Biobank access), this
+methodology can be re-run on it — but that is a distinct, not-yet-taken step.
 
 ---
 
@@ -53,15 +72,20 @@ was done for the quasi-SOFA feature in `PenuX-AP-Severity`) is to describe and r
   (b) use large-scale EHR/claims data with genuine pre-onset lead time, but that data is
   proprietary/access-controlled (e.g., insurance claims databases), not an open download.
 
-## Repository Structure (scaffold; mirrors PenuX-AP-Severity)
+## Repository Structure (mirrors PenuX-AP-Severity)
 
 ```
 PenuX-Psychosis-EarlyDetection/
-├── src/penux_psychosis/   # Core Python package (empty scaffold)
-├── data/public_sanitized/ # Add a legally usable, de-identified dataset here (none bundled)
-├── scripts/                # CLI scripts (to be added once real data is identified)
+├── src/penux_psychosis/
+│   └── simulate_data.py         # Generates the labeled-synthetic dataset (not real data)
+├── data/public_sanitized/
+│   └── simulated_fep_routine_labs.csv  # The synthetic dataset itself
+├── scripts/
+│   ├── model_zoo_psychosis.py   # ~12,000-configuration model zoo
+│   └── benchmark_psychosis.py   # 5-fold CV benchmark, checkpointed, parallel
 ├── docs/
-│   └── dataset_landscape.md  # Honest account of the dataset search
+│   ├── dataset_landscape.md     # Honest account of the real-dataset search
+│   └── simulation_article_he.md # Hebrew write-up of the simulation-benchmark results
 ├── notebooks/
 └── tests/
 ```
