@@ -36,7 +36,11 @@ from sklearn.svm import SVC, LinearSVC
 from sklearn.tree import DecisionTreeClassifier, ExtraTreeClassifier
 
 RANDOM_SEED = 42
-N_JOBS = os.cpu_count() or 1
+# Pinned to 1: the benchmark script parallelizes ACROSS models (one model
+# per worker process), so each individual estimator must not also spawn its
+# own internal thread pool -- doing both caused a severe (100x+) thread-
+# oversubscription slowdown in the sibling PenuX-AP-Severity project.
+N_JOBS = 1
 log = logging.getLogger(__name__)
 
 
@@ -120,23 +124,27 @@ def build_model_zoo() -> list[tuple[str, object]]:
         add(f"histgbdt_huge_n{n}_leafnodes{mln}", HistGradientBoostingClassifier(max_iter=n, max_leaf_nodes=mln, random_state=RANDOM_SEED))
 
     # Random forest: n x depth x class_weight (10x10x2=200)
-    for n, depth, cw in itertools.product([50, 100, 150, 200, 300, 500, 800, 1200, 1800, 2500], [None, 2, 3, 5, 8, 12, 16, 20, 25, 30], ["balanced", None]):
+    # n capped at 600 -- on 394 rows, estimators beyond a few hundred trees
+    # add runtime, not signal, and were the dominant benchmarking cost.
+    for n, depth, cw in itertools.product([20, 40, 60, 90, 130, 180, 250, 350, 470, 600], [None, 2, 3, 5, 8, 12, 16, 20, 25, 30], ["balanced", None]):
         add(f"rf_n{n}_d{depth}_{cw}", RandomForestClassifier(n_estimators=n, max_depth=depth, class_weight=cw, random_state=RANDOM_SEED, n_jobs=N_JOBS))
 
-    # Extra trees: n x depth (10x10=100)
-    for n, depth in itertools.product([50, 100, 150, 200, 300, 500, 800, 1200, 1800, 2500], [None, 2, 3, 5, 8, 12, 16, 20, 25, 30]):
+    # Extra trees: n x depth (10x10=100), same n cap rationale as above
+    for n, depth in itertools.product([20, 40, 60, 90, 130, 180, 250, 350, 470, 600], [None, 2, 3, 5, 8, 12, 16, 20, 25, 30]):
         add(f"extra_trees_n{n}_d{depth}", ExtraTreesClassifier(n_estimators=n, max_depth=depth, random_state=RANDOM_SEED, n_jobs=N_JOBS))
 
-    # Gradient boosting (sklearn): n x lr x subsample (10x10x4=400)
-    for n, lr, sub in itertools.product([50, 100, 200, 300, 500, 800, 1200, 1600, 2000, 2500], [0.002, 0.005, 0.01, 0.03, 0.05, 0.1, 0.15, 0.2, 0.3, 0.5], [0.5, 0.7, 0.85, 1.0]):
+    # Gradient boosting (sklearn): n x lr x subsample (10x10x4=400), n capped
+    # at 600 for the same reason (this family was the single slowest, ~9s/fit
+    # at n=2500 vs a fraction of that at n<=600).
+    for n, lr, sub in itertools.product([20, 40, 60, 90, 130, 180, 250, 350, 470, 600], [0.002, 0.005, 0.01, 0.03, 0.05, 0.1, 0.15, 0.2, 0.3, 0.5], [0.5, 0.7, 0.85, 1.0]):
         add(f"gbdt_sklearn_n{n}_lr{lr}_sub{sub}", GradientBoostingClassifier(n_estimators=n, learning_rate=lr, subsample=sub, random_state=RANDOM_SEED))
 
     # HistGradientBoosting: n x lr (5x8=40)
     for n, lr in itertools.product([50, 100, 200, 300, 500], [0.005, 0.01, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5]):
         add(f"histgbdt_n{n}_lr{lr}", HistGradientBoostingClassifier(max_iter=n, learning_rate=lr, random_state=RANDOM_SEED))
 
-    # AdaBoost: n x lr (8x8=64)
-    for n, lr in itertools.product([25, 50, 100, 200, 300, 500, 800, 1200], [0.05, 0.1, 0.3, 0.5, 0.8, 1.0, 1.3, 1.6]):
+    # AdaBoost: n x lr (8x8=64), n capped at 600 (see rf/gbdt_sklearn note above)
+    for n, lr in itertools.product([25, 50, 100, 175, 275, 375, 475, 600], [0.05, 0.1, 0.3, 0.5, 0.8, 1.0, 1.3, 1.6]):
         add(f"adaboost_n{n}_lr{lr}", AdaBoostClassifier(n_estimators=n, learning_rate=lr, random_state=RANDOM_SEED))
 
     # Bagging: n x max_samples (8x4=32)
@@ -163,12 +171,14 @@ def build_model_zoo() -> list[tuple[str, object]]:
     add("gaussian_process_rbf", GaussianProcessClassifier(kernel=RBF(), random_state=RANDOM_SEED))
     add("gaussian_process_matern", GaussianProcessClassifier(kernel=Matern(), random_state=RANDOM_SEED))
 
-    # XGBoost: n x depth x lr (10x10x10=1000)
+    # XGBoost: n x depth x lr (10x10x10=1000), n and depth capped -- very
+    # deep (>10) trees combined with high n_estimators on 394 rows produced
+    # multi-second single fits with no plausible benefit on data this small.
     try:
         from xgboost import XGBClassifier
         for n, depth, lr in itertools.product(
-            [30, 50, 100, 200, 300, 500, 800, 1200, 1800, 2500],
-            [2, 3, 4, 5, 6, 7, 8, 10, 12, 15],
+            [20, 40, 70, 110, 170, 250, 370, 550, 800, 1200],
+            [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
             [0.001, 0.003, 0.005, 0.01, 0.03, 0.05, 0.1, 0.15, 0.2, 0.3],
         ):
             add(f"xgboost_n{n}_d{depth}_lr{lr}", XGBClassifier(n_estimators=n, max_depth=depth, learning_rate=lr, random_state=RANDOM_SEED, eval_metric="logloss", verbosity=0, n_jobs=N_JOBS))
@@ -187,12 +197,15 @@ def build_model_zoo() -> list[tuple[str, object]]:
     except ImportError:
         log.info("lightgbm not installed")
 
-    # CatBoost: n x depth x lr (10x6x10=600) -- depth capped at 8: depth>=10
-    # is known to scale pathologically slowly (observed in PenuX-AP-Severity).
+    # CatBoost: n x depth x lr (10x6x10=600) -- depth capped at 8, and n
+    # capped at 500: CatBoost was empirically the single slowest family in
+    # this project (single fits up to ~28s at n=1800-2500, depth=7, running
+    # single-threaded per the outer-parallelism note above), the same
+    # pathological-scaling pattern already documented in PenuX-AP-Severity.
     try:
         from catboost import CatBoostClassifier
         for n, depth, lr in itertools.product(
-            [30, 50, 100, 200, 300, 500, 800, 1200, 1800, 2500],
+            [10, 20, 30, 50, 80, 120, 180, 260, 370, 500],
             [3, 4, 5, 6, 7, 8],
             [0.001, 0.003, 0.005, 0.01, 0.03, 0.05, 0.1, 0.15, 0.2, 0.3],
         ):
@@ -200,28 +213,31 @@ def build_model_zoo() -> list[tuple[str, object]]:
     except ImportError:
         log.info("catboost not installed")
 
-    # XGBoost DART: n x depth x lr x rate_drop (8x6x4x4=768)
+    # XGBoost DART: n x depth x lr x rate_drop (8x6x4x4=768), n capped at 500
+    # -- DART's per-tree dropout overhead compounds with n_estimators and
+    # produced a 20s single fit at n=800 during timing tests.
     try:
         from xgboost import XGBClassifier
-        for n, depth, lr, rd in itertools.product([30, 50, 100, 200, 300, 500, 800, 1200], [2, 3, 4, 5, 6, 8], [0.005, 0.01, 0.05, 0.1], [0.05, 0.1, 0.2, 0.3]):
+        for n, depth, lr, rd in itertools.product([10, 20, 40, 70, 110, 170, 260, 500], [2, 3, 4, 5, 6, 8], [0.005, 0.01, 0.05, 0.1], [0.05, 0.1, 0.2, 0.3]):
             add(f"xgboost_dart_n{n}_d{depth}_lr{lr}_drop{rd}", XGBClassifier(booster="dart", n_estimators=n, max_depth=depth, learning_rate=lr, rate_drop=rd, random_state=RANDOM_SEED, eval_metric="logloss", verbosity=0, n_jobs=N_JOBS))
     except ImportError:
         log.info("xgboost dart skipped")
 
-    # LightGBM DART + GOSS: n x leaves x lr (8x6x4=192 each => 384)
+    # LightGBM DART + GOSS: n x leaves x lr (8x6x4=192 each => 384), n capped
+    # at 500 (DART dropout overhead again; 6-7s single fits observed at n=800-1200)
     try:
         from lightgbm import LGBMClassifier
-        for n, leaves, lr in itertools.product([30, 50, 100, 200, 300, 500, 800, 1200], [7, 15, 31, 63, 127, 200], [0.005, 0.01, 0.05, 0.1]):
+        for n, leaves, lr in itertools.product([10, 20, 40, 70, 110, 170, 260, 500], [7, 15, 31, 63, 127, 200], [0.005, 0.01, 0.05, 0.1]):
             add(f"lightgbm_dart_n{n}_leaves{leaves}_lr{lr}", LGBMClassifier(boosting_type="dart", n_estimators=n, num_leaves=leaves, learning_rate=lr, random_state=RANDOM_SEED, verbose=-1, n_jobs=N_JOBS, min_child_samples=5))
-        for n, leaves, lr in itertools.product([30, 50, 100, 200, 300, 500, 800, 1200], [7, 15, 31, 63, 127, 200], [0.005, 0.01, 0.05, 0.1]):
+        for n, leaves, lr in itertools.product([10, 20, 40, 70, 110, 170, 260, 500], [7, 15, 31, 63, 127, 200], [0.005, 0.01, 0.05, 0.1]):
             add(f"lightgbm_goss_n{n}_leaves{leaves}_lr{lr}", LGBMClassifier(boosting_type="goss", n_estimators=n, num_leaves=leaves, learning_rate=lr, random_state=RANDOM_SEED, verbose=-1, n_jobs=N_JOBS, min_child_samples=5))
     except ImportError:
         log.info("lightgbm dart/goss skipped")
 
-    # CatBoost Plain: n x depth x lr (8x5x4=160)
+    # CatBoost Plain: n x depth x lr (8x5x4=160), n capped at 500 (see note above)
     try:
         from catboost import CatBoostClassifier
-        for n, depth, lr in itertools.product([30, 50, 100, 200, 300, 500, 800, 1200], [3, 4, 5, 6, 8], [0.005, 0.01, 0.05, 0.1]):
+        for n, depth, lr in itertools.product([10, 20, 40, 70, 110, 170, 260, 500], [3, 4, 5, 6, 8], [0.005, 0.01, 0.05, 0.1]):
             add(f"catboost_plain_n{n}_d{depth}_lr{lr}", CatBoostClassifier(boosting_type="Plain", iterations=n, depth=depth, learning_rate=lr, random_state=RANDOM_SEED, verbose=False, allow_writing_files=False, thread_count=N_JOBS))
     except ImportError:
         log.info("catboost plain skipped")
@@ -242,7 +258,7 @@ def build_model_zoo() -> list[tuple[str, object]]:
             used inside a Pipeline like any built-in classifier.
             """
 
-            def __init__(self, hidden_sizes=(32,), dropout=0.1, lr=1e-3, weight_decay=0.0, epochs=200, seed=RANDOM_SEED):
+            def __init__(self, hidden_sizes=(32,), dropout=0.1, lr=1e-3, weight_decay=0.0, epochs=80, seed=RANDOM_SEED):
                 self.hidden_sizes = hidden_sizes
                 self.dropout = dropout
                 self.lr = lr
