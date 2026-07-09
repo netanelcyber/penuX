@@ -144,9 +144,11 @@ PenuX-AP-Severity/
   ~1,982-model comparison (DART/GOSS/Plain boosting, DNN/ConvNet/Hybrid, a quasi-SOFA
   engineered feature, statistical significance testing). Also exploratory only.
 - `docs/sap_severity_english_article.md` — English-language write-up of the full extended
-  analysis (93 references), covering the same 1,982-model comparison, new boosting
-  algorithms, statistical significance testing, and the quasi-SOFA engineered feature.
-  Exploratory secondary analysis only — not clinically validated, not peer-reviewed.
+  analysis (123 references), covering the same 1,982-model comparison, new boosting
+  algorithms, statistical significance testing, the quasi-SOFA engineered feature, a
+  structured comparison with published AP-severity ML studies, and alignment with
+  TRIPOD+AI/PROBAST+AI/STROBE reporting standards. Exploratory secondary analysis only —
+  not clinically validated, not peer-reviewed.
 
 ---
 
