@@ -1,6 +1,7 @@
 """Target column detection and label binarization."""
 import logging
 import warnings
+from pathlib import Path
 
 import pandas as pd
 
@@ -10,6 +11,21 @@ log = logging.getLogger(__name__)
 
 _POSITIVE_LABELS = {"1", "yes", "true", "sap", "severe", "1.0"}
 _NEGATIVE_LABELS = {"0", "no", "false", "non-sap", "non_sap", "nonsap", "non-severe", "non_severe", "0.0"}
+
+# The two public AP datasets used in this repository encode SAP as the raw value
+# 0 and non-SAP as the raw value 1.  This is the reverse of the common sklearn
+# convention where 1 is treated as the positive class.  Keep the rule explicit so
+# threshold-dependent metrics (F1/F2/Fbeta, sensitivity, specificity, PPV, NPV)
+# are always computed for SAP rather than for the non-SAP majority class.
+_REVERSED_PUBLIC_AP_FILENAMES = {
+    "ap_multiml_sanitized.csv",
+    "ap_lnn_sanitized.csv",
+    "ap_lnn_sanitized_en.csv",
+}
+_REVERSED_PUBLIC_AP_TARGET_COLUMNS = {
+    "diagnostic result",
+    "严重程度",
+}
 
 
 def detect_target_column(df: pd.DataFrame) -> str:
@@ -69,6 +85,61 @@ def binarize_target(series: pd.Series) -> pd.Series:
     if n_na > 0:
         log.warning("Binarization produced %d NA values from unrecognized labels.", n_na)
     return result
+
+
+def infer_positive_value(target_column: str | None = None, data_path: str | Path | None = None, requested: str | int | None = "auto") -> int:
+    """Resolve which raw binarized value denotes SAP.
+
+    Parameters
+    ----------
+    target_column:
+        Name of the target column, after detection if possible.
+    data_path:
+        Optional dataset path. Known public AP filenames are detected here.
+    requested:
+        "auto", 0, or 1.  In "auto" mode, the known public AP datasets are
+        flipped so raw 0 becomes SAP=1.  Unknown datasets keep the standard
+        convention raw 1 = positive.
+    """
+    if requested is None:
+        requested = "auto"
+    if isinstance(requested, str):
+        value = requested.strip().lower()
+        if value in {"0", "1"}:
+            return int(value)
+        if value != "auto":
+            raise ValueError("positive value must be 'auto', 0, or 1")
+    elif requested in {0, 1}:
+        return int(requested)
+    else:
+        raise ValueError("positive value must be 'auto', 0, or 1")
+
+    if data_path is not None:
+        name = Path(str(data_path)).name
+        if name in _REVERSED_PUBLIC_AP_FILENAMES:
+            return 0
+
+    if target_column is not None:
+        col = str(target_column).strip().lower()
+        if col in _REVERSED_PUBLIC_AP_TARGET_COLUMNS:
+            return 0
+
+    return 1
+
+
+def apply_positive_value(y: pd.Series, positive_value: int) -> pd.Series:
+    """Return labels with SAP encoded as 1.
+
+    ``binarize_target`` preserves the raw 0/1 coding.  For the public AP
+    datasets, raw 0 means SAP; this helper flips those labels so downstream
+    metrics and predicted probabilities consistently use 1=SAP.
+    """
+    if positive_value not in {0, 1}:
+        raise ValueError("positive_value must be 0 or 1")
+    y = y.astype(int)
+    if positive_value == 0:
+        return 1 - y
+    return y
 
 
 def describe_target(series: pd.Series) -> dict:
