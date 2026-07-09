@@ -34,14 +34,24 @@ venues, prepared as full drafts here, are:
   `pdflatex` with zero errors (only cosmetic overfull-hbox warnings from a
   couple of long unbreakable tokens); `JMLR_manuscript_DRAFT.pdf` at this
   level is that compiled output, not a re-rendered `.docx`.
-- `TMLR_manuscript_DRAFT.docx` — Transactions on Machine Learning Research.
-  Diamond open access, no APC, submitted and reviewed via OpenReview.net.
-  **This draft is anonymized for TMLR's double-blind review process** —
-  no author name/affiliation/email, and the GitHub repository URL is
-  withheld from the Reproducibility Statement (it would otherwise reveal
-  the corresponding author's GitHub handle). Restore identity only in the
-  post-decision camera-ready version, and provide reviewers an anonymized
-  code mirror (e.g. anonymous.4open.science) on request during review.
+- `TMLR_manuscript_DRAFT.docx` / `.pdf` / `tmlr_latex/` — Transactions on
+  Machine Learning Research. Diamond open access, no APC, submitted and
+  reviewed via OpenReview.net. **`tmlr_latex/` contains a real,
+  verified-compiling LaTeX submission** using the official `tmlr.sty` /
+  `tmlr.bst` (from JmlrOrg/tmlr-style-file). TMLR's package itself enforces
+  double-blind anonymity: in default mode it hardcodes "Anonymous authors /
+  Paper under double-blind review" in the compiled output regardless of the
+  `\author{}` block's content, which is why the real author info is left in
+  the `.tex` source (matching TMLR's own example template) — verified by
+  rendering the compiled PDF and confirming no name/email/affiliation
+  appears anywhere in the visible text. PDF metadata (Author/Title fields)
+  is also explicitly blanked via `\hypersetup{pdfauthor={},pdftitle={}}`
+  and was checked with `doc.metadata` to confirm no leak there either. The
+  GitHub repository URL is withheld from the Reproducibility Statement for
+  the same reason (it would reveal the corresponding author's GitHub
+  handle). Switch to `\usepackage[accepted]{tmlr}` (with real repo links
+  and an Acknowledgments/Funding/Author Contributions section — TMLR
+  convention adds these only post-acceptance) only after a decision.
 
 Both are framed slightly more toward an ML-methodology audience (emphasis
 on benchmarking scale and rigor) than the clinical-informatics framing used
