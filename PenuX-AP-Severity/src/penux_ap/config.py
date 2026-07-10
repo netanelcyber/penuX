@@ -14,7 +14,8 @@ IDENTIFIER_COLUMN_PATTERNS: list[str] = [
     "hospital_id", "hospitalid",
     "mrn", "medical_record_number",
     "id no", "id_no", "id no.", "identifier", "identity",
-    "phone", "address", "email",
+    "phone", "mobile", "cell", "cellphone", "tel", "telephone", "fax",
+    "address", "email",
     "passport", "national_id", "social_security",
     "insurance", "姓名", "序号", "住院号", "身份证",
 ]
