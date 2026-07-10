@@ -179,6 +179,11 @@ PenuX-AP-Severity/
   process (risk assessment, BAA/DUA, encryption-at-rest, incident response,
   independent pentest) before any real hospital data is used. Honest, not a
   compliance claim.
+- `docs/security_hardening_article_he.md` — Hebrew narrative article documenting
+  the security audit process, findings, and concrete `api/` hardening fixes
+  (API-key auth, rate limiting, audit logging, dependency pinning), framed
+  against the same before/after HIPAA §164.312 table as the gap-analysis doc,
+  with an explicit section on what code alone cannot achieve.
 
 ---
 
