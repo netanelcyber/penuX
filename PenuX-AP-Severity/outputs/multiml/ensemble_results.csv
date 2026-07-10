@@ -1,0 +1,27 @@
+strategy,auroc
+"single:hybrid_dnn(64,)_conv(8, 16)_gbdt100-5-0.05_gbdt_heavy",0.8565645613083943
+"single:hybrid_dnn(64,)_conv(16, 32)_gbdt100-5-0.05_gbdt_heavy",0.8565193819463268
+single:lightgbm_n300_leaves31_lr0.05,0.8537318153067679
+single:rf_n200_d15_None,0.8531828860576488
+single:lightgbm_n200_leaves31_lr0.05,0.85284178187404
+single:rf_n800_d15_None,0.8524487214240535
+single:extra_trees_n800_d15,0.8504292039396404
+single:rf_huge_n300_leafnodes2500_None,0.8495030270172585
+single:rf_huge_n300_leafnodes5000_None,0.8495030270172585
+single:extra_trees_n800_d30,0.8491935483870967
+"single:dnn_v2_(16,)_drop0.1_lr0.005_wd0.1",0.8490015360983103
+single:catboost_n800_d8_lr0.1,0.848712388181079
+single:catboost_n500_d8_lr0.1,0.8484458299448812
+single:bagging_n200_ms0.8,0.8480075901328274
+single:lightgbm_goss_n300_leaves63_lr0.05,0.8471627360621669
+baseline:logreg_C1_None_lbfgs,0.8158398843408332
+simple_average_top3,0.8594018252462275
+simple_average_top5,0.8651847835908557
+simple_average_top10,0.862216499503027
+simple_average_top15,0.8659392789373815
+auroc_weighted_top5,0.858800939730731
+auroc_weighted_top10,0.8644167344357099
+auroc_weighted_top15,0.8653745369115388
+stacking_logreg_all15,0.8635809162374628
+paired_bootstrap_p_combo_vs_best_single,0.034
+paired_bootstrap_p_combo_vs_baseline,0.0

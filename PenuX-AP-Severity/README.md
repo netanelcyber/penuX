@@ -149,6 +149,13 @@ PenuX-AP-Severity/
   structured comparison with published AP-severity ML studies, and alignment with
   TRIPOD+AI/PROBAST+AI/STROBE reporting standards. Exploratory secondary analysis only —
   not clinically validated, not peer-reviewed.
+- `docs/ensemble_combination_results_he.md` — Hebrew write-up of combining 15 diverse
+  top-ranked models (`scripts/ensemble_model_zoo.py`) via simple averaging, AUROC-weighted
+  averaging, and stacking. On multiml, the combination (AUROC=0.8659) is a statistically
+  significant improvement over the single best model (paired bootstrap p=0.034) — notable
+  since the single best model alone did not reach significance against baseline. On lnn,
+  the smaller improvement (AUROC=0.8930) is not significant (p=0.129) — reported honestly.
+  Exploratory only, not clinically validated.
 
 ---
 
