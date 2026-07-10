@@ -51,6 +51,13 @@ original commitment never to present fabricated data as real. See
   **not** reach conventional statistical significance against a logistic-regression baseline
   (Hanley-McNeil, p≈0.18) — reported honestly, matching `PenuX-AP-Severity`'s practice of not
   suppressing negative/null findings.
+- `scripts/ensemble_psychosis.py` — combines 15 diverse top-ranked base models (out-of-fold
+  predictions, not just their final scores) via simple averaging, AUROC-weighted averaging, and
+  logistic-regression stacking. Best combination: **simple average of the top 5 models,
+  AUROC=0.8154** (+0.0062 over the single best model) — modest and consistent with the model-zoo
+  finding that no single family dominates. Stacking underperformed simple averaging
+  (0.8059 vs 0.8154), plausibly because the meta-learner overfits on 394 rows with highly
+  correlated base predictions — reported as a genuine negative result, not hidden.
 
 **No model or number here should be interpreted as evidence about real psychosis prediction.**
 If a real dataset becomes available in the future (e.g., via UK Biobank access), this
