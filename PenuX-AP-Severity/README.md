@@ -90,6 +90,21 @@ python scripts/evaluate_model.py \
 
 ---
 
+## Security
+
+The `api/` FastAPI endpoints support API-key authentication, per-client rate
+limiting, request-body size limits, restrictive CORS, and audit logging
+(metadata only — never request/response bodies). See `SECURITY.md` and
+`docs/hipaa_iso27799_gap_analysis_he.md` for a full, honest gap analysis
+against the HIPAA Security Rule (45 CFR §164.312) and ISO/IEC 27799,
+including what is and is not addressed by code alone.
+
+To enable authentication, set `PENUX_AP_API_KEY` before starting the API —
+without it, endpoints remain open (a research-only default) and a startup
+warning is logged.
+
+---
+
 ## MIMIC-IV / PhysioNet
 
 MIMIC-IV SQL extraction scripts are in `data/mimic/sql/`.
@@ -156,6 +171,14 @@ PenuX-AP-Severity/
   since the single best model alone did not reach significance against baseline. On lnn,
   the smaller improvement (AUROC=0.8930) is not significant (p=0.129) — reported honestly.
   Exploratory only, not clinically validated.
+- `docs/hipaa_iso27799_gap_analysis_he.md` — Hebrew security gap analysis mapping
+  the current repo (especially `api/`) against HIPAA Security Rule §164.312 and
+  ISO/IEC 27799 control areas: what technical gaps were fixed (API-key auth, rate
+  limiting, audit logging, request-size limits, restrictive CORS, dependency
+  version bounds, `.gitignore` coverage) and what still requires organizational
+  process (risk assessment, BAA/DUA, encryption-at-rest, incident response,
+  independent pentest) before any real hospital data is used. Honest, not a
+  compliance claim.
 
 ---
 

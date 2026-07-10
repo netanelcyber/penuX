@@ -27,3 +27,17 @@ fortran/dnn_weights.txt
 fortran/*.o
 fortran/*.mod
 outputs/*/model_zoo_checkpoint.csv
+
+# Secrets / credentials / key material — never commit, regardless of source
+.env.*
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+credentials.json
+service-account*.json
+
+# Log files — logging goes to stdout only today; guard against a future
+# file handler accidentally writing request/audit data into the repo
+*.log
