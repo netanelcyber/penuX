@@ -110,6 +110,25 @@ def best_row_for_lr_target(table, target_lr_minus):
     return satisfying.loc[satisfying["threshold"].idxmax()]
 
 
+def best_row_for_dor(table):
+    """Threshold maximizing the diagnostic odds ratio LR+/LR-, restricted to
+    'interior' thresholds where all four confusion-matrix cells are nonzero.
+
+    Unconstrained, DOR is gameable at the extremes: near threshold=0 (flag
+    almost everyone) sensitivity->1 drives LR- near 0, and near threshold=1
+    (flag almost no one) specificity->1 drives LR+ very high -- both can
+    produce a huge DOR while being clinically useless (see the "interior"
+    vs raw comparison logged by the caller). Restricting to interior rows
+    still allows extreme-but-populated operating points, so the raw result
+    is reported AND flagged, not silently accepted.
+    """
+    interior = table[(table["tp"] > 0) & (table["tn"] > 0) & (table["fp"] > 0) & (table["fn"] > 0)].copy()
+    if interior.empty:
+        return None
+    interior["dor"] = interior["lr_plus"] / interior["lr_minus"]
+    return interior.loc[interior["dor"].idxmax()]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", required=True)
@@ -196,6 +215,22 @@ def main():
                 lr_row["tp"], lr_row["tn"], lr_row["fp"], lr_row["fn"],
             )
 
+        dor_row = best_row_for_dor(table)
+        if dor_row is not None:
+            dor = dor_row["lr_plus"] / dor_row["lr_minus"]
+            log.info(
+                "  MAX DOR (LR+/LR-)=%.2f at threshold=%.4f: misclass=%.4f sens=%.4f spec=%.4f ppv=%.4f LR-=%.3f LR+=%.3f  [TP=%d TN=%d FP=%d FN=%d]",
+                dor, dor_row["threshold"], dor_row["misclass_rate"], dor_row["sensitivity"],
+                dor_row["specificity"], dor_row["ppv"], dor_row["lr_minus"], dor_row["lr_plus"],
+                dor_row["tp"], dor_row["tn"], dor_row["fp"], dor_row["fn"],
+            )
+            if dor_row["sensitivity"] < 0.5 or dor_row["specificity"] < 0.5:
+                log.warning(
+                    "  ^ FLAGGED: this DOR-maximizing threshold has sensitivity=%.3f, specificity=%.3f -- "
+                    "an extreme, likely clinically unusable operating point despite the high ratio.",
+                    dor_row["sensitivity"], dor_row["specificity"],
+                )
+
         ax.plot(table["threshold"], table["misclass_rate"], label="misclassification rate", color="crimson")
         ax.plot(table["threshold"], 1 - table["sensitivity"], label="false-negative rate (1-sensitivity)", color="navy", linestyle="--")
         ax.plot(table["threshold"], table["lr_minus"].clip(upper=2), label="LR- (clipped at 2)", color="darkorange", linestyle="-.")
@@ -214,6 +249,8 @@ def main():
         summary_rows.append({"strategy": name, "criterion": "misclass_minimizing", **{k: best_misclass_row[k] for k in cols}})
         if lr_row is not None:
             summary_rows.append({"strategy": name, "criterion": f"lr_minus_leq_{args.target_lr_minus}", **{k: lr_row[k] for k in cols}})
+        if dor_row is not None:
+            summary_rows.append({"strategy": name, "criterion": "max_dor", **{k: dor_row[k] for k in cols}})
 
     fig.suptitle(f"{args.label}: misclassification rate / false-negative rate / LR- across thresholds", fontsize=11)
     fig.tight_layout(rect=[0, 0, 1, 0.93])
