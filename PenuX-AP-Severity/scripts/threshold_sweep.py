@@ -1,14 +1,23 @@
-"""Sweeps the decision threshold to find the value that MINIMIZES the overall
-misclassification rate (1 - accuracy), for the best single model and the best
+"""Sweeps the decision threshold for the best single model and the best
 simple-average ensemble on a dataset, using real out-of-fold predictions
-(same 5-fold CV/seed as the rest of the project).
+(same 5-fold CV/seed as the rest of the project). Reports three operating
+points:
+  1. The default threshold (0.5)
+  2. The threshold that MINIMIZES overall misclassification rate
+  3. The least-restrictive threshold that achieves a target negative
+     likelihood ratio (LR-), default target 0.35
 
-Requested follow-up to the confusion-matrix analysis: minimizing
-misclassification rate is NOT the same target as minimizing false negatives
-(missed severe cases). With an imbalanced dataset (~16-19% positive), the
-misclassification-minimizing threshold typically converges toward predicting
-almost everyone negative -- this script reports that tradeoff explicitly
-rather than silently optimizing a metric that would be clinically harmful.
+Minimizing misclassification rate is NOT the same target as minimizing false
+negatives (missed severe cases): with an imbalanced dataset (~16-19%
+positive), the misclassification-minimizing threshold typically drifts
+toward predicting almost everyone negative. This script reports that
+tradeoff explicitly, and separately reports what threshold is needed to hit
+a target LR-, since that was the actual clinical question asked.
+
+Base model out-of-fold predictions are cached to
+outputs/<label>/oof_cache_<label>.npz after the first run, since refitting
+15 models x 5 folds is expensive (minutes) and every threshold-only question
+after the first one needs none of that recomputation.
 
 Usage:
     python scripts/threshold_sweep.py \\
@@ -16,7 +25,8 @@ Usage:
         --target-column "Diagnostic Result" \\
         --checkpoint outputs/multiml/model_zoo_checkpoint.csv \\
         --outdir outputs/multiml \\
-        --label multiml
+        --label multiml \\
+        --target-lr-minus 0.35
 """
 import argparse
 import sys
@@ -46,6 +56,7 @@ log = setup_logging()
 
 RANDOM_SEED = 42
 DEFAULT_THRESHOLD = 0.5
+DEFAULT_TARGET_LR_MINUS = 0.35
 
 
 def metrics_at_threshold(y, proba, threshold):
@@ -57,15 +68,46 @@ def metrics_at_threshold(y, proba, threshold):
     spec = tn / (tn + fp) if (tn + fp) else float("nan")
     ppv = tp / (tp + fp) if (tp + fp) else float("nan")
     npv = tn / (tn + fn) if (tn + fn) else float("nan")
+    lr_plus = sens / (1 - spec) if spec is not None and spec < 1 else float("inf")
+    lr_minus = (1 - sens) / spec if spec else float("inf")
     return dict(threshold=threshold, tp=tp, tn=tn, fp=fp, fn=fn,
                 misclass_rate=misclass_rate, accuracy=1 - misclass_rate,
-                sensitivity=sens, specificity=spec, ppv=ppv, npv=npv)
+                sensitivity=sens, specificity=spec, ppv=ppv, npv=npv,
+                lr_plus=lr_plus, lr_minus=lr_minus)
 
 
 def sweep(y, proba):
     candidates = np.unique(np.concatenate([[0.0], proba, [1.0]]))
     rows = [metrics_at_threshold(y, proba, t) for t in candidates]
     return pd.DataFrame(rows)
+
+
+def load_or_compute_oof(cache_path, selected_names, zoo, X, y, feature_types):
+    if cache_path.exists():
+        log.info("Loading cached OOF predictions from %s (delete this file to force recompute)", cache_path)
+        cached = np.load(cache_path, allow_pickle=True)
+        cached_names = list(cached["names"])
+        if set(selected_names).issubset(set(cached_names)):
+            return {name: cached[name] for name in selected_names}
+        log.info("Cache does not cover all requested models -- recomputing")
+
+    base_oof = {}
+    y_arr = y.values
+    for name in selected_names:
+        base_oof[name] = get_oof(zoo[name], X, y, feature_types, RANDOM_SEED)
+        log.info("  %s -> AUROC=%.4f", name, roc_auc_score(y_arr, base_oof[name]))
+
+    np.savez(cache_path, names=np.array(selected_names, dtype=object), **base_oof)
+    log.info("Cached OOF predictions to %s", cache_path)
+    return base_oof
+
+
+def best_row_for_lr_target(table, target_lr_minus):
+    """Least-restrictive (highest) threshold achieving LR- <= target."""
+    satisfying = table[table["lr_minus"] <= target_lr_minus]
+    if satisfying.empty:
+        return None
+    return satisfying.loc[satisfying["threshold"].idxmax()]
 
 
 def main():
@@ -77,6 +119,7 @@ def main():
     parser.add_argument("--label", required=True)
     parser.add_argument("--n-select", type=int, default=15)
     parser.add_argument("--top-k-combo", type=int, default=None)
+    parser.add_argument("--target-lr-minus", type=float, default=DEFAULT_TARGET_LR_MINUS)
     parser.add_argument("--positive-value", default="auto", choices=["auto", "0", "1"])
     args = parser.parse_args()
     top_k_combo = args.top_k_combo or args.n_select
@@ -102,10 +145,8 @@ def main():
     selected_names = diverse["model"].tolist()
 
     zoo = dict(build_model_zoo())
-    base_oof = {}
-    for name in selected_names:
-        base_oof[name] = get_oof(zoo[name], X, y, feature_types, RANDOM_SEED)
-        log.info("  %s -> AUROC=%.4f", name, roc_auc_score(y_arr, base_oof[name]))
+    cache_path = Path(outdir) / f"oof_cache_{args.label}.npz"
+    base_oof = load_or_compute_oof(cache_path, selected_names, zoo, X, y, feature_types)
 
     P = np.column_stack([base_oof[n] for n in selected_names])
     aurocs = np.array([roc_auc_score(y_arr, P[:, i]) for i in range(P.shape[1])])
@@ -116,44 +157,65 @@ def main():
 
     fig, axes = plt.subplots(1, 2, figsize=(12, 4.5), sharey=False)
     summary_rows = []
+    full_tables = []
     for ax, (name, proba) in zip(axes, [
         (f"single best ({best_single_name})", best_single_oof),
         (f"ensemble (top {top_k_combo})", combo_oof),
     ]):
         table = sweep(y_arr, proba)
-        best_row = table.loc[table["misclass_rate"].idxmin()]
+        table.insert(0, "strategy", name)
+        full_tables.append(table)
+
+        best_misclass_row = table.loc[table["misclass_rate"].idxmin()]
         default_row = table.iloc[(table["threshold"] - DEFAULT_THRESHOLD).abs().argmin()]
+        lr_row = best_row_for_lr_target(table, args.target_lr_minus)
 
         log.info("--- %s ---", name)
         log.info(
-            "  default threshold=0.5:        misclass=%.4f (acc=%.4f) sens=%.4f spec=%.4f",
-            default_row["misclass_rate"], default_row["accuracy"], default_row["sensitivity"], default_row["specificity"],
+            "  default threshold=0.5:        misclass=%.4f (acc=%.4f) sens=%.4f spec=%.4f LR-=%.3f LR+=%.3f",
+            default_row["misclass_rate"], default_row["accuracy"], default_row["sensitivity"],
+            default_row["specificity"], default_row["lr_minus"], default_row["lr_plus"],
         )
         log.info(
-            "  misclass-minimizing threshold=%.4f: misclass=%.4f (acc=%.4f) sens=%.4f spec=%.4f  [TP=%d TN=%d FP=%d FN=%d]",
-            best_row["threshold"], best_row["misclass_rate"], best_row["accuracy"],
-            best_row["sensitivity"], best_row["specificity"],
-            best_row["tp"], best_row["tn"], best_row["fp"], best_row["fn"],
+            "  misclass-minimizing threshold=%.4f: misclass=%.4f sens=%.4f spec=%.4f LR-=%.3f  [TP=%d TN=%d FP=%d FN=%d]",
+            best_misclass_row["threshold"], best_misclass_row["misclass_rate"],
+            best_misclass_row["sensitivity"], best_misclass_row["specificity"], best_misclass_row["lr_minus"],
+            best_misclass_row["tp"], best_misclass_row["tn"], best_misclass_row["fp"], best_misclass_row["fn"],
         )
-        always_negative_rate = y_arr.mean()
-        log.info(
-            "  (reference: always predicting 'not severe' gives misclass=%.4f, sensitivity=0.0)",
-            always_negative_rate,
-        )
+        if lr_row is None:
+            log.info(
+                "  NO threshold achieves LR- <= %.2f for this model -- even threshold=0 (flag everyone) "
+                "does not reach it. This model cannot hit the target on its own.",
+                args.target_lr_minus,
+            )
+        else:
+            log.info(
+                "  LR- <= %.2f at threshold=%.4f: misclass=%.4f sens=%.4f spec=%.4f ppv=%.4f LR-=%.3f LR+=%.3f  [TP=%d TN=%d FP=%d FN=%d]",
+                args.target_lr_minus, lr_row["threshold"], lr_row["misclass_rate"], lr_row["sensitivity"],
+                lr_row["specificity"], lr_row["ppv"], lr_row["lr_minus"], lr_row["lr_plus"],
+                lr_row["tp"], lr_row["tn"], lr_row["fp"], lr_row["fn"],
+            )
 
         ax.plot(table["threshold"], table["misclass_rate"], label="misclassification rate", color="crimson")
         ax.plot(table["threshold"], 1 - table["sensitivity"], label="false-negative rate (1-sensitivity)", color="navy", linestyle="--")
-        ax.axvline(best_row["threshold"], color="crimson", alpha=0.4, linestyle=":")
+        ax.plot(table["threshold"], table["lr_minus"].clip(upper=2), label="LR- (clipped at 2)", color="darkorange", linestyle="-.")
+        ax.axhline(args.target_lr_minus, color="darkorange", alpha=0.4, linestyle=":")
+        ax.axvline(best_misclass_row["threshold"], color="crimson", alpha=0.4, linestyle=":")
         ax.axvline(0.5, color="gray", alpha=0.6, linestyle=":")
+        if lr_row is not None:
+            ax.axvline(lr_row["threshold"], color="darkorange", alpha=0.6, linestyle=":")
         ax.set_xlabel("decision threshold")
         ax.set_ylabel("rate")
         ax.set_title(name, fontsize=9)
-        ax.legend(fontsize=7)
+        ax.legend(fontsize=6)
 
-        summary_rows.append({"strategy": name, "criterion": "default_0.5", **{k: default_row[k] for k in ["threshold", "misclass_rate", "accuracy", "sensitivity", "specificity", "ppv", "npv"]}})
-        summary_rows.append({"strategy": name, "criterion": "misclass_minimizing", **{k: best_row[k] for k in ["threshold", "misclass_rate", "accuracy", "sensitivity", "specificity", "ppv", "npv"]}})
+        cols = ["threshold", "misclass_rate", "accuracy", "sensitivity", "specificity", "ppv", "npv", "lr_plus", "lr_minus"]
+        summary_rows.append({"strategy": name, "criterion": "default_0.5", **{k: default_row[k] for k in cols}})
+        summary_rows.append({"strategy": name, "criterion": "misclass_minimizing", **{k: best_misclass_row[k] for k in cols}})
+        if lr_row is not None:
+            summary_rows.append({"strategy": name, "criterion": f"lr_minus_leq_{args.target_lr_minus}", **{k: lr_row[k] for k in cols}})
 
-    fig.suptitle(f"{args.label}: misclassification rate vs. false-negative rate across thresholds", fontsize=11)
+    fig.suptitle(f"{args.label}: misclassification rate / false-negative rate / LR- across thresholds", fontsize=11)
     fig.tight_layout(rect=[0, 0, 1, 0.93])
     fig_path = Path(outdir) / f"threshold_sweep_{args.label}.png"
     fig.savefig(fig_path, dpi=150)
@@ -162,6 +224,10 @@ def main():
     out_path = Path(outdir) / f"threshold_sweep_{args.label}.csv"
     pd.DataFrame(summary_rows).to_csv(out_path, index=False)
     log.info("Saved %s", out_path)
+
+    full_path = Path(outdir) / f"threshold_sweep_full_{args.label}.csv"
+    pd.concat(full_tables, ignore_index=True).to_csv(full_path, index=False)
+    log.info("Saved full per-threshold table to %s", full_path)
 
 
 if __name__ == "__main__":
