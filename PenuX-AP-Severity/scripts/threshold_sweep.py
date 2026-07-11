@@ -129,6 +129,28 @@ def best_row_for_dor(table):
     return interior.loc[interior["dor"].idxmax()]
 
 
+def best_row_for_custom_metric(table, auc):
+    """Threshold maximizing LR+ / sqrt(LR- * (1 - AUC)), interior thresholds only.
+
+    IMPORTANT: AUC is NOT a function of threshold -- it is computed by
+    ranking predictions across every possible threshold at once, so (1-AUC)
+    is a single fixed number for a given model, not something that varies
+    across this sweep. Dividing by sqrt(constant) rescales every row by the
+    same factor, so the ARGMAX threshold is mathematically identical to
+    maximizing LR+/sqrt(LR-) alone -- the AUC term only rescales the metric
+    value for comparison *across* models/datasets, it cannot change which
+    threshold wins *within* one model. It also does not fix the DOR-style
+    gaming problem: LR- -> 0 (near threshold=0) or LR+ -> large (near
+    threshold=1) still dominate, just with a sqrt instead of a linear rate.
+    """
+    interior = table[(table["tp"] > 0) & (table["tn"] > 0) & (table["fp"] > 0) & (table["fn"] > 0)].copy()
+    if interior.empty:
+        return None, None
+    interior["custom_metric"] = interior["lr_plus"] / np.sqrt(interior["lr_minus"] * (1 - auc))
+    best = interior.loc[interior["custom_metric"].idxmax()]
+    return best, best["custom_metric"]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", required=True)
@@ -177,9 +199,9 @@ def main():
     fig, axes = plt.subplots(1, 2, figsize=(12, 4.5), sharey=False)
     summary_rows = []
     full_tables = []
-    for ax, (name, proba) in zip(axes, [
-        (f"single best ({best_single_name})", best_single_oof),
-        (f"ensemble (top {top_k_combo})", combo_oof),
+    for ax, (name, proba, model_auc) in zip(axes, [
+        (f"single best ({best_single_name})", best_single_oof, roc_auc_score(y_arr, best_single_oof)),
+        (f"ensemble (top {top_k_combo})", combo_oof, roc_auc_score(y_arr, combo_oof)),
     ]):
         table = sweep(y_arr, proba)
         table.insert(0, "strategy", name)
@@ -231,6 +253,33 @@ def main():
                     dor_row["sensitivity"], dor_row["specificity"],
                 )
 
+        custom_row, custom_value = best_row_for_custom_metric(table, model_auc)
+        if custom_row is not None:
+            log.info(
+                "  MAX LR+/sqrt(LR-*(1-AUC)) [AUC=%.4f]=%.2f at threshold=%.4f: misclass=%.4f sens=%.4f spec=%.4f ppv=%.4f LR-=%.3f LR+=%.3f  [TP=%d TN=%d FP=%d FN=%d]",
+                model_auc, custom_value, custom_row["threshold"], custom_row["misclass_rate"], custom_row["sensitivity"],
+                custom_row["specificity"], custom_row["ppv"], custom_row["lr_minus"], custom_row["lr_plus"],
+                custom_row["tp"], custom_row["tn"], custom_row["fp"], custom_row["fn"],
+            )
+            sanity_row_at_auc_half, _ = best_row_for_custom_metric(table, 0.5)
+            if sanity_row_at_auc_half is not None and sanity_row_at_auc_half["threshold"] != custom_row["threshold"]:
+                log.warning("  ^ unexpected: argmax threshold changed when AUC was swapped for 0.5 -- investigate.")
+            else:
+                log.info(
+                    "  ^ NOTE: re-ran with AUC swapped to 0.5 (vs actual %.4f) and got the SAME argmax threshold -- "
+                    "confirms (1-AUC) is a constant multiplier here, not a function of threshold. It rescales the "
+                    "metric's *value* (useful only for comparing across models with different AUCs), but cannot "
+                    "change which threshold wins for a single model. This is a different formula from DOR "
+                    "(LR+/LR-, no sqrt), so its argmax threshold is not expected to match DOR's.",
+                    model_auc,
+                )
+            if custom_row["sensitivity"] < 0.5 or custom_row["specificity"] < 0.5:
+                log.warning(
+                    "  ^ FLAGGED: this threshold has sensitivity=%.3f, specificity=%.3f -- "
+                    "same extreme-operating-point problem as MAX DOR, not fixed by including AUC.",
+                    custom_row["sensitivity"], custom_row["specificity"],
+                )
+
         ax.plot(table["threshold"], table["misclass_rate"], label="misclassification rate", color="crimson")
         ax.plot(table["threshold"], 1 - table["sensitivity"], label="false-negative rate (1-sensitivity)", color="navy", linestyle="--")
         ax.plot(table["threshold"], table["lr_minus"].clip(upper=2), label="LR- (clipped at 2)", color="darkorange", linestyle="-.")
@@ -251,6 +300,10 @@ def main():
             summary_rows.append({"strategy": name, "criterion": f"lr_minus_leq_{args.target_lr_minus}", **{k: lr_row[k] for k in cols}})
         if dor_row is not None:
             summary_rows.append({"strategy": name, "criterion": "max_dor", **{k: dor_row[k] for k in cols}})
+        if custom_row is not None:
+            summary_rows.append({"strategy": name, "criterion": "max_lrplus_over_sqrt_lrminus_times_1minusauc",
+                                  "auc": model_auc, "metric_value": custom_value,
+                                  **{k: custom_row[k] for k in cols}})
 
     fig.suptitle(f"{args.label}: misclassification rate / false-negative rate / LR- across thresholds", fontsize=11)
     fig.tight_layout(rect=[0, 0, 1, 0.93])
