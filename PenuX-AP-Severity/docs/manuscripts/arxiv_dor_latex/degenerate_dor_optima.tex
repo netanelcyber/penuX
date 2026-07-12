@@ -262,6 +262,35 @@ exactly equal to the base rate), $DOR$ is unbounded, so its maximizer can
 look like an arbitrarily strong result precisely because it is degenerate.
 \end{remark}
 
+\begin{proposition}[Youden's $J$ does not diverge at the ROC boundary]
+\label{prop:youden-bounded}
+Let $J(t) = \mathrm{sens}(t) + \mathrm{spec}(t) - 1$ \citep{youden1950}.
+Under the conditions of Proposition~\ref{prop:boundary},
+$J(t_1) = \mathrm{sens}(t_1) + 1 - 1 = \mathrm{sens}(t_1) < 1$ and
+$J(t_0) = 1 + \mathrm{spec}(t_0) - 1 = \mathrm{spec}(t_0) < 1$ (strictly,
+whenever the classifier is not perfect at that boundary point) -- that is,
+$J$ remains strictly bounded away from divergence at exactly the two
+configurations where Theorem~\ref{thm:divergence} shows $DOR \to \infty$.
+More generally, since $\mathrm{sens}(t), \mathrm{spec}(t) \in [0,1]$ for
+every threshold $t$, $J(t) \in [-1,1]$ everywhere, so $\sup_t J(t)$ is
+always finite, regardless of the score distribution.
+\end{proposition}
+
+This is the formal reason the empirical maximizer of $J$ in
+Table~\ref{tab:youden} lands at a balanced interior point rather than a
+boundary configuration: an unbounded objective is free to be pushed
+arbitrarily close to a boundary in search of an arbitrarily large value; a
+bounded one has nothing to gain by doing so, and is maximized wherever the
+achievable ROC curve is genuinely farthest from the chance diagonal. The
+same argument applies unchanged to any objective of the form
+$a\!\cdot\!\mathrm{sens}(t) + b\!\cdot\!\mathrm{spec}(t)$ for constants
+$a, b > 0$ (of which $J$, with $a=b=1$, is the symmetric case): any
+\emph{additive} combination of sensitivity and specificity is bounded and
+therefore safe from the divergence in Theorem~\ref{thm:divergence}, while
+any objective containing $\mathrm{sens}(t)$ or $\mathrm{spec}(t)$ (or
+$1-$ either) in a \emph{denominator} -- as $LR^+$, $LR^-$, and hence $DOR$
+all do -- is at risk of it.
+
 \section{A composite score does not fix this}
 \label{sec:composite}
 
@@ -440,10 +469,96 @@ Every Youden-optimal threshold is an interior, balanced point (sensitivity
 and specificity both between $0.74$ and $0.88$), and its $DOR$ is
 comparable to, or in three of four cases higher than, the default-threshold
 $DOR$ in Table~\ref{tab:default} -- without the collapse in either error
-rate seen in Tables~\ref{tab:maxdor}--\ref{tab:composite}. $J$ does not
-diverge because both $\mathrm{sens}(t)$ and $\mathrm{spec}(t)$ enter it
-additively and are individually bounded in $[0,1]$; there is no ratio whose
-denominator can be driven to zero.
+rate seen in Tables~\ref{tab:maxdor}--\ref{tab:composite}. As
+Proposition~\ref{prop:youden-bounded} shows formally, this is not a
+coincidence of these four models: $J$ cannot diverge because both
+$\mathrm{sens}(t)$ and $\mathrm{spec}(t)$ enter it additively and are
+individually bounded in $[0,1]$; there is no ratio whose denominator can be
+driven to zero.
+
+\subsection{Prevalence of the pathology across a broader model set}
+\label{sec:prevalence}
+
+Tables~\ref{tab:default}--\ref{tab:youden} report four headline
+model/dataset combinations (the single best model and the top-diverse
+ensemble, per dataset). To check that the degeneracy in Table~\ref{tab:maxdor}
+is not an artifact of that particular choice of two models per dataset, we
+repeated the interior-restricted $DOR$-maximization search independently
+for all $15+15=30$ individual base models used to build the two ensembles
+-- a diverse set spanning gradient-boosted trees (XGBoost, LightGBM in
+standard/DART/GOSS mode, CatBoost in standard/Plain mode, HistGBDT),
+random forests, extremely randomized trees, AdaBoost, bagging, and
+DNN/hybrid architectures. Every one of these 30 models was fit under the
+same five-fold out-of-fold protocol as the headline results. Tables
+\ref{tab:full-multiml} and \ref{tab:full-lnn} report the full result.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Interior-restricted $DOR$-maximizing threshold for all 15 cached base models, multiml ($n=1289$).}
+\label{tab:full-multiml}
+\begin{tabular}{lcccccc}
+\toprule
+Model & AUC & $t^\ast$ & Sens. & Spec. & $DOR$ & Flag \\
+\midrule
+hybrid\_dnn(64,)\_conv(8, 16)\_gbdt100-5-0.05\_gbdt\_heavy & 0.857 & 0.106 & 0.995 & 0.330 & 100.0 & yes \\
+hybrid\_dnn(64,)\_conv(16, 32)\_gbdt100-5-0.05\_gbdt\_heavy & 0.857 & 0.877 & 0.078 & 0.999 & 92.3 & yes \\
+lightgbm\_n300\_leaves31\_lr0.05 & 0.854 & 0.993 & 0.064 & 0.999 & 73.8 & yes \\
+rf\_n200\_d15\_None & 0.853 & 0.640 & 0.113 & 0.998 & 68.8 & yes \\
+lightgbm\_n200\_leaves31\_lr0.05 & 0.853 & 0.953 & 0.103 & 0.999 & 124.4 & yes \\
+rf\_n800\_d15\_None & 0.852 & 0.667 & 0.093 & 0.999 & 111.3 & yes \\
+extra\_trees\_n800\_d15 & 0.850 & 0.598 & 0.093 & 0.999 & 111.3 & yes \\
+rf\_huge\_n300\_leafnodes2500\_None & 0.850 & 0.657 & 0.103 & 0.999 & 124.4 & yes \\
+rf\_huge\_n300\_leafnodes5000\_None & 0.850 & 0.657 & 0.103 & 0.999 & 124.4 & yes \\
+extra\_trees\_n800\_d30 & 0.849 & 0.604 & 0.093 & 0.999 & 111.3 & yes \\
+dnn\_v2\_(16,)\_drop0.1\_lr0.005\_wd0.1 & 0.849 & 0.938 & 0.059 & 0.999 & 67.7 & yes \\
+catboost\_n800\_d8\_lr0.1 & 0.849 & 0.954 & 0.078 & 0.999 & 92.3 & yes \\
+catboost\_n500\_d8\_lr0.1 & 0.848 & 0.926 & 0.088 & 0.999 & 104.9 & yes \\
+bagging\_n200\_ms0.8 & 0.848 & 0.720 & 0.103 & 0.999 & 124.4 & yes \\
+lightgbm\_goss\_n300\_leaves63\_lr0.05 & 0.847 & 0.919 & 0.093 & 0.999 & 111.3 & yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Interior-restricted $DOR$-maximizing threshold for all 15 cached base models, lnn ($n=722$).}
+\label{tab:full-lnn}
+\begin{tabular}{lcccccc}
+\toprule
+Model & AUC & $t^\ast$ & Sens. & Spec. & $DOR$ & Flag \\
+\midrule
+lightgbm\_n800\_leaves15\_lr0.01 & 0.889 & 0.002 & 0.993 & 0.313 & 61.9 & yes \\
+lightgbm\_n500\_leaves15\_lr0.01 & 0.889 & 0.921 & 0.102 & 0.998 & 66.5 & yes \\
+xgboost\_n100\_d3\_lr0.2 & 0.889 & 0.006 & 0.993 & 0.450 & 111.1 & yes \\
+xgboost\_n200\_d3\_lr0.2 & 0.887 & 0.001 & 0.993 & 0.378 & 82.6 & yes \\
+catboost\_n500\_d4\_lr0.01 & 0.887 & 0.716 & 0.175 & 0.998 & 124.0 & yes \\
+histgbdt\_huge\_n100\_leafnodes5000 & 0.886 & 0.001 & 0.993 & 0.383 & 84.4 & yes \\
+histgbdt\_n100\_lr0.1 & 0.886 & 0.001 & 0.993 & 0.383 & 84.4 & yes \\
+lightgbm\_goss\_n100\_leaves31\_lr0.1 & 0.885 & 0.011 & 0.993 & 0.376 & 82.0 & yes \\
+lightgbm\_goss\_n100\_leaves63\_lr0.1 & 0.885 & 0.011 & 0.993 & 0.376 & 82.0 & yes \\
+lightgbm\_dart\_n300\_leaves15\_lr0.1 & 0.885 & 0.957 & 0.109 & 0.998 & 71.8 & yes \\
+catboost\_n800\_d4\_lr0.01 & 0.885 & 0.773 & 0.182 & 0.998 & 130.4 & yes \\
+adaboost\_n300\_lr0.1 & 0.883 & 0.289 & 0.993 & 0.352 & 73.9 & yes \\
+adaboost\_n500\_lr0.1 & 0.883 & 0.320 & 0.993 & 0.359 & 76.2 & yes \\
+catboost\_plain\_n100\_d4\_lr0.05 & 0.881 & 0.804 & 0.131 & 0.998 & 88.3 & yes \\
+catboost\_plain\_n200\_d4\_lr0.05 & 0.881 & 0.859 & 0.139 & 0.998 & 94.0 & yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The result is unanimous: all $30$ of $30$ models ($100\%$), spanning every
+algorithm family in the zoo, have sensitivity or specificity below $0.5$ at
+their own interior-restricted $DOR$-maximizing threshold; $20$ of $30$
+($66.7\%$) fall below $0.3$ on whichever side is degenerate. AUC across
+this set ranges narrowly from $0.847$ to $0.889$ -- these are all
+reasonably strong classifiers by ordinary standards -- yet not one of them
+survives unconstrained $DOR$-maximization with a usable operating point.
+This rules out the possibility that Tables~\ref{tab:maxdor}--\ref{tab:composite}
+happened to showcase two unusually pathological models: the pathology is
+the rule for this pathway, not the exception, across tree ensembles,
+boosting variants, and neural architectures alike.
 
 \section{A constrained remedy}
 \label{sec:remedy}
