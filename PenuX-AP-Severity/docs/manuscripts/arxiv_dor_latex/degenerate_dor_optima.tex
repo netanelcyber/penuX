@@ -87,13 +87,43 @@ thresholds for a \emph{single} marker.
 (ROC) curve and the area under it (AUC) are the standard tools for
 describing a classifier's discrimination independent of any single
 threshold \citep{metz1978,swets1988,hanley1982,zweig1993,obuchowski2003,
-zou2007,fawcett2006}. \citet{hanley1982} established the now-standard
-interpretation of AUC as the probability that a randomly chosen positive
-case is ranked above a randomly chosen negative case, equivalent to the
-Mann--Whitney $U$ statistic, a fact we use directly in
-Section~\ref{sec:composite}. \citet{delong1988} gave the widely used
+zou2007,fawcett2006}. The framework originates in signal detection theory
+\citep{greenswets1966}, developed to characterize an observer's ability to
+distinguish signal from noise in radar and psychophysical tasks, well before
+its adoption in radiology and clinical epidemiology. \citet{hanley1982}
+established the now-standard interpretation of AUC as the probability that
+a randomly chosen positive case is ranked above a randomly chosen negative
+case, equivalent to the Mann--Whitney $U$ statistic, a fact we use directly
+in Section~\ref{sec:composite}. \citet{delong1988} gave the widely used
 nonparametric method for comparing correlated AUCs, the threshold-free
 analogue of the threshold-specific comparisons we perform here.
+\citet{mcclish1989} proposed restricting AUC to a clinically relevant
+range of false-positive rates (partial AUC), a threshold-\emph{range}
+restriction in the same spirit as, though weaker than, the threshold-
+\emph{point} floor we propose in Section~\ref{sec:remedy}. Under class
+imbalance specifically, \citet{davis2006} and \citet{saito2015} argue that
+precision-recall curves are more informative than ROC curves, since a
+classifier's precision (and hence positive likelihood behavior) is directly
+sensitive to the class balance in a way sensitivity and specificity are
+not; this is a complementary observation to ours, not a competing one --
+$DOR$-maximization is degenerate on \emph{either} imbalanced or balanced
+data, since Theorem~\ref{thm:divergence} does not depend on the class
+ratio, only on the existence of a boundary configuration.
+
+\paragraph{Optimality and the Neyman--Pearson lemma.} The likelihood-ratio
+statistic underlying $LR^+(t)$ and $LR^-(t)$ is not an arbitrary choice: the
+Neyman--Pearson lemma \citep{neyman1933} establishes that, for testing a
+simple null against a simple alternative, thresholding the likelihood ratio
+is the \emph{uniformly most powerful} test at any fixed significance level.
+This classical result explains why likelihood ratios are the natural
+currency for evaluating a diagnostic test result at a \emph{given}
+threshold. It says nothing, however, about which threshold to prefer, since
+the lemma fixes the significance level (equivalently, $1-\mathrm{spec}(t)$)
+as given rather than optimized; our result can be read as showing what goes
+wrong when that omission is filled in naively by optimizing a ratio of two
+Neyman--Pearson-optimal quantities against each other, rather than by
+fixing an operating constraint and optimizing power subject to it, which is
+the correct generalization of the lemma's own logic.
 
 \paragraph{Likelihood ratios, the Fagan nomogram, and diagnostic odds
 ratio.} \citet{fagan1975} introduced the nomogram construction for
@@ -416,6 +446,7 @@ additively and are individually bounded in $[0,1]$; there is no ratio whose
 denominator can be driven to zero.
 
 \section{A constrained remedy}
+\label{sec:remedy}
 
 If a ratio-based objective is preferred to $J$ for domain reasons (e.g.\
 $LR^-$ has a direct clinical or decision-theoretic interpretation via the
@@ -430,14 +461,80 @@ used in Table~\ref{tab:maxdor}, which we showed is necessary but not
 sufficient: interior thresholds still allow sensitivity or specificity
 arbitrarily close to $0$. The floor $\tau$ makes the exclusion explicit and
 auditable, rather than implicit in whatever thresholds happen to survive
-the interior restriction on a given sample. A closely related alternative
-is to abandon ratio-based selection altogether in favor of decision curve
-analysis \citep{vickers2006}, which selects a threshold by net clinical
-benefit at a stated harm-to-benefit ratio rather than by any discrimination
-statistic, or to report calibration-based measures alongside discrimination
+the interior restriction on a given sample.
+
+An alternative to an ad hoc floor is to make the trade-off between
+$\mathrm{sens}(t)$ and $\mathrm{spec}(t)$ explicit via a cost matrix, as in
+the cost-sensitive learning literature \citep{elkan2001,sheng2006}.
+\citet{elkan2001} shows that optimal cost-sensitive classification reduces
+to thresholding the posterior probability at
+$t^\ast = c_{FP}/(c_{FP}+c_{FN})$, where $c_{FP}$ and $c_{FN}$ are the
+costs of a false positive and a false negative respectively; this
+threshold is well-defined and finite for any finite, nonzero cost pair, and
+by construction cannot land on the degenerate boundary configurations of
+Proposition~\ref{prop:boundary} unless the analyst explicitly sets one cost
+to zero. \citet{sheng2006} give a practical procedure for selecting this
+threshold from a validation set. Compared to constrained $DOR$-maximization,
+cost-based thresholding has the advantage of making the value judgement
+explicit as a cost ratio rather than implicit in a floor $\tau$, at the
+price of requiring that ratio to be specified in the first place -- itself
+often difficult in a clinical setting, which is why symmetric criteria
+such as Youden's $J$ remain attractive defaults.
+
+A closely related alternative is to abandon ratio-based selection altogether
+in favor of decision curve analysis \citep{vickers2006}, which selects a
+threshold by net clinical benefit at a stated harm-to-benefit ratio -- a
+threshold-selection rule of exactly the cost-sensitive form above, phrased
+in decision-analytic rather than statistical language -- or to report
+calibration-based measures alongside discrimination
 \citep{vancalster2019,gneiting2007,steyerberg2010} so that a degenerate
 operating point is visible in the reported summary rather than hidden
 behind a single scalar.
+
+\subsection{The degenerate maximizer is also statistically fragile}
+\label{sec:fragility}
+
+The degeneracy in Table~\ref{tab:maxdor} is not only a clinical-usability
+problem; the maximizing threshold is also a poor \emph{statistical}
+estimate, because it is frequently selected by a boundary configuration
+resting on very few discordant cells. Table~\ref{tab:fragility} reports
+Wilson score confidence intervals \citep{newcombe1998} for specificity at
+each $DOR$-maximizing threshold from Table~\ref{tab:maxdor}, together with
+the resulting range for $LR^+$ obtained by propagating the interval
+extremes through Equation~1 -- a conservative, illustrative bound rather
+than an exact interval for the ratio itself; a full treatment would use the
+sample-size and interval methods developed specifically for likelihood
+ratios by \citet{simel1991}.
+
+\begin{table}[ht]
+\centering
+\caption{95\% Wilson interval for specificity at the $DOR$-maximizing
+threshold, and the resulting range for $LR^+$.}
+\label{tab:fragility}
+\begin{tabular}{lcccc}
+\toprule
+Model & $FP$ / $n_{\mathrm{neg}}$ & Spec.\ (95\% CI) & $LR^+$ point & $LR^+$ range \\
+\midrule
+$n{=}1289$, single best   & 727/1085 & 0.330 (0.303, 0.359) & 1.49   & (1.43, 1.52) \\
+$n{=}1289$, 15-ensemble   & 1/1085   & 0.999 (0.995, 1.000) & 122.33 & (31.4, 469.0) \\
+$n{=}722$, single best    & 402/585  & 0.313 (0.277, 0.352) & 1.44   & (1.38, 1.48) \\
+$n{=}722$, 5-ensemble     & 344/585  & 0.412 (0.373, 0.452) & 1.69   & (1.59, 1.75) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The $n{=}1289$ ensemble row is the most striking: its reported $DOR$-maximizing
+$LR^+$ of $122.33$ rests on a single false positive out of $1{,}085$
+negative examples ($FP=1$). The 95\% interval for specificity at that
+point, $(0.995, 1.000)$, propagates to an $LR^+$ range of roughly
+$(31, 469)$ -- more than an order of magnitude wide, from a single
+misclassified example either way. A threshold selected this close to a
+sample-specific accident is not a reproducible operating point; it is a
+sampling artifact that happens to maximize an unbounded statistic. This is
+a second, independent reason (beyond the low sensitivity documented in
+Table~\ref{tab:maxdor}) not to trust an unconstrained $DOR$-maximizing
+threshold: it is simultaneously clinically extreme and statistically
+unstable.
 
 \section{Discussion}
 \label{sec:discussion}
@@ -470,7 +567,7 @@ inclusion of such a term can create the appearance of a more principled,
 multi-criterion objective while leaving the actual threshold-selection
 behavior completely unchanged.
 
-Finally, we note that the natural-frequency framing recommended for
+We note that the natural-frequency framing recommended for
 communicating post-test probability \citep{gigerenzer1995} -- ``out of
 $1{,}000$ patients like this one, how many will the test correctly flag,
 and how many will it wrongly flag or miss?'' -- makes the degeneracy in
@@ -481,7 +578,29 @@ even though both post formally superior $DOR$ values. Reporting the
 natural-frequency breakdown alongside any ratio-based summary, as suggested
 by reporting guidelines for prediction models \citep{collins2015,moons2015},
 would have made both degenerate optima in this paper immediately visible
-without requiring the proof given here.
+without requiring the proof given here. The stakes of getting this framing
+right are not hypothetical: in the classic study by \citet{casscells1978},
+a large majority of physicians and medical trainees at Harvard teaching
+hospitals, when given a test's sensitivity, specificity, and the disease's
+population prevalence, substantially overestimated the post-test
+probability of disease given a positive result -- the same base-rate
+neglect that makes a boundary-configuration threshold's inflated $LR^+$
+dangerous rather than merely inconvenient: a clinician trusting the
+headline ratio, without the natural-frequency context, has no way to
+notice that the underlying sensitivity is $11\%$.
+
+Finally, a search of the kind performed in Table~\ref{tab:maxdor} --
+scanning every achievable threshold in a finite sample for the one that
+maximizes an unbounded statistic -- is itself a multiple-comparisons
+problem, of the same family addressed by the false discovery rate
+literature \citep{benjamini1995} for scanning many hypotheses rather than
+many thresholds. We did not apply a multiplicity correction here, since our
+purpose is to exhibit that the unconstrained supremum is degenerate at all,
+not to estimate a corrected $p$-value for it; but the same look-elsewhere
+logic that motivates multiplicity correction across hypotheses motivates
+skepticism of the single best threshold selected from a fine grid of
+several hundred candidates, independent of the specific divergence argument
+of Theorem~\ref{thm:divergence}.
 
 \section{Reproducibility}
 
@@ -513,10 +632,22 @@ Altman, D.G., Bland, J.M. (1994).
 Diagnostic tests 3: receiver operating characteristic plots.
 \textit{BMJ}, 309(6948), 188.
 
+\bibitem[Benjamini and Hochberg(1995)]{benjamini1995}
+Benjamini, Y., Hochberg, Y. (1995).
+Controlling the false discovery rate: a practical and powerful approach to
+multiple testing.
+\textit{Journal of the Royal Statistical Society: Series B (Methodological)},
+57(1), 289--300.
+
 \bibitem[Breiman(1996)]{breiman1996}
 Breiman, L. (1996).
 Bagging predictors.
 \textit{Machine Learning}, 24(2), 123--140.
+
+\bibitem[Casscells et al.(1978)]{casscells1978}
+Casscells, W., Schoenberger, A., Grayboys, T.B. (1978).
+Interpretation by physicians of clinical laboratory results.
+\textit{New England Journal of Medicine}, 299(18), 999--1001.
 
 \bibitem[Chawla et al.(2002)]{chawla2002}
 Chawla, N.V., Bowyer, K.W., Hall, L.O., Kegelmeyer, W.P. (2002).
@@ -528,6 +659,12 @@ Collins, G.S., Reitsma, J.B., Altman, D.G., Moons, K.G.M. (2015).
 Transparent reporting of a multivariable prediction model for individual
 prognosis or diagnosis (TRIPOD): the TRIPOD statement.
 \textit{Annals of Internal Medicine}, 162(1), 55--63.
+
+\bibitem[Davis and Goadrich(2006)]{davis2006}
+Davis, J., Goadrich, M. (2006).
+The relationship between Precision-Recall and ROC curves.
+In \textit{Proceedings of the 23rd International Conference on Machine
+Learning}, 233--240. ACM, New York.
 
 \bibitem[Deeks and Altman(2004)]{deeks2004}
 Deeks, J.J., Altman, D.G. (2004).
@@ -550,6 +687,12 @@ Computer Science, Vol.\ 1857, 1--15. Springer, Berlin, Heidelberg.
 Efron, B., Tibshirani, R.J. (1993).
 \textit{An Introduction to the Bootstrap}.
 Chapman \& Hall, New York.
+
+\bibitem[Elkan(2001)]{elkan2001}
+Elkan, C. (2001).
+The foundations of cost-sensitive learning.
+In \textit{Proceedings of the 17th International Joint Conference on
+Artificial Intelligence}, 973--978. Morgan Kaufmann, San Francisco, CA.
 
 \bibitem[Fagan(1975)]{fagan1975}
 Fagan, T.J. (1975).
@@ -576,6 +719,11 @@ Gneiting, T., Raftery, A.E. (2007).
 Strictly proper scoring rules, prediction, and estimation.
 \textit{Journal of the American Statistical Association}, 102(477),
 359--378.
+
+\bibitem[Green and Swets(1966)]{greenswets1966}
+Green, D.M., Swets, J.A. (1966).
+\textit{Signal Detection Theory and Psychophysics}.
+Wiley, New York.
 
 \bibitem[Grimes and Schulz(2005)]{grimes2005}
 Grimes, D.A., Schulz, K.F. (2005).
@@ -623,6 +771,11 @@ Kraemer, H.C. (1992).
 \textit{Evaluating Medical Tests: Objective and Quantitative Guidelines}.
 Sage Publications, Newbury Park, CA.
 
+\bibitem[McClish(1989)]{mcclish1989}
+McClish, D.K. (1989).
+Analyzing a portion of the ROC curve.
+\textit{Medical Decision Making}, 9(3), 190--195.
+
 \bibitem[Metz(1978)]{metz1978}
 Metz, C.E. (1978).
 Basic principles of ROC analysis.
@@ -634,6 +787,18 @@ P., Steyerberg, E.W., Vickers, A.J., Ransohoff, D.F., Collins, G.S. (2015).
 Transparent reporting of a multivariable prediction model for individual
 prognosis or diagnosis (TRIPOD): explanation and elaboration.
 \textit{Annals of Internal Medicine}, 162(1), W1--W73.
+
+\bibitem[Neyman and Pearson(1933)]{neyman1933}
+Neyman, J., Pearson, E.S. (1933).
+On the problem of the most efficient tests of statistical hypotheses.
+\textit{Philosophical Transactions of the Royal Society of London.
+Series A}, 231, 289--337.
+
+\bibitem[Newcombe(1998)]{newcombe1998}
+Newcombe, R.G. (1998).
+Two-sided confidence intervals for the single proportion: comparison of
+seven methods.
+\textit{Statistics in Medicine}, 17(8), 857--872.
 
 \bibitem[Obuchowski(2003)]{obuchowski2003}
 Obuchowski, N.A. (2003).
@@ -676,6 +841,24 @@ Rutter, C.M., Gatsonis, C.A. (2001).
 A hierarchical regression approach to meta-analysis of diagnostic test
 accuracy evaluations.
 \textit{Statistics in Medicine}, 20(19), 2865--2884.
+
+\bibitem[Saito and Rehmsmeier(2015)]{saito2015}
+Saito, T., Rehmsmeier, M. (2015).
+The precision-recall plot is more informative than the ROC plot when
+evaluating binary classifiers on imbalanced datasets.
+\textit{PLOS ONE}, 10(3), e0118432.
+
+\bibitem[Sheng and Ling(2006)]{sheng2006}
+Sheng, V.S., Ling, C.X. (2006).
+Thresholding for making classifiers cost-sensitive.
+In \textit{Proceedings of the 21st National Conference on Artificial
+Intelligence (AAAI)}, 476--481.
+
+\bibitem[Simel et al.(1991)]{simel1991}
+Simel, D.L., Samsa, G.P., Matchar, D.B. (1991).
+Likelihood ratios with confidence: sample size estimation for diagnostic
+test studies.
+\textit{Journal of Clinical Epidemiology}, 44(8), 763--770.
 
 \bibitem[\v{S}imundi\'{c}(2009)]{simundic2009}
 \v{S}imundi\'{c}, A.M. (2009).
