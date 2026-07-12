@@ -1,0 +1,394 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{graphicx}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+
+\title{Degenerate Optima in Likelihood-Ratio-Based Threshold Selection\\
+for Binary Classifiers}
+\author{Netanel Stern \\ Independent Researcher \\ \texttt{nsh531@gmail.com}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Diagnostic likelihood ratios ($LR^+$, $LR^-$) and the diagnostic odds ratio
+($DOR = LR^+/LR^-$) are widely used single-number summaries of a binary
+classifier's usefulness at a fixed decision threshold, and are the basis of
+the Fagan nomogram for converting a pre-test probability into a post-test
+probability. A natural instinct, when a classifier's score is continuous, is
+to choose the operating threshold that maximizes $DOR$. We show this
+instinct is unsound: $DOR$ is unbounded and is maximized, in general, at
+degenerate thresholds where sensitivity or specificity collapses toward its
+extreme, not at a balanced operating point. We give a short proof of this
+divergence along the boundary of the achievable ROC curve, extend the
+argument to a composite score that folds in the (threshold-invariant) area
+under the ROC curve, and confirm both results empirically on five-fold
+cross-validated ensembles from a real binary classification benchmark
+($n=1{,}289$ and $n=722$). We contrast this with Youden's $J$ statistic,
+whose maximizer is bounded and empirically lands at a balanced, usable
+operating point with comparable $DOR$. We conclude with a constrained
+variant of $DOR$-maximization that avoids the pathology.
+\end{abstract}
+
+\section{Introduction}
+
+Let a binary classifier produce a continuous score $s(x) \in [0,1]$ for an
+input $x$, and let $\hat{Y}_t(x) = \mathbf{1}[s(x) \geq t]$ be the decision
+rule at threshold $t$. Write $\mathrm{sens}(t)$ and $\mathrm{spec}(t)$ for
+the resulting sensitivity and specificity against a fixed labeled sample.
+The positive and negative likelihood ratios at threshold $t$ are
+\begin{equation}
+LR^+(t) = \frac{\mathrm{sens}(t)}{1 - \mathrm{spec}(t)}, \qquad
+LR^-(t) = \frac{1 - \mathrm{sens}(t)}{\mathrm{spec}(t)},
+\end{equation}
+and the diagnostic odds ratio is $DOR(t) = LR^+(t) / LR^-(t)$. Equivalently,
+writing $TP, TN, FP, FN$ for the threshold-$t$ confusion-matrix counts,
+$DOR(t) = (TP \cdot TN) / (FP \cdot FN)$, the classical cross-product odds
+ratio of the $2\times2$ table. $DOR$ is a popular meta-analytic summary
+statistic in diagnostic-accuracy research \citep{glas2003dor} precisely
+because it collapses sensitivity and specificity into one number that is
+symmetric in the two error types and invariant to the choice of which class
+is labeled ``positive.''
+
+That symmetry makes $DOR(t)$ tempting to use directly as a threshold-search
+objective: rather than picking $t=0.5$ by convention, or minimizing
+misclassification rate (which is itself known to be a poor objective under
+class imbalance, since it is minimized by simply predicting the majority
+class as the imbalance grows), one might search for $t^\ast =
+\arg\max_t DOR(t)$. We show this is a mistake, with a short, general
+argument, and confirm the failure mode empirically.
+
+\section{Preliminaries}
+
+Fix a finite labeled sample of size $n$ with $n_1$ positive and $n_0 =
+n - n_1$ negative examples, and a score function $s(\cdot)$ that is not a
+constant on either class. As $t$ ranges over $(0,1)$, $\mathrm{sens}(t)$ is
+non-increasing and $\mathrm{spec}(t)$ is non-decreasing (both are step
+functions with at most $n$ jump points, one per distinct score value). We
+say $t$ is an \emph{interior threshold} if all four confusion-matrix counts
+are strictly positive at $t$, i.e. $TP(t), TN(t), FP(t), FN(t) > 0$; this is
+equivalent to $0 < \mathrm{sens}(t) < 1$ and $0 < \mathrm{spec}(t) < 1$.
+
+\begin{proposition}[Boundary configurations]
+\label{prop:boundary}
+If there exists a threshold $t_1$ at which $FP(t_1) = 0$ and $TP(t_1) > 0$
+(some positive example scores strictly above every negative example), then
+$\mathrm{spec}(t_1) = 1$ and $LR^+(t_1) = +\infty$, while
+$LR^-(t_1) = 1 - \mathrm{sens}(t_1)$, which is finite and, for any
+classifier that is not perfectly sensitive at $t_1$, strictly positive.
+Symmetrically, if there exists $t_0$ at which $FN(t_0) = 0$ and
+$TN(t_0) > 0$, then $\mathrm{sens}(t_0) = 1$, $LR^-(t_0) = 0$, and
+$LR^+(t_0) = \mathrm{sens}(t_0)/(1-\mathrm{spec}(t_0))$ is finite and
+positive for any classifier not perfectly specific at $t_0$.
+\end{proposition}
+
+The proof is immediate from the definitions. The condition in
+Proposition~\ref{prop:boundary} is generic: any score function with a
+non-degenerate tail (some positive example outscoring every negative
+example, or vice versa) satisfies it, which is the common case in practice
+whenever the two class-conditional score distributions have unequal support.
+
+\section{Divergence of $DOR$ at the ROC boundary}
+
+\begin{theorem}
+\label{thm:divergence}
+Under the conditions of Proposition~\ref{prop:boundary},
+$DOR(t_1) = LR^+(t_1)/LR^-(t_1) = +\infty$ and, symmetrically,
+$DOR(t_0) = +\infty$. Consequently, whenever such $t_0$ or $t_1$ exists,
+$\sup_t DOR(t) = +\infty$, and this supremum is approached only near the
+boundary of the achievable ROC curve, where either $\mathrm{sens}(t)$ or
+$\mathrm{spec}(t)$ is driven toward its extreme value.
+\end{theorem}
+
+\begin{proof}
+Immediate from Proposition~\ref{prop:boundary}: $DOR(t_1) = \infty /
+LR^-(t_1)$ with $LR^-(t_1) \in (0,\infty)$, hence $DOR(t_1) = +\infty$; the
+argument at $t_0$ is symmetric with $DOR(t_0) = LR^+(t_0)/0 = +\infty$.
+Because $DOR(t)$ is finite at any interior threshold (all four counts
+strictly positive implies $LR^+, LR^- \in (0,\infty)$), the value $+\infty$
+can only be attained at (or approached arbitrarily closely near) a boundary
+configuration as described.
+\end{proof}
+
+For a finite sample, $t_0$ and $t_1$ as defined above are themselves
+attainable thresholds (not merely limits), so $DOR$ is literally maximized
+at one of them whenever both exist and neither is excluded by tie-breaking.
+The classifier's true behavior at that threshold, however, is degenerate:
+at $t_1$, sensitivity can be arbitrarily close to $0$ (the classifier flags
+almost no positives, but every one it does flag is correct), and at $t_0$,
+specificity can be arbitrarily close to $0$ (the classifier flags almost
+every example as positive, catching every true positive but at the cost of
+overwhelming false-positive volume). Neither is a useful operating point in
+the ordinary sense, yet both attain the formally optimal value of the
+objective.
+
+\begin{remark}
+This failure mode is a close relative of a more familiar one: minimizing
+raw misclassification rate $1 - \mathrm{accuracy}(t)$ on an imbalanced
+sample (base rate $\pi \ll 0.5$) is minimized, in the worst case, by
+$t \to 1$ (predict the majority class always), achieving error rate $\pi$
+while sensitivity collapses to $0$. $DOR$-maximization is a different, and
+in one sense more insidious, version of the same problem: unlike
+misclassification rate, which is bounded in $[0,1]$ and whose degenerate
+minimizer is at least easy to recognize (zero sensitivity, error rate
+exactly equal to the base rate), $DOR$ is unbounded, so its maximizer can
+look like an arbitrarily strong result precisely because it is degenerate.
+\end{remark}
+
+\section{A composite score does not fix this}
+
+One might hope to repair the objective by folding in the area under the ROC
+curve (AUC), e.g. via
+\begin{equation}
+\label{eq:composite}
+M(t) = \frac{LR^+(t)}{\sqrt{LR^-(t)\,\cdot\,(1 - \mathrm{AUC})}},
+\end{equation}
+reasoning that a model with poor overall ranking ability (\text{low AUC})
+should be penalized. This does not change which threshold is chosen.
+
+\begin{corollary}
+\label{cor:auc-invariance}
+$\mathrm{AUC}$ does not depend on $t$: by the Mann--Whitney $U$-statistic
+identity, $\mathrm{AUC} = \Pr(s(X^+) > s(X^-))$ for independent $X^+, X^-$
+drawn from the positive and negative class-conditional score distributions,
+a single number determined by the score function and the sample, not by any
+particular operating threshold. Hence $c := (1 - \mathrm{AUC})^{-1/2}$ is a
+positive constant with respect to $t$, and $M(t) = c \cdot
+LR^+(t)/\sqrt{LR^-(t)}$. Since $t \mapsto c \cdot f(t)$ has the same
+arg max as $t \mapsto f(t)$ for any positive constant $c$,
+\begin{equation}
+\arg\max_t M(t) \;=\; \arg\max_t \frac{LR^+(t)}{\sqrt{LR^-(t)}},
+\end{equation}
+independent of the model's AUC. In particular, replacing the true AUC in
+Equation~\ref{eq:composite} by any other constant in $(0,1)$ leaves the
+maximizing threshold unchanged.
+\end{corollary}
+
+The AUC term in Equation~\ref{eq:composite} is therefore useful only for
+comparing the resulting metric \emph{value} across different models (each
+with its own fixed AUC), never for improving the threshold search within a
+single model. Moreover, because $\sqrt{LR^-(t)}$ is a strictly increasing
+function of $LR^-(t)$ wherever $LR^-(t) \geq 0$, the boundary argument of
+Theorem~\ref{thm:divergence} applies unchanged to $LR^+(t)/\sqrt{LR^-(t)}$:
+it too diverges to $+\infty$ at the same boundary configurations, merely at
+a slower rate in $LR^-(t) \to 0$ (order $LR^-(t)^{-1/2}$ instead of
+$LR^-(t)^{-1}$). We verified Corollary~\ref{cor:auc-invariance}
+computationally by substituting $\mathrm{AUC}=0.5$ for each model's true AUC
+and recomputing $\arg\max_t M(t)$: the maximizing threshold was identical
+to four decimal places in every case (Section~\ref{sec:empirical}).
+
+\section{Empirical illustration}
+\label{sec:empirical}
+
+We illustrate the two results on a real binary classification benchmark:
+early prediction of a binary severity outcome from routine admission
+laboratory values, on two independent public datasets ($n=1{,}289$,
+prevalence $15.8\%$; $n=722$, prevalence $19.0\%$). For each dataset we
+report two classifiers: the single best-performing model from a
+$\sim\!2{,}000$-configuration model search (gradient-boosted trees,
+random forests, and deep neural architectures), and a simple-average
+ensemble of the top diverse models by held-out AUROC. All quantities below
+are computed from five-fold, stratified, out-of-fold predictions (i.e.\ no
+model ever scores a row it was trained on), so the reported thresholds and
+ratios reflect genuine held-out generalization, not in-sample fit. The
+domain and clinical interpretation of this benchmark are secondary here;
+what matters is that it is a real classifier evaluated on real held-out
+data, not a synthetic construction chosen to produce the pathology.
+
+\subsection{The default threshold is not degenerate}
+
+Table~\ref{tab:default} reports the conventional default threshold
+($t=0.5$) for reference.
+
+\begin{table}[h]
+\centering
+\caption{Metrics at the default threshold $t=0.5$.}
+\label{tab:default}
+\begin{tabular}{lccccc}
+\toprule
+Model & Sens. & Spec. & $LR^+$ & $LR^-$ & $DOR$ \\
+\midrule
+$n{=}1289$, single best   & 0.485 & 0.946 & 8.92  & 0.544 & 16.40 \\
+$n{=}1289$, 15-ensemble   & 0.368 & 0.971 & 12.47 & 0.652 & 19.12 \\
+$n{=}722$, single best    & 0.482 & 0.954 & 10.44 & 0.543 & 19.22 \\
+$n{=}722$, 5-ensemble     & 0.511 & 0.956 & 11.50 & 0.512 & 22.45 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Unconstrained $DOR$-maximization is degenerate}
+
+Table~\ref{tab:maxdor} reports $t^\ast = \arg\max_t DOR(t)$, restricted only
+to interior thresholds (all four confusion-matrix counts positive) to avoid
+the literal $t_0, t_1$ boundary values of Theorem~\ref{thm:divergence}.
+Even with this restriction, every maximizer is a near-degenerate operating
+point.
+
+\begin{table}[h]
+\centering
+\caption{Interior-restricted $DOR$-maximizing threshold.}
+\label{tab:maxdor}
+\begin{tabular}{lcccccc}
+\toprule
+Model & $t^\ast$ & Sens. & Spec. & $LR^+$ & $LR^-$ & $DOR$ \\
+\midrule
+$n{=}1289$, single best   & 0.106 & 0.995 & 0.330 & 1.49   & 0.015 & 99.96 \\
+$n{=}1289$, 15-ensemble   & 0.765 & 0.113 & 0.999 & 122.33 & 0.888 & 137.75 \\
+$n{=}722$, single best    & 0.002 & 0.993 & 0.313 & 1.45   & 0.023 & 61.91 \\
+$n{=}722$, 5-ensemble     & 0.017 & 0.993 & 0.412 & 1.69   & 0.018 & 95.28 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+In every case, $DOR(t^\ast) > DOR(0.5)$, confirming that the search
+``succeeds'' at improving the objective, and in every case sensitivity or
+specificity is below $0.5$ (as low as $0.11$), confirming that the
+resulting classifier is not one an operator would actually choose to
+deploy: two of the four maximizers flag almost every example as positive
+(sensitivity $\approx 0.99$, specificity $\approx 0.3$--$0.4$), and one
+flags almost none (sensitivity $0.11$).
+
+\subsection{The composite score inherits the pathology}
+
+Table~\ref{tab:composite} reports $t^\ast = \arg\max_t M(t)$ for the
+composite score of Equation~\ref{eq:composite}, using each model's true
+AUC. As predicted by Corollary~\ref{cor:auc-invariance}, substituting
+$\mathrm{AUC} = 0.5$ in place of the true AUC reproduced the identical
+$t^\ast$ in all four cases.
+
+\begin{table}[h]
+\centering
+\caption{Composite-score-maximizing threshold ($M(t)$, Eq.~\ref{eq:composite}).}
+\label{tab:composite}
+\begin{tabular}{lcccccc}
+\toprule
+Model & AUC & $t^\ast$ & Sens. & Spec. & $LR^+$ & $M(t^\ast)$ \\
+\midrule
+$n{=}1289$, single best   & 0.857 & 0.894 & 0.059 & 0.999 & 63.82  & 173.6 \\
+$n{=}1289$, 15-ensemble   & 0.866 & 0.765 & 0.113 & 0.999 & 122.33 & 354.5 \\
+$n{=}722$, single best    & 0.889 & 0.971 & 0.095 & 0.998 & 55.51  & 175.1 \\
+$n{=}722$, 5-ensemble     & 0.893 & 0.898 & 0.117 & 0.998 & 68.32  & 222.1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Every maximizer in Table~\ref{tab:composite} has sensitivity below $0.12$:
+folding in AUC did not merely fail to fix the pathology, it moved all four
+models onto the specificity-extreme boundary exclusively (the $t_0$-type
+degeneracy of Proposition~\ref{prop:boundary}, not the $t_1$-type), because
+the $\sqrt{\cdot}$ transform in the denominator changes the relative growth
+rate of the two boundary terms without removing either one.
+
+\subsection{Youden's $J$ as a bounded contrast}
+
+For comparison, Table~\ref{tab:youden} reports the threshold maximizing
+Youden's $J(t) = \mathrm{sens}(t) + \mathrm{spec}(t) - 1$
+\citep{youden1950index}, a criterion bounded in $[-1,1]$ whose maximizer
+corresponds to the point on the empirical ROC curve farthest (in vertical
+distance) from the chance diagonal.
+
+\begin{table}[h]
+\centering
+\caption{Youden's $J$-maximizing threshold.}
+\label{tab:youden}
+\begin{tabular}{lcccccc}
+\toprule
+Model & $t^\ast$ & Sens. & Spec. & $J^\ast$ & $DOR$ \\
+\midrule
+$n{=}1289$, single best   & 0.273 & 0.740 & 0.800 & 0.540 & 11.40 \\
+$n{=}1289$, 15-ensemble   & 0.157 & 0.799 & 0.766 & 0.565 & 13.01 \\
+$n{=}722$, single best    & 0.046 & 0.825 & 0.798 & 0.623 & 18.63 \\
+$n{=}722$, 5-ensemble     & 0.061 & 0.883 & 0.739 & 0.622 & 21.35 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Every Youden-optimal threshold is an interior, balanced point (sensitivity
+and specificity both between $0.74$ and $0.88$), and its $DOR$ is
+comparable to, or in three of four cases higher than, the default-threshold
+$DOR$ in Table~\ref{tab:default} -- without the collapse in either error
+rate seen in Tables~\ref{tab:maxdor}--\ref{tab:composite}. $J$ does not
+diverge because both $\mathrm{sens}(t)$ and $\mathrm{spec}(t)$ enter it
+additively and are individually bounded in $[0,1]$; there is no ratio whose
+denominator can be driven to zero.
+
+\section{A constrained remedy}
+
+If a ratio-based objective is preferred to $J$ for domain reasons (e.g.\
+$LR^-$ has a direct clinical or decision-theoretic interpretation that
+$J$ lacks), the pathology can be avoided by constraining the search:
+\begin{equation}
+t^\ast_\tau \;=\; \arg\max_{t \,:\, \min(\mathrm{sens}(t),\, \mathrm{spec}(t))\, \geq\, \tau} DOR(t),
+\end{equation}
+for an explicit floor $\tau \in (0, 1)$ chosen for the application (e.g.\
+$\tau = 0.5$). This is a strict restriction of the interior-threshold set
+used in Table~\ref{tab:maxdor}, which we showed is necessary but not
+sufficient: interior thresholds still allow sensitivity or specificity
+arbitrarily close to $0$. The floor $\tau$ makes the exclusion explicit and
+auditable, rather than implicit in whatever thresholds happen to survive
+the interior restriction on a given sample.
+
+\section{Discussion}
+
+The underlying issue is general: any objective built as an unconstrained
+ratio of two quantities that can each independently approach $0$ or
+$\infty$ along the achievable range of a one-dimensional threshold search
+is at risk of this failure mode, regardless of how reasonable the ratio
+looks at typical, non-extreme operating points. $DOR$ is a particularly
+easy case to overlook because it is a well-established, symmetric,
+threshold-invariant-\emph{sounding} summary statistic in the
+diagnostic-accuracy literature -- it is usually reported \emph{at} a
+threshold chosen by other means (Youden's $J$, a clinically motivated cutoff,
+or the point closest to $(0,1)$ on the ROC curve), not used \emph{to select}
+that threshold. Using it as the search objective directly inverts that
+relationship and reintroduces the pathology this paper describes.
+
+We also note, as a corollary of Corollary~\ref{cor:auc-invariance}, a more
+general point: appending any threshold-invariant quantity (AUC, AUPRC,
+Brier score, or any other summary computed by integrating or aggregating
+over all thresholds) to a per-threshold objective cannot influence \emph{which}
+threshold is selected, only the resulting objective's value. This is easy
+to get backwards when constructing an ad hoc composite score, since the
+inclusion of such a term can create the appearance of a more principled,
+multi-criterion objective while leaving the actual threshold-selection
+behavior completely unchanged.
+
+\section{Reproducibility}
+
+All reported quantities were computed from real five-fold, stratified,
+out-of-fold cross-validated predictions (not simulated), using the
+open-source implementation available at
+\url{https://github.com/netanelcyber/PenuX-AP-Severity}
+(\texttt{scripts/threshold\_sweep.py}). Interior-threshold and Youden's-$J$
+searches, the AUC-substitution check for
+Corollary~\ref{cor:auc-invariance}, and all table values in
+Section~\ref{sec:empirical} are reproducible by running that script against
+the two public, de-identified datasets referenced in the repository.
+
+\bibliographystyle{plainnat}
+\begin{thebibliography}{9}
+
+\bibitem[Glas et al.(2003)]{glas2003dor}
+Glas, A.S., Lijmer, J.G., Prins, M.H., Bonsel, G.J., Bossuyt, P.M.M. (2003).
+The diagnostic odds ratio: a single indicator of test performance.
+\textit{Journal of Clinical Epidemiology}, 56(11), 1129--1135.
+
+\bibitem[Youden(1950)]{youden1950index}
+Youden, W.J. (1950).
+Index for rating diagnostic tests.
+\textit{Cancer}, 3(1), 32--35.
+
+\end{thebibliography}
+
+\end{document}

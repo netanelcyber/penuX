@@ -171,6 +171,14 @@ PenuX-AP-Severity/
   since the single best model alone did not reach significance against baseline. On lnn,
   the smaller improvement (AUROC=0.8930) is not significant (p=0.129) — reported honestly.
   Exploratory only, not clinically validated.
+- `docs/manuscripts/arxiv_dor_latex/degenerate_dor_optima.tex` — a standalone, non-clinical
+  methods paper ("Degenerate Optima in Likelihood-Ratio-Based Threshold Selection for Binary
+  Classifiers", arXiv-style) proving that maximizing the diagnostic odds ratio (DOR = LR+/LR-)
+  as a threshold-selection objective is unbounded and converges to degenerate operating points
+  (sensitivity or specificity near 0), with the same failure inherited by any composite score
+  that folds in AUC (a threshold-invariant quantity, proven not to change the arg max). Verified
+  empirically on this repo's real 5-fold cross-validated models; contrasts with Youden's J, which
+  does not diverge. Compiles cleanly with `pdflatex`.
 - `docs/hipaa_iso27799_gap_analysis_he.md` — Hebrew security gap analysis mapping
   the current repo (especially `api/`) against HIPAA Security Rule §164.312 and
   ISO/IEC 27799 control areas: what technical gaps were fixed (API-key auth, rate
