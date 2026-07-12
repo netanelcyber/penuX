@@ -606,6 +606,61 @@ calibration-based measures alongside discrimination
 operating point is visible in the reported summary rather than hidden
 behind a single scalar.
 
+\subsection{Decision curve analysis, applied}
+\label{sec:dca}
+
+Rather than only cite \citet{vickers2006}, we ran decision curve analysis on
+the same four model/dataset combinations, to check that a bounded,
+economically interpretable alternative behaves as expected where $DOR$-
+maximization does not. For a threshold probability $p_t \in (0,1)$ -- the
+probability above which a clinician would act on the model's output, which
+also fixes the implied exchange rate between a false positive and a true
+positive at $p_t/(1-p_t)$ -- net benefit is
+\begin{equation}
+\mathrm{NB}(p_t) = \frac{TP(p_t)}{n} - \frac{FP(p_t)}{n}\cdot\frac{p_t}{1-p_t},
+\end{equation}
+compared against ``treat all'' ($\mathrm{NB}_{\mathrm{all}}(p_t) = \pi -
+(1-\pi)\,p_t/(1-p_t)$, for prevalence $\pi$) and ``treat none''
+($\mathrm{NB}_{\mathrm{none}}(p_t)=0$). Figures~\ref{fig:dca-multiml} and
+\ref{fig:dca-lnn} plot all three curves over the clinically plausible range
+$p_t \in [0.01, 0.6]$.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.75\textwidth]{decision_curve_multiml.png}
+\caption{Decision curve, multiml. Both the single best model and the
+ensemble beat ``treat all'' and ``treat none'' across the entire plotted
+range $p_t \in [0.01, 0.6]$.}
+\label{fig:dca-multiml}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.75\textwidth]{decision_curve_lnn.png}
+\caption{Decision curve, lnn. The ensemble beats both reference strategies
+across the full range; the single best model does so for
+$p_t \in [0.053, 0.6]$, narrowly trailing ``treat all'' only in the
+$p_t \in [0.01, 0.053]$ region where ``treat all'' is close to its own
+maximum.}
+\label{fig:dca-lnn}
+\end{figure}
+
+Every model beats ``treat none'' everywhere in the plotted range, as
+expected of any classifier with $\mathrm{AUC} > 0.5$. More informatively,
+the multiml models and the lnn ensemble beat \emph{both} reference
+strategies across the \emph{entire} range $p_t \in [0.01, 0.6]$; the lnn
+single model does so for $p_t \in [0.053, 0.6]$. None of the four decision
+curves come close to reproducing the degenerate behavior of
+Tables~\ref{tab:maxdor}--\ref{tab:full-lnn}: net benefit stays smooth,
+bounded, and monotonically informative about the trade-off at each $p_t$,
+because -- as in Proposition~\ref{prop:youden-bounded} -- $TP(p_t)/n$ and
+$FP(p_t)/n$ enter additively rather than as a ratio, so neither term can be
+driven to dominate the objective by an accident of a handful of cells. This
+is the applied counterpart of the cost-sensitive-threshold argument above:
+decision curve analysis does not require committing to one exchange rate in
+advance, but every exchange rate it implicitly sweeps over is finite and
+well-behaved, which is precisely the property $DOR$-maximization lacks.
+
 \subsection{The degenerate maximizer is also statistically fragile}
 \label{sec:fragility}
 
