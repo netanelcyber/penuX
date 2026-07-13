@@ -668,13 +668,17 @@ The degeneracy in Table~\ref{tab:maxdor} is not only a clinical-usability
 problem; the maximizing threshold is also a poor \emph{statistical}
 estimate, because it is frequently selected by a boundary configuration
 resting on very few discordant cells. Table~\ref{tab:fragility} reports
-Wilson score confidence intervals \citep{newcombe1998} for specificity at
-each $DOR$-maximizing threshold from Table~\ref{tab:maxdor}, together with
-the resulting range for $LR^+$ obtained by propagating the interval
-extremes through Equation~1 -- a conservative, illustrative bound rather
-than an exact interval for the ratio itself; a full treatment would use the
-sample-size and interval methods developed specifically for likelihood
-ratios by \citet{simel1991}.
+Wilson score confidence intervals \citep{newcombe1998} for sensitivity and
+specificity separately at each $DOR$-maximizing threshold from
+Table~\ref{tab:maxdor}, together with a conservative range for $LR^+$
+obtained by pairing the extremes that respectively maximize and minimize
+$LR^+ = \mathrm{sens}/(1-\mathrm{spec})$ -- i.e.\ the upper sensitivity
+bound paired with the lower specificity bound, and vice versa -- rather
+than propagating either interval alone. This is an illustrative,
+conservative bound, not an exact interval for the ratio itself (it does
+not, for instance, account for the correlation induced by sharing a
+threshold); a full treatment would use the sample-size and interval
+methods developed specifically for likelihood ratios by \citet{simel1991}.
 
 \begin{table}[ht]
 \centering
@@ -695,16 +699,64 @@ $n{=}722$, 5-ensemble     & 344/585  & 0.412 (0.373, 0.452) & 1.69   & (1.59, 1.
 
 The $n{=}1289$ ensemble row is the most striking: its reported $DOR$-maximizing
 $LR^+$ of $122.33$ rests on a single false positive out of $1{,}085$
-negative examples ($FP=1$). The 95\% interval for specificity at that
-point, $(0.995, 1.000)$, propagates to an $LR^+$ range of roughly
-$(31, 469)$ -- more than an order of magnitude wide, from a single
-misclassified example either way. A threshold selected this close to a
+negative examples ($FP=1$) and $23$ true positives out of $204$ actual
+cases. Combining the 95\% interval for specificity, $(0.995, 1.000)$, with
+the 95\% interval for sensitivity, $(0.076, 0.163)$, at their most extreme
+pairing yields an $LR^+$ range of roughly $(31, 469)$ -- more than an order
+of magnitude wide, from a single misclassified example either way. A
+threshold selected this close to a
 sample-specific accident is not a reproducible operating point; it is a
 sampling artifact that happens to maximize an unbounded statistic. This is
 a second, independent reason (beyond the low sensitivity documented in
 Table~\ref{tab:maxdor}) not to trust an unconstrained $DOR$-maximizing
 threshold: it is simultaneously clinically extreme and statistically
 unstable.
+
+\subsection{Does more data fix this? A controlled simulation}
+\label{sec:simulation}
+
+A natural objection to Section~\ref{sec:fragility} is that the fragility
+might simply be a small-sample artifact of the two real datasets used
+throughout this paper ($n=1{,}289$ and $n=722$), and would disappear with
+more data. To test this directly -- separately from, and clearly
+distinguished from, the real clinical data used in
+Sections~\ref{sec:empirical}--\ref{sec:dca} -- we ran a controlled
+simulation: binormal class-conditional scores (positive $\sim
+\mathcal{N}(\mu,1)$, negative $\sim \mathcal{N}(0,1)$, $\mu$ chosen to fix
+$\mathrm{AUC}=0.85$, prevalence fixed at $0.158$ to match multiml), varying
+sample size $n \in \{100, 300, 1{,}000, 3{,}000, 10{,}000, 30{,}000\}$ with
+$100$ replicates per value of $n$, computing the interior-restricted
+$DOR$-maximizing threshold exactly as in Table~\ref{tab:maxdor} for each
+replicate.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.95\textwidth]{dor_simulation_fragility.png}
+\caption{Controlled simulation (not real data): median boundary-cell count
+(left) and median 95\% CI ratio for $LR^+$ (right, computed by the same
+crossed-extremes method as Table~\ref{tab:fragility}) at the $DOR$-maximizing
+threshold, as a function of sample size, over 100 replicates per $n$.}
+\label{fig:simulation}
+\end{figure}
+
+The result answers the objection directly, and not in the reassuring
+direction: it does \emph{not} improve with $n$. The median boundary-cell
+count (the smaller of $FP$ or $FN$ at the maximizing threshold) is $1$--$2$
+at every sample size from $100$ to $30{,}000$ -- a $300$-fold increase in
+data leaves the search resting on essentially the same absolute handful of
+misclassified examples, because the search is not estimating a fixed
+population quantity that averages out with more data; it is an adversarial
+search over the empirical ROC curve's achievable boundary, which always
+contains a configuration with $O(1)$ discordant cells regardless of $n$.
+Consequently, the \emph{relative} fragility -- the width of the 95\% $LR^+$
+interval, expressed as a ratio of its upper to lower bound -- actually
+\textbf{grows} with $n$ (from roughly $4.7\times$ at $n=100$ to
+$17.6\times$ at $n=30{,}000$), since the point estimate itself grows
+without bound (Theorem~\ref{thm:divergence}) while the interval is anchored
+to a fixed handful of discordant cells. More data makes the reported
+$DOR$-maximizing $LR^+$ larger and, in relative terms, \emph{less}
+trustworthy, not more -- the opposite of the usual relationship between
+sample size and estimator precision.
 
 \section{Discussion}
 \label{sec:discussion}
