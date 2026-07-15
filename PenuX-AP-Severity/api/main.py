@@ -15,7 +15,8 @@ from typing import Any
 
 import joblib
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 from api.schemas import (
     AdmissionInput,
@@ -28,6 +29,13 @@ from api.schemas import (
 from api.fhir_schemas import FHIRBundle, RiskAssessmentResource, RiskAssessmentPrediction, CodeableConcept, Coding
 from api.camelion_adapter import bundle_to_admission_input, camelion_json_to_admission_input
 from api.hl7_adapter import hl7_message_to_admission_input
+from api.security import (
+    AuditLogMiddleware,
+    MaxBodySizeMiddleware,
+    RateLimitMiddleware,
+    require_api_key,
+    _configured_api_key,
+)
 from penux_ap.config import RISK_THRESHOLDS
 
 log = logging.getLogger(__name__)
@@ -40,7 +48,24 @@ app = FastAPI(
         "**Camelion (קמיליון) HIS integration**: POST /camelion/predict or POST /fhir/predict"
     ),
     version="0.1.0",
+    dependencies=[Depends(require_api_key)],
 )
+
+# Explicit, restrictive-by-default CORS: no origins allowed unless the
+# operator opts in via PENUX_AP_CORS_ORIGINS (comma-separated). Being
+# explicit here (rather than simply never adding CORSMiddleware) means a
+# future change that needs CORS has one obvious, audited place to add it.
+_cors_origins = [o.strip() for o in os.environ.get("PENUX_AP_CORS_ORIGINS", "").split(",") if o.strip()]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_cors_origins,
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type", "X-API-Key"],
+)
+app.add_middleware(MaxBodySizeMiddleware)
+app.add_middleware(RateLimitMiddleware)
+app.add_middleware(AuditLogMiddleware)
 
 _model = None
 
@@ -73,8 +98,9 @@ def _run_prediction(admission: AdmissionInput) -> tuple[float, str]:
     row = pd.DataFrame([admission.model_dump()])
     try:
         proba = float(model.predict_proba(row)[0, 1])
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")
+    except Exception:
+        log.exception("Prediction failed")
+        raise HTTPException(status_code=500, detail="Prediction failed")
 
     if proba < RISK_THRESHOLDS["low"]:
         risk_group = "low"
@@ -88,6 +114,12 @@ def _run_prediction(admission: AdmissionInput) -> tuple[float, str]:
 @app.on_event("startup")
 def startup():
     _load_model()
+    if _configured_api_key() is None:
+        log.warning(
+            "PENUX_AP_API_KEY is not set — all endpoints are running WITHOUT "
+            "authentication. Set PENUX_AP_API_KEY before exposing this API "
+            "to any network beyond localhost, and never with real patient data."
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -116,8 +148,9 @@ def predict(data: AdmissionInput):
     row = pd.DataFrame([data.model_dump()])
     try:
         proba = float(model.predict_proba(row)[0, 1])
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")
+    except Exception:
+        log.exception("Prediction failed")
+        raise HTTPException(status_code=500, detail="Prediction failed")
 
     if proba < RISK_THRESHOLDS["low"]:
         risk_group = "low"

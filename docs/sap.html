@@ -179,6 +179,55 @@
   </section>
 
   <section>
+    <h2>Real Results (5-fold Out-of-Fold Cross-Validation)</h2>
+    <p>
+      Evaluated on two public, de-identified acute-pancreatitis cohorts against a
+      &sim;2,000-configuration model search (gradient-boosted trees, random forests, and
+      deep neural architectures), plus a 15/5-model diverse ensemble per dataset.
+      All numbers below are out-of-fold — no model ever scores a row it was trained on.
+    </p>
+    <table class="severity-table">
+      <thead>
+        <tr><th>Dataset</th><th>Model</th><th>AUROC</th><th>Sensitivity</th><th>Specificity</th><th>LR+</th><th>LR&minus;</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>multiml (n=1,289)</td><td>single best</td><td>0.857</td><td>48.5%</td><td>94.6%</td><td>8.9</td><td>0.54</td></tr>
+        <tr><td>multiml</td><td>15-model ensemble</td><td>0.866</td><td>36.8%</td><td>97.1%</td><td>12.5</td><td>0.65</td></tr>
+        <tr><td>lnn (n=722)</td><td>single best</td><td>0.889</td><td>48.2%</td><td>95.4%</td><td>10.4</td><td>0.54</td></tr>
+        <tr><td>lnn</td><td>5-model ensemble</td><td>0.893</td><td>51.1%</td><td>95.6%</td><td>11.5</td><td>0.51</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.85rem; color:#6a9bbf;">
+      Honest finding reported as-is, not smoothed over: on multiml, ensembling significantly
+      improves AUROC (paired bootstrap p=0.034) but sensitivity at the standard 0.5 decision
+      threshold actually <em>drops</em> (48.5% &rarr; 36.8%) &mdash; a higher AUROC does not
+      automatically mean fewer missed severe cases. On lnn, the ensemble improves across the
+      board. Full write-up and reproduction scripts in the repository below.
+    </p>
+  </section>
+
+  <section>
+    <h2>Related Publication</h2>
+    <div class="info-card">
+      <h3>Degenerate Optima in Likelihood-Ratio-Based Threshold Selection for Binary Classifiers</h3>
+      <p>
+        A standalone methods paper proving that naively <em>maximizing</em> the diagnostic odds
+        ratio (LR+/LR&minus;) as a threshold-selection objective is unbounded and converges to
+        degenerate, statistically fragile operating points &mdash; verified empirically across
+        all 30 models in this project's zoo (100% land on a degenerate point), and by a
+        controlled simulation showing the problem gets worse, not better, with more data.
+      </p>
+      <div class="tag-row">
+        <span class="tag">ROC analysis</span><span class="tag">Likelihood ratios</span>
+        <span class="tag">Youden's J</span><span class="tag">Decision curve analysis</span>
+      </div>
+      <p style="margin-top:0.75rem;">
+        <a href="https://github.com/netanelcyber/penuX/blob/claude/sap-severity-gbdt-analysis-4prupo/PenuX-AP-Severity/docs/manuscripts/arxiv_dor_latex/degenerate_dor_optima.pdf" style="color:#00b4d8;">Read the paper (PDF)</a>
+      </p>
+    </div>
+  </section>
+
+  <section>
     <h2>GitHub Repository</h2>
     <p>
       Source code, data schema, and evaluation scripts:&nbsp;

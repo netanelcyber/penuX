@@ -130,16 +130,19 @@ python scripts/run_baseline.py \
 
 ---
 
-## 6א. השוואה מול 171 מודלים אחרים
+## 6א. השוואה מול 885 מודלים אחרים
 
-מעבר לשלושת מודלי ה־GBDT המרכזיים, נבנה "zoo" חקרני של 171 קונפיגורציות מודלים
+מעבר לשלושת מודלי ה־GBDT המרכזיים, נבנה "zoo" חקרני של 886 קונפיגורציות מודלים
 שונות — רגרסיה לוגיסטית, Ridge, SGD, Perceptron, SVM ליניארי ו־kernel, KNN,
 Naive Bayes, עצי החלטה, Random Forest, Extra Trees, Gradient Boosting של
 scikit-learn, HistGradientBoosting, AdaBoost, Bagging, MLP, Linear/Quadratic
-Discriminant Analysis, Gaussian Process, וכן מגוון קונפיגורציות נוספות של
-XGBoost, LightGBM ו־CatBoost (ראו `scripts/model_zoo.py`). כל המודלים הוערכו
-בשיטת out-of-fold עם 5-fold Stratified CV זהה, כדי לאפשר השוואה הוגנת
-(`scripts/benchmark_model_zoo.py`).
+Discriminant Analysis, Gaussian Process, מגוון קונפיגורציות נוספות של XGBoost,
+LightGBM ו־CatBoost, וכן ארבעה אלגוריתמי boosting נוספים ואלגוריתמית שונים
+מהותית מהשלושה המרכזיים (ראו סעיף 6ב): XGBoost DART, LightGBM DART, LightGBM
+GOSS, CatBoost Plain boosting, ומימוש GBDT מאפס (`ScratchGBDTClassifier`, ללא
+שימוש בשום ספריית GBDT קיימת). כל המודלים הוערכו בשיטת out-of-fold עם 5-fold
+Stratified CV זהה, כדי לאפשר השוואה הוגנת (`scripts/model_zoo.py`,
+`scripts/benchmark_model_zoo.py`).
 
 > ⚠️ הריצה הראשונית של ההשוואה חשפה תקלה במקור: עמודת היעד הגולמית בשני
 > המאגרים הפוכה ביחס למתועד — הערך הגולמי `0` הוא בפועל SAP (204/137 המקרים
@@ -151,29 +154,67 @@ XGBoost, LightGBM ו־CatBoost (ראו `scripts/model_zoo.py`). כל המודל�
 
 ### תוצאות ההשוואה (מיון לפי AUC, out-of-fold, 5-fold CV)
 
-| מאגר    | מודל (קונפיגורציה עיקרית)      |  AUC  | דירוג מתוך 170 שהוערכו הצליחו |
+| מאגר    | מודל (קונפיגורציה עיקרית)      |  AUC  | דירוג מתוך 885 שהוערכו הצליחו |
 | ------- | -------------------------------- | :---: | :----------------------------: |
-| multiml | LightGBM (`n=200, lr=0.1`)      | 0.850 |               10               |
-| multiml | XGBoost (`n=200, depth=5, lr=0.1`) | 0.842 |               47               |
-| multiml | CatBoost (`n=200, depth=6, lr=0.1`) | 0.829 |               93               |
-| lnn     | LightGBM (`n=200, lr=0.1`)      | 0.885 |                3               |
-| lnn     | XGBoost (`n=200, depth=5, lr=0.1`) | 0.881 |               20               |
-| lnn     | CatBoost (`n=200, depth=6, lr=0.1`) | 0.876 |               48               |
+| multiml | LightGBM (`n=200, lr=0.1`)      | 0.850 |               28               |
+| multiml | XGBoost (`n=200, depth=5, lr=0.1`) | 0.842 |               259               |
+| multiml | CatBoost (`n=200, depth=6, lr=0.1`) | 0.829 |               534               |
+| lnn     | LightGBM (`n=200, lr=0.1`)      | 0.885 |                23               |
+| lnn     | XGBoost (`n=200, depth=5, lr=0.1`) | 0.881 |               138               |
+| lnn     | CatBoost (`n=200, depth=6, lr=0.1`) | 0.876 |               262               |
 
-(מקור מלא: `outputs/multiml/model_zoo_benchmark.csv`, `outputs/lnn/model_zoo_benchmark.csv`, 170/171 קונפיגורציות הצליחו בכל מאגר — כשל בודד ב־QDA עקב matrix קולינארי.)
+(מקור מלא: `outputs/multiml/model_zoo_benchmark.csv`, `outputs/lnn/model_zoo_benchmark.csv`, 885/886 קונפיגורציות הצליחו בכל מאגר — כשל בודד ב־QDA עקב matrix קולינארי.)
 
-**המודל הטוב ביותר מתוך 171 בכל מאגר:**
+**המודל הטוב ביותר מתוך 885 בכל מאגר:**
 
 * **multiml**: `LightGBM (n=300, leaves=31, lr=0.05)`, AUC=0.8537 — שיפור שולי בלבד מעל קונפיגורציית ה־LightGBM הראשית (0.8499).
-* **lnn**: `HistGradientBoostingClassifier (n=100, lr=0.1)` של scikit-learn, AUC=0.8865 — קרוב מאוד ל־LightGBM (0.8864–0.8853).
+* **lnn**: `LightGBM (n=800, leaves=15, lr=0.01)`, AUC=0.8892 — קרוב מאוד לקונפיגורציות אחרות של LightGBM/XGBoost/CatBoost בטווח 0.887–0.889.
 
 **תובנות מרכזיות:**
 
-1. **אף מודל לא עוקף באופן משמעותי את ה־GBDT.** בשני המאגרים, ה־AUC הטוב ביותר מבין 171 הקונפיגורציות (≈0.854 ו־≈0.886) קרוב מאוד ל־AUC של מודלי ה־GBDT הראשיים שהוצגו בסעיף 6 (0.84–0.88). אין קפיצת ביצועים דרמטית ממודל אחר.
+1. **אף מודל לא עוקף באופן משמעותי את ה־GBDT.** בשני המאגרים, ה־AUC הטוב ביותר מבין 885 הקונפיגורציות (≈0.854 ו־≈0.889) קרוב מאוד ל־AUC של מודלי ה־GBDT הראשיים שהוצגו בסעיף 6 (0.84–0.88). אין קפיצת ביצועים דרמטית ממודל אחר, גם לאחר הוספת 715 קונפיגורציות נוספות (מ־171 ל־886).
 2. **המודלים המובילים כולם מבוססי עצים/boosting.** בשני המאגרים, 10-15 המקומות הראשונים מאוכלסים כמעט אך ורק על ידי LightGBM, Random Forest, Extra Trees, HistGradientBoosting ו־XGBoost בקונפיגורציות שונות — לא מודלים ליניאריים, SVM, KNN או רשתות נוירונים.
-3. **CatBoost דורג נמוך יחסית משאר משפחת ה־GBDT** בשני המאגרים (93/170 ו־48/170), אך עדיין הרבה מעל החציון.
+3. **CatBoost דורג נמוך יחסית משאר משפחת ה־GBDT** בשני המאגרים (534/885 ו־262/885), אך עדיין הרבה מעל החציון.
 4. **המודלים החלשים ביותר** בשני המאגרים הם עצי החלטה בודדים (`DecisionTreeClassifier`, `ExtraTreeClassifier`) ללא ensemble — AUC של 0.59–0.65 בלבד, מה שמדגיש את התרומה של שיטות ensemble/boosting לביצועים.
 5. **המסקנה המתודולוגית** נותרת כפי שתוארה למעלה: מודלי GBDT (ובפרט LightGBM) הם בחירה סבירה וחזקה עבור המשימה הזו על המאגרים הציבוריים שנבדקו, אך השיפור מעבר לחלופות ensemble אחרות (Random Forest, HistGradientBoosting) הוא שולי ולא מהותי. אין בכך כדי לשנות את מגבלות הניתוח (ניתוח משני חקרני, ללא ולידציה חיצונית) המפורטות בסעיפים 10 ו־15.
+
+**טבלת F1 מלאה לכל מודל** (לא רק Top-5, ממוינת לפי F1 יורד, לכל אחד מ-885 המודלים שהוערכו בהצלחה בכל מאגר): ראו `docs/model_zoo_f1_tables.md`.
+
+---
+
+## 6ב. אלגוריתמי boosting נוספים
+
+מעבר לקונפיגורציות ה־hyperparameter הנוספות, נבדקו ארבעה אלגוריתמי boosting
+שהם *שונים מהותית* מהשלושה המרכזיים (לא רק כיוונון פרמטרים):
+
+| אלגוריתם | תיאור | מקור |
+| --- | --- | --- |
+| XGBoost DART | "Dropout Additive Regression Trees" — משמיט (dropout) עצים קיימים באקראי בכל סבב אימון, כדי לצמצם over-specialization | Rashmi & Gilad-Bachrach, 2015 |
+| LightGBM DART | אותו רעיון של dropout, במימוש LightGBM | Ke et al., 2017 |
+| LightGBM GOSS | "Gradient-based One-Side Sampling" — דוגם תת-קבוצה של הדוגמאות בכל סבב לפי גודל הגרדיאנט, לצמצום זמן ריצה | Ke et al., 2017 |
+| CatBoost Plain | boosting "רגיל" (לא ordered) — הבסיס שה-ordered boosting של CatBoost נועד לתקן | Prokhorenkova et al., 2018 |
+| ScratchGBDTClassifier | מימוש GBDT מאפס ב-Python/NumPy (ללא שימוש בשום ספריית GBDT קיימת) — עצי רגרסיה CART הנבנים מאפס ומפוצלים לפי צמצום שונות של השארית (residual variance reduction), עם תיקון Newton לערך העלה לאחר מכן | Friedman, 2001 (Gradient TreeBoost); `src/penux_ap/scratch_gbdt.py` |
+
+### תוצאות (AUC הטוב ביותר בכל משפחה, מתוך 885)
+
+| מאגר    | אלגוריתם         | AUC הטוב ביותר | דירוג |
+| ------- | ----------------- | :------------: | :---: |
+| multiml | XGBoost DART      |     0.8389     |  340  |
+| multiml | LightGBM DART     |     0.8461     |  113  |
+| multiml | LightGBM GOSS     |     0.8472     |   83  |
+| multiml | CatBoost Plain    |     0.8471     |   93  |
+| multiml | ScratchGBDT       |     0.8352     |  440  |
+| lnn     | XGBoost DART      |     0.8660     |  383  |
+| lnn     | LightGBM DART     |     0.8852     |   27  |
+| lnn     | LightGBM GOSS     |     0.8853     |   24  |
+| lnn     | CatBoost Plain    |     0.8808     |  141  |
+| lnn     | ScratchGBDT       |     0.8647     |  403  |
+
+**תובנות:**
+
+1. **GOSS ו-Plain מתחרים היטב עם הגרסאות הרגילות** — LightGBM GOSS ו-CatBoost Plain הגיעו לביצועים כמעט זהים לגרסאות ה"רגילות" (GBDT/Ordered) בשני המאגרים, ולעיתים אף מעט טובים יותר.
+2. **DART לא עזר כאן** — גם XGBoost DART וגם LightGBM DART דורגו נמוך מהגרסאות הרגילות שלהם. סביר שה-dropout מיועד למאגרים גדולים יותר עם מספר עצים גדול בהרבה; במאגרים הקטנים הנוכחיים (עד 1,289 שורות) הוא פוגע יותר משהוא עוזר.
+3. **ScratchGBDTClassifier מאמת את הקוד** — AUC של 0.835–0.865, קרוב למדי (אך לא זהה) לביצועי הספריות המסחריות, מהווה אימות סביר שהמימוש מאפס תקין ומיישם gradient boosting אמיתי, ולא רק ratio מקרי. אין בכך לרמז שהמימוש מתחרה בביצועים עם ספריות מותאמות-ביצועים כמו LightGBM/XGBoost.
 
 ---
 
@@ -379,6 +420,10 @@ PenuX-AP-Severity מציג מסגרת מחקרית לניתוח מאגרי דל�
 PenuX-AP-Severity הוא אב־טיפוס מחקרי בלבד. אין להשתמש בו לצורך אבחנה, טריאז׳, החלטה על אשפוז, החלטה על שחרור, קביעת טיפול או כל החלטה רפואית אחרת.
 
 כל החלטה קלינית חייבת להתבצע על ידי צוות רפואי מוסמך בלבד.
+
+---
+
+**המשך:** ראו `docs/sap_severity_extended_analysis_he.md` להרחבת הניתוח ל-1,982 קונפיגורציות מודלים, אלגוריתמי boosting נוספים (DART/GOSS/Plain), רשתות עמוקות (DNN/ConvNet/Hybrid), מבחני מובהקות סטטיסטית, ופרמטר קליני נוסף (quasi-SOFA).
 
 ---
 

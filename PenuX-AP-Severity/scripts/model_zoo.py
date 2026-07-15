@@ -10,6 +10,7 @@ registry in `penux_ap.models`.
 """
 import itertools
 import logging
+import os
 
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 from sklearn.ensemble import (
@@ -37,6 +38,14 @@ from sklearn.tree import DecisionTreeClassifier, ExtraTreeClassifier
 from penux_ap.config import RANDOM_SEED
 
 log = logging.getLogger(__name__)
+
+# Explicit thread cap for multi-threaded estimators. Benchmark runs of this
+# zoo have been run one dataset at a time (see scripts/benchmark_model_zoo.py) --
+# running two such processes concurrently on a small number of cores causes
+# severe thread oversubscription (XGBoost/LightGBM/CatBoost/RandomForest/
+# ExtraTrees/HistGradientBoosting all parallelize internally), observed to
+# slow individual model fits by 100x or more.
+N_JOBS = os.cpu_count() or 1
 
 
 def build_model_zoo() -> list[tuple[str, object]]:
@@ -152,12 +161,51 @@ def build_model_zoo() -> list[tuple[str, object]]:
     for leaf in [5, 10, 20]:
         add(f"extra_tree_leaf{leaf}", ExtraTreeClassifier(min_samples_leaf=leaf, random_state=RANDOM_SEED))
 
+    # "10K-node" trees: max_leaf_nodes controls tree size directly (a binary
+    # tree with L leaves has 2L-1 total nodes, so max_leaf_nodes=5000 ->
+    # ~10,000 nodes if the tree grows that large; these datasets have only
+    # ~700-1300 rows, so in practice most such trees grow until every leaf is
+    # pure or min_samples_leaf is hit, well short of the cap -- included to
+    # explicitly test "let the tree get as big as the data allows."
+    # Single trees: criterion x max_leaf_nodes (6)
+    for criterion, max_leaf_nodes in itertools.product(["gini", "entropy"], [1000, 2500, 5000]):
+        add(
+            f"dtree_{criterion}_leafnodes{max_leaf_nodes}",
+            DecisionTreeClassifier(criterion=criterion, max_leaf_nodes=max_leaf_nodes, random_state=RANDOM_SEED),
+        )
+    for max_leaf_nodes in [1000, 2500, 5000]:
+        add(
+            f"extra_tree_leafnodes{max_leaf_nodes}",
+            ExtraTreeClassifier(max_leaf_nodes=max_leaf_nodes, random_state=RANDOM_SEED),
+        )
+    # Forests of huge trees: n_estimators x max_leaf_nodes x class_weight (8)
+    for n, max_leaf_nodes, cw in itertools.product([100, 300], [2500, 5000], ["balanced", None]):
+        add(
+            f"rf_huge_n{n}_leafnodes{max_leaf_nodes}_{cw}",
+            RandomForestClassifier(
+                n_estimators=n, max_leaf_nodes=max_leaf_nodes, class_weight=cw,
+                random_state=RANDOM_SEED, n_jobs=N_JOBS,
+            ),
+        )
+    # Extra trees forest of huge trees: n_estimators x max_leaf_nodes (4)
+    for n, max_leaf_nodes in itertools.product([100, 300], [2500, 5000]):
+        add(
+            f"extra_trees_huge_n{n}_leafnodes{max_leaf_nodes}",
+            ExtraTreesClassifier(n_estimators=n, max_leaf_nodes=max_leaf_nodes, random_state=RANDOM_SEED, n_jobs=N_JOBS),
+        )
+    # HistGradientBoosting with huge trees: max_iter x max_leaf_nodes (4)
+    for n, max_leaf_nodes in itertools.product([100, 200], [1000, 5000]):
+        add(
+            f"histgbdt_huge_n{n}_leafnodes{max_leaf_nodes}",
+            HistGradientBoostingClassifier(max_iter=n, max_leaf_nodes=max_leaf_nodes, random_state=RANDOM_SEED),
+        )
+
     # Random forest: n_estimators x max_depth x class_weight (60)
     for n, depth, cw in itertools.product([100, 200, 300, 500, 800], [None, 5, 10, 15, 20, 30], ["balanced", None]):
         add(
             f"rf_n{n}_d{depth}_{cw}",
             RandomForestClassifier(
-                n_estimators=n, max_depth=depth, class_weight=cw, random_state=RANDOM_SEED, n_jobs=-1
+                n_estimators=n, max_depth=depth, class_weight=cw, random_state=RANDOM_SEED, n_jobs=N_JOBS
             ),
         )
 
@@ -165,7 +213,7 @@ def build_model_zoo() -> list[tuple[str, object]]:
     for n, depth in itertools.product([100, 200, 300, 500, 800], [None, 5, 10, 15, 20, 30]):
         add(
             f"extra_trees_n{n}_d{depth}",
-            ExtraTreesClassifier(n_estimators=n, max_depth=depth, random_state=RANDOM_SEED, n_jobs=-1),
+            ExtraTreesClassifier(n_estimators=n, max_depth=depth, random_state=RANDOM_SEED, n_jobs=N_JOBS),
         )
 
     # Gradient boosting (sklearn): n_estimators x learning_rate x subsample (36)
@@ -190,7 +238,7 @@ def build_model_zoo() -> list[tuple[str, object]]:
     for n, max_samples in itertools.product([10, 50, 100, 200, 300, 500], [0.5, 0.8, 1.0]):
         add(
             f"bagging_n{n}_ms{max_samples}",
-            BaggingClassifier(n_estimators=n, max_samples=max_samples, random_state=RANDOM_SEED, n_jobs=-1),
+            BaggingClassifier(n_estimators=n, max_samples=max_samples, random_state=RANDOM_SEED, n_jobs=N_JOBS),
         )
 
     # MLP: hidden layers x activation (33) + alpha variants (3) = 36
@@ -224,47 +272,200 @@ def build_model_zoo() -> list[tuple[str, object]]:
     add("gaussian_process_rbf", GaussianProcessClassifier(kernel=RBF(), random_state=RANDOM_SEED))
     add("gaussian_process_matern", GaussianProcessClassifier(kernel=Matern(), random_state=RANDOM_SEED))
 
-    # XGBoost: n_estimators x max_depth x learning_rate (100)
+    # XGBoost: n_estimators x max_depth x learning_rate (125)
     try:
         from xgboost import XGBClassifier
-        for n, depth, lr in itertools.product([100, 200, 300, 500, 800], [3, 5, 7, 9, 11], [0.01, 0.05, 0.1, 0.2]):
+        for n, depth, lr in itertools.product([100, 200, 300, 500, 800], [3, 5, 7, 9, 11], [0.001, 0.01, 0.05, 0.1, 0.2]):
             add(
                 f"xgboost_n{n}_d{depth}_lr{lr}",
                 XGBClassifier(
                     n_estimators=n, max_depth=depth, learning_rate=lr,
-                    random_state=RANDOM_SEED, eval_metric="logloss", verbosity=0,
+                    random_state=RANDOM_SEED, eval_metric="logloss", verbosity=0, n_jobs=N_JOBS,
                 ),
             )
     except ImportError:
         log.info("xgboost not installed; skipping variants.")
 
-    # LightGBM: n_estimators x num_leaves x learning_rate (100)
+    # LightGBM: n_estimators x num_leaves x learning_rate (125)
     try:
         from lightgbm import LGBMClassifier
-        for n, leaves, lr in itertools.product([100, 200, 300, 500, 800], [15, 31, 63, 127, 255], [0.01, 0.05, 0.1, 0.2]):
+        for n, leaves, lr in itertools.product([100, 200, 300, 500, 800], [15, 31, 63, 127, 255], [0.001, 0.01, 0.05, 0.1, 0.2]):
             add(
                 f"lightgbm_n{n}_leaves{leaves}_lr{lr}",
                 LGBMClassifier(
                     n_estimators=n, num_leaves=leaves, learning_rate=lr,
-                    random_state=RANDOM_SEED, verbose=-1,
+                    random_state=RANDOM_SEED, verbose=-1, n_jobs=N_JOBS,
                 ),
             )
     except ImportError:
         log.info("lightgbm not installed; skipping variants.")
 
-    # CatBoost: iterations x depth x learning_rate (100)
+    # CatBoost: iterations x depth x learning_rate (125)
     try:
         from catboost import CatBoostClassifier
-        for n, depth, lr in itertools.product([100, 200, 300, 500, 800], [4, 5, 6, 7, 8], [0.01, 0.05, 0.1, 0.2]):
+        for n, depth, lr in itertools.product([100, 200, 300, 500, 800], [4, 5, 6, 7, 8], [0.001, 0.01, 0.05, 0.1, 0.2]):
             add(
                 f"catboost_n{n}_d{depth}_lr{lr}",
                 CatBoostClassifier(
                     iterations=n, depth=depth, learning_rate=lr,
-                    random_state=RANDOM_SEED, verbose=False, allow_writing_files=False,
+                    random_state=RANDOM_SEED, verbose=False, allow_writing_files=False, thread_count=N_JOBS,
                 ),
             )
     except ImportError:
         log.info("catboost not installed; skipping variants.")
+
+    # --- Additional boosting *algorithms* (not just more hyperparameters of
+    # the three above): XGBoost's DART booster (dropout trees, Rashmi &
+    # Gilad-Bachrach 2015), LightGBM's DART and GOSS boosting modes (Ke et
+    # al. 2017), and CatBoost's Plain boosting (the non-ordered baseline
+    # ordered boosting was designed to fix, Prokhorenkova et al. 2018).
+
+    # XGBoost DART: n_estimators x max_depth x learning_rate x rate_drop (36)
+    try:
+        from xgboost import XGBClassifier
+        for n, depth, lr, rate_drop in itertools.product(
+            [100, 200, 300], [3, 5, 7], [0.05, 0.1], [0.1, 0.3]
+        ):
+            add(
+                f"xgboost_dart_n{n}_d{depth}_lr{lr}_drop{rate_drop}",
+                XGBClassifier(
+                    booster="dart", n_estimators=n, max_depth=depth, learning_rate=lr, rate_drop=rate_drop,
+                    random_state=RANDOM_SEED, eval_metric="logloss", verbosity=0, n_jobs=N_JOBS,
+                ),
+            )
+    except ImportError:
+        log.info("xgboost not installed; skipping DART variants.")
+
+    # LightGBM DART: n_estimators x num_leaves x learning_rate (18)
+    try:
+        from lightgbm import LGBMClassifier
+        for n, leaves, lr in itertools.product([100, 200, 300], [15, 31, 63], [0.05, 0.1]):
+            add(
+                f"lightgbm_dart_n{n}_leaves{leaves}_lr{lr}",
+                LGBMClassifier(
+                    boosting_type="dart", n_estimators=n, num_leaves=leaves, learning_rate=lr,
+                    random_state=RANDOM_SEED, verbose=-1, n_jobs=N_JOBS,
+                ),
+            )
+        # LightGBM GOSS: n_estimators x num_leaves x learning_rate (18)
+        for n, leaves, lr in itertools.product([100, 200, 300], [15, 31, 63], [0.05, 0.1]):
+            add(
+                f"lightgbm_goss_n{n}_leaves{leaves}_lr{lr}",
+                LGBMClassifier(
+                    boosting_type="goss", n_estimators=n, num_leaves=leaves, learning_rate=lr,
+                    random_state=RANDOM_SEED, verbose=-1, n_jobs=N_JOBS,
+                ),
+            )
+    except ImportError:
+        log.info("lightgbm not installed; skipping DART/GOSS variants.")
+
+    # CatBoost Plain boosting: iterations x depth x learning_rate (18)
+    try:
+        from catboost import CatBoostClassifier
+        for n, depth, lr in itertools.product([100, 200, 300], [4, 6, 8], [0.05, 0.1]):
+            add(
+                f"catboost_plain_n{n}_d{depth}_lr{lr}",
+                CatBoostClassifier(
+                    boosting_type="Plain", iterations=n, depth=depth, learning_rate=lr,
+                    random_state=RANDOM_SEED, verbose=False, allow_writing_files=False, thread_count=N_JOBS,
+                ),
+            )
+    except ImportError:
+        log.info("catboost not installed; skipping Plain-boosting variants.")
+
+    # From-scratch GBDT (penux_ap.scratch_gbdt.ScratchGBDTClassifier): classic
+    # Friedman TreeBoost -- CART regression trees built from scratch and
+    # split on residual variance reduction, with a Newton leaf-value
+    # correction applied afterwards. Algorithmically distinct from every
+    # other GBDT entry above, none of which use this project's own tree code
+    # (they all call XGBoost/LightGBM/CatBoost/sklearn's C/Cython internals).
+    # n_estimators x max_depth x learning_rate (12)
+    from penux_ap.scratch_gbdt import ScratchGBDTClassifier
+    for n, depth, lr in itertools.product([50, 100], [2, 3, 4], [0.05, 0.1]):
+        add(
+            f"scratch_gbdt_n{n}_d{depth}_lr{lr}",
+            ScratchGBDTClassifier(n_estimators=n, max_depth=depth, learning_rate=lr),
+        )
+
+    # --- Deep learning (PyTorch, CPU): feedforward DNN and 1D ConvNet over
+    # the tabular feature vector (~96 configs), added to check whether deep
+    # nets can beat the GBDT/ensemble models on these small clinical datasets.
+    try:
+        from penux_ap.torch_models import TorchConvNetClassifier, TorchDNNClassifier
+
+        # DNN: hidden_sizes x dropout x lr x batch_size (64)
+        for hidden, dropout, lr, batch_size in itertools.product(
+            [(32,), (64,), (128,), (64, 32), (128, 64), (256, 128), (64, 32, 16), (128, 64, 32)],
+            [0.1, 0.3], [1e-3, 3e-3], [16, 32],
+        ):
+            add(
+                f"dnn_{hidden}_drop{dropout}_lr{lr}_bs{batch_size}",
+                TorchDNNClassifier(hidden_sizes=hidden, dropout=dropout, lr=lr, batch_size=batch_size),
+            )
+
+        # 1D ConvNet: channels x kernel_size x dropout x lr (32)
+        for channels, kernel_size, dropout, lr in itertools.product(
+            [(8, 16), (16, 32), (32, 64), (16, 32, 64)], [3, 5], [0.1, 0.3], [1e-3, 3e-3],
+        ):
+            add(
+                f"convnet_{channels}_k{kernel_size}_drop{dropout}_lr{lr}",
+                TorchConvNetClassifier(channels=channels, kernel_size=kernel_size, dropout=dropout, lr=lr),
+            )
+    except ImportError:
+        log.info("torch not installed; skipping DNN/ConvNet variants.")
+
+    # --- 900 more deep-learning configs: 300 DNN, 300 ConvNet (wider grids
+    # than the ~96 above, using a "_v2" prefix to avoid name collisions),
+    # and 300 hybrid DNN+ConvNet+GBDT ensembles (fixed-weight combination of
+    # all three sub-models' predicted probabilities).
+    try:
+        from penux_ap.torch_models import TorchConvNetClassifier, TorchDNNClassifier
+        from penux_ap.hybrid_models import HybridDNNConvGBDTClassifier
+
+        # DNN v2: hidden_sizes(10) x dropout(3) x lr(2) x weight_decay(5) = 300
+        dnn_hidden_grid = [
+            (16,), (32,), (64,), (128,), (32, 16), (64, 32), (128, 64),
+            (64, 32, 16), (128, 64, 32), (256, 128, 64),
+        ]
+        for hidden, dropout, lr, wd in itertools.product(
+            dnn_hidden_grid, [0.1, 0.2, 0.4], [1e-3, 5e-3], [1e-5, 1e-4, 1e-3, 1e-2, 1e-1],
+        ):
+            add(
+                f"dnn_v2_{hidden}_drop{dropout}_lr{lr}_wd{wd}",
+                TorchDNNClassifier(hidden_sizes=hidden, dropout=dropout, lr=lr, weight_decay=wd),
+            )
+
+        # ConvNet v2: channels(5) x kernel_size(3) x dropout(4) x lr(5) = 300
+        conv_channels_grid = [(8,), (8, 16), (16, 32), (32, 64), (8, 16, 32)]
+        for channels, kernel_size, dropout, lr in itertools.product(
+            conv_channels_grid, [3, 5, 7], [0.1, 0.2, 0.3, 0.4],
+            [5e-4, 1e-3, 3e-3, 5e-3, 1e-2],
+        ):
+            add(
+                f"convnet_v2_{channels}_k{kernel_size}_drop{dropout}_lr{lr}",
+                TorchConvNetClassifier(channels=channels, kernel_size=kernel_size, dropout=dropout, lr=lr),
+            )
+
+        # Hybrid DNN+ConvNet+GBDT: dnn_arch(5) x conv_arch(5) x gbdt_config(4) x combo_method(3) = 300
+        hybrid_dnn_archs = [(32,), (64,), (64, 32), (128, 64), (64, 32, 16)]
+        hybrid_conv_archs = [(8, 16), (16, 32), (32, 64), (8, 16, 32), (16,)]
+        hybrid_gbdt_configs = [
+            (50, 3, 0.1), (100, 3, 0.1), (100, 5, 0.05), (200, 5, 0.05),
+        ]
+        for (dnn_h, conv_c, (gb_n, gb_d, gb_lr), combo) in itertools.product(
+            hybrid_dnn_archs, hybrid_conv_archs, hybrid_gbdt_configs,
+            ["average", "gbdt_heavy", "nn_heavy"],
+        ):
+            add(
+                f"hybrid_dnn{dnn_h}_conv{conv_c}_gbdt{gb_n}-{gb_d}-{gb_lr}_{combo}",
+                HybridDNNConvGBDTClassifier(
+                    dnn_hidden=dnn_h, conv_channels=conv_c,
+                    gbdt_n_estimators=gb_n, gbdt_max_depth=gb_d, gbdt_learning_rate=gb_lr,
+                    combo_method=combo,
+                ),
+            )
+    except ImportError:
+        log.info("torch/lightgbm not installed; skipping v2 DNN/ConvNet/hybrid variants.")
 
     return zoo
 

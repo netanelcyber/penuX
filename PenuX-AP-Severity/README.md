@@ -90,6 +90,21 @@ python scripts/evaluate_model.py \
 
 ---
 
+## Security
+
+The `api/` FastAPI endpoints support API-key authentication, per-client rate
+limiting, request-body size limits, restrictive CORS, and audit logging
+(metadata only — never request/response bodies). See `SECURITY.md` and
+`docs/hipaa_iso27799_gap_analysis_he.md` for a full, honest gap analysis
+against the HIPAA Security Rule (45 CFR §164.312) and ISO/IEC 27799,
+including what is and is not addressed by code alone.
+
+To enable authentication, set `PENUX_AP_API_KEY` before starting the API —
+without it, endpoints remain open (a research-only default) and a startup
+warning is logged.
+
+---
+
 ## MIMIC-IV / PhysioNet
 
 MIMIC-IV SQL extraction scripts are in `data/mimic/sql/`.
@@ -140,6 +155,43 @@ PenuX-AP-Severity/
   (XGBoost/LightGBM/CatBoost) results on the two registered public datasets, including
   F1-optimal thresholds and a high-sensitivity (≥98%) filtering threshold analysis.
   Exploratory secondary analysis only — not clinically validated.
+- `docs/sap_severity_extended_analysis_he.md` — Hebrew follow-up article: the extended
+  ~1,982-model comparison (DART/GOSS/Plain boosting, DNN/ConvNet/Hybrid, a quasi-SOFA
+  engineered feature, statistical significance testing). Also exploratory only.
+- `docs/sap_severity_english_article.md` — English-language write-up of the full extended
+  analysis (123 references), covering the same 1,982-model comparison, new boosting
+  algorithms, statistical significance testing, the quasi-SOFA engineered feature, a
+  structured comparison with published AP-severity ML studies, and alignment with
+  TRIPOD+AI/PROBAST+AI/STROBE reporting standards. Exploratory secondary analysis only —
+  not clinically validated, not peer-reviewed.
+- `docs/ensemble_combination_results_he.md` — Hebrew write-up of combining 15 diverse
+  top-ranked models (`scripts/ensemble_model_zoo.py`) via simple averaging, AUROC-weighted
+  averaging, and stacking. On multiml, the combination (AUROC=0.8659) is a statistically
+  significant improvement over the single best model (paired bootstrap p=0.034) — notable
+  since the single best model alone did not reach significance against baseline. On lnn,
+  the smaller improvement (AUROC=0.8930) is not significant (p=0.129) — reported honestly.
+  Exploratory only, not clinically validated.
+- `docs/manuscripts/arxiv_dor_latex/degenerate_dor_optima.tex` — a standalone, non-clinical
+  methods paper ("Degenerate Optima in Likelihood-Ratio-Based Threshold Selection for Binary
+  Classifiers", arXiv-style) proving that maximizing the diagnostic odds ratio (DOR = LR+/LR-)
+  as a threshold-selection objective is unbounded and converges to degenerate operating points
+  (sensitivity or specificity near 0), with the same failure inherited by any composite score
+  that folds in AUC (a threshold-invariant quantity, proven not to change the arg max). Verified
+  empirically on this repo's real 5-fold cross-validated models; contrasts with Youden's J, which
+  does not diverge. Compiles cleanly with `pdflatex`.
+- `docs/hipaa_iso27799_gap_analysis_he.md` — Hebrew security gap analysis mapping
+  the current repo (especially `api/`) against HIPAA Security Rule §164.312 and
+  ISO/IEC 27799 control areas: what technical gaps were fixed (API-key auth, rate
+  limiting, audit logging, request-size limits, restrictive CORS, dependency
+  version bounds, `.gitignore` coverage) and what still requires organizational
+  process (risk assessment, BAA/DUA, encryption-at-rest, incident response,
+  independent pentest) before any real hospital data is used. Honest, not a
+  compliance claim.
+- `docs/security_hardening_article_he.md` — Hebrew narrative article documenting
+  the security audit process, findings, and concrete `api/` hardening fixes
+  (API-key auth, rate limiting, audit logging, dependency pinning), framed
+  against the same before/after HIPAA §164.312 table as the gap-analysis doc,
+  with an explicit section on what code alone cannot achieve.
 
 ---
 

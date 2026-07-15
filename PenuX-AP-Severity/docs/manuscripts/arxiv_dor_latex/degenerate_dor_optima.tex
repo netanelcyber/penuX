@@ -1,0 +1,1151 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{graphicx}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+
+\title{Degenerate Optima in Likelihood-Ratio-Based Threshold Selection\\
+for Binary Classifiers}
+\author{Netanel Stern \\ Independent Researcher \\ \texttt{netanel@penux.uk}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Diagnostic likelihood ratios ($LR^+$, $LR^-$) and the diagnostic odds ratio
+($DOR = LR^+/LR^-$) are widely used single-number summaries of a binary
+classifier's usefulness at a fixed decision threshold, and are the basis of
+the Fagan nomogram for converting a pre-test probability into a post-test
+probability. A natural instinct, when a classifier's score is continuous, is
+to choose the operating threshold that maximizes $DOR$. We show this
+instinct is unsound: $DOR$ is unbounded and is maximized, in general, at
+degenerate thresholds where sensitivity or specificity collapses toward its
+extreme, not at a balanced operating point. We give a short proof of this
+divergence along the boundary of the achievable ROC curve, extend the
+argument to a composite score that folds in the (threshold-invariant) area
+under the ROC curve, and confirm both results empirically on five-fold
+cross-validated ensembles from a real binary classification benchmark
+($n=1{,}289$ and $n=722$). We contrast this with Youden's $J$ statistic,
+whose maximizer is bounded and empirically lands at a balanced, usable
+operating point with comparable $DOR$. We conclude with a constrained
+variant of $DOR$-maximization that avoids the pathology.
+\end{abstract}
+
+\section{Introduction}
+
+Let a binary classifier produce a continuous score $s(x) \in [0,1]$ for an
+input $x$, and let $\hat{Y}_t(x) = \mathbf{1}[s(x) \geq t]$ be the decision
+rule at threshold $t$. Write $\mathrm{sens}(t)$ and $\mathrm{spec}(t)$ for
+the resulting sensitivity and specificity against a fixed labeled sample.
+The positive and negative likelihood ratios at threshold $t$ are
+\begin{equation}
+LR^+(t) = \frac{\mathrm{sens}(t)}{1 - \mathrm{spec}(t)}, \qquad
+LR^-(t) = \frac{1 - \mathrm{sens}(t)}{\mathrm{spec}(t)},
+\end{equation}
+and the diagnostic odds ratio is $DOR(t) = LR^+(t) / LR^-(t)$. Equivalently,
+writing $TP, TN, FP, FN$ for the threshold-$t$ confusion-matrix counts,
+$DOR(t) = (TP \cdot TN) / (FP \cdot FN)$, the classical cross-product odds
+ratio of the $2\times2$ table. Likelihood ratios and $DOR$ remain the
+standard tools recommended by the evidence-based-medicine literature for
+interpreting a diagnostic test result
+\citep{jaeschke1994a,jaeschke1994b,deeks2004,grimes2005,altman1994a,
+altman1994b,vanstralen2009,simundic2009}, and $DOR$ in particular is a
+popular meta-analytic summary statistic in diagnostic-accuracy research
+\citep{glas2003} precisely because it collapses sensitivity and specificity
+into one number that is symmetric in the two error types and invariant to
+the choice of which class is labeled ``positive.''
+
+That symmetry makes $DOR(t)$ tempting to use directly as a threshold-search
+objective: rather than picking $t=0.5$ by convention, or minimizing
+misclassification rate (which is itself known to be a poor objective under
+class imbalance
+\citep{provost1998,he2009,chawla2002}, since it is minimized by simply
+predicting the majority class as the imbalance grows), one might search for
+$t^\ast = \arg\max_t DOR(t)$. We show this is a mistake, with a short,
+general argument, and confirm the failure mode empirically. Our result
+formalizes, at the level of a single threshold search, a concern already
+raised at the level of comparing markers across studies: \citet{pepe2004}
+showed that a marker can have a large odds ratio while contributing almost
+nothing to discrimination, i.e.\ that the odds ratio is a poor stand-alone
+gauge of diagnostic performance. We show the same statistic is not merely
+uninformative but actively misleading when used as a search objective over
+thresholds for a \emph{single} marker.
+
+\section{Related work}
+
+\paragraph{ROC analysis and AUC.} The receiver operating characteristic
+(ROC) curve and the area under it (AUC) are the standard tools for
+describing a classifier's discrimination independent of any single
+threshold \citep{metz1978,swets1988,hanley1982,zweig1993,obuchowski2003,
+zou2007,fawcett2006}. The framework originates in signal detection theory
+\citep{greenswets1966}, developed to characterize an observer's ability to
+distinguish signal from noise in radar and psychophysical tasks, well before
+its adoption in radiology and clinical epidemiology. \citet{hanley1982}
+established the now-standard interpretation of AUC as the probability that
+a randomly chosen positive case is ranked above a randomly chosen negative
+case, equivalent to the Mann--Whitney $U$ statistic, a fact we use directly
+in Section~\ref{sec:composite}. \citet{delong1988} gave the widely used
+nonparametric method for comparing correlated AUCs, the threshold-free
+analogue of the threshold-specific comparisons we perform here.
+\citet{mcclish1989} proposed restricting AUC to a clinically relevant
+range of false-positive rates (partial AUC), a threshold-\emph{range}
+restriction in the same spirit as, though weaker than, the threshold-
+\emph{point} floor we propose in Section~\ref{sec:remedy}. Under class
+imbalance specifically, \citet{davis2006} and \citet{saito2015} argue that
+precision-recall curves are more informative than ROC curves, since a
+classifier's precision (and hence positive likelihood behavior) is directly
+sensitive to the class balance in a way sensitivity and specificity are
+not; this is a complementary observation to ours, not a competing one --
+$DOR$-maximization is degenerate on \emph{either} imbalanced or balanced
+data, since Theorem~\ref{thm:divergence} does not depend on the class
+ratio, only on the existence of a boundary configuration.
+
+\paragraph{Optimality and the Neyman--Pearson lemma.} The likelihood-ratio
+statistic underlying $LR^+(t)$ and $LR^-(t)$ is not an arbitrary choice: the
+Neyman--Pearson lemma \citep{neyman1933} establishes that, for testing a
+simple null against a simple alternative, thresholding the likelihood ratio
+is the \emph{uniformly most powerful} test at any fixed significance level.
+This classical result explains why likelihood ratios are the natural
+currency for evaluating a diagnostic test result at a \emph{given}
+threshold. It says nothing, however, about which threshold to prefer, since
+the lemma fixes the significance level (equivalently, $1-\mathrm{spec}(t)$)
+as given rather than optimized; our result can be read as showing what goes
+wrong when that omission is filled in naively by optimizing a ratio of two
+Neyman--Pearson-optimal quantities against each other, rather than by
+fixing an operating constraint and optimizing power subject to it, which is
+the correct generalization of the lemma's own logic.
+
+\paragraph{Likelihood ratios, the Fagan nomogram, and diagnostic odds
+ratio.} \citet{fagan1975} introduced the nomogram construction for
+converting a pre-test probability into a post-test probability given a
+likelihood ratio, later popularized for clinical use by the ``Users'
+Guides'' series \citep{jaeschke1994a,jaeschke1994b} and the BMJ Statistics
+Notes series \citep{altman1994a,altman1994b,altman1994c,deeks2004}, and
+reviewed comprehensively by \citet{grimes2005}, \citet{simundic2009}, and
+\citet{vanstralen2009}. \citet{glas2003} and \citet{pepe2004} both study
+$DOR$ as a summary statistic -- the former establishing it as a standard
+meta-analytic tool, the latter cautioning against its use as a
+stand-alone performance gauge, a concern this paper extends specifically to
+threshold selection. Meta-analytic treatments of sensitivity and specificity
+jointly, rather than via the scalar $DOR$, are given by
+\citet{rutter2001} and \citet{reitsma2005}, whose bivariate models sidestep
+exactly the collapsing-to-a-single-number issue we identify here.
+
+\paragraph{Threshold and cutpoint selection.} Youden's index
+\citep{youden1950} remains the most widely used bounded criterion for
+selecting an ``optimal'' operating point from an ROC curve.
+\citet{perkins2006} showed that Youden's index and the point-closest-to-$
+(0,1)$ criterion can select substantially different thresholds from one
+another, a cautionary result in the same spirit as ours but concerning two
+already-well-behaved criteria rather than an unbounded one.
+\citet{unal2017} and \citet{habibzadeh2016} survey the broader landscape of
+cutpoint-selection criteria for continuous diagnostic tests; to our
+knowledge, none of these surveys treats $DOR$ itself as a direct
+optimization target, which is the specific gap this paper addresses.
+
+\paragraph{Beyond discrimination: calibration, decision curves, and
+reporting.} Optimizing any single discrimination statistic, bounded or not,
+addresses only one facet of what makes a prediction model useful.
+\citet{vancalster2019} and \citet{gneiting2007} argue for calibration and
+proper scoring rules as complementary (and sometimes more clinically
+important) criteria than discrimination alone; \citet{vickers2006} propose
+decision curve analysis as a threshold-selection alternative grounded
+directly in net clinical benefit rather than a ratio statistic;
+\citet{steyerberg2010} give a broader framework of traditional and novel
+performance measures for prediction models. The TRIPOD reporting guideline
+\citep{collins2015,moons2015} and standard texts on diagnostic test
+evaluation \citep{pepe2003,kraemer1992,hosmer2013} likewise treat threshold
+choice as a reporting decision to be justified and documented, not a free
+parameter to be swept in search of the largest possible ratio -- the
+practice this paper argues against.
+
+\paragraph{Ensembles and model combination.} Our empirical section uses
+ensembles combining several base classifiers, following the general
+justification for ensembling given by \citet{dietterich2000},
+\citet{breiman1996} (bagging), and \citet{wolpert1992} (stacked
+generalization); none of these works addresses threshold selection
+downstream of the ensemble, which is the question this paper is concerned
+with. We also draw on the bootstrap \citep{efron1993} for uncertainty
+quantification in the broader empirical pipeline this paper's benchmark is
+drawn from, and note that the natural-frequency framing of post-test
+probability advocated by \citet{gigerenzer1995} is the same framing that
+makes a degenerate operating point easy to recognize once stated as
+``out of 1000 patients'' rather than as an abstract ratio -- a point we
+return to briefly in Section~\ref{sec:discussion}.
+
+\section{Preliminaries}
+
+Fix a finite labeled sample of size $n$ with $n_1$ positive and $n_0 =
+n - n_1$ negative examples, and a score function $s(\cdot)$ that is not a
+constant on either class. As $t$ ranges over $(0,1)$, $\mathrm{sens}(t)$ is
+non-increasing and $\mathrm{spec}(t)$ is non-decreasing (both are step
+functions with at most $n$ jump points, one per distinct score value). We
+say $t$ is an \emph{interior threshold} if all four confusion-matrix counts
+are strictly positive at $t$, i.e. $TP(t), TN(t), FP(t), FN(t) > 0$; this is
+equivalent to $0 < \mathrm{sens}(t) < 1$ and $0 < \mathrm{spec}(t) < 1$.
+
+\begin{proposition}[Boundary configurations]
+\label{prop:boundary}
+If there exists a threshold $t_1$ at which $FP(t_1) = 0$ and $TP(t_1) > 0$
+(some positive example scores strictly above every negative example), then
+$\mathrm{spec}(t_1) = 1$ and $LR^+(t_1) = +\infty$, while
+$LR^-(t_1) = 1 - \mathrm{sens}(t_1)$, which is finite and, for any
+classifier that is not perfectly sensitive at $t_1$, strictly positive.
+Symmetrically, if there exists $t_0$ at which $FN(t_0) = 0$ and
+$TN(t_0) > 0$, then $\mathrm{sens}(t_0) = 1$, $LR^-(t_0) = 0$, and
+$LR^+(t_0) = \mathrm{sens}(t_0)/(1-\mathrm{spec}(t_0))$ is finite and
+positive for any classifier not perfectly specific at $t_0$.
+\end{proposition}
+
+The proof is immediate from the definitions. The condition in
+Proposition~\ref{prop:boundary} is generic: any score function with a
+non-degenerate tail (some positive example outscoring every negative
+example, or vice versa) satisfies it, which is the common case in practice
+whenever the two class-conditional score distributions have unequal support.
+
+\section{Divergence of $DOR$ at the ROC boundary}
+
+\begin{theorem}
+\label{thm:divergence}
+Under the conditions of Proposition~\ref{prop:boundary},
+$DOR(t_1) = LR^+(t_1)/LR^-(t_1) = +\infty$ and, symmetrically,
+$DOR(t_0) = +\infty$. Consequently, whenever such $t_0$ or $t_1$ exists,
+$\sup_t DOR(t) = +\infty$, and this supremum is approached only near the
+boundary of the achievable ROC curve, where either $\mathrm{sens}(t)$ or
+$\mathrm{spec}(t)$ is driven toward its extreme value.
+\end{theorem}
+
+\begin{proof}
+Immediate from Proposition~\ref{prop:boundary}: $DOR(t_1) = \infty /
+LR^-(t_1)$ with $LR^-(t_1) \in (0,\infty)$, hence $DOR(t_1) = +\infty$; the
+argument at $t_0$ is symmetric with $DOR(t_0) = LR^+(t_0)/0 = +\infty$.
+Because $DOR(t)$ is finite at any interior threshold (all four counts
+strictly positive implies $LR^+, LR^- \in (0,\infty)$), the value $+\infty$
+can only be attained at (or approached arbitrarily closely near) a boundary
+configuration as described.
+\end{proof}
+
+For a finite sample, $t_0$ and $t_1$ as defined above are themselves
+attainable thresholds (not merely limits), so $DOR$ is literally maximized
+at one of them whenever both exist and neither is excluded by tie-breaking.
+The classifier's true behavior at that threshold, however, is degenerate:
+at $t_1$, sensitivity can be arbitrarily close to $0$ (the classifier flags
+almost no positives, but every one it does flag is correct), and at $t_0$,
+specificity can be arbitrarily close to $0$ (the classifier flags almost
+every example as positive, catching every true positive but at the cost of
+overwhelming false-positive volume). Neither is a useful operating point in
+the ordinary sense \citep{hosmer2013,pepe2003}, yet both attain the formally
+optimal value of the objective.
+
+\begin{remark}
+This failure mode is a close relative of a more familiar one: minimizing
+raw misclassification rate $1 - \mathrm{accuracy}(t)$ on an imbalanced
+sample (base rate $\pi \ll 0.5$) is minimized, in the worst case, by
+$t \to 1$ (predict the majority class always), achieving error rate $\pi$
+while sensitivity collapses to $0$ -- the well-documented pitfall of using
+raw accuracy to compare classifiers under imbalance
+\citep{provost1998,he2009,chawla2002}. $DOR$-maximization is a different,
+and in one sense more insidious, version of the same problem: unlike
+misclassification rate, which is bounded in $[0,1]$ and whose degenerate
+minimizer is at least easy to recognize (zero sensitivity, error rate
+exactly equal to the base rate), $DOR$ is unbounded, so its maximizer can
+look like an arbitrarily strong result precisely because it is degenerate.
+\end{remark}
+
+\begin{proposition}[Youden's $J$ does not diverge at the ROC boundary]
+\label{prop:youden-bounded}
+Let $J(t) = \mathrm{sens}(t) + \mathrm{spec}(t) - 1$ \citep{youden1950}.
+Under the conditions of Proposition~\ref{prop:boundary},
+$J(t_1) = \mathrm{sens}(t_1) + 1 - 1 = \mathrm{sens}(t_1) < 1$ and
+$J(t_0) = 1 + \mathrm{spec}(t_0) - 1 = \mathrm{spec}(t_0) < 1$ (strictly,
+whenever the classifier is not perfect at that boundary point) -- that is,
+$J$ remains strictly bounded away from divergence at exactly the two
+configurations where Theorem~\ref{thm:divergence} shows $DOR \to \infty$.
+More generally, since $\mathrm{sens}(t), \mathrm{spec}(t) \in [0,1]$ for
+every threshold $t$, $J(t) \in [-1,1]$ everywhere, so $\sup_t J(t)$ is
+always finite, regardless of the score distribution.
+\end{proposition}
+
+This is the formal reason the empirical maximizer of $J$ in
+Table~\ref{tab:youden} lands at a balanced interior point rather than a
+boundary configuration: an unbounded objective is free to be pushed
+arbitrarily close to a boundary in search of an arbitrarily large value; a
+bounded one has nothing to gain by doing so, and is maximized wherever the
+achievable ROC curve is genuinely farthest from the chance diagonal. The
+same argument applies unchanged to any objective of the form
+$a\!\cdot\!\mathrm{sens}(t) + b\!\cdot\!\mathrm{spec}(t)$ for constants
+$a, b > 0$ (of which $J$, with $a=b=1$, is the symmetric case): any
+\emph{additive} combination of sensitivity and specificity is bounded and
+therefore safe from the divergence in Theorem~\ref{thm:divergence}, while
+any objective containing $\mathrm{sens}(t)$ or $\mathrm{spec}(t)$ (or
+$1-$ either) in a \emph{denominator} -- as $LR^+$, $LR^-$, and hence $DOR$
+all do -- is at risk of it.
+
+\section{A composite score does not fix this}
+\label{sec:composite}
+
+One might hope to repair the objective by folding in the area under the ROC
+curve (AUC), e.g. via
+\begin{equation}
+\label{eq:composite}
+M(t) = \frac{LR^+(t)}{\sqrt{LR^-(t)\,\cdot\,(1 - \mathrm{AUC})}},
+\end{equation}
+reasoning that a model with poor overall ranking ability (\text{low AUC})
+should be penalized. This does not change which threshold is chosen.
+
+\begin{corollary}
+\label{cor:auc-invariance}
+$\mathrm{AUC}$ does not depend on $t$: by the Mann--Whitney $U$-statistic
+identity \citep{hanley1982}, $\mathrm{AUC} = \Pr(s(X^+) > s(X^-))$ for
+independent $X^+, X^-$ drawn from the positive and negative
+class-conditional score distributions, a single number determined by the
+score function and the sample, not by any particular operating threshold.
+Hence $c := (1 - \mathrm{AUC})^{-1/2}$ is a positive constant with respect
+to $t$, and $M(t) = c \cdot LR^+(t)/\sqrt{LR^-(t)}$. Since
+$t \mapsto c \cdot f(t)$ has the same arg max as $t \mapsto f(t)$ for any
+positive constant $c$,
+\begin{equation}
+\arg\max_t M(t) \;=\; \arg\max_t \frac{LR^+(t)}{\sqrt{LR^-(t)}},
+\end{equation}
+independent of the model's AUC. In particular, replacing the true AUC in
+Equation~\ref{eq:composite} by any other constant in $(0,1)$ leaves the
+maximizing threshold unchanged.
+\end{corollary}
+
+The AUC term in Equation~\ref{eq:composite} is therefore useful only for
+comparing the resulting metric \emph{value} across different models (each
+with its own fixed AUC) -- the same cross-model role AUC ordinarily plays
+in model comparison \citep{delong1988,zou2007} -- never for improving the
+threshold search within a single model. Moreover, because $\sqrt{LR^-(t)}$
+is a strictly increasing function of $LR^-(t)$ wherever $LR^-(t) \geq 0$,
+the boundary argument of Theorem~\ref{thm:divergence} applies unchanged to
+$LR^+(t)/\sqrt{LR^-(t)}$: it too diverges to $+\infty$ at the same boundary
+configurations, merely at a slower rate in $LR^-(t) \to 0$ (order
+$LR^-(t)^{-1/2}$ instead of $LR^-(t)^{-1}$). We verified
+Corollary~\ref{cor:auc-invariance} computationally by substituting
+$\mathrm{AUC}=0.5$ for each model's true AUC and recomputing
+$\arg\max_t M(t)$: the maximizing threshold was identical to four decimal
+places in every case (Section~\ref{sec:empirical}).
+
+\section{Empirical illustration}
+\label{sec:empirical}
+
+We illustrate the two results on a real binary classification benchmark:
+early prediction of a binary severity outcome from routine admission
+laboratory values, on two independent public datasets ($n=1{,}289$,
+prevalence $15.8\%$; $n=722$, prevalence $19.0\%$). For each dataset we
+report two classifiers: the single best-performing model from a
+$\sim\!2{,}000$-configuration model search (gradient-boosted trees,
+random forests, and deep neural architectures), and a simple-average
+ensemble \citep{dietterich2000,breiman1996} of the top diverse models by
+held-out AUROC. All quantities below are computed from five-fold,
+stratified, out-of-fold predictions (i.e.\ no model ever scores a row it was
+trained on), so the reported thresholds and ratios reflect genuine held-out
+generalization, not in-sample fit. The domain and clinical interpretation of
+this benchmark are secondary here; what matters is that it is a real
+classifier evaluated on real held-out data, not a synthetic construction
+chosen to produce the pathology.
+
+\subsection{The default threshold is not degenerate}
+
+Table~\ref{tab:default} reports the conventional default threshold
+($t=0.5$) for reference.
+
+\begin{table}[ht]
+\centering
+\caption{Metrics at the default threshold $t=0.5$.}
+\label{tab:default}
+\begin{tabular}{lccccc}
+\toprule
+Model & Sens. & Spec. & $LR^+$ & $LR^-$ & $DOR$ \\
+\midrule
+$n{=}1289$, single best   & 0.485 & 0.946 & 8.92  & 0.544 & 16.40 \\
+$n{=}1289$, 15-ensemble   & 0.368 & 0.971 & 12.47 & 0.652 & 19.12 \\
+$n{=}722$, single best    & 0.482 & 0.954 & 10.44 & 0.543 & 19.22 \\
+$n{=}722$, 5-ensemble     & 0.511 & 0.956 & 11.50 & 0.512 & 22.45 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Unconstrained $DOR$-maximization is degenerate}
+
+Table~\ref{tab:maxdor} reports $t^\ast = \arg\max_t DOR(t)$, restricted only
+to interior thresholds (all four confusion-matrix counts positive) to avoid
+the literal $t_0, t_1$ boundary values of Theorem~\ref{thm:divergence}.
+Even with this restriction, every maximizer is a near-degenerate operating
+point.
+
+\begin{table}[ht]
+\centering
+\caption{Interior-restricted $DOR$-maximizing threshold.}
+\label{tab:maxdor}
+\begin{tabular}{lcccccc}
+\toprule
+Model & $t^\ast$ & Sens. & Spec. & $LR^+$ & $LR^-$ & $DOR$ \\
+\midrule
+$n{=}1289$, single best   & 0.106 & 0.995 & 0.330 & 1.49   & 0.015 & 99.96 \\
+$n{=}1289$, 15-ensemble   & 0.765 & 0.113 & 0.999 & 122.33 & 0.888 & 137.75 \\
+$n{=}722$, single best    & 0.002 & 0.993 & 0.313 & 1.45   & 0.023 & 61.91 \\
+$n{=}722$, 5-ensemble     & 0.017 & 0.993 & 0.412 & 1.69   & 0.018 & 95.28 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+In every case, $DOR(t^\ast) > DOR(0.5)$, confirming that the search
+``succeeds'' at improving the objective, and in every case sensitivity or
+specificity is below $0.5$ (as low as $0.11$), confirming that the
+resulting classifier is not one an operator would actually choose to
+deploy: two of the four maximizers flag almost every example as positive
+(sensitivity $\approx 0.99$, specificity $\approx 0.3$--$0.4$), and one
+flags almost none (sensitivity $0.11$).
+
+\subsection{The composite score inherits the pathology}
+
+Table~\ref{tab:composite} reports $t^\ast = \arg\max_t M(t)$ for the
+composite score of Equation~\ref{eq:composite}, using each model's true
+AUC. As predicted by Corollary~\ref{cor:auc-invariance}, substituting
+$\mathrm{AUC} = 0.5$ in place of the true AUC reproduced the identical
+$t^\ast$ in all four cases.
+
+\begin{table}[ht]
+\centering
+\caption{Composite-score-maximizing threshold ($M(t)$, Eq.~\ref{eq:composite}).}
+\label{tab:composite}
+\begin{tabular}{lcccccc}
+\toprule
+Model & AUC & $t^\ast$ & Sens. & Spec. & $LR^+$ & $M(t^\ast)$ \\
+\midrule
+$n{=}1289$, single best   & 0.857 & 0.894 & 0.059 & 0.999 & 63.82  & 173.6 \\
+$n{=}1289$, 15-ensemble   & 0.866 & 0.765 & 0.113 & 0.999 & 122.33 & 354.5 \\
+$n{=}722$, single best    & 0.889 & 0.971 & 0.095 & 0.998 & 55.51  & 175.1 \\
+$n{=}722$, 5-ensemble     & 0.893 & 0.898 & 0.117 & 0.998 & 68.32  & 222.1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Every maximizer in Table~\ref{tab:composite} has sensitivity below $0.12$:
+folding in AUC did not merely fail to fix the pathology, it moved all four
+models onto the specificity-extreme boundary exclusively (the $t_0$-type
+degeneracy of Proposition~\ref{prop:boundary}, not the $t_1$-type), because
+the $\sqrt{\cdot}$ transform in the denominator changes the relative growth
+rate of the two boundary terms without removing either one.
+
+\subsection{Youden's $J$ as a bounded contrast}
+
+For comparison, Table~\ref{tab:youden} reports the threshold maximizing
+Youden's $J(t) = \mathrm{sens}(t) + \mathrm{spec}(t) - 1$
+\citep{youden1950}, a criterion bounded in $[-1,1]$ whose maximizer
+corresponds to the point on the empirical ROC curve farthest (in vertical
+distance) from the chance diagonal -- one of the two classical ``optimal
+cutpoint'' criteria compared by \citet{perkins2006}.
+
+\begin{table}[ht]
+\centering
+\caption{Youden's $J$-maximizing threshold.}
+\label{tab:youden}
+\begin{tabular}{lcccccc}
+\toprule
+Model & $t^\ast$ & Sens. & Spec. & $J^\ast$ & $DOR$ \\
+\midrule
+$n{=}1289$, single best   & 0.273 & 0.740 & 0.800 & 0.540 & 11.40 \\
+$n{=}1289$, 15-ensemble   & 0.157 & 0.799 & 0.766 & 0.565 & 13.01 \\
+$n{=}722$, single best    & 0.046 & 0.825 & 0.798 & 0.623 & 18.63 \\
+$n{=}722$, 5-ensemble     & 0.061 & 0.883 & 0.739 & 0.622 & 21.35 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Every Youden-optimal threshold is an interior, balanced point (sensitivity
+and specificity both between $0.74$ and $0.88$), and its $DOR$ is
+comparable to, or in three of four cases higher than, the default-threshold
+$DOR$ in Table~\ref{tab:default} -- without the collapse in either error
+rate seen in Tables~\ref{tab:maxdor}--\ref{tab:composite}. As
+Proposition~\ref{prop:youden-bounded} shows formally, this is not a
+coincidence of these four models: $J$ cannot diverge because both
+$\mathrm{sens}(t)$ and $\mathrm{spec}(t)$ enter it additively and are
+individually bounded in $[0,1]$; there is no ratio whose denominator can be
+driven to zero.
+
+\subsection{Prevalence of the pathology across a broader model set}
+\label{sec:prevalence}
+
+Tables~\ref{tab:default}--\ref{tab:youden} report four headline
+model/dataset combinations (the single best model and the top-diverse
+ensemble, per dataset). To check that the degeneracy in Table~\ref{tab:maxdor}
+is not an artifact of that particular choice of two models per dataset, we
+repeated the interior-restricted $DOR$-maximization search independently
+for all $15+15=30$ individual base models used to build the two ensembles
+-- a diverse set spanning gradient-boosted trees (XGBoost, LightGBM in
+standard/DART/GOSS mode, CatBoost in standard/Plain mode, HistGBDT),
+random forests, extremely randomized trees, AdaBoost, bagging, and
+DNN/hybrid architectures. Every one of these 30 models was fit under the
+same five-fold out-of-fold protocol as the headline results. Tables
+\ref{tab:full-multiml} and \ref{tab:full-lnn} report the full result.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Interior-restricted $DOR$-maximizing threshold for all 15 cached base models, multiml ($n=1289$).}
+\label{tab:full-multiml}
+\begin{tabular}{lcccccc}
+\toprule
+Model & AUC & $t^\ast$ & Sens. & Spec. & $DOR$ & Flag \\
+\midrule
+hybrid\_dnn(64,)\_conv(8, 16)\_gbdt100-5-0.05\_gbdt\_heavy & 0.857 & 0.106 & 0.995 & 0.330 & 100.0 & yes \\
+hybrid\_dnn(64,)\_conv(16, 32)\_gbdt100-5-0.05\_gbdt\_heavy & 0.857 & 0.877 & 0.078 & 0.999 & 92.3 & yes \\
+lightgbm\_n300\_leaves31\_lr0.05 & 0.854 & 0.993 & 0.064 & 0.999 & 73.8 & yes \\
+rf\_n200\_d15\_None & 0.853 & 0.640 & 0.113 & 0.998 & 68.8 & yes \\
+lightgbm\_n200\_leaves31\_lr0.05 & 0.853 & 0.953 & 0.103 & 0.999 & 124.4 & yes \\
+rf\_n800\_d15\_None & 0.852 & 0.667 & 0.093 & 0.999 & 111.3 & yes \\
+extra\_trees\_n800\_d15 & 0.850 & 0.598 & 0.093 & 0.999 & 111.3 & yes \\
+rf\_huge\_n300\_leafnodes2500\_None & 0.850 & 0.657 & 0.103 & 0.999 & 124.4 & yes \\
+rf\_huge\_n300\_leafnodes5000\_None & 0.850 & 0.657 & 0.103 & 0.999 & 124.4 & yes \\
+extra\_trees\_n800\_d30 & 0.849 & 0.604 & 0.093 & 0.999 & 111.3 & yes \\
+dnn\_v2\_(16,)\_drop0.1\_lr0.005\_wd0.1 & 0.849 & 0.938 & 0.059 & 0.999 & 67.7 & yes \\
+catboost\_n800\_d8\_lr0.1 & 0.849 & 0.954 & 0.078 & 0.999 & 92.3 & yes \\
+catboost\_n500\_d8\_lr0.1 & 0.848 & 0.926 & 0.088 & 0.999 & 104.9 & yes \\
+bagging\_n200\_ms0.8 & 0.848 & 0.720 & 0.103 & 0.999 & 124.4 & yes \\
+lightgbm\_goss\_n300\_leaves63\_lr0.05 & 0.847 & 0.919 & 0.093 & 0.999 & 111.3 & yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Interior-restricted $DOR$-maximizing threshold for all 15 cached base models, lnn ($n=722$).}
+\label{tab:full-lnn}
+\begin{tabular}{lcccccc}
+\toprule
+Model & AUC & $t^\ast$ & Sens. & Spec. & $DOR$ & Flag \\
+\midrule
+lightgbm\_n800\_leaves15\_lr0.01 & 0.889 & 0.002 & 0.993 & 0.313 & 61.9 & yes \\
+lightgbm\_n500\_leaves15\_lr0.01 & 0.889 & 0.921 & 0.102 & 0.998 & 66.5 & yes \\
+xgboost\_n100\_d3\_lr0.2 & 0.889 & 0.006 & 0.993 & 0.450 & 111.1 & yes \\
+xgboost\_n200\_d3\_lr0.2 & 0.887 & 0.001 & 0.993 & 0.378 & 82.6 & yes \\
+catboost\_n500\_d4\_lr0.01 & 0.887 & 0.716 & 0.175 & 0.998 & 124.0 & yes \\
+histgbdt\_huge\_n100\_leafnodes5000 & 0.886 & 0.001 & 0.993 & 0.383 & 84.4 & yes \\
+histgbdt\_n100\_lr0.1 & 0.886 & 0.001 & 0.993 & 0.383 & 84.4 & yes \\
+lightgbm\_goss\_n100\_leaves31\_lr0.1 & 0.885 & 0.011 & 0.993 & 0.376 & 82.0 & yes \\
+lightgbm\_goss\_n100\_leaves63\_lr0.1 & 0.885 & 0.011 & 0.993 & 0.376 & 82.0 & yes \\
+lightgbm\_dart\_n300\_leaves15\_lr0.1 & 0.885 & 0.957 & 0.109 & 0.998 & 71.8 & yes \\
+catboost\_n800\_d4\_lr0.01 & 0.885 & 0.773 & 0.182 & 0.998 & 130.4 & yes \\
+adaboost\_n300\_lr0.1 & 0.883 & 0.289 & 0.993 & 0.352 & 73.9 & yes \\
+adaboost\_n500\_lr0.1 & 0.883 & 0.320 & 0.993 & 0.359 & 76.2 & yes \\
+catboost\_plain\_n100\_d4\_lr0.05 & 0.881 & 0.804 & 0.131 & 0.998 & 88.3 & yes \\
+catboost\_plain\_n200\_d4\_lr0.05 & 0.881 & 0.859 & 0.139 & 0.998 & 94.0 & yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The result is unanimous: all $30$ of $30$ models ($100\%$), spanning every
+algorithm family in the zoo, have sensitivity or specificity below $0.5$ at
+their own interior-restricted $DOR$-maximizing threshold; $20$ of $30$
+($66.7\%$) fall below $0.3$ on whichever side is degenerate. AUC across
+this set ranges narrowly from $0.847$ to $0.889$ -- these are all
+reasonably strong classifiers by ordinary standards -- yet not one of them
+survives unconstrained $DOR$-maximization with a usable operating point.
+This rules out the possibility that Tables~\ref{tab:maxdor}--\ref{tab:composite}
+happened to showcase two unusually pathological models: the pathology is
+the rule for this pathway, not the exception, across tree ensembles,
+boosting variants, and neural architectures alike.
+
+\section{A constrained remedy}
+\label{sec:remedy}
+
+If a ratio-based objective is preferred to $J$ for domain reasons (e.g.\
+$LR^-$ has a direct clinical or decision-theoretic interpretation via the
+Fagan-nomogram post-test-probability calculation \citep{fagan1975} that $J$
+lacks), the pathology can be avoided by constraining the search:
+\begin{equation}
+t^\ast_\tau \;=\; \arg\max_{t \,:\, \min(\mathrm{sens}(t),\, \mathrm{spec}(t))\, \geq\, \tau} DOR(t),
+\end{equation}
+for an explicit floor $\tau \in (0, 1)$ chosen for the application (e.g.\
+$\tau = 0.5$). This is a strict restriction of the interior-threshold set
+used in Table~\ref{tab:maxdor}, which we showed is necessary but not
+sufficient: interior thresholds still allow sensitivity or specificity
+arbitrarily close to $0$. The floor $\tau$ makes the exclusion explicit and
+auditable, rather than implicit in whatever thresholds happen to survive
+the interior restriction on a given sample.
+
+An alternative to an ad hoc floor is to make the trade-off between
+$\mathrm{sens}(t)$ and $\mathrm{spec}(t)$ explicit via a cost matrix, as in
+the cost-sensitive learning literature \citep{elkan2001,sheng2006}.
+\citet{elkan2001} shows that optimal cost-sensitive classification reduces
+to thresholding the posterior probability at
+$t^\ast = c_{FP}/(c_{FP}+c_{FN})$, where $c_{FP}$ and $c_{FN}$ are the
+costs of a false positive and a false negative respectively; this
+threshold is well-defined and finite for any finite, nonzero cost pair, and
+by construction cannot land on the degenerate boundary configurations of
+Proposition~\ref{prop:boundary} unless the analyst explicitly sets one cost
+to zero. \citet{sheng2006} give a practical procedure for selecting this
+threshold from a validation set. Compared to constrained $DOR$-maximization,
+cost-based thresholding has the advantage of making the value judgement
+explicit as a cost ratio rather than implicit in a floor $\tau$, at the
+price of requiring that ratio to be specified in the first place -- itself
+often difficult in a clinical setting, which is why symmetric criteria
+such as Youden's $J$ remain attractive defaults.
+
+A closely related alternative is to abandon ratio-based selection altogether
+in favor of decision curve analysis \citep{vickers2006}, which selects a
+threshold by net clinical benefit at a stated harm-to-benefit ratio -- a
+threshold-selection rule of exactly the cost-sensitive form above, phrased
+in decision-analytic rather than statistical language -- or to report
+calibration-based measures alongside discrimination
+\citep{vancalster2019,gneiting2007,steyerberg2010} so that a degenerate
+operating point is visible in the reported summary rather than hidden
+behind a single scalar.
+
+\subsection{Decision curve analysis, applied}
+\label{sec:dca}
+
+Rather than only cite \citet{vickers2006}, we ran decision curve analysis on
+the same four model/dataset combinations, to check that a bounded,
+economically interpretable alternative behaves as expected where $DOR$-
+maximization does not. For a threshold probability $p_t \in (0,1)$ -- the
+probability above which a clinician would act on the model's output, which
+also fixes the implied exchange rate between a false positive and a true
+positive at $p_t/(1-p_t)$ -- net benefit is
+\begin{equation}
+\mathrm{NB}(p_t) = \frac{TP(p_t)}{n} - \frac{FP(p_t)}{n}\cdot\frac{p_t}{1-p_t},
+\end{equation}
+compared against ``treat all'' ($\mathrm{NB}_{\mathrm{all}}(p_t) = \pi -
+(1-\pi)\,p_t/(1-p_t)$, for prevalence $\pi$) and ``treat none''
+($\mathrm{NB}_{\mathrm{none}}(p_t)=0$). Figures~\ref{fig:dca-multiml} and
+\ref{fig:dca-lnn} plot all three curves over the clinically plausible range
+$p_t \in [0.01, 0.6]$.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.75\textwidth]{decision_curve_multiml.png}
+\caption{Decision curve, multiml. Both the single best model and the
+ensemble beat ``treat all'' and ``treat none'' across the entire plotted
+range $p_t \in [0.01, 0.6]$.}
+\label{fig:dca-multiml}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.75\textwidth]{decision_curve_lnn.png}
+\caption{Decision curve, lnn. The ensemble beats both reference strategies
+across the full range; the single best model does so for
+$p_t \in [0.053, 0.6]$, narrowly trailing ``treat all'' only in the
+$p_t \in [0.01, 0.053]$ region where ``treat all'' is close to its own
+maximum.}
+\label{fig:dca-lnn}
+\end{figure}
+
+Every model beats ``treat none'' everywhere in the plotted range, as
+expected of any classifier with $\mathrm{AUC} > 0.5$. More informatively,
+the multiml models and the lnn ensemble beat \emph{both} reference
+strategies across the \emph{entire} range $p_t \in [0.01, 0.6]$; the lnn
+single model does so for $p_t \in [0.053, 0.6]$. None of the four decision
+curves come close to reproducing the degenerate behavior of
+Tables~\ref{tab:maxdor}--\ref{tab:full-lnn}: net benefit stays smooth,
+bounded, and monotonically informative about the trade-off at each $p_t$,
+because -- as in Proposition~\ref{prop:youden-bounded} -- $TP(p_t)/n$ and
+$FP(p_t)/n$ enter additively rather than as a ratio, so neither term can be
+driven to dominate the objective by an accident of a handful of cells. This
+is the applied counterpart of the cost-sensitive-threshold argument above:
+decision curve analysis does not require committing to one exchange rate in
+advance, but every exchange rate it implicitly sweeps over is finite and
+well-behaved, which is precisely the property $DOR$-maximization lacks.
+
+\subsection{The degenerate maximizer is also statistically fragile}
+\label{sec:fragility}
+
+The degeneracy in Table~\ref{tab:maxdor} is not only a clinical-usability
+problem; the maximizing threshold is also a poor \emph{statistical}
+estimate, because it is frequently selected by a boundary configuration
+resting on very few discordant cells. Table~\ref{tab:fragility} reports
+Wilson score confidence intervals \citep{newcombe1998} for sensitivity and
+specificity separately at each $DOR$-maximizing threshold from
+Table~\ref{tab:maxdor}, together with a conservative range for $LR^+$
+obtained by pairing the extremes that respectively maximize and minimize
+$LR^+ = \mathrm{sens}/(1-\mathrm{spec})$ -- i.e.\ the upper sensitivity
+bound paired with the lower specificity bound, and vice versa -- rather
+than propagating either interval alone. This is an illustrative,
+conservative bound, not an exact interval for the ratio itself (it does
+not, for instance, account for the correlation induced by sharing a
+threshold); a full treatment would use the sample-size and interval
+methods developed specifically for likelihood ratios by \citet{simel1991}.
+
+\begin{table}[ht]
+\centering
+\caption{95\% Wilson interval for specificity at the $DOR$-maximizing
+threshold, and the resulting range for $LR^+$.}
+\label{tab:fragility}
+\begin{tabular}{lcccc}
+\toprule
+Model & $FP$ / $n_{\mathrm{neg}}$ & Spec.\ (95\% CI) & $LR^+$ point & $LR^+$ range \\
+\midrule
+$n{=}1289$, single best   & 727/1085 & 0.330 (0.303, 0.359) & 1.49   & (1.43, 1.52) \\
+$n{=}1289$, 15-ensemble   & 1/1085   & 0.999 (0.995, 1.000) & 122.33 & (31.4, 469.0) \\
+$n{=}722$, single best    & 402/585  & 0.313 (0.277, 0.352) & 1.44   & (1.38, 1.48) \\
+$n{=}722$, 5-ensemble     & 344/585  & 0.412 (0.373, 0.452) & 1.69   & (1.59, 1.75) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The $n{=}1289$ ensemble row is the most striking: its reported $DOR$-maximizing
+$LR^+$ of $122.33$ rests on a single false positive out of $1{,}085$
+negative examples ($FP=1$) and $23$ true positives out of $204$ actual
+cases. Combining the 95\% interval for specificity, $(0.995, 1.000)$, with
+the 95\% interval for sensitivity, $(0.076, 0.163)$, at their most extreme
+pairing yields an $LR^+$ range of roughly $(31, 469)$ -- more than an order
+of magnitude wide, from a single misclassified example either way. A
+threshold selected this close to a
+sample-specific accident is not a reproducible operating point; it is a
+sampling artifact that happens to maximize an unbounded statistic. This is
+a second, independent reason (beyond the low sensitivity documented in
+Table~\ref{tab:maxdor}) not to trust an unconstrained $DOR$-maximizing
+threshold: it is simultaneously clinically extreme and statistically
+unstable.
+
+\subsection{Does more data fix this? A controlled simulation}
+\label{sec:simulation}
+
+A natural objection to Section~\ref{sec:fragility} is that the fragility
+might simply be a small-sample artifact of the two real datasets used
+throughout this paper ($n=1{,}289$ and $n=722$), and would disappear with
+more data. To test this directly -- separately from, and clearly
+distinguished from, the real clinical data used in
+Sections~\ref{sec:empirical}--\ref{sec:dca} -- we ran a controlled
+simulation: binormal class-conditional scores (positive $\sim
+\mathcal{N}(\mu,1)$, negative $\sim \mathcal{N}(0,1)$, $\mu$ chosen to fix
+$\mathrm{AUC}=0.85$, prevalence fixed at $0.158$ to match multiml), varying
+sample size $n \in \{100, 300, 1{,}000, 3{,}000, 10{,}000, 30{,}000\}$ with
+$100$ replicates per value of $n$, computing the interior-restricted
+$DOR$-maximizing threshold exactly as in Table~\ref{tab:maxdor} for each
+replicate.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.95\textwidth]{dor_simulation_fragility.png}
+\caption{Controlled simulation (not real data): median boundary-cell count
+(left) and median 95\% CI ratio for $LR^+$ (right, computed by the same
+crossed-extremes method as Table~\ref{tab:fragility}) at the $DOR$-maximizing
+threshold, as a function of sample size, over 100 replicates per $n$.}
+\label{fig:simulation}
+\end{figure}
+
+The result answers the objection directly, and not in the reassuring
+direction: it does \emph{not} improve with $n$. The median boundary-cell
+count (the smaller of $FP$ or $FN$ at the maximizing threshold) is $1$--$2$
+at every sample size from $100$ to $30{,}000$ -- a $300$-fold increase in
+data leaves the search resting on essentially the same absolute handful of
+misclassified examples, because the search is not estimating a fixed
+population quantity that averages out with more data; it is an adversarial
+search over the empirical ROC curve's achievable boundary, which always
+contains a configuration with $O(1)$ discordant cells regardless of $n$.
+Consequently, the \emph{relative} fragility -- the width of the 95\% $LR^+$
+interval, expressed as a ratio of its upper to lower bound -- actually
+\textbf{grows} with $n$ (from roughly $4.7\times$ at $n=100$ to
+$17.6\times$ at $n=30{,}000$), since the point estimate itself grows
+without bound (Theorem~\ref{thm:divergence}) while the interval is anchored
+to a fixed handful of discordant cells. More data makes the reported
+$DOR$-maximizing $LR^+$ larger and, in relative terms, \emph{less}
+trustworthy, not more -- the opposite of the usual relationship between
+sample size and estimator precision.
+
+\section{Discussion}
+\label{sec:discussion}
+
+The underlying issue is general: any objective built as an unconstrained
+ratio of two quantities that can each independently approach $0$ or
+$\infty$ along the achievable range of a one-dimensional threshold search
+is at risk of this failure mode, regardless of how reasonable the ratio
+looks at typical, non-extreme operating points. $DOR$ is a particularly
+easy case to overlook because it is a well-established, symmetric,
+threshold-invariant-\emph{sounding} summary statistic in the
+diagnostic-accuracy literature \citep{glas2003,simundic2009} -- it is
+usually reported \emph{at} a threshold chosen by other means (Youden's $J$
+\citep{youden1950}, a clinically motivated cutoff, or the point closest to
+$(0,1)$ on the ROC curve \citep{perkins2006}), not used \emph{to select}
+that threshold. Using it as the search objective directly inverts that
+relationship and reintroduces the pathology this paper describes. This
+echoes, at the level of a single threshold, the broader caution
+\citet{pepe2004} raised about odds ratios as performance gauges across
+studies: a large ratio, on its own, certifies neither good discrimination
+nor a usable operating point.
+
+We also note, as a corollary of Corollary~\ref{cor:auc-invariance}, a more
+general point: appending any threshold-invariant quantity (AUC, AUPRC,
+Brier score, or any other summary computed by integrating or aggregating
+over all thresholds) to a per-threshold objective cannot influence \emph{which}
+threshold is selected, only the resulting objective's value. This is easy
+to get backwards when constructing an ad hoc composite score, since the
+inclusion of such a term can create the appearance of a more principled,
+multi-criterion objective while leaving the actual threshold-selection
+behavior completely unchanged.
+
+We note that the natural-frequency framing recommended for
+communicating post-test probability \citep{gigerenzer1995} -- ``out of
+$1{,}000$ patients like this one, how many will the test correctly flag,
+and how many will it wrongly flag or miss?'' -- makes the degeneracy in
+Table~\ref{tab:maxdor} immediately legible in a way the scalar $DOR$ does
+not: a threshold that flags $99.5\%$ of patients, or one that flags only
+$11\%$ of true cases, is obviously unusable once stated in those terms,
+even though both post formally superior $DOR$ values. Reporting the
+natural-frequency breakdown alongside any ratio-based summary, as suggested
+by reporting guidelines for prediction models \citep{collins2015,moons2015},
+would have made both degenerate optima in this paper immediately visible
+without requiring the proof given here. The stakes of getting this framing
+right are not hypothetical: in the classic study by \citet{casscells1978},
+a large majority of physicians and medical trainees at Harvard teaching
+hospitals, when given a test's sensitivity, specificity, and the disease's
+population prevalence, substantially overestimated the post-test
+probability of disease given a positive result -- the same base-rate
+neglect that makes a boundary-configuration threshold's inflated $LR^+$
+dangerous rather than merely inconvenient: a clinician trusting the
+headline ratio, without the natural-frequency context, has no way to
+notice that the underlying sensitivity is $11\%$.
+
+Finally, a search of the kind performed in Table~\ref{tab:maxdor} --
+scanning every achievable threshold in a finite sample for the one that
+maximizes an unbounded statistic -- is itself a multiple-comparisons
+problem, of the same family addressed by the false discovery rate
+literature \citep{benjamini1995} for scanning many hypotheses rather than
+many thresholds. We did not apply a multiplicity correction here, since our
+purpose is to exhibit that the unconstrained supremum is degenerate at all,
+not to estimate a corrected $p$-value for it; but the same look-elsewhere
+logic that motivates multiplicity correction across hypotheses motivates
+skepticism of the single best threshold selected from a fine grid of
+several hundred candidates, independent of the specific divergence argument
+of Theorem~\ref{thm:divergence}.
+
+\section{Reproducibility}
+
+All reported quantities were computed from real five-fold, stratified,
+out-of-fold cross-validated predictions (not simulated), using the
+open-source implementation available at
+\url{https://github.com/netanelcyber/PenuX-AP-Severity}
+(\texttt{scripts/threshold\_sweep.py}). Interior-threshold and Youden's-$J$
+searches, the AUC-substitution check for
+Corollary~\ref{cor:auc-invariance}, and all table values in
+Section~\ref{sec:empirical} are reproducible by running that script against
+the two public, de-identified datasets referenced in the repository.
+
+\bibliographystyle{plainnat}
+\begin{thebibliography}{43}
+
+\bibitem[Altman and Bland(1994a)]{altman1994a}
+Altman, D.G., Bland, J.M. (1994).
+Diagnostic tests 1: sensitivity and specificity.
+\textit{BMJ}, 308(6943), 1552.
+
+\bibitem[Altman and Bland(1994b)]{altman1994b}
+Altman, D.G., Bland, J.M. (1994).
+Diagnostic tests 2: predictive values.
+\textit{BMJ}, 309(6947), 102.
+
+\bibitem[Altman and Bland(1994c)]{altman1994c}
+Altman, D.G., Bland, J.M. (1994).
+Diagnostic tests 3: receiver operating characteristic plots.
+\textit{BMJ}, 309(6948), 188.
+
+\bibitem[Benjamini and Hochberg(1995)]{benjamini1995}
+Benjamini, Y., Hochberg, Y. (1995).
+Controlling the false discovery rate: a practical and powerful approach to
+multiple testing.
+\textit{Journal of the Royal Statistical Society: Series B (Methodological)},
+57(1), 289--300.
+
+\bibitem[Breiman(1996)]{breiman1996}
+Breiman, L. (1996).
+Bagging predictors.
+\textit{Machine Learning}, 24(2), 123--140.
+
+\bibitem[Casscells et al.(1978)]{casscells1978}
+Casscells, W., Schoenberger, A., Grayboys, T.B. (1978).
+Interpretation by physicians of clinical laboratory results.
+\textit{New England Journal of Medicine}, 299(18), 999--1001.
+
+\bibitem[Chawla et al.(2002)]{chawla2002}
+Chawla, N.V., Bowyer, K.W., Hall, L.O., Kegelmeyer, W.P. (2002).
+SMOTE: Synthetic minority over-sampling technique.
+\textit{Journal of Artificial Intelligence Research}, 16, 321--357.
+
+\bibitem[Collins et al.(2015)]{collins2015}
+Collins, G.S., Reitsma, J.B., Altman, D.G., Moons, K.G.M. (2015).
+Transparent reporting of a multivariable prediction model for individual
+prognosis or diagnosis (TRIPOD): the TRIPOD statement.
+\textit{Annals of Internal Medicine}, 162(1), 55--63.
+
+\bibitem[Davis and Goadrich(2006)]{davis2006}
+Davis, J., Goadrich, M. (2006).
+The relationship between Precision-Recall and ROC curves.
+In \textit{Proceedings of the 23rd International Conference on Machine
+Learning}, 233--240. ACM, New York.
+
+\bibitem[Deeks and Altman(2004)]{deeks2004}
+Deeks, J.J., Altman, D.G. (2004).
+Diagnostic tests 4: likelihood ratios.
+\textit{BMJ}, 329(7458), 168--169.
+
+\bibitem[DeLong et al.(1988)]{delong1988}
+DeLong, E.R., DeLong, D.M., Clarke-Pearson, D.L. (1988).
+Comparing the areas under two or more correlated receiver operating
+characteristic curves: a nonparametric approach.
+\textit{Biometrics}, 44(3), 837--845.
+
+\bibitem[Dietterich(2000)]{dietterich2000}
+Dietterich, T.G. (2000).
+Ensemble methods in machine learning.
+In \textit{Multiple Classifier Systems (MCS 2000)}, Lecture Notes in
+Computer Science, Vol.\ 1857, 1--15. Springer, Berlin, Heidelberg.
+
+\bibitem[Efron and Tibshirani(1993)]{efron1993}
+Efron, B., Tibshirani, R.J. (1993).
+\textit{An Introduction to the Bootstrap}.
+Chapman \& Hall, New York.
+
+\bibitem[Elkan(2001)]{elkan2001}
+Elkan, C. (2001).
+The foundations of cost-sensitive learning.
+In \textit{Proceedings of the 17th International Joint Conference on
+Artificial Intelligence}, 973--978. Morgan Kaufmann, San Francisco, CA.
+
+\bibitem[Fagan(1975)]{fagan1975}
+Fagan, T.J. (1975).
+Nomogram for Bayes's theorem.
+\textit{New England Journal of Medicine}, 293(5), 257.
+
+\bibitem[Fawcett(2006)]{fawcett2006}
+Fawcett, T. (2006).
+An introduction to ROC analysis.
+\textit{Pattern Recognition Letters}, 27(8), 861--874.
+
+\bibitem[Gigerenzer and Hoffrage(1995)]{gigerenzer1995}
+Gigerenzer, G., Hoffrage, U. (1995).
+How to improve Bayesian reasoning without instruction: frequency formats.
+\textit{Psychological Review}, 102(4), 684--704.
+
+\bibitem[Glas et al.(2003)]{glas2003}
+Glas, A.S., Lijmer, J.G., Prins, M.H., Bonsel, G.J., Bossuyt, P.M.M. (2003).
+The diagnostic odds ratio: a single indicator of test performance.
+\textit{Journal of Clinical Epidemiology}, 56(11), 1129--1135.
+
+\bibitem[Gneiting and Raftery(2007)]{gneiting2007}
+Gneiting, T., Raftery, A.E. (2007).
+Strictly proper scoring rules, prediction, and estimation.
+\textit{Journal of the American Statistical Association}, 102(477),
+359--378.
+
+\bibitem[Green and Swets(1966)]{greenswets1966}
+Green, D.M., Swets, J.A. (1966).
+\textit{Signal Detection Theory and Psychophysics}.
+Wiley, New York.
+
+\bibitem[Grimes and Schulz(2005)]{grimes2005}
+Grimes, D.A., Schulz, K.F. (2005).
+Refining clinical diagnosis with likelihood ratios.
+\textit{The Lancet}, 365(9469), 1500--1505.
+
+\bibitem[Habibzadeh et al.(2016)]{habibzadeh2016}
+Habibzadeh, F., Habibzadeh, P., Yadollahie, M. (2016).
+On determining the most appropriate test cut-off value: the case of tests
+with continuous results.
+\textit{Biochemia Medica}, 26(3), 297--307.
+
+\bibitem[Hanley and McNeil(1982)]{hanley1982}
+Hanley, J.A., McNeil, B.J. (1982).
+The meaning and use of the area under a receiver operating characteristic
+(ROC) curve.
+\textit{Radiology}, 143(1), 29--36.
+
+\bibitem[He and Garcia(2009)]{he2009}
+He, H., Garcia, E.A. (2009).
+Learning from imbalanced data.
+\textit{IEEE Transactions on Knowledge and Data Engineering}, 21(9),
+1263--1284.
+
+\bibitem[Hosmer et al.(2013)]{hosmer2013}
+Hosmer, D.W., Lemeshow, S., Sturdivant, R.X. (2013).
+\textit{Applied Logistic Regression}, 3rd edition.
+John Wiley \& Sons, Hoboken, NJ.
+
+\bibitem[Jaeschke et al.(1994a)]{jaeschke1994a}
+Jaeschke, R., Guyatt, G., Sackett, D.L. (1994).
+Users' guides to the medical literature. III. How to use an article about a
+diagnostic test. A. Are the results of the study valid?
+\textit{JAMA}, 271(5), 389--391.
+
+\bibitem[Jaeschke et al.(1994b)]{jaeschke1994b}
+Jaeschke, R., Guyatt, G.H., Sackett, D.L. (1994).
+Users' guides to the medical literature. III. How to use an article about a
+diagnostic test. B. What are the results and will they help me in caring
+for my patients?
+\textit{JAMA}, 271(9), 703--707.
+
+\bibitem[Kraemer(1992)]{kraemer1992}
+Kraemer, H.C. (1992).
+\textit{Evaluating Medical Tests: Objective and Quantitative Guidelines}.
+Sage Publications, Newbury Park, CA.
+
+\bibitem[McClish(1989)]{mcclish1989}
+McClish, D.K. (1989).
+Analyzing a portion of the ROC curve.
+\textit{Medical Decision Making}, 9(3), 190--195.
+
+\bibitem[Metz(1978)]{metz1978}
+Metz, C.E. (1978).
+Basic principles of ROC analysis.
+\textit{Seminars in Nuclear Medicine}, 8(4), 283--298.
+
+\bibitem[Moons et al.(2015)]{moons2015}
+Moons, K.G.M., Altman, D.G., Reitsma, J.B., Ioannidis, J.P.A., Macaskill,
+P., Steyerberg, E.W., Vickers, A.J., Ransohoff, D.F., Collins, G.S. (2015).
+Transparent reporting of a multivariable prediction model for individual
+prognosis or diagnosis (TRIPOD): explanation and elaboration.
+\textit{Annals of Internal Medicine}, 162(1), W1--W73.
+
+\bibitem[Neyman and Pearson(1933)]{neyman1933}
+Neyman, J., Pearson, E.S. (1933).
+On the problem of the most efficient tests of statistical hypotheses.
+\textit{Philosophical Transactions of the Royal Society of London.
+Series A}, 231, 289--337.
+
+\bibitem[Newcombe(1998)]{newcombe1998}
+Newcombe, R.G. (1998).
+Two-sided confidence intervals for the single proportion: comparison of
+seven methods.
+\textit{Statistics in Medicine}, 17(8), 857--872.
+
+\bibitem[Obuchowski(2003)]{obuchowski2003}
+Obuchowski, N.A. (2003).
+Receiver operating characteristic curves and their use in radiology.
+\textit{Radiology}, 229(1), 3--8.
+
+\bibitem[Pepe(2003)]{pepe2003}
+Pepe, M.S. (2003).
+\textit{The Statistical Evaluation of Medical Tests for Classification and
+Prediction}.
+Oxford University Press, New York.
+
+\bibitem[Pepe et al.(2004)]{pepe2004}
+Pepe, M.S., Janes, H., Longton, G., Leisenring, W., Newcomb, P. (2004).
+Limitations of the odds ratio in gauging the performance of a diagnostic,
+prognostic, or screening marker.
+\textit{American Journal of Epidemiology}, 159(9), 882--890.
+
+\bibitem[Perkins and Schisterman(2006)]{perkins2006}
+Perkins, N.J., Schisterman, E.F. (2006).
+The inconsistency of ``optimal'' cutpoints obtained using two criteria
+based on the receiver operating characteristic curve.
+\textit{American Journal of Epidemiology}, 163(7), 670--675.
+
+\bibitem[Provost et al.(1998)]{provost1998}
+Provost, F., Fawcett, T., Kohavi, R. (1998).
+The case against accuracy estimation for comparing induction algorithms.
+In \textit{Proceedings of the 15th International Conference on Machine
+Learning}, 445--453. Morgan Kaufmann, San Francisco, CA.
+
+\bibitem[Reitsma et al.(2005)]{reitsma2005}
+Reitsma, J.B., Glas, A.S., Rutjes, A.W.S., Scholten, R.J.P.M., Bossuyt,
+P.M., Zwinderman, A.H. (2005).
+Bivariate analysis of sensitivity and specificity produces informative
+summary measures in diagnostic reviews.
+\textit{Journal of Clinical Epidemiology}, 58(10), 982--990.
+
+\bibitem[Rutter and Gatsonis(2001)]{rutter2001}
+Rutter, C.M., Gatsonis, C.A. (2001).
+A hierarchical regression approach to meta-analysis of diagnostic test
+accuracy evaluations.
+\textit{Statistics in Medicine}, 20(19), 2865--2884.
+
+\bibitem[Saito and Rehmsmeier(2015)]{saito2015}
+Saito, T., Rehmsmeier, M. (2015).
+The precision-recall plot is more informative than the ROC plot when
+evaluating binary classifiers on imbalanced datasets.
+\textit{PLOS ONE}, 10(3), e0118432.
+
+\bibitem[Sheng and Ling(2006)]{sheng2006}
+Sheng, V.S., Ling, C.X. (2006).
+Thresholding for making classifiers cost-sensitive.
+In \textit{Proceedings of the 21st National Conference on Artificial
+Intelligence (AAAI)}, 476--481.
+
+\bibitem[Simel et al.(1991)]{simel1991}
+Simel, D.L., Samsa, G.P., Matchar, D.B. (1991).
+Likelihood ratios with confidence: sample size estimation for diagnostic
+test studies.
+\textit{Journal of Clinical Epidemiology}, 44(8), 763--770.
+
+\bibitem[\v{S}imundi\'{c}(2009)]{simundic2009}
+\v{S}imundi\'{c}, A.M. (2009).
+Measures of diagnostic accuracy: basic definitions.
+\textit{EJIFCC}, 19(4), 203--211.
+
+\bibitem[Steyerberg et al.(2010)]{steyerberg2010}
+Steyerberg, E.W., Vickers, A.J., Cook, N.R., Gerds, T., Gonen, M.,
+Obuchowski, N., Pencina, M.J., Kattan, M.W. (2010).
+Assessing the performance of prediction models: a framework for
+traditional and novel measures.
+\textit{Epidemiology}, 21(1), 128--138.
+
+\bibitem[Swets(1988)]{swets1988}
+Swets, J.A. (1988).
+Measuring the accuracy of diagnostic systems.
+\textit{Science}, 240(4857), 1285--1293.
+
+\bibitem[Unal(2017)]{unal2017}
+Unal, I. (2017).
+Defining an optimal cut-point value in ROC analysis: an alternative
+approach.
+\textit{Computational and Mathematical Methods in Medicine}, 2017,
+3762651.
+
+\bibitem[Van Calster et al.(2019)]{vancalster2019}
+Van Calster, B., McLernon, D.J., van Smeden, M., Wynants, L., Steyerberg,
+E.W. (2019).
+Calibration: the Achilles heel of predictive analytics.
+\textit{BMC Medicine}, 17, 230.
+
+\bibitem[van Stralen et al.(2009)]{vanstralen2009}
+van Stralen, K.J., Stel, V.S., Reitsma, J.B., Dekker, F.W., Zoccali, C.,
+Jager, K.J. (2009).
+Diagnostic methods I: sensitivity, specificity, and other measures of
+accuracy.
+\textit{Kidney International}, 75(12), 1257--1263.
+
+\bibitem[Vickers and Elkin(2006)]{vickers2006}
+Vickers, A.J., Elkin, E.B. (2006).
+Decision curve analysis: a novel method for evaluating prediction models.
+\textit{Medical Decision Making}, 26(6), 565--574.
+
+\bibitem[Wolpert(1992)]{wolpert1992}
+Wolpert, D.H. (1992).
+Stacked generalization.
+\textit{Neural Networks}, 5(2), 241--259.
+
+\bibitem[Youden(1950)]{youden1950}
+Youden, W.J. (1950).
+Index for rating diagnostic tests.
+\textit{Cancer}, 3(1), 32--35.
+
+\bibitem[Zou et al.(2007)]{zou2007}
+Zou, K.H., O'Malley, A.J., Mauri, L. (2007).
+Receiver-operating characteristic analysis for evaluating diagnostic tests
+and predictive models.
+\textit{Circulation}, 115(5), 654--657.
+
+\bibitem[Zweig and Campbell(1993)]{zweig1993}
+Zweig, M.H., Campbell, G. (1993).
+Receiver-operating characteristic (ROC) plots: a fundamental evaluation
+tool in clinical medicine.
+\textit{Clinical Chemistry}, 39(4), 561--577.
+
+\end{thebibliography}
+
+\end{document}
