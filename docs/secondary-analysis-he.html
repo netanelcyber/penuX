@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ניתוח משני — PenuX-AP-Severity | מודלי GBDT לחיזוי מוקדם של SAP</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue:    #1a56db;
+      --navy:    #1e3a8a;
+      --teal:    #0891b2;
+      --green:   #059669;
+      --amber:   #d97706;
+      --red:     #dc2626;
+      --gray50:  #f8fafc;
+      --gray100: #f1f5f9;
+      --gray200: #e2e8f0;
+      --gray600: #475569;
+      --gray800: #1e293b;
+      --text:    #0f172a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--gray50); color: var(--text); line-height: 1.75; font-size: 1.02rem; }
+
+    .topbar { background: var(--navy); padding: .55rem 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-direction: row-reverse; }
+    .topbar a { color: #93c5fd; text-decoration: none; font-size: .88rem; font-weight: 600; }
+    .topbar a:hover { color: #fff; }
+    .topbar .badge { background: rgba(255,255,255,.12); color: #e0f2fe; padding: .2rem .7rem; border-radius: 99px; font-size: .78rem; }
+
+    .wrapper { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+    .article-header { background: linear-gradient(135deg, var(--navy) 0%, #1a56db 100%); color: white; padding: 2.8rem 2rem 2rem; border-radius: 12px; margin-bottom: 2.5rem; }
+    .article-header .journal-tag { display: inline-block; background: rgba(255,255,255,.18); color: #bfdbfe; padding: .25rem .85rem; border-radius: 99px; font-size: .8rem; font-weight: 600; letter-spacing: .04em; margin-bottom: 1rem; }
+    .article-header h1 { font-size: clamp(1.35rem, 3vw, 1.9rem); font-weight: 700; line-height: 1.35; margin-bottom: .6rem; }
+    .article-header .subtitle { color: #93c5fd; font-size: 1.02rem; margin-bottom: 1.2rem; }
+    .meta { display: flex; flex-wrap: wrap; gap: .9rem; font-size: .85rem; color: #bfdbfe; }
+    .meta span { display: flex; align-items: center; gap: .35rem; }
+
+    .abstract { background: #eff6ff; border-right: 4px solid var(--blue); border-radius: 8px; padding: 1.4rem 1.6rem; margin-bottom: 2.2rem; }
+    .abstract h2 { color: var(--navy); font-size: 1rem; margin-bottom: .7rem; }
+    .abstract p { color: var(--gray800); font-size: .95rem; }
+
+    h2.section-title { font-size: 1.22rem; font-weight: 700; color: var(--navy); border-bottom: 2px solid var(--blue); padding-bottom: .35rem; margin: 2rem 0 .9rem; }
+    h3.sub-title { font-size: 1.02rem; font-weight: 600; color: var(--teal); margin: 1.3rem 0 .4rem; }
+    p { margin-bottom: .85rem; color: var(--gray800); }
+    ul, ol { margin: 0 1.5rem .85rem 0; color: var(--gray800); }
+    li { margin-bottom: .3rem; }
+
+    .formula-box { background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 1.1rem 1.5rem; margin: 1rem 0 1.3rem; font-family: 'JetBrains Mono', monospace; font-size: .88rem; overflow-x: auto; direction: ltr; text-align: left; }
+
+    .table-wrap { overflow-x: auto; margin: 1rem 0 1.5rem; border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    thead tr { background: var(--navy); color: white; }
+    th { padding: .6rem .8rem; text-align: right; font-weight: 600; }
+    td { padding: .5rem .8rem; border-bottom: 1px solid var(--gray200); text-align: right; }
+    tr:nth-child(even) td { background: var(--gray100); }
+    tr:last-child td { border-bottom: none; }
+
+    .alert { border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0 1.4rem; font-size: .9rem; display: flex; gap: .7rem; align-items: flex-start; }
+    .alert-warn { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+    .alert-info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; }
+    .alert-green { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
+
+    ol.refs { padding-right: 1.4rem; padding-left: 0; }
+    ol.refs li { font-size: .88rem; color: var(--gray600); margin-bottom: .5rem; }
+
+    .article-footer { background: var(--gray800); color: #94a3b8; border-radius: 10px; padding: 1.4rem 1.6rem; margin-top: 3rem; font-size: .85rem; line-height: 1.6; }
+    .article-footer strong { color: #e2e8f0; }
+
+    @media (max-width: 600px) {
+      .wrapper { padding: 1.5rem 1rem 3rem; }
+      .article-header { padding: 1.8rem 1.2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/">← penux.uk</a>
+  <a href="review.html">Review (EN) — 9-Model Comparison</a>
+  <span class="badge">ניתוח משני · מאגרים ציבוריים · 2026</span>
+</div>
+
+<div class="wrapper">
+
+  <header class="article-header">
+    <div class="journal-tag">מאמר סקירה וניתוח חקרני · למידת מכונה רפואית · מאגרי נתונים ציבוריים</div>
+    <h1>PenuX-AP-Severity: ניתוח משני של מאגרי דלקת לבלב חריפה ציבוריים באמצעות מודלי GBDT לחיזוי מוקדם של SAP</h1>
+    <div class="subtitle">ללא ולידציה קלינית — ניתוח חקרני בלבד</div>
+    <div class="meta">
+      <span>📅 יולי 2026</span>
+      <span>🔬 קבוצת המחקר PenuX</span>
+      <span>📊 מאגרים ציבוריים: multiml (n=1,289) · lnn (n=722)</span>
+    </div>
+  </header>
+
+  <div class="abstract">
+    <h2>תקציר</h2>
+    <p><strong>רקע:</strong> דלקת לבלב חריפה חמורה — Severe Acute Pancreatitis, או SAP — היא מצב רפואי בעל סיכון משמעותי לסיבוכים, כשל איברים ותמותה. זיהוי מוקדם של מטופלים בסיכון גבוה הוא אתגר קליני מרכזי. כלי ניקוד מסורתיים כגון Ranson, BISAP ו־APACHE II מסייעים בהערכת חומרה, אך חלקם דורשים נתונים לאורך 24–48 שעות ואינם תמיד מותאמים לשילוב אוטומטי במערכות מידע רפואיות.</p>
+    <p><strong>מטרה:</strong> לבחון באופן חקרני את התאמתם של מודלי Gradient-Boosted Decision Trees — ובפרט XGBoost, LightGBM ו־CatBoost — לחיזוי מוקדם של SAP על בסיס מאגרי נתונים ציבוריים של דלקת לבלב חריפה.</p>
+    <p><strong>שיטות:</strong> בוצע ניתוח משני של שני מאגרי נתונים ציבוריים שמקורם המדווח הוא Second Affiliated Hospital of Guilin Medical University. המאגר הראשון כלל 1,289 מטופלים, מהם 204 מקרי SAP, והמאגר השני כלל 722 מטופלים, מהם 137 מקרי SAP. לאחר הסרת מזהים ישירים, אומנו מודלי GBDT ונבדקו ביצועים באמצעות תחזיות out-of-fold. בנוסף, בוצע סינון חקרני לפי <code>p_max_gbdt</code>, כלומר ההסתברות הגבוהה ביותר מבין שלושת מודלי GBDT, תוך כיול הסף ליעד רגישות של לפחות 98%.</p>
+    <p><strong>תוצאות:</strong> במאגר multiml, מודל XGBoost השיג AUC של 0.8471. במאגר lnn, שלושת מודלי GBDT השיגו AUC קרוב ל־0.88. כיול סף לפי יעד רגישות ≥98% אפשר להסיר כ־36% מהמקרים בעלי סיכון נמוך יחסית, תוך החמצת 4 מתוך 204 מקרי SAP במאגר multiml ו־2 מתוך 137 מקרי SAP במאגר lnn.</p>
+    <p><strong>מסקנות:</strong> מודלי GBDT מציגים פוטנציאל מחקרי לניתוח נתונים טבלאיים של דלקת לבלב חריפה. עם זאת, מדובר בניתוח חקרני בלבד על מאגרים ציבוריים, ללא ולידציה חיצונית, ללא מחקר פרוספקטיבי וללא אישור קליני. אין להשתמש במודלים או בספי הסינון לצורך החלטות רפואיות.</p>
+  </div>
+
+  <h2 class="section-title">1. מבוא</h2>
+  <p>דלקת לבלב חריפה היא מחלה דלקתית של הלבלב, הנעה בין מחלה קלה וחולפת לבין מחלה חמורה עם כשל איברים, נמק לבלבי וסיבוכים סיסטמיים. במקרים חמורים, זיהוי מוקדם של המטופלים בסיכון הוא קריטי לצורך ניטור, טיפול נוזלים, העברה לטיפול נמרץ, הדמיה, אנטיביוטיקה במקרים מתאימים, ומעקב אחר סיבוכים.</p>
+  <p>בפרקטיקה הקלינית קיימים מספר כלי ניקוד להערכת חומרת דלקת לבלב חריפה, ובהם Ranson, BISAP, APACHE II, Glasgow/Imrie ו־CT Severity Index. כלים אלו חשובים, אך לחלקם מגבלות: חלקם דורשים מדידות חוזרות לאחר 24–48 שעות, חלקם אינם מותאמים לעיבוד אוטומטי בזמן אמת, וחלקם תלויים במידע שאינו תמיד זמין בזמן הקבלה.</p>
+  <p>התפתחות התיקים הרפואיים הממוחשבים, זמינות בדיקות מעבדה דיגיטליות ויכולת להריץ מודלי למידת מכונה מאפשרות לבחון גישה משלימה: חיזוי מוקדם של SAP על בסיס נתונים טבלאיים זמינים.</p>
+  <p>הפרויקט PenuX-AP-Severity בוחן כיוון זה כאב־טיפוס מחקרי בלבד.</p>
+
+  <h2 class="section-title">2. הצהרת סטטוס ושימוש</h2>
+  <p>PenuX-AP-Severity הוא פרויקט מחקרי ומתודולוגי. המערכת אינה מאושרת לשימוש קליני, אינה כלי אבחוני, אינה כלי טריאז׳ מאושר, ואינה מחליפה שיקול דעת רפואי.</p>
+  <p>הניתוח במאמר זה מבוסס על מאגרי נתונים ציבוריים. הנתונים לא נאספו על ידי מחברי PenuX, לא התקבלו ישירות מבית חולים במסגרת שיתוף פעולה קליני של PenuX, ולא נאספו במסגרת מחקר פרוספקטיבי של הפרויקט.</p>
+  <p>לפיכך, כל התוצאות המוצגות במאמר זה הן תוצאות חקרניות של ניתוח משני בלבד. אין לראות בהן ולידציה קלינית, הוכחה לבטיחות, או ראיה לביצועים בסביבת בית חולים אמיתית.</p>
+
+  <h2 class="section-title">3. מקורות הנתונים</h2>
+  <p>הניתוח מבוסס על שני מאגרי נתונים ציבוריים בתחום חיזוי חומרת דלקת לבלב חריפה. בשני המאגרים הוסרו מזהים ישירים לפני השימוש במסגרת PenuX.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>קובץ בפרויקט</th><th>מקור ציבורי</th><th>רישיון</th><th>שנים</th><th>מטופלים</th><th>SAP</th><th>מאפיינים</th></tr></thead>
+      <tbody>
+        <tr><td>ap_multiml_sanitized.csv</td><td>longshike/Predicting-acute-pancreatitis-severity-with-multi-machine-learning-models</td><td>MIT</td><td>2016–2024</td><td>1,289</td><td>204 (15.8%)</td><td>60</td></tr>
+        <tr><td>ap_lnn_sanitized.csv</td><td>longshike/LNN-for-SAP-Prediction</td><td>Apache-2.0</td><td>2020–2024</td><td>722</td><td>137 (19.0%)</td><td>107</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>במסגרת הניתוח, התווית נורמלה כך ש־ 1 = SAP, 0 = non-SAP. יש לציין שבקבצי מקור מסוימים כיוון התווית הגולמית עשוי להיות הפוך, ולכן יש לוודא תמיד התאמה בין הקוד, הטבלאות וההגדרה הקלינית.</p>
+
+  <h2 class="section-title">4. הכנת הנתונים</h2>
+  <p>לפני הרצת המודלים בוצעו שלבי הכנה: הסרת מזהים ישירים (שם, מספר מזהה, מספר סידורי), הגדרת עמודת יעד אחידה, טיפול בערכים חסרים, שמירת גרסה מסוננת בתיקיית <code>data/public_sanitized</code>, הרצת מודלי baseline ו־GBDT, והפקת תחזיות out-of-fold להערכת ביצועים פנימית.</p>
+  <div class="formula-box">python scripts/run_baseline.py \
+  --data data/public_sanitized/ap_lnn_sanitized.csv \
+  --target-column "严重程度" \
+  --outdir outputs/lnn</div>
+
+  <h2 class="section-title">5. מודלים</h2>
+  <p>במאמר זה הודגשו שלושה מודלי GBDT:</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>מודל</th><th>תיאור</th><th>יתרון עיקרי</th></tr></thead>
+      <tbody>
+        <tr><td>XGBoost</td><td>Gradient boosting עם רגולריזציה</td><td>ביצועים חזקים בנתונים טבלאיים</td></tr>
+        <tr><td>LightGBM</td><td>Gradient boosting בצמיחה לפי עלים</td><td>אימון מהיר ויעיל</td></tr>
+        <tr><td>CatBoost</td><td>Boosting עם ordered boosting</td><td>עמידות יחסית להטיות מסוימות והתאמת יתר</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>מודלי GBDT מתאימים במיוחד לנתונים טבלאיים רפואיים, משום שהם אינם מניחים סדר זמן מלאכותי בין המשתנים. זאת בניגוד למודלים רצפיים כגון LSTM, המתאימים יותר למדידות סדרתיות לאורך זמן.</p>
+
+  <h2 class="section-title">6. תוצאות GBDT — סף F1 מיטבי</h2>
+  <p>הטבלה הבאה מציגה את ביצועי מודלי GBDT על שני המאגרים, לפי סף שנבחר למקסום F1 במסגרת הניתוח החקרני.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>מאגר</th><th>מודל</th><th>AUC</th><th>AUPRC</th><th>F1</th><th>רגישות</th><th>סגוליות</th><th>PPV</th><th>NPV</th></tr></thead>
+      <tbody>
+        <tr><td>multiml</td><td>XGBoost</td><td>0.8471</td><td>0.5718</td><td>0.5584</td><td>59.8%</td><td>89.8%</td><td>52.4%</td><td>92.2%</td></tr>
+        <tr><td>multiml</td><td>CatBoost</td><td>0.8402</td><td>0.5354</td><td>0.5470</td><td>61.3%</td><td>88.2%</td><td>49.4%</td><td>92.4%</td></tr>
+        <tr><td>multiml</td><td>LightGBM</td><td>0.8386</td><td>0.5688</td><td>0.5401</td><td>54.4%</td><td>91.2%</td><td>53.6%</td><td>91.4%</td></tr>
+        <tr><td>lnn</td><td>XGBoost</td><td>0.8805</td><td>0.6616</td><td>0.6337</td><td>70.1%</td><td>88.0%</td><td>57.8%</td><td>92.6%</td></tr>
+        <tr><td>lnn</td><td>CatBoost</td><td>0.8801</td><td>0.6580</td><td>0.6221</td><td>67.9%</td><td>88.2%</td><td>57.4%</td><td>92.1%</td></tr>
+        <tr><td>lnn</td><td>LightGBM</td><td>0.8795</td><td>0.6732</td><td>0.6333</td><td>69.3%</td><td>88.4%</td><td>58.3%</td><td>92.5%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>במאגר multiml, XGBoost השיג את ה־AUC הגבוה ביותר: 0.8471. במאגר lnn, שלושת המודלים היו דומים מאוד, עם AUC סביב 0.88. עם זאת, סף F1 מיטבי אינו בהכרח מתאים לשימוש רפואי, משום שבתרחיש של סינון מוקדם של SAP חשוב יותר לצמצם false negatives.</p>
+
+  <h2 class="section-title">7. סינון לפי יעד רגישות ≥98%</h2>
+  <p>לאחר בחינת הסף הקבוע P≥0.30, נמצא כי הוא מחמיץ שיעור גבוה מדי של מקרי SAP. לכן בוצע כיול סף לפי יעד רגישות של לפחות 98%.</p>
+  <div class="formula-box">p_max_gbdt = max(P_XGBoost, P_LightGBM, P_CatBoost)
+
+# כלל הסינון:
+נשאר מקרה אם p_max_gbdt >= threshold
+מוסר מקרה אם p_max_gbdt <  threshold</div>
+
+  <h2 class="section-title">8. תוצאות סינון לפי יעד רגישות ≥98%</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>מאגר</th><th>סף p_max_gbdt</th><th>רגישות שהושגה</th><th>הוסרו</th><th>SAP שהוחמצו</th><th>NPV בקבוצת ההסרה</th></tr></thead>
+      <tbody>
+        <tr><td>multiml</td><td>0.14149</td><td>98.04%</td><td>468/1,289 (36.3%)</td><td>4/204</td><td>99.15%</td></tr>
+        <tr><td>lnn</td><td>0.09751</td><td>98.54%</td><td>261/722 (36.1%)</td><td>2/137</td><td>99.23%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>כלומר, לאחר כיול הסף ליעד רגישות גבוה, ניתן היה להסיר כ־36% מהמקרים כבעלי סיכון נמוך יחסית, תוך החמצת מספר קטן יחסית של מקרי SAP. עם זאת, גם החמצה של 4 מקרי SAP או 2 מקרי SAP עשויה להיות בלתי קבילה קלינית, תלוי בהקשר. לכן אין לפרש את הסף ככלל שלילה קליני.</p>
+
+  <h2 class="section-title">9. סף אחיד לשני המאגרים</h2>
+  <p>כאופציה שמרנית יותר, נבחן סף אחיד לשני המאגרים: <code>p_max_gbdt ≥ 0.09751</code></p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>כלל אחיד</th><th>רגישות</th><th>הוסרו</th><th>SAP שהוחמצו</th><th>NPV</th></tr></thead>
+      <tbody>
+        <tr><td>p_max_gbdt ≥ 0.09751</td><td>98.24%</td><td>598/2,011 (29.7%)</td><td>6/341</td><td>99.00%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>סף אחיד מאפשר ניסוח פשוט יותר, אך מסיר פחות מקרים. יתרונו הוא שמרנות גבוהה יותר כאשר משלבים מאגרים שונים.</p>
+
+  <h2 class="section-title">10. פרשנות קלינית זהירה</h2>
+  <p>התוצאות מצביעות על כך שמודלי GBDT מסוגלים לזהות דפוסים הקשורים ל־SAP במאגרים הציבוריים שנבדקו. עם זאת, אין להסיק מכך שהמודלים מתאימים לשימוש קליני, מהסיבות הבאות:</p>
+  <ol>
+    <li>הנתונים מקורם במאגרים ציבוריים ולא במחקר פרוספקטיבי של PenuX.</li>
+    <li>שני המאגרים מדווחים על מקור ממוסד יחיד.</li>
+    <li>לא בוצעה ולידציה חיצונית על בית חולים אחר.</li>
+    <li>לא נבדקה התאמה לאוכלוסייה ישראלית או מערבית.</li>
+    <li>לא נבדקה השפעה על החלטות רופאים.</li>
+    <li>לא נבדקו תוצאים קליניים.</li>
+    <li>לא בוצע אישור רגולטורי.</li>
+    <li>אפילו בסף רגישות ≥98% עדיין הוחמצו מקרי SAP.</li>
+  </ol>
+  <div class="alert alert-info">
+    <div>"סף p_max_gbdt מכויל ליעד רגישות ≥98% הגדיר תת־קבוצה בעלת סיכון נמוך יחסית במסגרת ניתוח חקרני פנימי, אך אינו מתאים ככלל שלילה קליני ללא ולידציה חיצונית ופרוספקטיבית."</div>
+  </div>
+
+  <h2 class="section-title">11. השוואה בין F1 מיטבי לבין סף רגישות גבוהה</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>סוג סף</th><th>מטרה</th><th>יתרון</th><th>חסרון</th></tr></thead>
+      <tbody>
+        <tr><td>סף F1 מיטבי</td><td>איזון בין precision ו־recall</td><td>טוב להשוואת מודלים</td><td>עלול להחמיץ יותר מדי מקרי SAP</td></tr>
+        <tr><td>סף רגישות ≥98%</td><td>צמצום false negatives</td><td>מתאים יותר לחשיבה של screening</td><td>יוצר יותר false positives ומצריך ולידציה</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>במחלה שעלולה להיות חמורה, כמו SAP, סף רגישות גבוהה מתאים יותר לשלב של סינון ראשוני. עם זאת, סף כזה חייב להיבדק חיצונית לפני כל שימוש רפואי.</p>
+
+  <h2 class="section-title">12. חשיבות מאפיינים</h2>
+  <p>במודלי עצים ניתן להפיק חשיבות מאפיינים. בפרויקט PenuX-AP-Severity, מאפיינים בעלי משמעות קלינית אפשרית כוללים בין היתר:</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>מאפיין</th><th>משמעות אפשרית</th></tr></thead>
+      <tbody>
+        <tr><td>סידן (Calcium)</td><td>היפוקלצמיה עשויה להיות קשורה למחלה חמורה</td></tr>
+        <tr><td>LDH</td><td>סמן לנזק רקמתי</td></tr>
+        <tr><td>D-dimer</td><td>עשוי לשקף הפעלת קרישה או דלקת סיסטמית</td></tr>
+        <tr><td>לקטט (Lactate)</td><td>עשוי לשקף היפופרפוזיה או עומס מטבולי</td></tr>
+        <tr><td>המטוקריט (Hematocrit)</td><td>עשוי לשקף המוקונצנטרציה</td></tr>
+        <tr><td>קריאטינין (Creatinine)</td><td>משקף תפקוד כלייתי</td></tr>
+        <tr><td>אלבומין (Albumin)</td><td>עשוי לשקף מצב דלקתי ותזונתי</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>יש להדגיש כי חשיבות מאפיין במודל אינה הוכחה לסיבתיות. היא מצביעה רק על כך שהמאפיין תרם לתחזית בתוך המאגר המסוים.</p>
+
+  <h2 class="section-title">13. שילוב עתידי במערכות מידע רפואיות</h2>
+  <p>אחד מכיווני ההמשך של PenuX-AP-Severity הוא בחינת שילוב אפשרי במערכות מידע רפואיות באמצעות תקנים כגון FHIR R4, HL7 v2.x, ORU^R01, FHIR Observation, FHIR RiskAssessment, ומערכות HIS מקומיות כגון Camelion. עם זאת, שילוב כזה הוא כיוון עתידי בלבד. כל אינטגרציה רפואית תדרוש: אישור מוסדי, אישור ועדת הלסינקי / IRB, בדיקת אבטחת מידע, הערכת פרטיות, ולידציה קלינית, ניטור הטיות, ואישור רגולטורי כתוכנה רפואית.</p>
+
+  <h2 class="section-title">14. פרטיות, אתיקה ורישוי</h2>
+  <p>שני המאגרים שבהם נעשה שימוש פורסמו תחת רישיונות קוד פתוח (MIT ו־Apache-2.0). במסגרת PenuX: הוסרו מזהים ישירים, לא בוצע ניסיון לזיהוי מחדש, לא נשמרו שמות מטופלים או מספרי מזהה ישירים, הנתונים משמשים למחקר בלבד, ואין להפיץ נתונים גולמיים בניגוד לרישיון המקורי או להשתמש במערכת לצורך טיפול רפואי.</p>
+
+  <h2 class="section-title">15. מגבלות</h2>
+  <ol>
+    <li><strong>ניתוח משני בלבד</strong> — הנתונים לא נאספו על ידי PenuX.</li>
+    <li><strong>מאגרים ציבוריים בלבד</strong> — לא מדובר במחקר קליני עצמאי.</li>
+    <li><strong>מקור מוסדי יחיד מדווח</strong> — Second Affiliated Hospital of Guilin Medical University.</li>
+    <li><strong>היעדר ולידציה חיצונית</strong> — אין בדיקה על בית חולים אחר.</li>
+    <li><strong>היעדר מחקר פרוספקטיבי</strong> — אין שימוש בזמן אמת.</li>
+    <li><strong>אי־ודאות לגבי איכות התוויות</strong> — תוויות SAP תלויות במאגר המקורי.</li>
+    <li><strong>חוסר איזון מחלקות</strong> — SAP הוא מיעוט בשני המאגרים.</li>
+    <li><strong>סיכון להתאמת יתר</strong> — במיוחד במודלים מורכבים.</li>
+    <li><strong>NPV תלוי שכיחות</strong> — ביצועי סינון ישתנו באוכלוסיות עם שכיחות SAP שונה.</li>
+    <li><strong>אין אישור רגולטורי</strong> — המערכת אינה SaMD מאושרת.</li>
+  </ol>
+
+  <h2 class="section-title">16. כיווני המשך</h2>
+  <p>לפני כל שימוש קליני, יש לבצע שלבים נוספים: בניית פרוטוקול מחקר מסודר, הגשה לוועדת הלסינקי / IRB, איסוף נתונים מקומי דה־מזוהה, בדיקה על אוכלוסייה ישראלית, ולידציה חיצונית, מחקר פרוספקטיבי, השוואה ישירה ל־BISAP/Ranson/APACHE II, כיול ספי החלטה לפי תרחיש קליני, בדיקת calibration, בדיקת subgroup performance, הערכת bias, בדיקת השפעה על החלטות רופאים, ואישור רגולטורי כתוכנה רפואית.</p>
+
+  <h2 class="section-title">17. מסקנות</h2>
+  <p>PenuX-AP-Severity מציג מסגרת מחקרית לניתוח מאגרי דלקת לבלב חריפה באמצעות מודלי GBDT. בהרצה חקרנית על שני מאגרים ציבוריים, XGBoost, LightGBM ו־CatBoost הציגו ביצועים עקביים, עם AUC של 0.8471 במאגר multiml וכ־0.88 במאגר lnn.</p>
+  <p>כיול סף לפי יעד רגישות ≥98% אפשר לזהות תת־קבוצה בעלת סיכון נמוך יחסית ולהסיר כ־36% מהמקרים בכל מאגר, תוך החמצת מספר קטן של מקרי SAP. עם זאת, מאחר שגם בסף זה הוחמצו מקרי SAP, אין להשתמש בכלל הסינון ככלל קליני.</p>
+  <p>התרומה המרכזית של העבודה היא בהצגת pipeline מחקרי, קוד פתוח, ניתוח מודלי GBDT, וסף סינון חקרני המכויל לרגישות גבוהה. השלב הבא הנדרש הוא ולידציה חיצונית ופרוספקטיבית במסגרת מחקר קליני מאושר.</p>
+
+  <div class="alert alert-warn">
+    <div><strong>18. הצהרת שימוש</strong><br>PenuX-AP-Severity הוא אב־טיפוס מחקרי בלבד. אין להשתמש בו לצורך אבחנה, טריאז׳, החלטה על אשפוז, החלטה על שחרור, קביעת טיפול או כל החלטה רפואית אחרת. כל החלטה קלינית חייבת להתבצע על ידי צוות רפואי מוסמך בלבד.</div>
+  </div>
+
+  <h2 class="section-title">19. מקורות נתונים</h2>
+  <ol class="refs">
+    <li>Longshike et al. <em>Predicting-acute-pancreatitis-severity-with-multi-machine-learning-models</em>. Original file: data_V7.0-non-normalize.xlsx. License: MIT. Source reported by dataset authors: Second Affiliated Hospital of Guilin Medical University, 2016–2024.</li>
+    <li>Longshike et al. <em>LNN-for-SAP-Prediction</em>. Original file: zhenglishuju_v1.0.xlsx. License: Apache-2.0. Source reported by dataset authors: Second Affiliated Hospital of Guilin Medical University, 2020–2024.</li>
+    <li>PenuX Research Group. <em>PenuX-AP-Severity</em>. Review and exploratory secondary analysis page.</li>
+  </ol>
+
+  <div class="article-footer">
+    <strong>20. אזהרה סופית לפרסום באתר</strong><br>
+    הניתוח המוצג באתר זה מבוסס על מאגרי נתונים ציבוריים בלבד. לא נאספו נתונים קליניים מקוריים על ידי מחברי PenuX, לא בוצעה ולידציה חיצונית, והמערכת אינה מאושרת לשימוש קליני. התוצאות מיועדות למחקר, סקירה והדגמה מתודולוגית בלבד.
+  </div>
+
+</div>
+</body>
+</html>
