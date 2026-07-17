@@ -934,3 +934,157 @@ def predict_sepsis(data: SepsisInput):
         qsofa_score=qsofa_score,
         criteria_met=criteria,
     )
+
+
+# ---------------------------------------------------------------------------
+# Clinical deterioration risk — NEWS2 (National Early Warning Score 2)
+# ---------------------------------------------------------------------------
+
+class DeteriorationInput(BaseModel):
+    respiratory_rate: Optional[float] = Field(None, description="Respiratory rate /min")
+    spo2: Optional[float] = Field(None, description="SpO2 %")
+    on_supplemental_oxygen: Optional[bool] = Field(None, description="Patient is on any supplemental oxygen")
+    systolic_bp: Optional[float] = Field(None, description="Systolic BP mmHg")
+    heart_rate: Optional[float] = Field(None, description="Heart rate bpm")
+    consciousness_altered: Optional[bool] = Field(
+        None, description="Altered consciousness — anything other than fully Alert on AVPU (Confusion/Voice/Pain/Unresponsive)"
+    )
+    temperature_c: Optional[float] = Field(None, description="Body temperature °C")
+
+
+class DeteriorationOutput(BaseModel):
+    news2_score: int = Field(description="Total NEWS2 score (0-20)")
+    risk_group: str = Field(description="low | low-medium | medium | high")
+    component_scores: dict[str, int] = Field(description="Per-parameter NEWS2 sub-scores")
+    escalation: str = Field(description="Suggested monitoring/escalation per RCP NEWS2 guidance")
+    warning: str = RESEARCH_WARNING
+
+
+def _news2_score(inp: "DeteriorationInput") -> tuple[int, str, dict, str]:
+    """NEWS2 (Royal College of Physicians) — standard, validated deterioration
+    early-warning score computed from routine vital signs. Any single
+    parameter scoring 3 escalates risk to at least 'medium' regardless of
+    total, per RCP guidance (a single very abnormal vital sign matters even
+    if the sum is otherwise low).
+    """
+    scores: dict[str, int] = {}
+
+    if inp.respiratory_rate is not None:
+        rr = inp.respiratory_rate
+        if rr <= 8: scores["respiratory_rate"] = 3
+        elif rr <= 11: scores["respiratory_rate"] = 1
+        elif rr <= 20: scores["respiratory_rate"] = 0
+        elif rr <= 24: scores["respiratory_rate"] = 2
+        else: scores["respiratory_rate"] = 3
+
+    if inp.spo2 is not None:
+        s = inp.spo2
+        if s <= 91: scores["spo2"] = 3
+        elif s <= 93: scores["spo2"] = 2
+        elif s <= 95: scores["spo2"] = 1
+        else: scores["spo2"] = 0
+
+    if inp.on_supplemental_oxygen is not None:
+        scores["supplemental_oxygen"] = 2 if inp.on_supplemental_oxygen else 0
+
+    if inp.systolic_bp is not None:
+        bp = inp.systolic_bp
+        if bp <= 90: scores["systolic_bp"] = 3
+        elif bp <= 100: scores["systolic_bp"] = 2
+        elif bp <= 110: scores["systolic_bp"] = 1
+        elif bp <= 219: scores["systolic_bp"] = 0
+        else: scores["systolic_bp"] = 3
+
+    if inp.heart_rate is not None:
+        hr = inp.heart_rate
+        if hr <= 40: scores["heart_rate"] = 3
+        elif hr <= 50: scores["heart_rate"] = 1
+        elif hr <= 90: scores["heart_rate"] = 0
+        elif hr <= 110: scores["heart_rate"] = 1
+        elif hr <= 130: scores["heart_rate"] = 2
+        else: scores["heart_rate"] = 3
+
+    if inp.consciousness_altered is not None:
+        scores["consciousness"] = 3 if inp.consciousness_altered else 0
+
+    if inp.temperature_c is not None:
+        t = inp.temperature_c
+        if t <= 35.0: scores["temperature"] = 3
+        elif t <= 36.0: scores["temperature"] = 1
+        elif t <= 38.0: scores["temperature"] = 0
+        elif t <= 39.0: scores["temperature"] = 1
+        else: scores["temperature"] = 2
+
+    total = sum(scores.values())
+    has_single_3 = any(v == 3 for v in scores.values())
+
+    if total >= 7:
+        risk = "high"
+    elif has_single_3 or total >= 5:
+        risk = "medium"
+    elif total >= 1:
+        risk = "low-medium"
+    else:
+        risk = "low"
+
+    escalation_map = {
+        "low": "Routine monitoring — continue per ward protocol.",
+        "low-medium": "Increase monitoring frequency; nurse-led review.",
+        "medium": "Urgent review by ward-based clinician; consider critical care outreach.",
+        "high": "Emergency assessment — critical care outreach team review, consider transfer to higher-acuity setting.",
+    }
+
+    return total, risk, scores, escalation_map[risk]
+
+
+@app.post(
+    "/predict/deterioration",
+    response_model=DeteriorationOutput,
+    tags=["predict"],
+    summary="Clinical deterioration risk — NEWS2 early warning score",
+    description=(
+        "Computes **NEWS2** (National Early Warning Score 2, Royal College of "
+        "Physicians), a standard, clinically validated score for detecting "
+        "patient deterioration from routine vital signs.\n\n"
+        "All fields are optional — supply whatever vitals are available; the "
+        "score is a sum over whichever parameters are provided.\n\n"
+        "**Risk groups:** low (0) · low-medium (1-4) · medium (5-6, or any "
+        "single parameter scoring 3) · high (≥7)\n\n"
+        "⚠️ RESEARCH USE ONLY — not a substitute for clinical judgment or "
+        "your institution's early-warning-score protocol."
+    ),
+    openapi_extra={
+        "requestBody": {
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "high_risk": {
+                            "summary": "High — multiple abnormal vitals",
+                            "value": {
+                                "respiratory_rate": 26, "spo2": 90, "on_supplemental_oxygen": True,
+                                "systolic_bp": 85, "heart_rate": 135, "consciousness_altered": True,
+                                "temperature_c": 39.4,
+                            },
+                        },
+                        "medium_single_red_flag": {
+                            "summary": "Medium — one severely abnormal vital (single-3 rule)",
+                            "value": {"respiratory_rate": 16, "spo2": 97, "heart_rate": 75, "systolic_bp": 88},
+                        },
+                        "low_risk": {
+                            "summary": "Low — normal vitals",
+                            "value": {"respiratory_rate": 16, "spo2": 98, "systolic_bp": 120, "heart_rate": 75, "temperature_c": 36.8},
+                        },
+                    }
+                }
+            }
+        }
+    },
+)
+def predict_deterioration(data: DeteriorationInput):
+    total, risk, component_scores, escalation = _news2_score(data)
+    return DeteriorationOutput(
+        news2_score=total,
+        risk_group=risk,
+        component_scores=component_scores,
+        escalation=escalation,
+    )

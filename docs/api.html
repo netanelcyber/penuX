@@ -142,6 +142,54 @@
               }
             }
           },
+          "/predict/sepsis": {
+            "post": {
+              "tags": ["predict"],
+              "summary": "Sepsis risk — SIRS + qSOFA + organ dysfunction (routine tests only)",
+              "description": "Estimates sepsis risk from routine admission tests using SIRS (temp/HR/RR/WBC), qSOFA (RR≥22, SBP≤100), and Sepsis-3 organ dysfunction markers (creatinine, bilirubin, platelets, lactate, MAP, SpO2). All fields optional.\n\nRisk groups: low (<15%) · moderate (15–40%) · high (40–70%) · critical (>70%).",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "examples": {
+                      "septic_shock": { "summary": "Critical — septic shock pattern", "value": { "temperature_c": 39.5, "heart_rate": 118, "respiratory_rate": 26, "systolic_bp": 88, "wbc": 18.5, "lactate": 4.2, "creatinine": 2.4, "platelets": 80, "map_mmhg": 58, "spo2": 90, "age": 72 } },
+                      "low_risk":     { "summary": "Low — near-normal vitals and labs",   "value": { "temperature_c": 37.1, "heart_rate": 78,  "respiratory_rate": 16, "systolic_bp": 122, "wbc": 8.5,  "spo2": 98, "age": 40 } }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": { "description": "Sepsis risk result", "content": { "application/json": { "example": {
+                  "sepsis_risk_probability": 0.78, "risk_group": "critical", "sirs_score": 4, "qsofa_score": 2,
+                  "criteria_met": ["Fever (39.5°C > 38.3)", "Tachycardia (HR 118.0 > 90)", "Elevated lactate (4.2 > 2.0 mmol/L)"],
+                  "warning": "Research prototype only. Not for clinical use."
+                } } } }
+              }
+            }
+          },
+          "/predict/deterioration": {
+            "post": {
+              "tags": ["predict"],
+              "summary": "Clinical deterioration risk — NEWS2 early warning score",
+              "description": "Computes NEWS2 (National Early Warning Score 2, Royal College of Physicians) from routine vital signs: respiratory rate, SpO2, supplemental oxygen, systolic BP, heart rate, consciousness (AVPU), temperature. All fields optional — score sums whichever are supplied.\n\nRisk groups: low (0) · low-medium (1-4) · medium (5-6, or any single parameter scoring 3 — the 'single red flag' rule) · high (≥7).",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": { "$ref": "#/components/schemas/DeteriorationInput" },
+                    "examples": {
+                      "high_risk": { "summary": "High — multiple abnormal vitals", "value": { "respiratory_rate": 26, "spo2": 90, "on_supplemental_oxygen": true, "systolic_bp": 85, "heart_rate": 135, "consciousness_altered": true, "temperature_c": 39.4 } },
+                      "medium_single_red_flag": { "summary": "Medium — one severely abnormal vital (single-3 rule)", "value": { "respiratory_rate": 16, "spo2": 97, "heart_rate": 75, "systolic_bp": 88 } },
+                      "low_risk": { "summary": "Low — normal vitals", "value": { "respiratory_rate": 16, "spo2": 98, "systolic_bp": 120, "heart_rate": 75, "temperature_c": 36.8 } }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": { "description": "NEWS2 deterioration risk result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DeteriorationOutput" } } } }
+              }
+            }
+          },
           "/fhir/predict": {
             "post": {
               "tags": ["fhir"], "summary": "FHIR R4 RiskAssessment",
@@ -302,6 +350,29 @@
                 }
               },
               "required": ["resourceType", "entry"]
+            },
+            "DeteriorationInput": {
+              "type": "object",
+              "description": "Routine vital signs for NEWS2 scoring. All fields optional.",
+              "properties": {
+                "respiratory_rate": { "type": "number", "description": "Respiratory rate /min", "example": 22 },
+                "spo2": { "type": "number", "description": "SpO2 %", "example": 94 },
+                "on_supplemental_oxygen": { "type": "boolean", "description": "On any supplemental oxygen", "example": false },
+                "systolic_bp": { "type": "number", "description": "Systolic BP mmHg", "example": 110 },
+                "heart_rate": { "type": "number", "description": "Heart rate bpm", "example": 95 },
+                "consciousness_altered": { "type": "boolean", "description": "Anything other than fully Alert on AVPU", "example": false },
+                "temperature_c": { "type": "number", "description": "Body temperature °C", "example": 37.8 }
+              }
+            },
+            "DeteriorationOutput": {
+              "type": "object",
+              "properties": {
+                "news2_score": { "type": "integer", "description": "Total NEWS2 score (0-20)", "example": 5 },
+                "risk_group": { "type": "string", "enum": ["low", "low-medium", "medium", "high"], "example": "medium" },
+                "component_scores": { "type": "object", "description": "Per-parameter NEWS2 sub-scores", "additionalProperties": { "type": "integer" } },
+                "escalation": { "type": "string", "description": "Suggested monitoring/escalation per RCP NEWS2 guidance" },
+                "warning": { "type": "string" }
+              }
             },
             "PathogenInput": {
               "type": "object",
