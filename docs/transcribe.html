@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Audio Transcription (English) · PenuX</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --blue:#1a56db;--blue-dk:#1e429f;--blue-lt:#e8f0fe;
+  --red:#c81e1e;--red-lt:#fdf2f2;
+  --green:#057a55;--green-lt:#f0fdf4;
+  --amber:#92400e;--amber-lt:#fffbeb;
+  --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;
+  --gray-300:#d1d5db;
+  --gray-400:#9ca3af;--gray-500:#6b7280;--gray-600:#4b5563;--gray-800:#1f2937;--gray-900:#111827;
+  --white:#ffffff;--radius:10px;--shadow:0 1px 3px rgba(0,0,0,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--gray-50);color:var(--gray-800);min-height:100vh}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:60px;box-shadow:var(--shadow)}
+.nav-brand{display:flex;align-items:center;gap:.5rem;text-decoration:none;font-weight:700;font-size:1.1rem;color:var(--gray-900)}
+.nav-brand svg{width:32px;height:32px}
+.nav-links{display:flex;align-items:center;gap:.25rem;list-style:none}
+.nav-links a{text-decoration:none;color:var(--gray-600);font-size:.875rem;font-weight:500;padding:.4rem .75rem;border-radius:6px;transition:background .15s,color .15s}
+.nav-links a:hover{background:var(--gray-100);color:var(--gray-900)}
+.nav-links a.active{background:var(--blue-lt);color:var(--blue)}
+.nav-cta{background:var(--blue)!important;color:var(--white)!important;border-radius:6px}
+.nav-cta:hover{background:var(--blue-dk)!important}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#1e3a8a 0%,#1a56db 55%,#4f46e5 100%);color:var(--white);padding:3.5rem 2rem 3rem;text-align:center}
+.hero h1{font-size:2.2rem;font-weight:700;margin-bottom:.75rem}
+.hero p{font-size:1.05rem;opacity:.88;max-width:560px;margin:0 auto .75rem}
+.hero-badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:.35rem 1rem;font-size:.8rem;font-weight:600;letter-spacing:.02em}
+
+.container{max-width:760px;margin:0 auto;padding:2rem 1.5rem}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--gray-200);overflow:hidden;margin-bottom:1.5rem}
+.card-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--gray-200)}
+.card-header h2{font-size:1rem;font-weight:600;color:var(--gray-900)}
+.card-header p{font-size:.8rem;color:var(--gray-500);margin-top:.2rem}
+.card-body{padding:1.5rem}
+
+.dropzone{border:2px dashed var(--gray-300);border-radius:8px;padding:2.5rem 1.5rem;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.dropzone:hover,.dropzone.drag{border-color:var(--blue);background:var(--blue-lt)}
+.dropzone .icon{font-size:2.2rem;margin-bottom:.5rem}
+.dropzone p{font-size:.9rem;color:var(--gray-600)}
+.dropzone small{display:block;margin-top:.35rem;font-size:.75rem;color:var(--gray-400)}
+#file-input{display:none}
+
+.file-chip{display:flex;align-items:center;justify-content:space-between;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;padding:.6rem .9rem;margin-top:1rem;font-size:.85rem}
+.file-chip button{background:none;border:none;color:var(--gray-500);cursor:pointer;font-size:.9rem}
+.file-chip button:hover{color:var(--red)}
+
+.model-select{margin-top:1rem;display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--gray-600)}
+.model-select select{border:1px solid var(--gray-200);border-radius:6px;padding:.4rem .6rem;font-size:.82rem;font-family:inherit;color:var(--gray-800);background:var(--white)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.65rem 1.4rem;font-size:.875rem;font-weight:600;border-radius:7px;cursor:pointer;border:none;transition:all .15s;text-decoration:none;width:100%;margin-top:1.1rem}
+.btn-primary{background:var(--blue);color:var(--white)}
+.btn-primary:hover{background:var(--blue-dk)}
+.btn-primary:disabled{background:var(--gray-400);cursor:not-allowed}
+.btn-outline{background:var(--white);color:var(--blue);border:1.5px solid var(--blue);width:auto;margin-top:0}
+.btn-outline:hover{background:var(--blue-lt)}
+.btn-row{display:flex;gap:.6rem;margin-top:1rem}
+
+#status-bar{display:none;align-items:center;gap:.6rem;margin-top:1rem;font-size:.82rem;color:var(--gray-600)}
+#status-bar.show{display:flex}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--gray-300);flex-shrink:0}
+.dot.loading{background:var(--amber);animation:pulse 1s infinite}
+.dot.ready{background:var(--green)}
+.dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.progress-track{height:6px;background:var(--gray-100);border-radius:3px;overflow:hidden;margin-top:.6rem}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),#4f46e5);width:0%;transition:width .2s}
+
+#result-card{display:none}
+#transcript{white-space:pre-wrap;font-size:.92rem;line-height:1.7;color:var(--gray-800);max-height:420px;overflow-y:auto;padding-right:.25rem}
+.segments{margin-top:1rem;border-top:1px solid var(--gray-100);padding-top:1rem}
+.segment{display:flex;gap:.75rem;padding:.4rem 0;font-size:.82rem}
+.segment .ts{color:var(--blue);font-weight:600;white-space:nowrap;flex-shrink:0;font-variant-numeric:tabular-nums}
+.segment .txt{color:var(--gray-700)}
+
+.disclaimer{font-size:.75rem;color:var(--gray-400);line-height:1.6;margin-top:1.5rem;text-align:center}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-brand">
+    <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" fill="#1a56db"/><path d="M9 16c2-5 6-7 7-7s5 2 7 7c-2 5-6 7-7 7s-5-2-7-7z" fill="white" opacity=".25"/><ellipse cx="16" cy="16" rx="3.5" ry="3.5" fill="white"/></svg>
+    PenuX
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="journey.html">Patient Journey</a></li>
+    <li><a href="review.html">Review Article</a></li>
+    <li><a href="models.html">Models</a></li>
+    <li><a href="predict.html">Predict</a></li>
+    <li><a href="tasks.html" style="font-size:.85rem">📋 Tasks</a></li><li><a href="transcribe.html" class="active" style="font-size:.85rem">🎙️ Transcribe</a></li><li><a href="api.html" class="nav-cta">Swagger UI</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <h1>English Audio Transcription</h1>
+  <p>Upload a recording and get an English transcript — runs entirely in your browser using Whisper. No file ever leaves your device.</p>
+  <span class="hero-badge">🔒 100% client-side · free · no upload</span>
+</div>
+
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      <h2>Upload a recording</h2>
+      <p>MP3, WAV, M4A, or any format your browser can decode. English speech only.</p>
+    </div>
+    <div class="card-body">
+      <div class="dropzone" id="dropzone">
+        <div class="icon">🎙️</div>
+        <p><strong>Click to choose a file</strong> or drag one here</p>
+        <small>Processed locally — nothing is uploaded to any server</small>
+      </div>
+      <input type="file" id="file-input" accept="audio/*,video/mp4,video/webm"/>
+
+      <div class="file-chip" id="file-chip" style="display:none">
+        <span id="file-name"></span>
+        <button id="file-remove" type="button">✕ remove</button>
+      </div>
+
+      <div class="model-select">
+        <label for="model-choice">Model:</label>
+        <select id="model-choice">
+          <option value="Xenova/whisper-tiny.en">Tiny (fastest, ~40MB download, good for clear speech)</option>
+          <option value="Xenova/whisper-base.en">Base (more accurate, ~75MB download, slower)</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" id="btn-transcribe" disabled>Transcribe</button>
+
+      <div id="status-bar">
+        <div class="dot" id="status-dot"></div>
+        <span id="status-text">Idle</span>
+      </div>
+      <div class="progress-track" id="progress-track" style="display:none">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="result-card">
+    <div class="card-header">
+      <h2>Transcript</h2>
+      <p id="result-meta"></p>
+    </div>
+    <div class="card-body">
+      <div id="transcript"></div>
+      <div class="segments" id="segments"></div>
+      <div class="btn-row">
+        <button class="btn btn-outline" id="btn-copy">📋 Copy text</button>
+        <button class="btn btn-outline" id="btn-download">⬇️ Download .txt</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="disclaimer">
+    First use downloads and caches the model in your browser (IndexedDB) — subsequent transcriptions are fast and fully offline.
+    Runs on the CPU via WebAssembly; longer recordings take proportionally longer. Research/utility tool — not for clinical documentation.
+  </p>
+</div>
+
+<script type="module">
+  // Loaded lazily (on first Transcribe click) rather than as a static import,
+  // so a failed/slow CDN fetch shows an error instead of silently breaking
+  // the file-picker UI below (which must keep working regardless).
+  let transformersLib = null;
+  async function loadTransformersLib() {
+    if (transformersLib) return transformersLib;
+    const mod = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
+    mod.env.allowLocalModels = false;
+    transformersLib = mod;
+    return mod;
+  }
+
+  const dropzone      = document.getElementById('dropzone');
+  const fileInput      = document.getElementById('file-input');
+  const fileChip       = document.getElementById('file-chip');
+  const fileNameEl     = document.getElementById('file-name');
+  const fileRemoveBtn  = document.getElementById('file-remove');
+  const modelChoice    = document.getElementById('model-choice');
+  const btnTranscribe  = document.getElementById('btn-transcribe');
+  const statusBar      = document.getElementById('status-bar');
+  const statusDot      = document.getElementById('status-dot');
+  const statusText     = document.getElementById('status-text');
+  const progressTrack  = document.getElementById('progress-track');
+  const progressFill   = document.getElementById('progress-fill');
+  const resultCard     = document.getElementById('result-card');
+  const resultMeta     = document.getElementById('result-meta');
+  const transcriptEl   = document.getElementById('transcript');
+  const segmentsEl     = document.getElementById('segments');
+  const btnCopy        = document.getElementById('btn-copy');
+  const btnDownload    = document.getElementById('btn-download');
+
+  let selectedFile = null;
+  let transcriber = null;
+  let loadedModelId = null;
+
+  function setStatus(text, kind) {
+    statusBar.classList.add('show');
+    statusText.textContent = text;
+    statusDot.className = 'dot' + (kind ? ' ' + kind : '');
+  }
+
+  function pickFile(file) {
+    if (!file) return;
+    selectedFile = file;
+    fileNameEl.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(1)} MB)`;
+    fileChip.style.display = 'flex';
+    dropzone.style.display = 'none';
+    btnTranscribe.disabled = false;
+  }
+
+  dropzone.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', (e) => pickFile(e.target.files[0]));
+
+  ['dragenter', 'dragover'].forEach(evt =>
+    dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.add('drag'); })
+  );
+  ['dragleave', 'drop'].forEach(evt =>
+    dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.remove('drag'); })
+  );
+  dropzone.addEventListener('drop', (e) => {
+    const file = e.dataTransfer.files[0];
+    if (file) pickFile(file);
+  });
+
+  fileRemoveBtn.addEventListener('click', () => {
+    selectedFile = null;
+    fileInput.value = '';
+    fileChip.style.display = 'none';
+    dropzone.style.display = 'block';
+    btnTranscribe.disabled = true;
+    resultCard.style.display = 'none';
+  });
+
+  async function decodeAudioToFloat32(file) {
+    const arrayBuffer = await file.arrayBuffer();
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+    // Whisper expects mono 16kHz — mix down to mono if needed.
+    if (audioBuffer.numberOfChannels === 1) {
+      return audioBuffer.getChannelData(0);
+    }
+    const ch0 = audioBuffer.getChannelData(0);
+    const ch1 = audioBuffer.getChannelData(1);
+    const mono = new Float32Array(ch0.length);
+    for (let i = 0; i < ch0.length; i++) mono[i] = (ch0[i] + ch1[i]) / 2;
+    return mono;
+  }
+
+  function fmtTime(sec) {
+    if (sec == null || Number.isNaN(sec)) return '';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+
+  btnTranscribe.addEventListener('click', async () => {
+    if (!selectedFile) return;
+    btnTranscribe.disabled = true;
+    resultCard.style.display = 'none';
+    progressTrack.style.display = 'block';
+    progressFill.style.width = '0%';
+
+    try {
+      const modelId = modelChoice.value;
+
+      if (!transcriber || loadedModelId !== modelId) {
+        setStatus('Loading transcription library…', 'loading');
+        let lib;
+        try {
+          lib = await loadTransformersLib();
+        } catch (loadErr) {
+          throw new Error('Could not load the transcription library from the CDN. Check your internet connection and try again. (' + loadErr.message + ')');
+        }
+
+        setStatus('Downloading model (first time only, cached after)…', 'loading');
+        transcriber = await lib.pipeline('automatic-speech-recognition', modelId, {
+          progress_callback: (p) => {
+            if (p.status === 'progress' && typeof p.progress === 'number') {
+              progressFill.style.width = `${p.progress.toFixed(0)}%`;
+              setStatus(`Downloading ${p.file || 'model'}… ${p.progress.toFixed(0)}%`, 'loading');
+            }
+          },
+        });
+        loadedModelId = modelId;
+      }
+
+      setStatus('Decoding audio…', 'loading');
+      progressFill.style.width = '100%';
+      const audioData = await decodeAudioToFloat32(selectedFile);
+
+      setStatus('Transcribing… (longer files take longer)', 'loading');
+      const output = await transcriber(audioData, {
+        chunk_length_s: 30,
+        stride_length_s: 5,
+        return_timestamps: true,
+      });
+
+      setStatus('Done', 'ready');
+      progressTrack.style.display = 'none';
+
+      resultMeta.textContent = `${selectedFile.name} · model: ${modelId}`;
+      transcriptEl.textContent = output.text.trim();
+
+      segmentsEl.innerHTML = '';
+      if (Array.isArray(output.chunks) && output.chunks.length) {
+        for (const chunk of output.chunks) {
+          const [start] = chunk.timestamp || [null, null];
+          const row = document.createElement('div');
+          row.className = 'segment';
+          row.innerHTML = `<span class="ts">${fmtTime(start)}</span><span class="txt"></span>`;
+          row.querySelector('.txt').textContent = chunk.text.trim();
+          segmentsEl.appendChild(row);
+        }
+      }
+
+      resultCard.style.display = 'block';
+    } catch (err) {
+      console.error(err);
+      setStatus('Error: ' + err.message, 'error');
+      progressTrack.style.display = 'none';
+    } finally {
+      btnTranscribe.disabled = false;
+    }
+  });
+
+  btnCopy.addEventListener('click', () => {
+    navigator.clipboard.writeText(transcriptEl.textContent);
+    btnCopy.textContent = '✅ Copied';
+    setTimeout(() => (btnCopy.textContent = '📋 Copy text'), 1500);
+  });
+
+  btnDownload.addEventListener('click', () => {
+    const blob = new Blob([transcriptEl.textContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (selectedFile?.name || 'transcript').replace(/\.[^.]+$/, '') + '.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+</script>
+</body>
+</html>
