@@ -9,12 +9,12 @@
     "dev": "node --watch server.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "sqlite3": "^5.1.6",
+    "@libsql/client": "^0.17.4",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
-    "nodemailer": "^6.9.13",
+    "express": "^4.18.2",
     "imapflow": "^1.4.3",
-    "node-cron": "^4.5.0"
+    "node-cron": "^4.5.0",
+    "nodemailer": "^6.9.13"
   }
 }

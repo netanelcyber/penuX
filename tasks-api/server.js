@@ -1,19 +1,24 @@
 import 'dotenv/config';
 import express from 'express';
-import sqlite3 from 'sqlite3';
 import cors from 'cors';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { startReplyWatcher } from './reply-watcher.js';
+import { getClient, wrapCompat } from './db.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PASSWORD_HASH = '5b1a03055e62917d46aa4e7377050da381f80a98a8e14c40a72677f04c32c9a2'; // SHA-256 of "penux2026"
 
-const db = new sqlite3.Database(join(__dirname, 'tasks.db'));
+// Uses a local file (tasks.db) by default. Set TURSO_DATABASE_URL +
+// TURSO_AUTH_TOKEN to use a free Turso database instead, so task data
+// survives restarts/redeploys on hosts without a persistent disk (e.g.
+// Render's free tier). See README.md > "Deployment (free tier)".
+const dbClient = getClient();
+const db = wrapCompat(dbClient);
 
 // ── EMAIL SENDING (Gmail SMTP via App Password) ────────────────────────────
 // Requires env vars: GMAIL_USER, GMAIL_APP_PASSWORD
@@ -36,9 +41,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(join(__dirname, 'public')));
 
-// Initialize database
-db.serialize(() => {
-  db.run(`
+// Initialize database (properly sequenced with awaits — libsql's promise
+// API doesn't have sqlite3's implicit serialize() queueing behavior).
+async function initDb() {
+  await dbClient.execute(`
     CREATE TABLE IF NOT EXISTS tasks (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
@@ -50,7 +56,7 @@ db.serialize(() => {
     )
   `);
 
-  db.run(`
+  await dbClient.execute(`
     CREATE TABLE IF NOT EXISTS sent_emails (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       task_id INTEGER,
@@ -60,34 +66,35 @@ db.serialize(() => {
     )
   `);
 
-  db.all('SELECT COUNT(*) as count FROM tasks', (err, rows) => {
-    if (rows[0].count === 0) {
-      const defaultTasks = [
-        { title: 'Zoom — Prof. Michael Kochman (UPenn Gastro)', sub: 'Confirmed: Tue 10 Jul, 08:00–09:00 EST (15:00 IL)', due: '2026-07-10', cat: 'meeting', status: 'pending' },
-        { title: 'Zoom — Dr. Nauzer Forbes (Calgary)', sub: 'Renegotiating time — asked 7/1 to reschedule off 6 Jul evening IL; awaiting reply', due: '2026-07-06', cat: 'meeting', status: 'urgent' },
-        { title: 'Meeting — Prof. Tamara Naftali (Wolfson)', sub: 'Tuesday 30.6, 10:00 — Wolfson Gastro Institute', due: '2026-06-30', cat: 'meeting', status: 'done' },
-        { title: 'Meeting — Dr. James Buxbaum (USC)', sub: 'CONFIRMED via Teams: Mon 6 Jul, 10:00 PST (20:00 IL — outside 9am-7pm window, flagged)', due: '2026-07-06', cat: 'meeting', status: 'urgent' },
-        { title: 'Follow-Up — Dr. Saurabh Chawla', sub: 'Call took place 6/29 2pm EST — confirm outcome / next steps', due: '2026-06-30', cat: 'follow', status: 'waiting' },
-        { title: 'Fix bad email — Prof. Hegyi (Semmelweis)', sub: 'peter.hegyi@semmelweis.hu bounced — real address hegyi2009@gmail.com, resend follow-up', due: '2026-07-07', cat: 'admin', status: 'urgent' },
-        { title: 'OOO Return — Prof. Luca Frulloni', sub: 'Returns 29.6 — send PenuX follow-up (real address confirmed: luca.frulloni@univr.it)', due: '2026-06-29', cat: 'follow', status: 'pending' },
-        { title: 'OOO Return — Panu Mentula', sub: 'Returns 13.7 — send PenuX follow-up', due: '2026-07-13', cat: 'follow', status: 'pending' },
-        { title: 'OOO Return — Dutch recipient (STARRED)', sub: 'Returns 12.7 — send PenuX follow-up', due: '2026-07-12', cat: 'follow', status: 'pending' },
-        { title: 'Submit to OSF Preprints', sub: 'run: OSF_TOKEN=<token> python3 outreach/submit_osf.py', due: '2026-06-28', cat: 'research', status: 'urgent' },
-        { title: 'Stage I Protocol — IRB Submission', sub: 'Prepare IRB package from PenuX_SAP_Stage1_Study_Protocol.pdf', due: '2026-07-15', cat: 'research', status: 'pending' },
-        { title: 'Fix bad email — Prof. Lévy (Paris)', sub: 'No personal email published — try dept. secretariat: secretariat.pancreato.bjn@aphp.fr', due: '2026-06-30', cat: 'admin', status: 'pending' },
-        { title: 'Follow-Up — Dr. Amir Dagan (Shaare Zedek)', sub: 'Personalized email sent (Liver & Pancreatic Surgery Unit) — 3.7 — awaiting reply', due: '2026-07-03', cat: 'follow', status: 'waiting' },
-        { title: 'Follow-Up — Dr. Michael Neuman (Shaare Zedek)', sub: 'Email sent (cardiac surgeon, not GI/pancreas — asked for referral) — 3.7 — awaiting reply', due: '2026-07-03', cat: 'follow', status: 'waiting' },
-      ];
+  const countResult = await dbClient.execute('SELECT COUNT(*) as count FROM tasks');
+  if (countResult.rows[0].count === 0) {
+    const defaultTasks = [
+      { title: 'Zoom — Prof. Michael Kochman (UPenn Gastro)', sub: 'Confirmed: Tue 10 Jul, 08:00–09:00 EST (15:00 IL)', due: '2026-07-10', cat: 'meeting', status: 'pending' },
+      { title: 'Zoom — Dr. Nauzer Forbes (Calgary)', sub: 'Renegotiating time — asked 7/1 to reschedule off 6 Jul evening IL; awaiting reply', due: '2026-07-06', cat: 'meeting', status: 'urgent' },
+      { title: 'Meeting — Prof. Tamara Naftali (Wolfson)', sub: 'Tuesday 30.6, 10:00 — Wolfson Gastro Institute', due: '2026-06-30', cat: 'meeting', status: 'done' },
+      { title: 'Meeting — Dr. James Buxbaum (USC)', sub: 'CONFIRMED via Teams: Mon 6 Jul, 10:00 PST (20:00 IL — outside 9am-7pm window, flagged)', due: '2026-07-06', cat: 'meeting', status: 'urgent' },
+      { title: 'Follow-Up — Dr. Saurabh Chawla', sub: 'Call took place 6/29 2pm EST — confirm outcome / next steps', due: '2026-06-30', cat: 'follow', status: 'waiting' },
+      { title: 'Fix bad email — Prof. Hegyi (Semmelweis)', sub: 'peter.hegyi@semmelweis.hu bounced — real address hegyi2009@gmail.com, resend follow-up', due: '2026-07-07', cat: 'admin', status: 'urgent' },
+      { title: 'OOO Return — Prof. Luca Frulloni', sub: 'Returns 29.6 — send PenuX follow-up (real address confirmed: luca.frulloni@univr.it)', due: '2026-06-29', cat: 'follow', status: 'pending' },
+      { title: 'OOO Return — Panu Mentula', sub: 'Returns 13.7 — send PenuX follow-up', due: '2026-07-13', cat: 'follow', status: 'pending' },
+      { title: 'OOO Return — Dutch recipient (STARRED)', sub: 'Returns 12.7 — send PenuX follow-up', due: '2026-07-12', cat: 'follow', status: 'pending' },
+      { title: 'Submit to OSF Preprints', sub: 'run: OSF_TOKEN=<token> python3 outreach/submit_osf.py', due: '2026-06-28', cat: 'research', status: 'urgent' },
+      { title: 'Stage I Protocol — IRB Submission', sub: 'Prepare IRB package from PenuX_SAP_Stage1_Study_Protocol.pdf', due: '2026-07-15', cat: 'research', status: 'pending' },
+      { title: 'Fix bad email — Prof. Lévy (Paris)', sub: 'No personal email published — try dept. secretariat: secretariat.pancreato.bjn@aphp.fr', due: '2026-06-30', cat: 'admin', status: 'pending' },
+      { title: 'Follow-Up — Dr. Amir Dagan (Shaare Zedek)', sub: 'Personalized email sent (Liver & Pancreatic Surgery Unit) — 3.7 — awaiting reply', due: '2026-07-03', cat: 'follow', status: 'waiting' },
+      { title: 'Follow-Up — Dr. Michael Neuman (Shaare Zedek)', sub: 'Email sent (cardiac surgeon, not GI/pancreas — asked for referral) — 3.7 — awaiting reply', due: '2026-07-03', cat: 'follow', status: 'waiting' },
+    ];
 
-      defaultTasks.forEach(task => {
-        db.run(
-          'INSERT INTO tasks (title, sub, due, cat, status) VALUES (?, ?, ?, ?, ?)',
-          [task.title, task.sub, task.due, task.cat, task.status]
-        );
+    for (const task of defaultTasks) {
+      await dbClient.execute({
+        sql: 'INSERT INTO tasks (title, sub, due, cat, status) VALUES (?, ?, ?, ?, ?)',
+        args: [task.title, task.sub, task.due, task.cat, task.status],
       });
     }
-  });
-});
+  }
+}
+
+await initDb();
 
 // Auth middleware
 function validatePassword(pw) {

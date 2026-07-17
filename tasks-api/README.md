@@ -71,24 +71,41 @@ Default password: `penux2026` (SHA-256 hash)
 
 ## Database
 
-SQLite database (`tasks.db`) auto-created on startup with default tasks.
+Uses `@libsql/client` (libSQL, SQLite-compatible). Locally this is just a
+file (`tasks.db`, auto-created on startup with default tasks) — no setup
+needed. In production, set `TURSO_DATABASE_URL` / `TURSO_AUTH_TOKEN` to use
+a free Turso database instead, so data survives restarts/redeploys on hosts
+without a persistent disk.
 
 ## Deployment
 
-### Railway
+### Deployment (free tier): Render + Turso
+
+Render's free web service tier has no persistent disk, so the database
+must live on Turso (free, persistent, no credit card required):
+
+1. **Turso**: create a free account at turso.tech, create a database
+   (`turso db create penux-tasks`), then get the connection details:
+   `turso db show penux-tasks --url` and `turso db tokens create penux-tasks`.
+2. **Render**: create a free Web Service, connect this repo, set root
+   directory to `tasks-api`, build command `npm install`, start command
+   `npm start`. Render gives you a free `*.onrender.com` subdomain
+   automatically.
+3. In the Render service's environment variables, set `TURSO_DATABASE_URL`
+   and `TURSO_AUTH_TOKEN` from step 1, plus `GMAIL_USER` /
+   `GMAIL_APP_PASSWORD` if you want email sending / the reply watcher.
+4. Render's free tier sleeps after 15 minutes of no inbound traffic (which
+   would also stop the IMAP reply-watcher cron from running). Set up a free
+   uptime pinger (e.g. UptimeRobot or cron-job.org) to hit the service's
+   URL every 10–14 minutes to keep it awake.
+
+### Railway (alternative)
 
 ```bash
 railway login
 railway link
 railway up
 ```
-
-### Render
-
-1. Connect GitHub repo
-2. Select `tasks-api` as root directory
-3. Set build command: `npm install`
-4. Set start command: `npm start`
 
 ## Password Reset
 
