@@ -1,0 +1,69 @@
+name: Point app.penux.uk to tasks-api (Railway)
+
+on:
+  workflow_dispatch:
+    inputs:
+      railway_domain:
+        description: 'Railway domain for tasks-api (e.g. penux-tasks-production.up.railway.app) — get this by running `railway domain` in tasks-api/'
+        required: true
+        type: string
+
+jobs:
+  add-dns:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add/update CNAME for app.penux.uk -> Railway
+        env:
+          CF_TOKEN: ${{ secrets.CF_TOKEN }}
+          RAILWAY_DOMAIN: ${{ inputs.railway_domain }}
+        run: |
+          python3 << 'EOF'
+          import requests, os
+
+          TOKEN   = os.environ["CF_TOKEN"]
+          TARGET  = os.environ["RAILWAY_DOMAIN"]
+          HEADERS = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
+          BASE    = "https://api.cloudflare.com/client/v4"
+
+          r = requests.get(f"{BASE}/zones?name=penux.uk", headers=HEADERS, timeout=15)
+          d = r.json()
+          if not d.get("success") or not d["result"]:
+              print("ERROR:", d.get("errors"))
+              exit(1)
+
+          ZONE_ID = d["result"][0]["id"]
+          print(f"Zone ID: {ZONE_ID}")
+
+          # Check for an existing 'app' record to update instead of duplicating.
+          r = requests.get(f"{BASE}/zones/{ZONE_ID}/dns_records?type=CNAME&name=app.penux.uk",
+                            headers=HEADERS, timeout=15)
+          existing = r.json().get("result", [])
+
+          record = {
+              "type": "CNAME",
+              "name": "app",
+              "content": TARGET,
+              "proxied": False,  # unproxied so Railway's own TLS cert / routing works directly
+              "ttl": 1,
+          }
+
+          if existing:
+              rec_id = existing[0]["id"]
+              r = requests.put(f"{BASE}/zones/{ZONE_ID}/dns_records/{rec_id}", headers=HEADERS, json=record, timeout=15)
+              action = "UPDATED"
+          else:
+              r = requests.post(f"{BASE}/zones/{ZONE_ID}/dns_records", headers=HEADERS, json=record, timeout=15)
+              action = "CREATED"
+
+          res = r.json()
+          if res.get("success"):
+              x = res["result"]
+              print(f"{action}  {x['type']:5} {x['name']} -> {x['content']}")
+          else:
+              print(f"FAIL: {res.get('errors')}")
+              exit(1)
+
+          print("Done! app.penux.uk should resolve within a few minutes.")
+          print("Remember to also add 'app.penux.uk' as a custom domain in the Railway service settings,")
+          print("so Railway issues a TLS certificate for it.")
+          EOF
