@@ -90,6 +90,36 @@ python scripts/evaluate_model.py \
 
 ---
 
+## API (FastAPI)
+
+Run the prediction API locally:
+
+```bash
+pip install -e .
+uvicorn api.main:app --reload
+```
+
+Docs at `http://localhost:8000/docs`. Endpoints: `/health`, `/predict`,
+`/predict/pathogen`, `/predict/sepsis`, `/fhir/predict`, `/camelion/predict`,
+`/hl7/predict` — see `docs/tasks-api.html`-style Swagger reference at
+`docs/api.html` on penux.uk for the full spec.
+
+### Deployment (Render)
+
+1. Create a Render **Web Service**, connect this repo.
+2. **Root Directory:** `PenuX-AP-Severity`
+3. **Build Command:** `pip install -e .`
+4. **Start Command:** `uvicorn api.main:app --host 0.0.0.0 --port $PORT`
+
+The API falls back to a logistic heuristic when no trained model is
+configured — set `PENUX_AP_MODEL_PATH` to a `joblib`-serialized model to use
+a real trained model instead. The Keras pathogen classifier
+(`/predict/pathogen`) additionally needs `tensorflow` installed and
+`clin_encoder.keras`/`clin_head.keras`/`clin_scaler.npz` present in `models/`
+— both are optional; the rest of the API runs fine without them.
+
+---
+
 ## MIMIC-IV / PhysioNet
 
 MIMIC-IV SQL extraction scripts are in `data/mimic/sql/`.
