@@ -113,6 +113,55 @@
   }
   .filter-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
 
+  /* ── CALENDAR (ASP.NET WebForms Calendar-control style) ── */
+  .cal-wrap {
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    padding: 0; margin-bottom: 1.5rem; overflow: hidden;
+  }
+  .cal-titlebar {
+    background: var(--blue); color: #fff; display: flex; align-items: center;
+    justify-content: space-between; padding: .5rem .75rem;
+  }
+  .cal-titlebar button {
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); color: #fff;
+    width: 28px; height: 28px; border-radius: 4px; cursor: pointer; font-size: .95rem; line-height: 1;
+  }
+  .cal-titlebar button:hover { background: rgba(255,255,255,.28); }
+  .cal-titlebar .cal-title { font-weight: 700; font-size: .95rem; }
+  .cal-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .cal-table th {
+    background: var(--light); color: var(--gray); font-size: .72rem; font-weight: 600;
+    padding: .4rem 0; text-align: center; border: 1px solid var(--border);
+  }
+  .cal-table td {
+    border: 1px solid var(--border); height: 64px; vertical-align: top; padding: .25rem;
+    cursor: pointer; transition: background .12s; position: relative;
+  }
+  .cal-table td:hover { background: #EFF6FF; }
+  .cal-table td.cal-other-month { background: #FAFAFA; color: #C7CCD4; cursor: default; }
+  .cal-table td.cal-other-month:hover { background: #FAFAFA; }
+  .cal-table td.cal-today { background: #FEF9C3; }
+  .cal-table td.cal-selected { background: var(--blue2) !important; }
+  .cal-table td.cal-selected .cal-daynum { color: #fff; }
+  .cal-daynum { font-size: .78rem; font-weight: 600; color: var(--gray); }
+  .cal-badges { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 2px; }
+  .cal-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .cal-dot.urgent  { background: var(--red); }
+  .cal-dot.pending { background: var(--amber); }
+  .cal-dot.waiting { background: #3730A3; }
+  .cal-dot.done    { background: var(--green); }
+  .cal-count {
+    font-size: .68rem; background: var(--blue2); color: #fff; border-radius: 8px;
+    padding: 0 5px; margin-top: 2px; display: inline-block;
+  }
+  .cal-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .5rem .75rem; border-top: 1px solid var(--border); font-size: .78rem; color: var(--gray);
+  }
+  .cal-footer button {
+    background: none; border: none; color: var(--blue2); cursor: pointer; font-size: .78rem; font-weight: 600;
+  }
+
   /* ── TABLE ── */
   .table-wrap { background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
   table { width: 100%; border-collapse: collapse; }
@@ -285,6 +334,23 @@
       <button class="btn-add" onclick="addTask()">+ Add Task</button>
     </div>
 
+    <!-- Calendar (ASP.NET WebForms Calendar-control style) -->
+    <div class="cal-wrap">
+      <div class="cal-titlebar">
+        <button onclick="calNav(-1)" type="button">‹</button>
+        <span class="cal-title" id="cal-title"></span>
+        <button onclick="calNav(1)" type="button">›</button>
+      </div>
+      <table class="cal-table">
+        <thead><tr id="cal-weekdays"></tr></thead>
+        <tbody id="cal-body"></tbody>
+      </table>
+      <div class="cal-footer">
+        <span id="cal-selected-label">לחץ על יום להצגת המשימות שלו</span>
+        <button onclick="calClearSelection()" type="button">נקה בחירה</button>
+      </div>
+    </div>
+
     <!-- Filters -->
     <div class="filter-bar">
       <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
@@ -392,6 +458,98 @@ function setFilter(f, btn) {
   renderTasks();
 }
 
+// ── CALENDAR (ASP.NET WebForms Calendar-control style) ──────────────────────
+const today = new Date();
+let calViewYear = today.getFullYear();
+let calViewMonth = today.getMonth(); // 0-based
+let selectedCalDate = null; // 'YYYY-MM-DD' or null
+
+const CAL_WEEKDAYS_HE = ['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ש׳'];
+const CAL_MONTHS_HE = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+
+function calNav(delta) {
+  calViewMonth += delta;
+  if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
+  if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+  renderCalendar();
+}
+
+function calClearSelection() {
+  selectedCalDate = null;
+  renderTasks();
+}
+
+function calSelectDay(iso) {
+  selectedCalDate = (selectedCalDate === iso) ? null : iso;
+  renderTasks();
+}
+
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+function renderCalendar() {
+  const tasks = load();
+  const byDate = {};
+  tasks.forEach(t => {
+    if (!t.due) return;
+    (byDate[t.due] = byDate[t.due] || []).push(t);
+  });
+
+  document.getElementById('cal-title').textContent = `${CAL_MONTHS_HE[calViewMonth]} ${calViewYear}`;
+
+  const weekdaysRow = document.getElementById('cal-weekdays');
+  weekdaysRow.innerHTML = CAL_WEEKDAYS_HE.map(w => `<th>${w}</th>`).join('');
+
+  const firstOfMonth = new Date(calViewYear, calViewMonth, 1);
+  const startWeekday = firstOfMonth.getDay(); // 0=Sunday
+  const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+  const daysInPrevMonth = new Date(calViewYear, calViewMonth, 0).getDate();
+  const todayIso = `${today.getFullYear()}-${pad2(today.getMonth()+1)}-${pad2(today.getDate())}`;
+
+  const cells = [];
+  for (let i = 0; i < startWeekday; i++) {
+    cells.push({ day: daysInPrevMonth - startWeekday + 1 + i, otherMonth: true });
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    cells.push({ day: d, otherMonth: false, iso: `${calViewYear}-${pad2(calViewMonth+1)}-${pad2(d)}` });
+  }
+  while (cells.length % 7 !== 0) {
+    cells.push({ day: cells.length - (startWeekday + daysInMonth) + 1, otherMonth: true });
+  }
+
+  const body = document.getElementById('cal-body');
+  body.innerHTML = '';
+  for (let row = 0; row < cells.length / 7; row++) {
+    const tr = body.insertRow();
+    for (let col = 0; col < 7; col++) {
+      const cell = cells[row * 7 + col];
+      const td = tr.insertCell();
+      td.className = 'cal-daynum-cell';
+      if (cell.otherMonth) {
+        td.classList.add('cal-other-month');
+        td.innerHTML = `<div class="cal-daynum">${cell.day}</div>`;
+        continue;
+      }
+      if (cell.iso === todayIso) td.classList.add('cal-today');
+      if (cell.iso === selectedCalDate) td.classList.add('cal-selected');
+      const dayTasks = byDate[cell.iso] || [];
+      const dots = dayTasks.slice(0, 6).map(t => `<span class="cal-dot ${t.status}"></span>`).join('');
+      td.innerHTML = `
+        <div class="cal-daynum">${cell.day}</div>
+        ${dayTasks.length ? `<div class="cal-badges">${dots}</div><span class="cal-count">${dayTasks.length}</span>` : ''}
+      `;
+      td.onclick = () => calSelectDay(cell.iso);
+    }
+  }
+
+  const label = document.getElementById('cal-selected-label');
+  if (selectedCalDate) {
+    const [y,m,d] = selectedCalDate.split('-');
+    label.textContent = `מציג משימות ל-${d}/${m}/${y} (${(byDate[selectedCalDate]||[]).length})`;
+  } else {
+    label.textContent = 'לחץ על יום להצגת המשימות שלו';
+  }
+}
+
 const STATUS_BADGE = {
   done:    '<span class="badge badge-done">✓ Done</span>',
   pending: '<span class="badge badge-pending">⏳ Pending</span>',
@@ -435,6 +593,9 @@ function renderTasks() {
     filtered = tasks.filter(t => t.status === currentFilter);
   else if (['meeting','follow','research','admin'].includes(currentFilter))
     filtered = tasks.filter(t => t.cat === currentFilter);
+  if (selectedCalDate) filtered = filtered.filter(t => t.due === selectedCalDate);
+
+  renderCalendar();
 
   // Sort: urgent first, then by due date
   const order = {urgent:0, pending:1, waiting:2, done:3};
