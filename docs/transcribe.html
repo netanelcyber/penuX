@@ -38,65 +38,19 @@ nav{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px 
 .hero p{font-size:1.05rem;opacity:.88;max-width:560px;margin:0 auto .75rem}
 .hero-badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:.35rem 1rem;font-size:.8rem;font-weight:600;letter-spacing:.02em}
 
-.container{max-width:760px;margin:0 auto;padding:2rem 1.5rem}
-
-/* MODE TABS */
-.mode-tabs{display:flex;gap:.5rem;margin-bottom:1.25rem}
-.mode-tab{flex:1;padding:.85rem 1rem;border-radius:8px;border:1.5px solid var(--gray-200);background:var(--white);cursor:pointer;font-size:.88rem;font-weight:600;color:var(--gray-600);transition:all .15s;text-align:center}
-.mode-tab.active{border-color:var(--blue);background:var(--blue-lt);color:var(--blue)}
-.mode-panel{display:none}
-.mode-panel.active{display:block}
-
-.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--gray-200);overflow:hidden;margin-bottom:1.5rem}
-.card-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--gray-200)}
-.card-header h2{font-size:1rem;font-weight:600;color:var(--gray-900)}
-.card-header p{font-size:.8rem;color:var(--gray-500);margin-top:.2rem}
-.card-body{padding:1.5rem}
-
-.dropzone{border:2px dashed var(--gray-300);border-radius:8px;padding:2.5rem 1.5rem;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
-.dropzone:hover,.dropzone.drag{border-color:var(--blue);background:var(--blue-lt)}
-.dropzone .icon{font-size:2.2rem;margin-bottom:.5rem}
-.dropzone p{font-size:.9rem;color:var(--gray-600)}
-.dropzone small{display:block;margin-top:.35rem;font-size:.75rem;color:var(--gray-400)}
-#file-input{display:none}
-
-.file-chip{display:flex;align-items:center;justify-content:space-between;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;padding:.6rem .9rem;margin-top:1rem;font-size:.85rem}
-.file-chip button{background:none;border:none;color:var(--gray-500);cursor:pointer;font-size:.9rem}
-.file-chip button:hover{color:var(--red)}
-
-.field-row{margin-top:1rem;display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--gray-600)}
-.field-row select{border:1px solid var(--gray-200);border-radius:6px;padding:.4rem .6rem;font-size:.82rem;font-family:inherit;color:var(--gray-800);background:var(--white)}
-
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.65rem 1.4rem;font-size:.875rem;font-weight:600;border-radius:7px;cursor:pointer;border:none;transition:all .15s;text-decoration:none;width:100%;margin-top:1.1rem}
-.btn-primary{background:var(--blue);color:var(--white)}
-.btn-primary:hover{background:var(--blue-dk)}
-.btn-primary:disabled{background:var(--gray-400);cursor:not-allowed}
-.btn-stop{background:var(--red)}
-.btn-stop:hover{background:#a51b1b}
-.btn-outline{background:var(--white);color:var(--blue);border:1.5px solid var(--blue);width:auto;margin-top:0}
-.btn-outline:hover{background:var(--blue-lt)}
-.btn-row{display:flex;gap:.6rem;margin-top:1rem}
-
-#status-bar,#live-status-bar{display:none;align-items:center;gap:.6rem;margin-top:1rem;font-size:.82rem;color:var(--gray-600)}
-#status-bar.show,#live-status-bar.show{display:flex}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--gray-300);flex-shrink:0}
-.dot.loading{background:var(--amber);animation:pulse 1s infinite}
-.dot.ready{background:var(--green)}
-.dot.error{background:var(--red)}
-.dot.live{background:var(--red);animation:pulse 1s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.progress-track{height:6px;background:var(--gray-100);border-radius:3px;overflow:hidden;margin-top:.6rem}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),#4f46e5);width:0%;transition:width .2s}
-
-#result-card,#live-result-card{display:none}
-#transcript,#live-transcript{white-space:pre-wrap;font-size:.92rem;line-height:1.7;color:var(--gray-800);max-height:420px;overflow-y:auto;padding-right:.25rem}
-#live-transcript .interim{color:var(--gray-400)}
-.segments{margin-top:1rem;border-top:1px solid var(--gray-100);padding-top:1rem}
-.segment{display:flex;gap:.75rem;padding:.4rem 0;font-size:.82rem}
-.segment .ts{color:var(--blue);font-weight:600;white-space:nowrap;flex-shrink:0;font-variant-numeric:tabular-nums}
-.segment .txt{color:var(--gray-700)}
-
+.container{max-width:900px;margin:0 auto;padding:2rem 1.5rem}
 .disclaimer{font-size:.75rem;color:var(--gray-400);line-height:1.6;margin-top:1.5rem;text-align:center}
+.disclaimer a{color:var(--gray-500)}
+
+/* WHISPER.CPP EMBED */
+.embed-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--gray-200);overflow:hidden;margin-bottom:1.5rem}
+.embed-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.embed-header h2{font-size:1rem;font-weight:600;color:var(--gray-900)}
+.embed-header p{font-size:.8rem;color:var(--gray-500);margin-top:.2rem}
+.embed-fallback-link{font-size:.82rem;color:var(--blue);text-decoration:none;font-weight:600;white-space:nowrap}
+.embed-fallback-link:hover{text-decoration:underline}
+#whisper-cpp-frame{width:100%;height:720px;border:none;display:block;background:var(--gray-50)}
+.embed-load-state{padding:2.5rem 1.5rem;text-align:center;font-size:.85rem;color:var(--gray-500)}
 </style>
 </head>
 <body>
@@ -116,529 +70,63 @@ nav{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px 
   </ul>
 </nav>
 
+
 <div class="hero">
   <h1>Audio Transcription — English &amp; Hebrew</h1>
-  <p>Transcribe a recording or speak live — both English and Hebrew, both running entirely in your browser.</p>
-  <span class="hero-badge" id="hero-badge">🔒 free · no server-side storage</span>
+  <p>Powered by <strong>whisper.cpp</strong> — the original C++ implementation of OpenAI's Whisper, compiled to WebAssembly. Genuine native-speed transcription, not a JavaScript reimplementation.</p>
+  <span class="hero-badge">⚙️ C++ compiled to WASM · file upload &amp; realtime mic · English + Hebrew</span>
 </div>
 
 <div class="container">
-  <div class="mode-tabs">
-    <button class="mode-tab active" id="tab-upload" type="button">📁 Upload File</button>
-    <button class="mode-tab" id="tab-live" type="button">🎙️ Live Microphone (Realtime)</button>
+  <div class="embed-card">
+    <div class="embed-header">
+      <div>
+        <h2>whisper.cpp — official demo</h2>
+        <p>Both file-upload transcription and live/realtime microphone streaming are available inside this embedded demo — select a multilingual model and language (including Hebrew) from its own controls.</p>
+      </div>
+      <a class="embed-fallback-link" href="https://ggerganov.github.io/whisper.cpp/" target="_blank" rel="noopener">Open in new tab ↗</a>
+    </div>
+    <div class="embed-load-state" id="embed-load-state">Loading whisper.cpp (ggerganov/whisper.cpp) — a genuine C++ project compiled to WebAssembly…</div>
+    <iframe
+      id="whisper-cpp-frame"
+      src="https://ggerganov.github.io/whisper.cpp/"
+      title="whisper.cpp — C++ Whisper compiled to WebAssembly"
+      allow="microphone"
+      style="display:none"
+      loading="lazy"
+    ></iframe>
   </div>
 
-  <!-- ══════════════ UPLOAD FILE MODE (Whisper via transformers.js, WASM) ══════════════ -->
-  <div class="mode-panel active" id="panel-upload">
-    <div class="card">
-      <div class="card-header">
-        <h2>Upload a recording</h2>
-        <p>MP3, WAV, M4A, or any format your browser can decode. 100% client-side — the file never leaves your device.</p>
-      </div>
-      <div class="card-body">
-        <div class="dropzone" id="dropzone">
-          <div class="icon">🎙️</div>
-          <p><strong>Click to choose a file</strong> or drag one here</p>
-          <small>Processed locally — nothing is uploaded to any server</small>
-        </div>
-        <input type="file" id="file-input" accept="audio/*,video/mp4,video/webm"/>
-
-        <div class="file-chip" id="file-chip" style="display:none">
-          <span id="file-name"></span>
-          <button id="file-remove" type="button">✕ remove</button>
-        </div>
-
-        <div class="field-row">
-          <label for="upload-lang">Language:</label>
-          <select id="upload-lang">
-            <option value="english">English</option>
-            <option value="hebrew">Hebrew (עברית)</option>
-          </select>
-        </div>
-        <div class="field-row">
-          <label for="model-choice">Model:</label>
-          <select id="model-choice"></select>
-        </div>
-
-        <button class="btn btn-primary" id="btn-transcribe" disabled>Transcribe</button>
-
-        <div id="status-bar">
-          <div class="dot" id="status-dot"></div>
-          <span id="status-text">Idle</span>
-        </div>
-        <div class="progress-track" id="progress-track" style="display:none">
-          <div class="progress-fill" id="progress-fill"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card" id="result-card">
-      <div class="card-header">
-        <h2>Transcript</h2>
-        <p id="result-meta"></p>
-      </div>
-      <div class="card-body">
-        <div id="transcript"></div>
-        <div class="segments" id="segments"></div>
-        <div class="btn-row">
-          <button class="btn btn-outline" id="btn-copy">📋 Copy text</button>
-          <button class="btn btn-outline" id="btn-download">⬇️ Download .txt</button>
-        </div>
-      </div>
-    </div>
-
-    <p class="disclaimer">
-      First use downloads and caches the model in your browser (IndexedDB) — subsequent transcriptions are fast and fully offline.
-      Runs on the CPU via WebAssembly; longer recordings and Hebrew (multilingual model) take longer than the English-only model.
-    </p>
-  </div>
-
-  <!-- ══════════════ LIVE MICROPHONE MODE (Web Speech API, true realtime streaming) ══════════════ -->
-  <div class="mode-panel" id="panel-live">
-    <div class="card">
-      <div class="card-header">
-        <h2>Live microphone transcription</h2>
-        <p>Speak into your microphone and see the transcript appear in real time.</p>
-      </div>
-      <div class="card-body">
-        <div class="field-row" style="margin-top:0">
-          <label for="live-lang">Language:</label>
-          <select id="live-lang">
-            <option value="en-US">English</option>
-            <option value="he-IL">Hebrew (עברית)</option>
-          </select>
-        </div>
-
-        <button class="btn btn-primary" id="btn-live-start">🎙️ Start Listening</button>
-
-        <div id="live-status-bar">
-          <div class="dot" id="live-status-dot"></div>
-          <span id="live-status-text">Idle</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="card" id="live-result-card">
-      <div class="card-header">
-        <h2>Live transcript</h2>
-        <p>Gray text is still being recognized; it finalizes as you keep speaking.</p>
-      </div>
-      <div class="card-body">
-        <div id="live-transcript"></div>
-        <div class="btn-row">
-          <button class="btn btn-outline" id="btn-live-copy">📋 Copy text</button>
-          <button class="btn btn-outline" id="btn-live-download">⬇️ Download .txt</button>
-          <button class="btn btn-outline" id="btn-live-clear">🗑️ Clear</button>
-        </div>
-      </div>
-    </div>
-
-    <p class="disclaimer">
-      Uses your browser's built-in speech recognition (Web Speech API) — supported in Chrome and Edge.
-      Unlike the file-upload mode above, live recognition is <strong>not fully offline</strong>: audio is streamed to your
-      browser vendor's speech-recognition service to produce real-time results (no audio is stored or sent to PenuX).
-      Requires microphone permission.
-    </p>
-  </div>
+  <p class="disclaimer">
+    This embeds the <a href="https://github.com/ggerganov/whisper.cpp" target="_blank" rel="noopener">ggerganov/whisper.cpp</a> project's own hosted demo
+    (<a href="https://ggerganov.github.io/whisper.cpp/" target="_blank" rel="noopener">ggerganov.github.io/whisper.cpp</a>) via an iframe — it is not
+    hosted or maintained by PenuX. It runs whisper.cpp's actual C++ inference engine compiled to WebAssembly (not a JavaScript/ONNX reimplementation),
+    entirely inside your browser — audio never leaves your device for the file-transcription mode. Model downloads and any live-mic behavior are
+    governed by that project, not by this page. If the embed above doesn't load (some sites block iframe embedding, or the project restructures its
+    hosting), use the "Open in new tab" link instead — same demo, no iframe restrictions.
+  </p>
 </div>
 
-<script type="module">
-  // ═══════════════════════ MODE TABS ═══════════════════════
-  const tabUpload   = document.getElementById('tab-upload');
-  const tabLive     = document.getElementById('tab-live');
-  const panelUpload = document.getElementById('panel-upload');
-  const panelLive   = document.getElementById('panel-live');
-  const heroBadge   = document.getElementById('hero-badge');
+<script>
+  const frame = document.getElementById('whisper-cpp-frame');
+  const loadState = document.getElementById('embed-load-state');
+  let settled = false;
 
-  function setMode(mode) {
-    const isUpload = mode === 'upload';
-    tabUpload.classList.toggle('active', isUpload);
-    tabLive.classList.toggle('active', !isUpload);
-    panelUpload.classList.toggle('active', isUpload);
-    panelLive.classList.toggle('active', !isUpload);
-    heroBadge.textContent = isUpload
-      ? '🔒 100% client-side · free · no upload'
-      : '🎙️ realtime · streams to browser speech service · free';
-    if (!isUpload) stopLiveRecognition(false);
-  }
-  tabUpload.addEventListener('click', () => setMode('upload'));
-  tabLive.addEventListener('click', () => setMode('live'));
-
-  // ═══════════════════════ UPLOAD FILE MODE (Whisper / transformers.js) ═══════════════════════
-  const MODELS_BY_LANG = {
-    english: [
-      { id: 'Xenova/whisper-tiny.en',  label: 'Tiny (fastest, ~40MB download, good for clear speech)' },
-      { id: 'Xenova/whisper-base.en',  label: 'Base (more accurate, ~75MB download, slower)' },
-    ],
-    hebrew: [
-      { id: 'Xenova/whisper-tiny',  label: 'Tiny — multilingual (fastest, ~40MB download)' },
-      { id: 'Xenova/whisper-base', label: 'Base — multilingual (more accurate, ~75MB download, slower)' },
-    ],
-  };
-
-  // Loaded lazily (on first Transcribe click) rather than as a static import,
-  // so a failed/slow CDN fetch shows an error instead of silently breaking
-  // the file-picker UI below (which must keep working regardless).
-  let transformersLib = null;
-  async function loadTransformersLib() {
-    if (transformersLib) return transformersLib;
-    const mod = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
-    mod.env.allowLocalModels = false;
-    transformersLib = mod;
-    return mod;
-  }
-
-  const dropzone      = document.getElementById('dropzone');
-  const fileInput      = document.getElementById('file-input');
-  const fileChip       = document.getElementById('file-chip');
-  const fileNameEl     = document.getElementById('file-name');
-  const fileRemoveBtn  = document.getElementById('file-remove');
-  const uploadLang     = document.getElementById('upload-lang');
-  const modelChoice    = document.getElementById('model-choice');
-  const btnTranscribe  = document.getElementById('btn-transcribe');
-  const statusBar      = document.getElementById('status-bar');
-  const statusDot      = document.getElementById('status-dot');
-  const statusText     = document.getElementById('status-text');
-  const progressTrack  = document.getElementById('progress-track');
-  const progressFill   = document.getElementById('progress-fill');
-  const resultCard     = document.getElementById('result-card');
-  const resultMeta     = document.getElementById('result-meta');
-  const transcriptEl   = document.getElementById('transcript');
-  const segmentsEl     = document.getElementById('segments');
-  const btnCopy        = document.getElementById('btn-copy');
-  const btnDownload    = document.getElementById('btn-download');
-
-  let selectedFile = null;
-  let transcriber = null;
-  let loadedModelId = null;
-
-  function populateModelChoices() {
-    const models = MODELS_BY_LANG[uploadLang.value];
-    modelChoice.innerHTML = models.map(m => `<option value="${m.id}">${m.label}</option>`).join('');
-  }
-  uploadLang.addEventListener('change', populateModelChoices);
-  populateModelChoices();
-
-  function setStatus(text, kind) {
-    statusBar.classList.add('show');
-    statusText.textContent = text;
-    statusDot.className = 'dot' + (kind ? ' ' + kind : '');
-  }
-
-  function pickFile(file) {
-    if (!file) return;
-    selectedFile = file;
-    fileNameEl.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(1)} MB)`;
-    fileChip.style.display = 'flex';
-    dropzone.style.display = 'none';
-    btnTranscribe.disabled = false;
-  }
-
-  dropzone.addEventListener('click', () => fileInput.click());
-  fileInput.addEventListener('change', (e) => pickFile(e.target.files[0]));
-
-  ['dragenter', 'dragover'].forEach(evt =>
-    dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.add('drag'); })
-  );
-  ['dragleave', 'drop'].forEach(evt =>
-    dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.remove('drag'); })
-  );
-  dropzone.addEventListener('drop', (e) => {
-    const file = e.dataTransfer.files[0];
-    if (file) pickFile(file);
+  frame.addEventListener('load', () => {
+    settled = true;
+    loadState.style.display = 'none';
+    frame.style.display = 'block';
   });
 
-  fileRemoveBtn.addEventListener('click', () => {
-    selectedFile = null;
-    fileInput.value = '';
-    fileChip.style.display = 'none';
-    dropzone.style.display = 'block';
-    btnTranscribe.disabled = true;
-    resultCard.style.display = 'none';
-  });
-
-  async function decodeAudioToFloat32(file) {
-    const arrayBuffer = await file.arrayBuffer();
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
-    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-    // Whisper expects mono 16kHz — mix down to mono if needed.
-    if (audioBuffer.numberOfChannels === 1) {
-      return audioBuffer.getChannelData(0);
-    }
-    const ch0 = audioBuffer.getChannelData(0);
-    const ch1 = audioBuffer.getChannelData(1);
-    const mono = new Float32Array(ch0.length);
-    for (let i = 0; i < ch0.length; i++) mono[i] = (ch0[i] + ch1[i]) / 2;
-    return mono;
-  }
-
-  function fmtTime(sec) {
-    if (sec == null || Number.isNaN(sec)) return '';
-    const m = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60);
-    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-  }
-
-  btnTranscribe.addEventListener('click', async () => {
-    if (!selectedFile) return;
-    btnTranscribe.disabled = true;
-    resultCard.style.display = 'none';
-    progressTrack.style.display = 'block';
-    progressFill.style.width = '0%';
-
-    try {
-      const modelId = modelChoice.value;
-      const langValue = uploadLang.value; // 'english' | 'hebrew'
-
-      if (!transcriber || loadedModelId !== modelId) {
-        setStatus('Loading transcription library…', 'loading');
-        let lib;
-        try {
-          lib = await loadTransformersLib();
-        } catch (loadErr) {
-          throw new Error('Could not load the transcription library from the CDN. Check your internet connection and try again. (' + loadErr.message + ')');
-        }
-
-        setStatus('Downloading model (first time only, cached after)…', 'loading');
-        transcriber = await lib.pipeline('automatic-speech-recognition', modelId, {
-          progress_callback: (p) => {
-            if (p.status === 'progress' && typeof p.progress === 'number') {
-              progressFill.style.width = `${p.progress.toFixed(0)}%`;
-              setStatus(`Downloading ${p.file || 'model'}… ${p.progress.toFixed(0)}%`, 'loading');
-            }
-          },
-        });
-        loadedModelId = modelId;
-      }
-
-      setStatus('Decoding audio…', 'loading');
-      progressFill.style.width = '100%';
-      const audioData = await decodeAudioToFloat32(selectedFile);
-
-      setStatus('Transcribing… (longer files take longer)', 'loading');
-      const genOptions = { chunk_length_s: 30, stride_length_s: 5, return_timestamps: true };
-      // The .en models are English-only and reject a language option; the
-      // multilingual models need it explicit to avoid language auto-detect
-      // drifting away from Hebrew on short/noisy clips.
-      if (!modelId.endsWith('.en')) genOptions.language = langValue;
-
-      const output = await transcriber(audioData, genOptions);
-
-      setStatus('Done', 'ready');
-      progressTrack.style.display = 'none';
-
-      resultMeta.textContent = `${selectedFile.name} · ${langValue} · model: ${modelId}`;
-      transcriptEl.textContent = output.text.trim();
-      transcriptEl.dir = langValue === 'hebrew' ? 'rtl' : 'ltr';
-
-      segmentsEl.innerHTML = '';
-      if (Array.isArray(output.chunks) && output.chunks.length) {
-        for (const chunk of output.chunks) {
-          const [start] = chunk.timestamp || [null, null];
-          const row = document.createElement('div');
-          row.className = 'segment';
-          row.innerHTML = `<span class="ts">${fmtTime(start)}</span><span class="txt"></span>`;
-          row.querySelector('.txt').textContent = chunk.text.trim();
-          segmentsEl.appendChild(row);
-        }
-      }
-
-      resultCard.style.display = 'block';
-    } catch (err) {
-      console.error(err);
-      setStatus('Error: ' + err.message, 'error');
-      progressTrack.style.display = 'none';
-    } finally {
-      btnTranscribe.disabled = false;
-    }
-  });
-
-  btnCopy.addEventListener('click', () => {
-    navigator.clipboard.writeText(transcriptEl.textContent);
-    btnCopy.textContent = '✅ Copied';
-    setTimeout(() => (btnCopy.textContent = '📋 Copy text'), 1500);
-  });
-
-  btnDownload.addEventListener('click', () => {
-    const blob = new Blob([transcriptEl.textContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = (selectedFile?.name || 'transcript').replace(/\.[^.]+$/, '') + '.txt';
-    a.click();
-    URL.revokeObjectURL(url);
-  });
-
-  // ═══════════════════════ LIVE MICROPHONE MODE (Web Speech API) ═══════════════════════
-  const liveLang        = document.getElementById('live-lang');
-  const btnLiveStart    = document.getElementById('btn-live-start');
-  const liveStatusBar   = document.getElementById('live-status-bar');
-  const liveStatusDot   = document.getElementById('live-status-dot');
-  const liveStatusText  = document.getElementById('live-status-text');
-  const liveResultCard  = document.getElementById('live-result-card');
-  const liveTranscriptEl= document.getElementById('live-transcript');
-  const btnLiveCopy     = document.getElementById('btn-live-copy');
-  const btnLiveDownload = document.getElementById('btn-live-download');
-  const btnLiveClear    = document.getElementById('btn-live-clear');
-
-  const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-  const FATAL_SPEECH_ERRORS = new Set(['not-allowed', 'service-not-allowed', 'audio-capture']);
-  const MAX_QUICK_RESTARTS = 5; // guards against a tight restart loop (e.g. no network to the speech service)
-
-  let recognition = null;
-  let isListening = false;
-  let finalTranscript = '';
-  let userStopped = false;
-  let lastStartTime = 0;
-  let quickRestartCount = 0;
-
-  function setLiveStatus(text, kind) {
-    liveStatusBar.classList.add('show');
-    liveStatusText.textContent = text;
-    liveStatusDot.className = 'dot' + (kind ? ' ' + kind : '');
-  }
-
-  function renderLiveTranscript(interim) {
-    liveResultCard.style.display = 'block';
-    liveTranscriptEl.dir = liveLang.value === 'he-IL' ? 'rtl' : 'ltr';
-    liveTranscriptEl.textContent = '';
-    const finalSpan = document.createElement('span');
-    finalSpan.textContent = finalTranscript;
-    liveTranscriptEl.appendChild(finalSpan);
-    if (interim) {
-      const interimSpan = document.createElement('span');
-      interimSpan.className = 'interim';
-      interimSpan.textContent = interim;
-      liveTranscriptEl.appendChild(interimSpan);
-    }
-  }
-
-  function startLiveRecognition() {
-    if (!SpeechRecognitionCtor) {
-      setLiveStatus('Live transcription needs Chrome or Edge — your browser does not support the Web Speech API.', 'error');
-      return;
-    }
-
-    recognition = new SpeechRecognitionCtor();
-    recognition.lang = liveLang.value;
-    recognition.continuous = true;
-    recognition.interimResults = true;
-
-    let hadFatalError = false;
-
-    recognition.onstart = () => {
-      isListening = true;
-      userStopped = false;
-      lastStartTime = Date.now();
-      btnLiveStart.textContent = '⏹️ Stop Listening';
-      btnLiveStart.classList.add('btn-stop');
-      setLiveStatus('Listening…', 'live');
-    };
-
-    recognition.onresult = (event) => {
-      quickRestartCount = 0; // a real result proves the connection works — reset the loop guard
-      let interim = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcriptPiece = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcriptPiece + ' ';
-        } else {
-          interim += transcriptPiece;
-        }
-      }
-      renderLiveTranscript(interim);
-    };
-
-    recognition.onerror = (event) => {
-      if (event.error === 'no-speech') return; // benign — just keep listening
-      if (FATAL_SPEECH_ERRORS.has(event.error)) {
-        hadFatalError = true;
-        userStopped = true; // stop onend from retrying a permission/hardware error forever
-        setLiveStatus('Error: ' + event.error + ' — check microphone permission and try again.', 'error');
-      } else {
-        // e.g. 'network' — likely transient; let onend's guarded restart handle it.
-        setLiveStatus('Error: ' + event.error + ' — reconnecting…', 'error');
-      }
-    };
-
-    recognition.onend = () => {
-      isListening = false;
-      btnLiveStart.textContent = '🎙️ Start Listening';
-      btnLiveStart.classList.remove('btn-stop');
-
-      if (userStopped || hadFatalError) {
-        setLiveStatus(hadFatalError ? liveStatusText.textContent : 'Stopped', hadFatalError ? 'error' : 'ready');
-        return;
-      }
-
-      // Chrome auto-stops after silence — restart automatically so "realtime"
-      // doesn't quietly die. But guard against a tight restart loop (e.g. no
-      // network reaching the speech backend causes instant repeated failures).
-      const sessionDurationMs = Date.now() - lastStartTime;
-      quickRestartCount = sessionDurationMs < 1500 ? quickRestartCount + 1 : 0;
-
-      if (quickRestartCount >= MAX_QUICK_RESTARTS) {
-        setLiveStatus('Could not maintain a connection to the speech service (check your internet connection). Press Start to try again.', 'error');
-        return;
-      }
-
-      setLiveStatus('Reconnecting…', 'loading');
-      try { startLiveRecognition(); } catch { /* already starting */ }
-    };
-
-    try {
-      recognition.start();
-    } catch (err) {
-      setLiveStatus('Error starting microphone: ' + err.message, 'error');
-    }
-  }
-
-  function stopLiveRecognition(userInitiated = true) {
-    userStopped = userInitiated;
-    if (recognition && isListening) recognition.stop();
-  }
-
-  btnLiveStart.addEventListener('click', () => {
-    if (isListening) {
-      stopLiveRecognition(true);
-    } else {
-      startLiveRecognition();
-    }
-  });
-
-  liveLang.addEventListener('change', () => {
-    if (isListening) {
-      stopLiveRecognition(true);
-      setTimeout(startLiveRecognition, 300);
-    }
-  });
-
-  btnLiveCopy.addEventListener('click', () => {
-    navigator.clipboard.writeText(liveTranscriptEl.textContent);
-    btnLiveCopy.textContent = '✅ Copied';
-    setTimeout(() => (btnLiveCopy.textContent = '📋 Copy text'), 1500);
-  });
-
-  btnLiveDownload.addEventListener('click', () => {
-    const blob = new Blob([liveTranscriptEl.textContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'live-transcript.txt';
-    a.click();
-    URL.revokeObjectURL(url);
-  });
-
-  btnLiveClear.addEventListener('click', () => {
-    finalTranscript = '';
-    renderLiveTranscript('');
-  });
-
-  if (!SpeechRecognitionCtor) {
-    btnLiveStart.disabled = true;
-    setLiveStatus('Live transcription needs Chrome or Edge — your browser does not support the Web Speech API.', 'error');
-  }
+  // iframes never fire a load-failure event for cross-origin content (e.g. a
+  // site blocking embedding via X-Frame-Options/CSP frame-ancestors) — only
+  // a same-origin console error, which JS can't observe. Fall back to the
+  // "open in new tab" link after a timeout if 'load' never fires.
+  setTimeout(() => {
+    if (settled) return;
+    loadState.innerHTML = 'Could not load the embedded demo (it may be blocking iframe embedding). ' +
+      '<a href="https://ggerganov.github.io/whisper.cpp/" target="_blank" rel="noopener" style="color:var(--blue);font-weight:600">Open it directly instead ↗</a>';
+  }, 8000);
 </script>
 </body>
 </html>
