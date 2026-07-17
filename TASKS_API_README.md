@@ -2,10 +2,15 @@
 
 Dynamic task management backend with Node.js + Express + SQLite.
 
+> This is the `render-tasks-api-deploy` branch — the app lives at the repo
+> root here (instead of under `tasks-api/`, as on `claude/pensive-pascal-a0l7a8`)
+> so Render can deploy it without setting a Root Directory. Do the rest of
+> your development on `claude/pensive-pascal-a0l7a8`; this branch is deploy
+> target only.
+
 ## Setup
 
 ```bash
-cd tasks-api
 npm install
 npm start
 ```
@@ -87,9 +92,10 @@ must live on Turso (free, persistent, no credit card required):
 1. **Turso**: create a free account at turso.tech, create a database
    (`turso db create penux-tasks`), then get the connection details:
    `turso db show penux-tasks --url` and `turso db tokens create penux-tasks`.
-2. **Render**: create a free Web Service, connect this repo, set root
-   directory to `tasks-api`, build command `npm install`, start command
-   `npm start`. Render gives you a free `*.onrender.com` subdomain
+2. **Render**: create a free Web Service, connect this repo, **branch
+   `render-tasks-api-deploy`**, build command `npm install`, start command
+   `npm start` (no Root Directory needed — the app is at the repo root on
+   this branch). Render gives you a free `*.onrender.com` subdomain
    automatically.
 3. In the Render service's environment variables, set `TURSO_DATABASE_URL`
    and `TURSO_AUTH_TOKEN` from step 1, plus `GMAIL_USER` /

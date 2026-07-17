@@ -23,3 +23,8 @@ docs/examples/
 *.blg
 *.synctex.gz
 catboost_info/
+
+# tasks-api (Node) — deploy branch layout
+node_modules/
+.env
+tasks.db
