@@ -385,6 +385,12 @@
 </div>
 
 <script>
+// ── BACKEND API (external tasks-api server, deployed separately from this
+// static site — see tasks-api/README.md > "Deployment (free tier)") ────────
+// Update this once the tasks-api service is deployed (e.g. to Render).
+const API_BASE = 'https://penux-tasks.onrender.com';
+const API = `${API_BASE}/api`;
+
 // ── PASSWORD (SHA-256 of "penux2026") ───────────────────────────────────────
 const HASH = '5b1a03055e62917d46aa4e7377050da381f80a98a8e14c40a72677f04c32c9a2';
 
@@ -400,7 +406,7 @@ async function tryLogin() {
     sessionStorage.setItem('penux_auth', '1');
     document.getElementById('auth-overlay').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    renderTasks();
+    loadTasks();
   } else {
     document.getElementById('auth-error').textContent = 'Incorrect password.';
     document.getElementById('pw-input').value = '';
@@ -413,40 +419,18 @@ function logout() {
   location.reload();
 }
 
-// ── DATA ────────────────────────────────────────────────────────────────────
-const STORE = 'penux_tasks';
+// ── DATA (server-backed, via the external tasks-api — see API_BASE above) ──
+let allTasks = [];
 
-const DEFAULT_TASKS = [
-  // Meetings
-  { id:1, title:'Zoom — Prof. Michael Kochman (UPenn Gastro)', sub:'Confirmed: Tue 10 Jul, 08:00–09:00 EST (15:00 IL)', due:'2026-07-10', cat:'meeting', status:'pending' },
-  { id:2, title:'Zoom — Dr. Nauzer Forbes (Calgary)',          sub:'משא ומתן על שעה — ביקשנו ב-1.7 לדחות מ-6.7 בערב IL; ממתינים לתשובה', due:'2026-07-06', cat:'meeting', status:'urgent' },
-  { id:3, title:'פגישה — פרופ\' תמנע נפתלי (וולפסון)',          sub:'שלישי 30.6, 10:00 — מכון גסטרו וולפסון',           due:'2026-06-30', cat:'meeting', status:'done'  },
-  { id:15, title:'פגישה חוזרת — וולפסון (מתאמת מחקר + צוות)', sub:'תואם ב-6.7 — יעד: תחילת אוגוסט; מתחילים עם מתאמת המחקר; תרגום המאמר לעברית נשלח 6.7', due:'2026-08-01', cat:'meeting', status:'pending' },
-  // Follow-Ups
-  { id:4, title:'פגישה — Dr. James Buxbaum (USC)',         sub:'אושר דרך Teams: שני 6.7, 10:00 PST (20:00 IL — מחוץ לחלון 9-19, מסומן)', due:'2026-07-06', cat:'meeting',   status:'urgent' },
-  { id:5, title:'Follow-Up — Dr. Saurabh Chawla',             sub:'השיחה התקיימה ב-29.6 14:00 EST — לוודא תוצאה / צעדים הבאים',   due:'2026-06-30', cat:'follow',   status:'waiting'  },
-  { id:6, title:'תיקון אימייל שגוי — Prof. Peter Hegyi (Semmelweis)',  sub:'peter.hegyi@semmelweis.hu הוחזר — כתובת אמיתית hegyi2009@gmail.com, לשלוח מעקב שוב', due:'2026-07-07', cat:'admin', status:'urgent' },
-  // OOO Returns
-  { id:7, title:'חזרה מחופשה — Prof. Luca Frulloni',           sub:'חוזר 29.6 — לשלוח מעקב PenuX (כתובת אמיתית: luca.frulloni@univr.it)', due:'2026-06-29', cat:'follow',   status:'pending' },
-  { id:8, title:'חזרה מחופשה — Panu Mentula',                  sub:'חוזר 13.7 — לשלוח מעקב PenuX',                     due:'2026-07-13', cat:'follow',   status:'pending' },
-  { id:9, title:'חזרה מחופשה — נמען הולנדי (STARRED)',         sub:'חוזר 12.7 — לשלוח מעקב PenuX',                     due:'2026-07-12', cat:'follow',   status:'pending' },
-  // Research
-  { id:10, title:'Submit to OSF Preprints',                    sub:'run: OSF_TOKEN=<token> python3 outreach/submit_osf.py', due:'2026-06-28', cat:'research', status:'urgent'  },
-  { id:11, title:'Stage I Protocol — IRB Submission',          sub:'Prepare IRB package from PenuX_SAP_Stage1_Study_Protocol.pdf', due:'2026-07-15', cat:'research', status:'pending' },
-  { id:12, title:'Fix bad email — Prof. Lévy (Paris)',         sub:'אין אימייל אישי פומבי — לנסות מזכירות המחלקה: secretariat.pancreato.bjn@aphp.fr', due:'2026-06-30', cat:'admin', status:'pending' },
-  // New outreach (Shaare Zedek)
-  { id:13, title:'Follow-Up — Dr. Amir Dagan (Shaare Zedek)',   sub:'נשלח מייל מותאם אישית (יחידת כבד ולבלב) — 3.7 — ממתינים לתשובה', due:'2026-07-03', cat:'follow', status:'waiting' },
-  { id:14, title:'Follow-Up — Dr. Michael Neuman (Shaare Zedek)', sub:'נשלח מייל (כירורג, לא מבלב/גסטרו — ביקשנו הפניה) — 3.7 — ממתינים לתשובה', due:'2026-07-03', cat:'follow', status:'waiting' },
-];
-
-function load() {
-  try { return JSON.parse(localStorage.getItem(STORE)) || DEFAULT_TASKS; }
-  catch { return DEFAULT_TASKS; }
+async function loadTasks() {
+  try {
+    const res = await fetch(`${API}/tasks`);
+    allTasks = await res.json();
+    renderTasks();
+  } catch (err) {
+    console.error('Error loading tasks:', err);
+  }
 }
-
-function save(tasks) { localStorage.setItem(STORE, JSON.stringify(tasks)); }
-
-function nextId(tasks) { return tasks.length ? Math.max(...tasks.map(t=>t.id)) + 1 : 1; }
 
 // ── RENDER ──────────────────────────────────────────────────────────────────
 let currentFilter = 'all';
@@ -487,7 +471,7 @@ function calSelectDay(iso) {
 function pad2(n) { return String(n).padStart(2, '0'); }
 
 function renderCalendar() {
-  const tasks = load();
+  const tasks = allTasks;
   const byDate = {};
   tasks.forEach(t => {
     if (!t.due) return;
@@ -575,7 +559,7 @@ function isOverdue(iso) {
 }
 
 function renderTasks() {
-  const tasks = load();
+  const tasks = allTasks;
   const tbody = document.getElementById('task-tbody');
   const empty = document.getElementById('empty-state');
 
@@ -757,35 +741,56 @@ function openGmailDraft() {
   closeEmailModal();
 }
 
-function addTask() {
-  const title  = document.getElementById('new-title').value.trim();
+async function addTask() {
+  const title = document.getElementById('new-title').value.trim();
   if (!title) { document.getElementById('new-title').focus(); return; }
-  const tasks = load();
-  tasks.push({
-    id:     nextId(tasks),
+
+  const task = {
     title,
     sub:    document.getElementById('new-sub').value.trim(),
     due:    document.getElementById('new-due').value,
     cat:    document.getElementById('new-cat').value,
     status: document.getElementById('new-status').value,
-  });
-  save(tasks);
-  document.getElementById('new-title').value = '';
-  document.getElementById('new-sub').value   = '';
-  document.getElementById('new-due').value   = '';
-  renderTasks();
+  };
+
+  try {
+    const res = await fetch(`${API}/tasks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(task),
+    });
+    if (res.ok) {
+      document.getElementById('new-title').value = '';
+      document.getElementById('new-sub').value   = '';
+      document.getElementById('new-due').value   = '';
+      loadTasks();
+    }
+  } catch (err) {
+    console.error('Error adding task:', err);
+  }
 }
 
-function markDone(id) {
-  const tasks = load().map(t => t.id===id ? {...t, status:'done'} : t);
-  save(tasks);
-  renderTasks();
+async function markDone(id) {
+  try {
+    await fetch(`${API}/tasks/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'done' }),
+    });
+    loadTasks();
+  } catch (err) {
+    console.error('Error updating task:', err);
+  }
 }
 
-function deleteTask(id) {
+async function deleteTask(id) {
   if (!confirm('Delete this task?')) return;
-  save(load().filter(t => t.id !== id));
-  renderTasks();
+  try {
+    await fetch(`${API}/tasks/${id}`, { method: 'DELETE' });
+    loadTasks();
+  } catch (err) {
+    console.error('Error deleting task:', err);
+  }
 }
 
 // ── SHABBAT / ISRAELI HOLIDAY GATE ──────────────────────────────────────────
@@ -872,7 +877,7 @@ checkShabbatGate().then(isClosed => {
   if (sessionStorage.getItem('penux_auth') === '1') {
     document.getElementById('auth-overlay').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    renderTasks();
+    loadTasks();
   } else {
     setTimeout(() => document.getElementById('pw-input').focus(), 100);
   }
