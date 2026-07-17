@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PenuX Tasks API — Swagger UI</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+  <style>
+    body { margin: 0; background: #fafafa; }
+    .topbar { background: #1F497D !important; }
+    .topbar-wrapper img { display: none; }
+    .topbar-wrapper::before {
+      content: "📋 PenuX Tasks API — Task Board & Email Automation";
+      color: white; font-weight: 700; font-size: 1rem;
+      font-family: Inter, system-ui, sans-serif;
+    }
+    .swagger-ui .info .title { color: #1F497D; }
+    .swagger-ui .opblock-tag { font-size: 1rem; }
+    .swagger-ui .opblock-tag[data-tag="auth"]  { border-left: 4px solid #6B7280; }
+    .swagger-ui .opblock-tag[data-tag="tasks"] { border-left: 4px solid #2563EB; }
+    .swagger-ui .opblock-tag[data-tag="email"] { border-left: 4px solid #DC2626; }
+    .swagger-ui .opblock-tag[data-tag="drafts"] { border-left: 4px solid #D97706; }
+    .back-link {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: #1F497D; color: white; text-decoration: none;
+      padding: .5rem 1.2rem; font-family: Inter, sans-serif;
+      font-size: .9rem; font-weight: 600;
+    }
+    .back-link:hover { background: #163963; }
+    .banner {
+      background: #EFF6FF; border-bottom: 2px solid #2563EB;
+      padding: .7rem 1.5rem; font-family: Inter, sans-serif;
+      font-size: .88rem; color: #1e3a8a;
+      display: flex; align-items: center; gap: .6rem;
+    }
+  </style>
+</head>
+<body>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 1.5rem;background:#1F497D;">
+    <a href="/" class="back-link">← penux.uk</a>
+    <span style="color:rgba(255,255,255,.7);font-size:.82rem;font-family:Inter,sans-serif;">PenuX Tasks API · v1.0.0</span>
+  </div>
+  <div class="banner">
+    🔒 <strong>Internal tool.</strong> All routes except <code>/api/auth</code> are unauthenticated at the HTTP level —
+    access control is enforced client-side by the Task Board UI. Don't expose this URL publicly beyond the task board itself.
+  </div>
+  <div id="swagger-ui"></div>
+
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script>
+    SwaggerUIBundle({
+      spec: {
+        "openapi": "3.1.0",
+        "info": {
+          "title": "PenuX Tasks API",
+          "version": "1.0.0",
+          "description": "Task board backend for the PenuX outreach/research workflow — task CRUD, follow-up email templates, real email sending (Gmail SMTP), and AI/rule-drafted inbox reply review.\n\nBacked by libSQL (SQLite-compatible) — a local file in development, or a free Turso database in production so data survives redeploys on hosts without a persistent disk.",
+          "contact": { "name": "PenuX Research", "url": "https://penux.uk", "email": "nsh531@gmail.com" },
+          "license": { "name": "MIT", "url": "https://github.com/netanelcyber/penuX/blob/main/tasks-api/LICENSE" }
+        },
+        "servers": [
+          { "url": "https://penux-1.onrender.com", "description": "Production (Render)" },
+          { "url": "http://localhost:3000", "description": "Local dev" }
+        ],
+        "tags": [
+          { "name": "auth",   "description": "Task board login" },
+          { "name": "tasks",  "description": "Task CRUD" },
+          { "name": "email",  "description": "Follow-up email templates & sending" },
+          { "name": "drafts", "description": "Auto-drafted inbox replies" }
+        ],
+        "paths": {
+          "/api/auth": {
+            "post": {
+              "tags": ["auth"], "summary": "Log in to the task board",
+              "requestBody": {
+                "required": true,
+                "content": { "application/json": { "schema": { "type": "object", "properties": { "password": { "type": "string" } }, "required": ["password"] }, "example": { "password": "penux2026" } } }
+              },
+              "responses": {
+                "200": { "description": "Correct password", "content": { "application/json": { "example": { "success": true, "token": "auth_ok" } } } },
+                "401": { "description": "Incorrect password", "content": { "application/json": { "example": { "success": false, "error": "Incorrect password" } } } }
+              }
+            }
+          },
+          "/api/tasks": {
+            "get": {
+              "tags": ["tasks"], "summary": "List all tasks",
+              "description": "Ordered by status, then due date.",
+              "responses": { "200": { "description": "Array of tasks", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Task" } } } } } }
+            },
+            "post": {
+              "tags": ["tasks"], "summary": "Create a task",
+              "requestBody": {
+                "required": true,
+                "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TaskInput" }, "example": { "title": "Follow up with Dr. Smith", "sub": "Re: collaboration proposal", "due": "2026-08-01", "cat": "follow", "status": "pending" } } }
+              },
+              "responses": { "200": { "description": "Created task", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Task" } } } } }
+            }
+          },
+          "/api/tasks/{id}": {
+            "put": {
+              "tags": ["tasks"], "summary": "Update a task's status",
+              "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+              "requestBody": {
+                "required": true,
+                "content": { "application/json": { "schema": { "type": "object", "properties": { "status": { "type": "string", "enum": ["pending", "urgent", "waiting", "done"] } } }, "example": { "status": "done" } } }
+              },
+              "responses": { "200": { "description": "Updated", "content": { "application/json": { "example": { "success": true } } } } }
+            },
+            "delete": {
+              "tags": ["tasks"], "summary": "Delete a task",
+              "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+              "responses": { "200": { "description": "Deleted", "content": { "application/json": { "example": { "success": true } } } } }
+            }
+          },
+          "/api/tasks/{id}/email": {
+            "post": {
+              "tags": ["email"], "summary": "Get a pre-written follow-up email template",
+              "description": "Returns a canned email draft for one of the known contacts (buxbaum, chawla, hegyi, frulloni). Does not send anything.",
+              "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" }, "description": "Task ID (can be 0 as a placeholder — only the template matters here)" }],
+              "requestBody": {
+                "required": true,
+                "content": { "application/json": { "schema": { "type": "object", "properties": { "template": { "type": "string", "enum": ["buxbaum", "chawla", "hegyi", "frulloni"] } }, "required": ["template"] } } }
+              },
+              "responses": {
+                "200": { "description": "Email draft", "content": { "application/json": { "example": { "success": true, "email": { "to": "james.buxbaum@usc.edu", "subject": "Re: PenuX Collaboration — Timeline Coordination", "body": "Dear Dr. Buxbaum, ...", "template": "buxbaum" }, "instruction": "Email draft prepared. Click \"Send Now\" to send it, or \"Open Gmail\" to send manually." } } } },
+                "400": { "description": "Unknown template", "content": { "application/json": { "example": { "error": "Template not found" } } } }
+              }
+            }
+          },
+          "/api/tasks/{id}/send-email": {
+            "post": {
+              "tags": ["email"], "summary": "Actually send an email via Gmail SMTP",
+              "description": "⚠️ Real, irreversible send. Requires GMAIL_USER / GMAIL_APP_PASSWORD to be configured on the server; auto-marks the task done if id ≠ 0.",
+              "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+              "requestBody": {
+                "required": true,
+                "content": { "application/json": { "schema": { "type": "object", "properties": { "to": { "type": "string" }, "subject": { "type": "string" }, "body": { "type": "string" } }, "required": ["to", "subject", "body"] } } }
+              },
+              "responses": {
+                "200": { "description": "Sent", "content": { "application/json": { "example": { "success": true, "message": "Email sent to james.buxbaum@usc.edu" } } } },
+                "503": { "description": "Email sending not configured", "content": { "application/json": { "example": { "error": "Email sending is not configured. Set GMAIL_USER and GMAIL_APP_PASSWORD env vars on the server." } } } }
+              }
+            }
+          },
+          "/api/draft-replies": {
+            "get": {
+              "tags": ["drafts"], "summary": "List pending auto-drafted inbox replies",
+              "description": "Populated by the IMAP inbox watcher (reply-watcher.js), which polls for new messages from tracked contacts and drafts a reply for human review — nothing is auto-sent.",
+              "responses": { "200": { "description": "Array of pending drafts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/DraftReply" } } } } } }
+            }
+          },
+          "/api/draft-replies/{id}": {
+            "put": {
+              "tags": ["drafts"], "summary": "Edit a draft's body before sending",
+              "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+              "requestBody": {
+                "required": true,
+                "content": { "application/json": { "schema": { "type": "object", "properties": { "draft_body": { "type": "string" } } } } }
+              },
+              "responses": { "200": { "description": "Updated", "content": { "application/json": { "example": { "success": true } } } } }
+            },
+            "delete": {
+              "tags": ["drafts"], "summary": "Discard a draft",
+              "description": "Soft-delete — marks status as 'discarded' rather than removing the row.",
+              "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+              "responses": { "200": { "description": "Discarded", "content": { "application/json": { "example": { "success": true } } } } }
+            }
+          },
+          "/api/draft-replies/{id}/send": {
+            "post": {
+              "tags": ["drafts"], "summary": "Send a drafted reply via Gmail SMTP",
+              "description": "⚠️ Real, irreversible send. Requires GMAIL_USER / GMAIL_APP_PASSWORD configured on the server.",
+              "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+              "responses": {
+                "200": { "description": "Sent", "content": { "application/json": { "example": { "success": true, "message": "Reply sent to contact@example.com" } } } },
+                "404": { "description": "Draft not found", "content": { "application/json": { "example": { "error": "Draft not found" } } } },
+                "503": { "description": "Email sending not configured" }
+              }
+            }
+          }
+        },
+        "components": {
+          "schemas": {
+            "Task": {
+              "type": "object", "title": "Task",
+              "properties": {
+                "id": { "type": "integer", "example": 1 },
+                "title": { "type": "string", "example": "Zoom — Prof. Michael Kochman (UPenn Gastro)" },
+                "sub": { "type": "string", "nullable": true, "example": "Confirmed: Tue 10 Jul, 08:00–09:00 EST (15:00 IL)" },
+                "due": { "type": "string", "format": "date", "nullable": true, "example": "2026-07-10" },
+                "cat": { "type": "string", "enum": ["meeting", "follow", "research", "admin"], "example": "meeting" },
+                "status": { "type": "string", "enum": ["pending", "urgent", "waiting", "done"], "example": "pending" },
+                "created_at": { "type": "string", "format": "date-time" }
+              }
+            },
+            "TaskInput": {
+              "type": "object", "title": "TaskInput",
+              "properties": {
+                "title": { "type": "string" },
+                "sub": { "type": "string" },
+                "due": { "type": "string", "format": "date" },
+                "cat": { "type": "string", "enum": ["meeting", "follow", "research", "admin"] },
+                "status": { "type": "string", "enum": ["pending", "urgent", "waiting", "done"] }
+              },
+              "required": ["title"]
+            },
+            "DraftReply": {
+              "type": "object", "title": "DraftReply",
+              "properties": {
+                "id": { "type": "integer" },
+                "contact_key": { "type": "string" },
+                "from_addr": { "type": "string" },
+                "subject": { "type": "string" },
+                "incoming_snippet": { "type": "string" },
+                "draft_body": { "type": "string" },
+                "status": { "type": "string", "enum": ["pending", "sent", "discarded"] },
+                "created_at": { "type": "string", "format": "date-time" }
+              }
+            }
+          }
+        }
+      },
+      dom_id: '#swagger-ui',
+      presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
+      layout: "BaseLayout",
+      deepLinking: true,
+      defaultModelsExpandDepth: 1,
+      defaultModelExpandDepth: 2,
+      tryItOutEnabled: false,
+      supportedSubmitMethods: [],
+    });
+  </script>
+</body>
+</html>
