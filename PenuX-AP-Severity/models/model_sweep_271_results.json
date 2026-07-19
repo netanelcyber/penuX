@@ -1,0 +1,2954 @@
+{
+  "dataset": "data/public_sanitized/ap_multiml_sanitized.csv",
+  "n_samples": 1289,
+  "n_features": 59,
+  "positive_rate": 0.8417,
+  "cv_folds": 5,
+  "n_configs_attempted": 294,
+  "n_configs_succeeded": 294,
+  "n_configs_failed": 0,
+  "total_runtime_seconds": 1005.6,
+  "results_ranked_by_auroc": [
+    {
+      "name": "ExtraTrees(n=300,depth=None,criterion=entropy)",
+      "auroc_mean": 0.8561,
+      "auroc_std": 0.0258,
+      "auprc_mean": 0.9656,
+      "f1_mean": 0.9258,
+      "accuracy_mean": 0.8666,
+      "fit_seconds": 4.44,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=200,depth=15,criterion=gini)",
+      "auroc_mean": 0.8544,
+      "auroc_std": 0.0263,
+      "auprc_mean": 0.9663,
+      "f1_mean": 0.9277,
+      "accuracy_mean": 0.8712,
+      "fit_seconds": 3.63,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=200,depth=None,criterion=entropy)",
+      "auroc_mean": 0.8543,
+      "auroc_std": 0.0266,
+      "auprc_mean": 0.9642,
+      "f1_mean": 0.9245,
+      "accuracy_mean": 0.8642,
+      "fit_seconds": 2.72,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=200,depth=-1,lr=0.05)",
+      "auroc_mean": 0.8528,
+      "auroc_std": 0.0298,
+      "auprc_mean": 0.9647,
+      "f1_mean": 0.9314,
+      "accuracy_mean": 0.8797,
+      "fit_seconds": 1.33,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=300,depth=10,criterion=entropy)",
+      "auroc_mean": 0.8525,
+      "auroc_std": 0.0241,
+      "auprc_mean": 0.964,
+      "f1_mean": 0.9305,
+      "accuracy_mean": 0.8759,
+      "fit_seconds": 5.05,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=50,depth=None,criterion=entropy)",
+      "auroc_mean": 0.8525,
+      "auroc_std": 0.0288,
+      "auprc_mean": 0.9632,
+      "f1_mean": 0.9222,
+      "accuracy_mean": 0.8603,
+      "fit_seconds": 0.84,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=300,depth=None,criterion=gini)",
+      "auroc_mean": 0.852,
+      "auroc_std": 0.0278,
+      "auprc_mean": 0.9645,
+      "f1_mean": 0.9276,
+      "accuracy_mean": 0.8712,
+      "fit_seconds": 5.2,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=100,depth=None,criterion=entropy)",
+      "auroc_mean": 0.8519,
+      "auroc_std": 0.0258,
+      "auprc_mean": 0.9637,
+      "f1_mean": 0.9248,
+      "accuracy_mean": 0.865,
+      "fit_seconds": 1.48,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=300,depth=15,criterion=gini)",
+      "auroc_mean": 0.8517,
+      "auroc_std": 0.0278,
+      "auprc_mean": 0.965,
+      "f1_mean": 0.9262,
+      "accuracy_mean": 0.8689,
+      "fit_seconds": 5.06,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=200,depth=None,criterion=gini)",
+      "auroc_mean": 0.8514,
+      "auroc_std": 0.0261,
+      "auprc_mean": 0.9645,
+      "f1_mean": 0.9272,
+      "accuracy_mean": 0.8704,
+      "fit_seconds": 3.38,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=300,depth=15,criterion=entropy)",
+      "auroc_mean": 0.8514,
+      "auroc_std": 0.0242,
+      "auprc_mean": 0.9652,
+      "f1_mean": 0.9237,
+      "accuracy_mean": 0.8627,
+      "fit_seconds": 4.16,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=50,depth=15,criterion=gini)",
+      "auroc_mean": 0.8511,
+      "auroc_std": 0.0205,
+      "auprc_mean": 0.9657,
+      "f1_mean": 0.9287,
+      "accuracy_mean": 0.8735,
+      "fit_seconds": 1.15,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=300,depth=None,criterion=entropy)",
+      "auroc_mean": 0.851,
+      "auroc_std": 0.0266,
+      "auprc_mean": 0.9648,
+      "f1_mean": 0.9287,
+      "accuracy_mean": 0.8728,
+      "fit_seconds": 5.08,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=300,depth=15,criterion=entropy)",
+      "auroc_mean": 0.8502,
+      "auroc_std": 0.0262,
+      "auprc_mean": 0.9649,
+      "f1_mean": 0.9291,
+      "accuracy_mean": 0.8735,
+      "fit_seconds": 5.13,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=300,depth=10,criterion=entropy)",
+      "auroc_mean": 0.85,
+      "auroc_std": 0.0232,
+      "auprc_mean": 0.9647,
+      "f1_mean": 0.9226,
+      "accuracy_mean": 0.8596,
+      "fit_seconds": 4.01,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=100,depth=-1,lr=0.1)",
+      "auroc_mean": 0.8493,
+      "auroc_std": 0.0295,
+      "auprc_mean": 0.9624,
+      "f1_mean": 0.9299,
+      "accuracy_mean": 0.8774,
+      "fit_seconds": 0.74,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=300,depth=8,lr=0.1)",
+      "auroc_mean": 0.8493,
+      "auroc_std": 0.0221,
+      "auprc_mean": 0.9639,
+      "f1_mean": 0.9269,
+      "accuracy_mean": 0.8704,
+      "fit_seconds": 12.23,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=100,depth=-1,lr=0.05)",
+      "auroc_mean": 0.8491,
+      "auroc_std": 0.0316,
+      "auprc_mean": 0.9632,
+      "f1_mean": 0.9316,
+      "accuracy_mean": 0.8805,
+      "fit_seconds": 0.73,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=200,depth=None,criterion=entropy)",
+      "auroc_mean": 0.849,
+      "auroc_std": 0.0256,
+      "auprc_mean": 0.9634,
+      "f1_mean": 0.9277,
+      "accuracy_mean": 0.8712,
+      "fit_seconds": 3.39,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=200,depth=10,criterion=gini)",
+      "auroc_mean": 0.8488,
+      "auroc_std": 0.0257,
+      "auprc_mean": 0.965,
+      "f1_mean": 0.9262,
+      "accuracy_mean": 0.8681,
+      "fit_seconds": 3.45,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=50,depth=-1,lr=0.1)",
+      "auroc_mean": 0.8488,
+      "auroc_std": 0.0301,
+      "auprc_mean": 0.9618,
+      "f1_mean": 0.9268,
+      "accuracy_mean": 0.872,
+      "fit_seconds": 0.43,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=200,depth=10,criterion=entropy)",
+      "auroc_mean": 0.8486,
+      "auroc_std": 0.025,
+      "auprc_mean": 0.9629,
+      "f1_mean": 0.9297,
+      "accuracy_mean": 0.8743,
+      "fit_seconds": 3.57,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=200,depth=15,criterion=entropy)",
+      "auroc_mean": 0.8486,
+      "auroc_std": 0.0249,
+      "auprc_mean": 0.9638,
+      "f1_mean": 0.9242,
+      "accuracy_mean": 0.8635,
+      "fit_seconds": 3.13,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=300,depth=5,criterion=entropy)",
+      "auroc_mean": 0.8485,
+      "auroc_std": 0.0226,
+      "auprc_mean": 0.9635,
+      "f1_mean": 0.9257,
+      "accuracy_mean": 0.8658,
+      "fit_seconds": 5.35,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=200,depth=15,criterion=entropy)",
+      "auroc_mean": 0.8483,
+      "auroc_std": 0.0255,
+      "auprc_mean": 0.9637,
+      "f1_mean": 0.9282,
+      "accuracy_mean": 0.872,
+      "fit_seconds": 3.51,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=300,depth=10,criterion=gini)",
+      "auroc_mean": 0.8481,
+      "auroc_std": 0.0271,
+      "auprc_mean": 0.9645,
+      "f1_mean": 0.927,
+      "accuracy_mean": 0.8697,
+      "fit_seconds": 5.25,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=200,depth=6,lr=0.05)",
+      "auroc_mean": 0.848,
+      "auroc_std": 0.024,
+      "auprc_mean": 0.965,
+      "f1_mean": 0.93,
+      "accuracy_mean": 0.8774,
+      "fit_seconds": 1.96,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=100,depth=15,criterion=gini)",
+      "auroc_mean": 0.8479,
+      "auroc_std": 0.0263,
+      "auprc_mean": 0.9641,
+      "f1_mean": 0.9263,
+      "accuracy_mean": 0.8689,
+      "fit_seconds": 1.8,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=200,depth=8,lr=0.1)",
+      "auroc_mean": 0.8475,
+      "auroc_std": 0.0223,
+      "auprc_mean": 0.9639,
+      "f1_mean": 0.9269,
+      "accuracy_mean": 0.8704,
+      "fit_seconds": 8.19,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=300,depth=8,lr=0.01)",
+      "auroc_mean": 0.847,
+      "auroc_std": 0.0194,
+      "auprc_mean": 0.9644,
+      "f1_mean": 0.9247,
+      "accuracy_mean": 0.865,
+      "fit_seconds": 12.32,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=200,depth=-1,lr=0.1)",
+      "auroc_mean": 0.8466,
+      "auroc_std": 0.032,
+      "auprc_mean": 0.9611,
+      "f1_mean": 0.9287,
+      "accuracy_mean": 0.8751,
+      "fit_seconds": 1.24,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=200,depth=5,criterion=entropy)",
+      "auroc_mean": 0.8465,
+      "auroc_std": 0.0225,
+      "auprc_mean": 0.9629,
+      "f1_mean": 0.9243,
+      "accuracy_mean": 0.8635,
+      "fit_seconds": 3.48,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=300,depth=10,criterion=gini)",
+      "auroc_mean": 0.8463,
+      "auroc_std": 0.0231,
+      "auprc_mean": 0.9643,
+      "f1_mean": 0.9251,
+      "accuracy_mean": 0.8642,
+      "fit_seconds": 4.18,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=300,depth=15,criterion=gini)",
+      "auroc_mean": 0.8463,
+      "auroc_std": 0.0257,
+      "auprc_mean": 0.9634,
+      "f1_mean": 0.9245,
+      "accuracy_mean": 0.8642,
+      "fit_seconds": 4.36,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=200,depth=5,criterion=gini)",
+      "auroc_mean": 0.8459,
+      "auroc_std": 0.0234,
+      "auprc_mean": 0.9631,
+      "f1_mean": 0.9255,
+      "accuracy_mean": 0.8658,
+      "fit_seconds": 3.53,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=200,depth=10,criterion=entropy)",
+      "auroc_mean": 0.8459,
+      "auroc_std": 0.0218,
+      "auprc_mean": 0.9634,
+      "f1_mean": 0.9235,
+      "accuracy_mean": 0.8611,
+      "fit_seconds": 2.91,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=200,depth=10,criterion=gini)",
+      "auroc_mean": 0.8458,
+      "auroc_std": 0.0237,
+      "auprc_mean": 0.964,
+      "f1_mean": 0.9239,
+      "accuracy_mean": 0.8619,
+      "fit_seconds": 2.95,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=50,depth=None,criterion=gini)",
+      "auroc_mean": 0.8457,
+      "auroc_std": 0.0227,
+      "auprc_mean": 0.9621,
+      "f1_mean": 0.9273,
+      "accuracy_mean": 0.8712,
+      "fit_seconds": 1.02,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=100,depth=None,criterion=gini)",
+      "auroc_mean": 0.8454,
+      "auroc_std": 0.0254,
+      "auprc_mean": 0.9624,
+      "f1_mean": 0.9262,
+      "accuracy_mean": 0.8689,
+      "fit_seconds": 2.0,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=100,depth=5,lr=0.1)",
+      "auroc_mean": 0.845,
+      "auroc_std": 0.024,
+      "auprc_mean": 0.9635,
+      "f1_mean": 0.9295,
+      "accuracy_mean": 0.8767,
+      "fit_seconds": 0.86,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=200,depth=8,lr=0.01)",
+      "auroc_mean": 0.845,
+      "auroc_std": 0.0175,
+      "auprc_mean": 0.9635,
+      "f1_mean": 0.925,
+      "accuracy_mean": 0.865,
+      "fit_seconds": 8.34,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=100,depth=5,lr=0.05)",
+      "auroc_mean": 0.8449,
+      "auroc_std": 0.0259,
+      "auprc_mean": 0.9637,
+      "f1_mean": 0.9309,
+      "accuracy_mean": 0.8782,
+      "fit_seconds": 0.92,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=200,depth=6,lr=0.01)",
+      "auroc_mean": 0.8449,
+      "auroc_std": 0.0158,
+      "auprc_mean": 0.9636,
+      "f1_mean": 0.9262,
+      "accuracy_mean": 0.8673,
+      "fit_seconds": 3.1,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=200,depth=3,lr=0.05)",
+      "auroc_mean": 0.8448,
+      "auroc_std": 0.0211,
+      "auprc_mean": 0.963,
+      "f1_mean": 0.9278,
+      "accuracy_mean": 0.8735,
+      "fit_seconds": 0.39,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=50,depth=-1,lr=0.05)",
+      "auroc_mean": 0.8447,
+      "auroc_std": 0.0311,
+      "auprc_mean": 0.9618,
+      "f1_mean": 0.9291,
+      "accuracy_mean": 0.8751,
+      "fit_seconds": 0.41,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=300,depth=5,criterion=gini)",
+      "auroc_mean": 0.8446,
+      "auroc_std": 0.0257,
+      "auprc_mean": 0.963,
+      "f1_mean": 0.9251,
+      "accuracy_mean": 0.865,
+      "fit_seconds": 5.12,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=200,depth=-1,lr=0.01)",
+      "auroc_mean": 0.8444,
+      "auroc_std": 0.0279,
+      "auprc_mean": 0.9627,
+      "f1_mean": 0.9296,
+      "accuracy_mean": 0.8751,
+      "fit_seconds": 1.16,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=300,depth=None,criterion=gini)",
+      "auroc_mean": 0.8443,
+      "auroc_std": 0.0269,
+      "auprc_mean": 0.9627,
+      "f1_mean": 0.9256,
+      "accuracy_mean": 0.8666,
+      "fit_seconds": 5.12,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=100,depth=5,lr=0.05)",
+      "auroc_mean": 0.8442,
+      "auroc_std": 0.032,
+      "auprc_mean": 0.9614,
+      "f1_mean": 0.9321,
+      "accuracy_mean": 0.8813,
+      "fit_seconds": 0.41,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=200,depth=5,lr=0.05)",
+      "auroc_mean": 0.8441,
+      "auroc_std": 0.0279,
+      "auprc_mean": 0.9634,
+      "f1_mean": 0.9297,
+      "accuracy_mean": 0.8766,
+      "fit_seconds": 1.77,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=100,depth=15,criterion=entropy)",
+      "auroc_mean": 0.8439,
+      "auroc_std": 0.0308,
+      "auprc_mean": 0.9627,
+      "f1_mean": 0.9277,
+      "accuracy_mean": 0.8712,
+      "fit_seconds": 1.9,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=200,depth=8,lr=0.05)",
+      "auroc_mean": 0.8438,
+      "auroc_std": 0.0228,
+      "auprc_mean": 0.9631,
+      "f1_mean": 0.9234,
+      "accuracy_mean": 0.8642,
+      "fit_seconds": 8.42,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=200,depth=7,lr=0.1)",
+      "auroc_mean": 0.8437,
+      "auroc_std": 0.0207,
+      "auprc_mean": 0.9627,
+      "f1_mean": 0.9301,
+      "accuracy_mean": 0.8774,
+      "fit_seconds": 0.88,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=50,depth=5,lr=0.1)",
+      "auroc_mean": 0.8435,
+      "auroc_std": 0.0236,
+      "auprc_mean": 0.9625,
+      "f1_mean": 0.9306,
+      "accuracy_mean": 0.8782,
+      "fit_seconds": 0.66,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=100,depth=6,lr=0.05)",
+      "auroc_mean": 0.8432,
+      "auroc_std": 0.0222,
+      "auprc_mean": 0.9632,
+      "f1_mean": 0.9315,
+      "accuracy_mean": 0.8798,
+      "fit_seconds": 1.15,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=200,depth=7,lr=0.05)",
+      "auroc_mean": 0.8432,
+      "auroc_std": 0.022,
+      "auprc_mean": 0.9616,
+      "f1_mean": 0.9282,
+      "accuracy_mean": 0.8743,
+      "fit_seconds": 0.88,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=300,depth=6,lr=0.01)",
+      "auroc_mean": 0.8432,
+      "auroc_std": 0.0162,
+      "auprc_mean": 0.9631,
+      "f1_mean": 0.9257,
+      "accuracy_mean": 0.8673,
+      "fit_seconds": 4.39,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=100,depth=10,criterion=entropy)",
+      "auroc_mean": 0.8429,
+      "auroc_std": 0.0273,
+      "auprc_mean": 0.9612,
+      "f1_mean": 0.9248,
+      "accuracy_mean": 0.8658,
+      "fit_seconds": 1.83,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=100,depth=5,criterion=entropy)",
+      "auroc_mean": 0.8428,
+      "auroc_std": 0.0255,
+      "auprc_mean": 0.9617,
+      "f1_mean": 0.9234,
+      "accuracy_mean": 0.8619,
+      "fit_seconds": 1.89,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=100,depth=10,criterion=entropy)",
+      "auroc_mean": 0.8428,
+      "auroc_std": 0.0218,
+      "auprc_mean": 0.9631,
+      "f1_mean": 0.9229,
+      "accuracy_mean": 0.8603,
+      "fit_seconds": 1.52,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=100,depth=None,criterion=entropy)",
+      "auroc_mean": 0.8427,
+      "auroc_std": 0.0312,
+      "auprc_mean": 0.9619,
+      "f1_mean": 0.9294,
+      "accuracy_mean": 0.8743,
+      "fit_seconds": 1.85,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=300,depth=5,criterion=gini)",
+      "auroc_mean": 0.8424,
+      "auroc_std": 0.0182,
+      "auprc_mean": 0.9624,
+      "f1_mean": 0.916,
+      "accuracy_mean": 0.8456,
+      "fit_seconds": 4.49,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=100,depth=6,lr=0.1)",
+      "auroc_mean": 0.8424,
+      "auroc_std": 0.0192,
+      "auprc_mean": 0.9628,
+      "f1_mean": 0.9298,
+      "accuracy_mean": 0.8767,
+      "fit_seconds": 1.06,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=200,depth=5,lr=0.1)",
+      "auroc_mean": 0.8424,
+      "auroc_std": 0.0263,
+      "auprc_mean": 0.9622,
+      "f1_mean": 0.9294,
+      "accuracy_mean": 0.8766,
+      "fit_seconds": 1.48,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=200,depth=6,lr=0.1)",
+      "auroc_mean": 0.8423,
+      "auroc_std": 0.0187,
+      "auprc_mean": 0.9631,
+      "f1_mean": 0.9291,
+      "accuracy_mean": 0.8759,
+      "fit_seconds": 1.64,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=300,depth=4,lr=0.01)",
+      "auroc_mean": 0.8423,
+      "auroc_std": 0.0193,
+      "auprc_mean": 0.9623,
+      "f1_mean": 0.9262,
+      "accuracy_mean": 0.8681,
+      "fit_seconds": 2.2,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=300,depth=8,lr=0.05)",
+      "auroc_mean": 0.8423,
+      "auroc_std": 0.0233,
+      "auprc_mean": 0.9628,
+      "f1_mean": 0.9231,
+      "accuracy_mean": 0.8635,
+      "fit_seconds": 12.17,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=50,depth=5,lr=0.1)",
+      "auroc_mean": 0.8422,
+      "auroc_std": 0.0277,
+      "auprc_mean": 0.9608,
+      "f1_mean": 0.9286,
+      "accuracy_mean": 0.8743,
+      "fit_seconds": 0.26,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=300,depth=5,criterion=entropy)",
+      "auroc_mean": 0.8421,
+      "auroc_std": 0.0158,
+      "auprc_mean": 0.9624,
+      "f1_mean": 0.916,
+      "accuracy_mean": 0.8456,
+      "fit_seconds": 4.45,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=50,depth=5,lr=0.05)",
+      "auroc_mean": 0.842,
+      "auroc_std": 0.0285,
+      "auprc_mean": 0.9613,
+      "f1_mean": 0.9306,
+      "accuracy_mean": 0.8774,
+      "fit_seconds": 0.25,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=200,depth=15,criterion=gini)",
+      "auroc_mean": 0.8419,
+      "auroc_std": 0.0258,
+      "auprc_mean": 0.9617,
+      "f1_mean": 0.9249,
+      "accuracy_mean": 0.865,
+      "fit_seconds": 3.1,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=100,depth=7,lr=0.05)",
+      "auroc_mean": 0.8419,
+      "auroc_std": 0.0252,
+      "auprc_mean": 0.9607,
+      "f1_mean": 0.9282,
+      "accuracy_mean": 0.8743,
+      "fit_seconds": 0.53,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=200,depth=5,lr=0.05)",
+      "auroc_mean": 0.8419,
+      "auroc_std": 0.0243,
+      "auprc_mean": 0.9617,
+      "f1_mean": 0.9288,
+      "accuracy_mean": 0.8759,
+      "fit_seconds": 0.62,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=50,depth=15,criterion=entropy)",
+      "auroc_mean": 0.8418,
+      "auroc_std": 0.0302,
+      "auprc_mean": 0.9619,
+      "f1_mean": 0.9249,
+      "accuracy_mean": 0.865,
+      "fit_seconds": 0.86,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=100,depth=15,criterion=entropy)",
+      "auroc_mean": 0.8418,
+      "auroc_std": 0.0252,
+      "auprc_mean": 0.9617,
+      "f1_mean": 0.9247,
+      "accuracy_mean": 0.8642,
+      "fit_seconds": 1.55,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=100,depth=5,criterion=gini)",
+      "auroc_mean": 0.8417,
+      "auroc_std": 0.0245,
+      "auprc_mean": 0.9622,
+      "f1_mean": 0.9248,
+      "accuracy_mean": 0.8642,
+      "fit_seconds": 2.12,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=100,depth=3,lr=0.05)",
+      "auroc_mean": 0.8416,
+      "auroc_std": 0.0225,
+      "auprc_mean": 0.9615,
+      "f1_mean": 0.9291,
+      "accuracy_mean": 0.8751,
+      "fit_seconds": 0.25,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=100,depth=7,lr=0.1)",
+      "auroc_mean": 0.8416,
+      "auroc_std": 0.0245,
+      "auprc_mean": 0.9618,
+      "f1_mean": 0.9297,
+      "accuracy_mean": 0.8766,
+      "fit_seconds": 0.51,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=50,depth=5,criterion=entropy)",
+      "auroc_mean": 0.8415,
+      "auroc_std": 0.0275,
+      "auprc_mean": 0.962,
+      "f1_mean": 0.9236,
+      "accuracy_mean": 0.8627,
+      "fit_seconds": 1.07,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=50,depth=5,lr=0.05)",
+      "auroc_mean": 0.8415,
+      "auroc_std": 0.0254,
+      "auprc_mean": 0.9623,
+      "f1_mean": 0.9326,
+      "accuracy_mean": 0.8805,
+      "fit_seconds": 0.63,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=100,depth=8,lr=0.01)",
+      "auroc_mean": 0.8415,
+      "auroc_std": 0.0173,
+      "auprc_mean": 0.9625,
+      "f1_mean": 0.9214,
+      "accuracy_mean": 0.858,
+      "fit_seconds": 4.54,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=50,depth=6,lr=0.1)",
+      "auroc_mean": 0.8412,
+      "auroc_std": 0.022,
+      "auprc_mean": 0.9624,
+      "f1_mean": 0.9306,
+      "accuracy_mean": 0.8782,
+      "fit_seconds": 0.68,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=200,depth=4,lr=0.05)",
+      "auroc_mean": 0.8412,
+      "auroc_std": 0.0262,
+      "auprc_mean": 0.9629,
+      "f1_mean": 0.9258,
+      "accuracy_mean": 0.8696,
+      "fit_seconds": 1.55,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=100,depth=6,lr=0.01)",
+      "auroc_mean": 0.8409,
+      "auroc_std": 0.0184,
+      "auprc_mean": 0.9615,
+      "f1_mean": 0.9242,
+      "accuracy_mean": 0.8627,
+      "fit_seconds": 1.66,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=100,depth=8,lr=0.1)",
+      "auroc_mean": 0.8408,
+      "auroc_std": 0.0144,
+      "auprc_mean": 0.9612,
+      "f1_mean": 0.9282,
+      "accuracy_mean": 0.8728,
+      "fit_seconds": 4.24,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=200,depth=None,criterion=gini)",
+      "auroc_mean": 0.8407,
+      "auroc_std": 0.0271,
+      "auprc_mean": 0.9614,
+      "f1_mean": 0.9248,
+      "accuracy_mean": 0.865,
+      "fit_seconds": 2.8,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=200,depth=5,criterion=gini)",
+      "auroc_mean": 0.8407,
+      "auroc_std": 0.0207,
+      "auprc_mean": 0.9618,
+      "f1_mean": 0.9164,
+      "accuracy_mean": 0.8464,
+      "fit_seconds": 2.72,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=50,depth=7,lr=0.05)",
+      "auroc_mean": 0.8407,
+      "auroc_std": 0.0284,
+      "auprc_mean": 0.9603,
+      "f1_mean": 0.9277,
+      "accuracy_mean": 0.8728,
+      "fit_seconds": 0.34,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=300,depth=4,lr=0.05)",
+      "auroc_mean": 0.8404,
+      "auroc_std": 0.0286,
+      "auprc_mean": 0.9631,
+      "f1_mean": 0.9274,
+      "accuracy_mean": 0.8728,
+      "fit_seconds": 2.24,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=100,depth=4,lr=0.1)",
+      "auroc_mean": 0.8402,
+      "auroc_std": 0.0253,
+      "auprc_mean": 0.9615,
+      "f1_mean": 0.9287,
+      "accuracy_mean": 0.8751,
+      "fit_seconds": 0.69,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=100,depth=10,criterion=gini)",
+      "auroc_mean": 0.8401,
+      "auroc_std": 0.025,
+      "auprc_mean": 0.9623,
+      "f1_mean": 0.9238,
+      "accuracy_mean": 0.8619,
+      "fit_seconds": 1.53,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=200,depth=5,criterion=entropy)",
+      "auroc_mean": 0.8401,
+      "auroc_std": 0.0184,
+      "auprc_mean": 0.962,
+      "f1_mean": 0.9164,
+      "accuracy_mean": 0.8464,
+      "fit_seconds": 2.79,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=200,depth=4,lr=0.01)",
+      "auroc_mean": 0.8397,
+      "auroc_std": 0.0188,
+      "auprc_mean": 0.9611,
+      "f1_mean": 0.922,
+      "accuracy_mean": 0.8596,
+      "fit_seconds": 1.58,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=50,depth=10,criterion=entropy)",
+      "auroc_mean": 0.8396,
+      "auroc_std": 0.0227,
+      "auprc_mean": 0.9619,
+      "f1_mean": 0.9237,
+      "accuracy_mean": 0.8619,
+      "fit_seconds": 0.85,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=50,depth=4,lr=0.1)",
+      "auroc_mean": 0.8396,
+      "auroc_std": 0.0219,
+      "auprc_mean": 0.9622,
+      "f1_mean": 0.9285,
+      "accuracy_mean": 0.8743,
+      "fit_seconds": 0.46,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=100,depth=5,lr=0.1)",
+      "auroc_mean": 0.8396,
+      "auroc_std": 0.0286,
+      "auprc_mean": 0.9607,
+      "f1_mean": 0.9283,
+      "accuracy_mean": 0.8743,
+      "fit_seconds": 0.38,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=200,depth=5,lr=0.01)",
+      "auroc_mean": 0.8396,
+      "auroc_std": 0.0264,
+      "auprc_mean": 0.9602,
+      "f1_mean": 0.928,
+      "accuracy_mean": 0.872,
+      "fit_seconds": 0.7,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=100,depth=3,lr=0.1)",
+      "auroc_mean": 0.8395,
+      "auroc_std": 0.0199,
+      "auprc_mean": 0.9613,
+      "f1_mean": 0.927,
+      "accuracy_mean": 0.872,
+      "fit_seconds": 0.27,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=300,depth=6,lr=0.05)",
+      "auroc_mean": 0.8395,
+      "auroc_std": 0.0212,
+      "auprc_mean": 0.9625,
+      "f1_mean": 0.9245,
+      "accuracy_mean": 0.8665,
+      "fit_seconds": 4.33,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=50,depth=3,lr=0.05)",
+      "auroc_mean": 0.8394,
+      "auroc_std": 0.0225,
+      "auprc_mean": 0.9607,
+      "f1_mean": 0.9296,
+      "accuracy_mean": 0.8751,
+      "fit_seconds": 0.2,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=50,depth=7,lr=0.1)",
+      "auroc_mean": 0.8392,
+      "auroc_std": 0.0216,
+      "auprc_mean": 0.9604,
+      "f1_mean": 0.9275,
+      "accuracy_mean": 0.8728,
+      "fit_seconds": 0.32,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=100,depth=10,criterion=gini)",
+      "auroc_mean": 0.8391,
+      "auroc_std": 0.0309,
+      "auprc_mean": 0.9608,
+      "f1_mean": 0.9256,
+      "accuracy_mean": 0.8673,
+      "fit_seconds": 2.02,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=200,depth=6,lr=0.05)",
+      "auroc_mean": 0.8388,
+      "auroc_std": 0.0204,
+      "auprc_mean": 0.9615,
+      "f1_mean": 0.9249,
+      "accuracy_mean": 0.8673,
+      "fit_seconds": 3.1,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=200,depth=3,lr=0.01)",
+      "auroc_mean": 0.8387,
+      "auroc_std": 0.0228,
+      "auprc_mean": 0.9601,
+      "f1_mean": 0.9255,
+      "accuracy_mean": 0.8673,
+      "fit_seconds": 0.91,
+      "status": "ok"
+    },
+    {
+      "name": "LogisticRegression(C=0.01,solver=liblinear)",
+      "auroc_mean": 0.8385,
+      "auroc_std": 0.006,
+      "auprc_mean": 0.9613,
+      "f1_mean": 0.92,
+      "accuracy_mean": 0.8611,
+      "fit_seconds": 0.14,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=100,lr=0.1,depth=2)",
+      "auroc_mean": 0.8383,
+      "auroc_std": 0.018,
+      "auprc_mean": 0.9612,
+      "f1_mean": 0.924,
+      "accuracy_mean": 0.8666,
+      "fit_seconds": 3.54,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=100,depth=4,lr=0.05)",
+      "auroc_mean": 0.8383,
+      "auroc_std": 0.0224,
+      "auprc_mean": 0.9605,
+      "f1_mean": 0.9247,
+      "accuracy_mean": 0.8665,
+      "fit_seconds": 0.91,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=100,depth=6,lr=0.05)",
+      "auroc_mean": 0.8383,
+      "auroc_std": 0.024,
+      "auprc_mean": 0.9601,
+      "f1_mean": 0.926,
+      "accuracy_mean": 0.8689,
+      "fit_seconds": 1.66,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=50,depth=10,criterion=entropy)",
+      "auroc_mean": 0.8382,
+      "auroc_std": 0.0226,
+      "auprc_mean": 0.9605,
+      "f1_mean": 0.9247,
+      "accuracy_mean": 0.8658,
+      "fit_seconds": 1.11,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=50,depth=6,lr=0.05)",
+      "auroc_mean": 0.8382,
+      "auroc_std": 0.0221,
+      "auprc_mean": 0.9615,
+      "f1_mean": 0.9328,
+      "accuracy_mean": 0.8813,
+      "fit_seconds": 0.86,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=200,depth=5,lr=0.1)",
+      "auroc_mean": 0.838,
+      "auroc_std": 0.0269,
+      "auprc_mean": 0.9609,
+      "f1_mean": 0.9277,
+      "accuracy_mean": 0.8735,
+      "fit_seconds": 0.66,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=50,depth=5,criterion=gini)",
+      "auroc_mean": 0.8378,
+      "auroc_std": 0.0208,
+      "auprc_mean": 0.9612,
+      "f1_mean": 0.9264,
+      "accuracy_mean": 0.8673,
+      "fit_seconds": 1.07,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=100,depth=3,lr=0.05)",
+      "auroc_mean": 0.8375,
+      "auroc_std": 0.0196,
+      "auprc_mean": 0.9604,
+      "f1_mean": 0.9319,
+      "accuracy_mean": 0.8805,
+      "fit_seconds": 0.53,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=200,depth=4,lr=0.1)",
+      "auroc_mean": 0.8375,
+      "auroc_std": 0.0244,
+      "auprc_mean": 0.9614,
+      "f1_mean": 0.9283,
+      "accuracy_mean": 0.8743,
+      "fit_seconds": 1.18,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=50,depth=3,lr=0.1)",
+      "auroc_mean": 0.8374,
+      "auroc_std": 0.0198,
+      "auprc_mean": 0.961,
+      "f1_mean": 0.9277,
+      "accuracy_mean": 0.8728,
+      "fit_seconds": 0.2,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=200,depth=7,lr=0.01)",
+      "auroc_mean": 0.8373,
+      "auroc_std": 0.0282,
+      "auprc_mean": 0.9598,
+      "f1_mean": 0.9296,
+      "accuracy_mean": 0.8751,
+      "fit_seconds": 1.0,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=100,depth=8,lr=0.05)",
+      "auroc_mean": 0.8371,
+      "auroc_std": 0.0249,
+      "auprc_mean": 0.9605,
+      "f1_mean": 0.9246,
+      "accuracy_mean": 0.8658,
+      "fit_seconds": 4.15,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=50,depth=10,criterion=gini)",
+      "auroc_mean": 0.8369,
+      "auroc_std": 0.0314,
+      "auprc_mean": 0.961,
+      "f1_mean": 0.9253,
+      "accuracy_mean": 0.8673,
+      "fit_seconds": 1.16,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=200,depth=5,lr=0.01)",
+      "auroc_mean": 0.8368,
+      "auroc_std": 0.0237,
+      "auprc_mean": 0.9603,
+      "f1_mean": 0.9302,
+      "accuracy_mean": 0.8759,
+      "fit_seconds": 1.88,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=100,depth=5,criterion=entropy)",
+      "auroc_mean": 0.8363,
+      "auroc_std": 0.0169,
+      "auprc_mean": 0.9606,
+      "f1_mean": 0.9159,
+      "accuracy_mean": 0.8456,
+      "fit_seconds": 1.53,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=200,lr=0.05,depth=2)",
+      "auroc_mean": 0.8363,
+      "auroc_std": 0.0202,
+      "auprc_mean": 0.9605,
+      "f1_mean": 0.9249,
+      "accuracy_mean": 0.8681,
+      "fit_seconds": 7.15,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=100,depth=4,lr=0.01)",
+      "auroc_mean": 0.8361,
+      "auroc_std": 0.0187,
+      "auprc_mean": 0.9595,
+      "f1_mean": 0.9218,
+      "accuracy_mean": 0.858,
+      "fit_seconds": 0.99,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=100,depth=4,lr=0.05)",
+      "auroc_mean": 0.8359,
+      "auroc_std": 0.0243,
+      "auprc_mean": 0.9601,
+      "f1_mean": 0.932,
+      "accuracy_mean": 0.8805,
+      "fit_seconds": 0.69,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=200,depth=6,lr=0.01)",
+      "auroc_mean": 0.8359,
+      "auroc_std": 0.0301,
+      "auprc_mean": 0.9595,
+      "f1_mean": 0.9315,
+      "accuracy_mean": 0.8782,
+      "fit_seconds": 2.37,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=100,depth=3,lr=0.1)",
+      "auroc_mean": 0.8358,
+      "auroc_std": 0.0182,
+      "auprc_mean": 0.9591,
+      "f1_mean": 0.9278,
+      "accuracy_mean": 0.8735,
+      "fit_seconds": 0.54,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=100,depth=None,criterion=gini)",
+      "auroc_mean": 0.8357,
+      "auroc_std": 0.026,
+      "auprc_mean": 0.9569,
+      "f1_mean": 0.9235,
+      "accuracy_mean": 0.8627,
+      "fit_seconds": 1.51,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=100,depth=15,criterion=gini)",
+      "auroc_mean": 0.8355,
+      "auroc_std": 0.0237,
+      "auprc_mean": 0.9602,
+      "f1_mean": 0.9205,
+      "accuracy_mean": 0.8572,
+      "fit_seconds": 1.56,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=100,lr=0.05,depth=3)",
+      "auroc_mean": 0.8348,
+      "auroc_std": 0.0133,
+      "auprc_mean": 0.9597,
+      "f1_mean": 0.9295,
+      "accuracy_mean": 0.8759,
+      "fit_seconds": 5.37,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=50,depth=15,criterion=entropy)",
+      "auroc_mean": 0.8347,
+      "auroc_std": 0.0305,
+      "auprc_mean": 0.9588,
+      "f1_mean": 0.9288,
+      "accuracy_mean": 0.8735,
+      "fit_seconds": 1.07,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=50,depth=3,lr=0.05)",
+      "auroc_mean": 0.8347,
+      "auroc_std": 0.0192,
+      "auprc_mean": 0.9591,
+      "f1_mean": 0.9295,
+      "accuracy_mean": 0.8751,
+      "fit_seconds": 0.4,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=50,depth=4,lr=0.05)",
+      "auroc_mean": 0.8347,
+      "auroc_std": 0.023,
+      "auprc_mean": 0.9593,
+      "f1_mean": 0.9334,
+      "accuracy_mean": 0.8821,
+      "fit_seconds": 0.47,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=100,depth=4,lr=0.1)",
+      "auroc_mean": 0.8347,
+      "auroc_std": 0.0239,
+      "auprc_mean": 0.9575,
+      "f1_mean": 0.9253,
+      "accuracy_mean": 0.8689,
+      "fit_seconds": 0.89,
+      "status": "ok"
+    },
+    {
+      "name": "AdaBoost(n=200,lr=0.5)",
+      "auroc_mean": 0.8346,
+      "auroc_std": 0.0187,
+      "auprc_mean": 0.9598,
+      "f1_mean": 0.925,
+      "accuracy_mean": 0.8689,
+      "fit_seconds": 5.88,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=100,depth=-1,lr=0.01)",
+      "auroc_mean": 0.8346,
+      "auroc_std": 0.0317,
+      "auprc_mean": 0.9599,
+      "f1_mean": 0.9289,
+      "accuracy_mean": 0.872,
+      "fit_seconds": 0.67,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=50,depth=3,lr=0.1)",
+      "auroc_mean": 0.8344,
+      "auroc_std": 0.0186,
+      "auprc_mean": 0.9595,
+      "f1_mean": 0.9319,
+      "accuracy_mean": 0.8805,
+      "fit_seconds": 0.4,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=200,depth=4,lr=0.05)",
+      "auroc_mean": 0.8343,
+      "auroc_std": 0.0244,
+      "auprc_mean": 0.9598,
+      "f1_mean": 0.9287,
+      "accuracy_mean": 0.8751,
+      "fit_seconds": 1.21,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=200,depth=3,lr=0.05)",
+      "auroc_mean": 0.8342,
+      "auroc_std": 0.0196,
+      "auprc_mean": 0.9586,
+      "f1_mean": 0.929,
+      "accuracy_mean": 0.8759,
+      "fit_seconds": 1.05,
+      "status": "ok"
+    },
+    {
+      "name": "LogisticRegression(C=0.01,solver=lbfgs)",
+      "auroc_mean": 0.8341,
+      "auroc_std": 0.0075,
+      "auprc_mean": 0.9598,
+      "f1_mean": 0.9188,
+      "accuracy_mean": 0.8549,
+      "fit_seconds": 0.11,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=100,depth=5,criterion=gini)",
+      "auroc_mean": 0.8339,
+      "auroc_std": 0.0219,
+      "auprc_mean": 0.9591,
+      "f1_mean": 0.9155,
+      "accuracy_mean": 0.8448,
+      "fit_seconds": 1.45,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=300,depth=6,lr=0.1)",
+      "auroc_mean": 0.8339,
+      "auroc_std": 0.0213,
+      "auprc_mean": 0.9619,
+      "f1_mean": 0.9263,
+      "accuracy_mean": 0.8704,
+      "fit_seconds": 4.43,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=200,depth=4,lr=0.01)",
+      "auroc_mean": 0.8336,
+      "auroc_std": 0.0221,
+      "auprc_mean": 0.9591,
+      "f1_mean": 0.9349,
+      "accuracy_mean": 0.8844,
+      "fit_seconds": 1.24,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=200,depth=3,lr=0.01)",
+      "auroc_mean": 0.8333,
+      "auroc_std": 0.0186,
+      "auprc_mean": 0.9587,
+      "f1_mean": 0.929,
+      "accuracy_mean": 0.8735,
+      "fit_seconds": 1.09,
+      "status": "ok"
+    },
+    {
+      "name": "RandomForest(n=50,depth=None,criterion=entropy)",
+      "auroc_mean": 0.8332,
+      "auroc_std": 0.0298,
+      "auprc_mean": 0.9571,
+      "f1_mean": 0.9287,
+      "accuracy_mean": 0.8735,
+      "fit_seconds": 1.05,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=50,depth=10,criterion=gini)",
+      "auroc_mean": 0.8332,
+      "auroc_std": 0.0262,
+      "auprc_mean": 0.9608,
+      "f1_mean": 0.9225,
+      "accuracy_mean": 0.8596,
+      "fit_seconds": 0.85,
+      "status": "ok"
+    },
+    {
+      "name": "AdaBoost(n=100,lr=0.5)",
+      "auroc_mean": 0.833,
+      "auroc_std": 0.0153,
+      "auprc_mean": 0.9593,
+      "f1_mean": 0.9226,
+      "accuracy_mean": 0.8642,
+      "fit_seconds": 2.85,
+      "status": "ok"
+    },
+    {
+      "name": "SGDClassifier(loss=log_loss,alpha=0.1)",
+      "auroc_mean": 0.8327,
+      "auroc_std": 0.0085,
+      "auprc_mean": 0.9593,
+      "f1_mean": 0.9193,
+      "accuracy_mean": 0.8557,
+      "fit_seconds": 0.11,
+      "status": "ok"
+    },
+    {
+      "name": "AdaBoost(n=200,lr=1.0)",
+      "auroc_mean": 0.8322,
+      "auroc_std": 0.0205,
+      "auprc_mean": 0.9594,
+      "f1_mean": 0.9211,
+      "accuracy_mean": 0.8635,
+      "fit_seconds": 5.69,
+      "status": "ok"
+    },
+    {
+      "name": "AdaBoost(n=200,lr=0.1)",
+      "auroc_mean": 0.832,
+      "auroc_std": 0.0169,
+      "auprc_mean": 0.9575,
+      "f1_mean": 0.926,
+      "accuracy_mean": 0.8666,
+      "fit_seconds": 5.66,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=200,lr=0.05,depth=3)",
+      "auroc_mean": 0.8319,
+      "auroc_std": 0.0174,
+      "auprc_mean": 0.9589,
+      "f1_mean": 0.9276,
+      "accuracy_mean": 0.8728,
+      "fit_seconds": 10.31,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=50,depth=15,criterion=gini)",
+      "auroc_mean": 0.8318,
+      "auroc_std": 0.0213,
+      "auprc_mean": 0.9595,
+      "f1_mean": 0.9213,
+      "accuracy_mean": 0.8588,
+      "fit_seconds": 0.9,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=50,lr=0.2,depth=3)",
+      "auroc_mean": 0.8316,
+      "auroc_std": 0.0188,
+      "auprc_mean": 0.9585,
+      "f1_mean": 0.9253,
+      "accuracy_mean": 0.8697,
+      "fit_seconds": 2.61,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=50,lr=0.1,depth=3)",
+      "auroc_mean": 0.8315,
+      "auroc_std": 0.015,
+      "auprc_mean": 0.9587,
+      "f1_mean": 0.9294,
+      "accuracy_mean": 0.8759,
+      "fit_seconds": 2.59,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=50,lr=0.2,depth=4)",
+      "auroc_mean": 0.8314,
+      "auroc_std": 0.0085,
+      "auprc_mean": 0.959,
+      "f1_mean": 0.9178,
+      "accuracy_mean": 0.8565,
+      "fit_seconds": 3.44,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=200,lr=0.1,depth=2)",
+      "auroc_mean": 0.8314,
+      "auroc_std": 0.0186,
+      "auprc_mean": 0.9586,
+      "f1_mean": 0.9231,
+      "accuracy_mean": 0.8658,
+      "fit_seconds": 7.35,
+      "status": "ok"
+    },
+    {
+      "name": "AdaBoost(n=50,lr=0.5)",
+      "auroc_mean": 0.8312,
+      "auroc_std": 0.0177,
+      "auprc_mean": 0.957,
+      "f1_mean": 0.9228,
+      "accuracy_mean": 0.8642,
+      "fit_seconds": 1.5,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=200,depth=4,lr=0.1)",
+      "auroc_mean": 0.8312,
+      "auroc_std": 0.0246,
+      "auprc_mean": 0.9583,
+      "f1_mean": 0.9257,
+      "accuracy_mean": 0.8696,
+      "fit_seconds": 1.58,
+      "status": "ok"
+    },
+    {
+      "name": "RidgeClassifier(alpha=100)",
+      "auroc_mean": 0.831,
+      "auroc_std": 0.0152,
+      "auprc_mean": 0.9558,
+      "f1_mean": 0.9214,
+      "accuracy_mean": 0.8596,
+      "fit_seconds": 0.11,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=100,lr=0.05,depth=4)",
+      "auroc_mean": 0.831,
+      "auroc_std": 0.0173,
+      "auprc_mean": 0.9575,
+      "f1_mean": 0.9315,
+      "accuracy_mean": 0.8798,
+      "fit_seconds": 6.79,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=200,depth=6,lr=0.1)",
+      "auroc_mean": 0.8307,
+      "auroc_std": 0.0191,
+      "auprc_mean": 0.9603,
+      "f1_mean": 0.9274,
+      "accuracy_mean": 0.872,
+      "fit_seconds": 3.06,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=100,lr=0.1,depth=3)",
+      "auroc_mean": 0.8306,
+      "auroc_std": 0.0169,
+      "auprc_mean": 0.9586,
+      "f1_mean": 0.9282,
+      "accuracy_mean": 0.8743,
+      "fit_seconds": 5.2,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=200,depth=3,lr=0.1)",
+      "auroc_mean": 0.8305,
+      "auroc_std": 0.0196,
+      "auprc_mean": 0.9593,
+      "f1_mean": 0.9241,
+      "accuracy_mean": 0.8673,
+      "fit_seconds": 0.38,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=200,depth=3,lr=0.1)",
+      "auroc_mean": 0.8303,
+      "auroc_std": 0.0222,
+      "auprc_mean": 0.9579,
+      "f1_mean": 0.9303,
+      "accuracy_mean": 0.8782,
+      "fit_seconds": 0.9,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=100,depth=3,lr=0.01)",
+      "auroc_mean": 0.8303,
+      "auroc_std": 0.0262,
+      "auprc_mean": 0.9564,
+      "f1_mean": 0.9223,
+      "accuracy_mean": 0.8588,
+      "fit_seconds": 0.26,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=100,depth=6,lr=0.1)",
+      "auroc_mean": 0.8301,
+      "auroc_std": 0.0224,
+      "auprc_mean": 0.9594,
+      "f1_mean": 0.9289,
+      "accuracy_mean": 0.8743,
+      "fit_seconds": 1.73,
+      "status": "ok"
+    },
+    {
+      "name": "CatBoost(iter=300,depth=4,lr=0.1)",
+      "auroc_mean": 0.8298,
+      "auroc_std": 0.0238,
+      "auprc_mean": 0.9587,
+      "f1_mean": 0.9242,
+      "accuracy_mean": 0.8673,
+      "fit_seconds": 2.15,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=50,depth=5,criterion=entropy)",
+      "auroc_mean": 0.8295,
+      "auroc_std": 0.0194,
+      "auprc_mean": 0.9588,
+      "f1_mean": 0.9155,
+      "accuracy_mean": 0.8448,
+      "fit_seconds": 0.86,
+      "status": "ok"
+    },
+    {
+      "name": "SVC(kernel=rbf,C=1)",
+      "auroc_mean": 0.8293,
+      "auroc_std": 0.0231,
+      "auprc_mean": 0.9583,
+      "f1_mean": 0.9221,
+      "accuracy_mean": 0.8596,
+      "fit_seconds": 0.91,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=100,lr=0.1,depth=4)",
+      "auroc_mean": 0.8292,
+      "auroc_std": 0.0179,
+      "auprc_mean": 0.9575,
+      "f1_mean": 0.9289,
+      "accuracy_mean": 0.8759,
+      "fit_seconds": 6.68,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=100,depth=7,lr=0.01)",
+      "auroc_mean": 0.8292,
+      "auroc_std": 0.0273,
+      "auprc_mean": 0.9572,
+      "f1_mean": 0.9272,
+      "accuracy_mean": 0.8689,
+      "fit_seconds": 0.53,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=50,lr=0.1,depth=2)",
+      "auroc_mean": 0.8291,
+      "auroc_std": 0.0164,
+      "auprc_mean": 0.9576,
+      "f1_mean": 0.9218,
+      "accuracy_mean": 0.8619,
+      "fit_seconds": 1.82,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=100,lr=0.05,depth=2)",
+      "auroc_mean": 0.829,
+      "auroc_std": 0.0158,
+      "auprc_mean": 0.9587,
+      "f1_mean": 0.9245,
+      "accuracy_mean": 0.8666,
+      "fit_seconds": 4.67,
+      "status": "ok"
+    },
+    {
+      "name": "SVC(kernel=rbf,C=0.1)",
+      "auroc_mean": 0.829,
+      "auroc_std": 0.0242,
+      "auprc_mean": 0.9582,
+      "f1_mean": 0.9141,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 0.86,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=200,lr=0.05,depth=4)",
+      "auroc_mean": 0.8287,
+      "auroc_std": 0.02,
+      "auprc_mean": 0.9563,
+      "f1_mean": 0.9293,
+      "accuracy_mean": 0.8766,
+      "fit_seconds": 14.15,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=50,lr=0.2,depth=2)",
+      "auroc_mean": 0.8285,
+      "auroc_std": 0.021,
+      "auprc_mean": 0.958,
+      "f1_mean": 0.9258,
+      "accuracy_mean": 0.8697,
+      "fit_seconds": 1.84,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=50,lr=0.1,depth=4)",
+      "auroc_mean": 0.8282,
+      "auroc_std": 0.0122,
+      "auprc_mean": 0.9571,
+      "f1_mean": 0.9265,
+      "accuracy_mean": 0.8712,
+      "fit_seconds": 3.38,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=100,lr=0.2,depth=2)",
+      "auroc_mean": 0.8282,
+      "auroc_std": 0.0247,
+      "auprc_mean": 0.9588,
+      "f1_mean": 0.9244,
+      "accuracy_mean": 0.8681,
+      "fit_seconds": 3.58,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=100,depth=5,lr=0.01)",
+      "auroc_mean": 0.8276,
+      "auroc_std": 0.0292,
+      "auprc_mean": 0.9558,
+      "f1_mean": 0.9273,
+      "accuracy_mean": 0.8689,
+      "fit_seconds": 0.4,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=50,depth=5,criterion=gini)",
+      "auroc_mean": 0.8273,
+      "auroc_std": 0.0239,
+      "auprc_mean": 0.958,
+      "f1_mean": 0.9159,
+      "accuracy_mean": 0.8456,
+      "fit_seconds": 0.85,
+      "status": "ok"
+    },
+    {
+      "name": "AdaBoost(n=100,lr=1.0)",
+      "auroc_mean": 0.8272,
+      "auroc_std": 0.016,
+      "auprc_mean": 0.9584,
+      "f1_mean": 0.9221,
+      "accuracy_mean": 0.865,
+      "fit_seconds": 2.86,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=200,lr=0.2,depth=2)",
+      "auroc_mean": 0.8269,
+      "auroc_std": 0.0195,
+      "auprc_mean": 0.9576,
+      "f1_mean": 0.9231,
+      "accuracy_mean": 0.8658,
+      "fit_seconds": 7.36,
+      "status": "ok"
+    },
+    {
+      "name": "LogisticRegression(C=0.1,solver=liblinear)",
+      "auroc_mean": 0.8268,
+      "auroc_std": 0.018,
+      "auprc_mean": 0.9554,
+      "f1_mean": 0.9194,
+      "accuracy_mean": 0.8588,
+      "fit_seconds": 0.14,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=100,lr=0.2,depth=3)",
+      "auroc_mean": 0.8266,
+      "auroc_std": 0.0198,
+      "auprc_mean": 0.9554,
+      "f1_mean": 0.926,
+      "accuracy_mean": 0.8712,
+      "fit_seconds": 5.18,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=100,lr=0.2,depth=4)",
+      "auroc_mean": 0.8266,
+      "auroc_std": 0.0061,
+      "auprc_mean": 0.9578,
+      "f1_mean": 0.9194,
+      "accuracy_mean": 0.8596,
+      "fit_seconds": 6.88,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=200,lr=0.01,depth=4)",
+      "auroc_mean": 0.8265,
+      "auroc_std": 0.0164,
+      "auprc_mean": 0.9545,
+      "f1_mean": 0.9288,
+      "accuracy_mean": 0.8736,
+      "fit_seconds": 13.25,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=200,lr=0.01,depth=3)",
+      "auroc_mean": 0.826,
+      "auroc_std": 0.0199,
+      "auprc_mean": 0.9551,
+      "f1_mean": 0.93,
+      "accuracy_mean": 0.8751,
+      "fit_seconds": 10.27,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=100,depth=5,lr=0.01)",
+      "auroc_mean": 0.8259,
+      "auroc_std": 0.0287,
+      "auprc_mean": 0.9547,
+      "f1_mean": 0.9216,
+      "accuracy_mean": 0.858,
+      "fit_seconds": 0.98,
+      "status": "ok"
+    },
+    {
+      "name": "LogisticRegression(C=0.1,solver=lbfgs)",
+      "auroc_mean": 0.8257,
+      "auroc_std": 0.0185,
+      "auprc_mean": 0.9557,
+      "f1_mean": 0.9179,
+      "accuracy_mean": 0.8557,
+      "fit_seconds": 0.12,
+      "status": "ok"
+    },
+    {
+      "name": "AdaBoost(n=100,lr=0.1)",
+      "auroc_mean": 0.8256,
+      "auroc_std": 0.0162,
+      "auprc_mean": 0.9562,
+      "f1_mean": 0.9212,
+      "accuracy_mean": 0.8573,
+      "fit_seconds": 2.89,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=50,lr=0.05,depth=3)",
+      "auroc_mean": 0.8255,
+      "auroc_std": 0.0168,
+      "auprc_mean": 0.9557,
+      "f1_mean": 0.9302,
+      "accuracy_mean": 0.8759,
+      "fit_seconds": 2.62,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=50,lr=0.05,depth=4)",
+      "auroc_mean": 0.8255,
+      "auroc_std": 0.0166,
+      "auprc_mean": 0.9545,
+      "f1_mean": 0.9276,
+      "accuracy_mean": 0.872,
+      "fit_seconds": 3.38,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=200,lr=0.1,depth=3)",
+      "auroc_mean": 0.8254,
+      "auroc_std": 0.018,
+      "auprc_mean": 0.956,
+      "f1_mean": 0.9253,
+      "accuracy_mean": 0.8697,
+      "fit_seconds": 10.41,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=100,depth=6,lr=0.01)",
+      "auroc_mean": 0.8251,
+      "auroc_std": 0.0341,
+      "auprc_mean": 0.9532,
+      "f1_mean": 0.9258,
+      "accuracy_mean": 0.8658,
+      "fit_seconds": 1.27,
+      "status": "ok"
+    },
+    {
+      "name": "SGDClassifier(loss=log_loss,alpha=0.01)",
+      "auroc_mean": 0.8242,
+      "auroc_std": 0.0219,
+      "auprc_mean": 0.9545,
+      "f1_mean": 0.919,
+      "accuracy_mean": 0.8572,
+      "fit_seconds": 0.14,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=100,depth=3,lr=0.01)",
+      "auroc_mean": 0.8241,
+      "auroc_std": 0.0192,
+      "auprc_mean": 0.954,
+      "f1_mean": 0.9203,
+      "accuracy_mean": 0.8549,
+      "fit_seconds": 0.55,
+      "status": "ok"
+    },
+    {
+      "name": "AdaBoost(n=50,lr=1.0)",
+      "auroc_mean": 0.8235,
+      "auroc_std": 0.0211,
+      "auprc_mean": 0.9555,
+      "f1_mean": 0.919,
+      "accuracy_mean": 0.8588,
+      "fit_seconds": 1.52,
+      "status": "ok"
+    },
+    {
+      "name": "RidgeClassifier(alpha=10)",
+      "auroc_mean": 0.8229,
+      "auroc_std": 0.0148,
+      "auprc_mean": 0.9517,
+      "f1_mean": 0.9184,
+      "accuracy_mean": 0.8549,
+      "fit_seconds": 0.11,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=200,lr=0.2,depth=4)",
+      "auroc_mean": 0.8229,
+      "auroc_std": 0.014,
+      "auprc_mean": 0.9548,
+      "f1_mean": 0.923,
+      "accuracy_mean": 0.8658,
+      "fit_seconds": 13.85,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=100,depth=4,lr=0.01)",
+      "auroc_mean": 0.8221,
+      "auroc_std": 0.0259,
+      "auprc_mean": 0.9519,
+      "f1_mean": 0.9237,
+      "accuracy_mean": 0.8619,
+      "fit_seconds": 0.72,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=200,lr=0.2,depth=3)",
+      "auroc_mean": 0.8213,
+      "auroc_std": 0.0209,
+      "auprc_mean": 0.953,
+      "f1_mean": 0.9249,
+      "accuracy_mean": 0.8697,
+      "fit_seconds": 10.8,
+      "status": "ok"
+    },
+    {
+      "name": "ExtraTrees(n=50,depth=None,criterion=gini)",
+      "auroc_mean": 0.8211,
+      "auroc_std": 0.0271,
+      "auprc_mean": 0.9513,
+      "f1_mean": 0.9241,
+      "accuracy_mean": 0.8642,
+      "fit_seconds": 0.93,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=200,lr=0.1,depth=4)",
+      "auroc_mean": 0.821,
+      "auroc_std": 0.0215,
+      "auprc_mean": 0.9535,
+      "f1_mean": 0.9272,
+      "accuracy_mean": 0.8728,
+      "fit_seconds": 13.7,
+      "status": "ok"
+    },
+    {
+      "name": "AdaBoost(n=50,lr=0.1)",
+      "auroc_mean": 0.8204,
+      "auroc_std": 0.0163,
+      "auprc_mean": 0.9556,
+      "f1_mean": 0.9202,
+      "accuracy_mean": 0.8549,
+      "fit_seconds": 1.51,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=50,depth=-1,lr=0.01)",
+      "auroc_mean": 0.8194,
+      "auroc_std": 0.0321,
+      "auprc_mean": 0.9554,
+      "f1_mean": 0.9141,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 0.39,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=50,lr=0.05,depth=2)",
+      "auroc_mean": 0.8193,
+      "auroc_std": 0.0208,
+      "auprc_mean": 0.9534,
+      "f1_mean": 0.9244,
+      "accuracy_mean": 0.865,
+      "fit_seconds": 1.81,
+      "status": "ok"
+    },
+    {
+      "name": "SGDClassifier(loss=hinge,alpha=0.1)",
+      "auroc_mean": 0.8192,
+      "auroc_std": 0.0206,
+      "auprc_mean": 0.9514,
+      "f1_mean": 0.9215,
+      "accuracy_mean": 0.8596,
+      "fit_seconds": 0.14,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=50,depth=7,lr=0.01)",
+      "auroc_mean": 0.8186,
+      "auroc_std": 0.0291,
+      "auprc_mean": 0.955,
+      "f1_mean": 0.9141,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 0.32,
+      "status": "ok"
+    },
+    {
+      "name": "RidgeClassifier(alpha=1)",
+      "auroc_mean": 0.8183,
+      "auroc_std": 0.013,
+      "auprc_mean": 0.9501,
+      "f1_mean": 0.9183,
+      "accuracy_mean": 0.8549,
+      "fit_seconds": 0.11,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=200,lr=0.01,depth=2)",
+      "auroc_mean": 0.8183,
+      "auroc_std": 0.0236,
+      "auprc_mean": 0.9525,
+      "f1_mean": 0.9253,
+      "accuracy_mean": 0.8658,
+      "fit_seconds": 7.18,
+      "status": "ok"
+    },
+    {
+      "name": "SGDClassifier(loss=modified_huber,alpha=0.1)",
+      "auroc_mean": 0.8176,
+      "auroc_std": 0.0246,
+      "auprc_mean": 0.9522,
+      "f1_mean": 0.9201,
+      "accuracy_mean": 0.8588,
+      "fit_seconds": 0.15,
+      "status": "ok"
+    },
+    {
+      "name": "RidgeClassifier(alpha=0.1)",
+      "auroc_mean": 0.8162,
+      "auroc_std": 0.0125,
+      "auprc_mean": 0.9495,
+      "f1_mean": 0.9179,
+      "accuracy_mean": 0.8541,
+      "fit_seconds": 0.12,
+      "status": "ok"
+    },
+    {
+      "name": "LogisticRegression(C=1,solver=liblinear)",
+      "auroc_mean": 0.8161,
+      "auroc_std": 0.0206,
+      "auprc_mean": 0.9518,
+      "f1_mean": 0.9184,
+      "accuracy_mean": 0.8572,
+      "fit_seconds": 0.17,
+      "status": "ok"
+    },
+    {
+      "name": "RidgeClassifier(alpha=0.01)",
+      "auroc_mean": 0.8158,
+      "auroc_std": 0.0125,
+      "auprc_mean": 0.9494,
+      "f1_mean": 0.9179,
+      "accuracy_mean": 0.8541,
+      "fit_seconds": 0.12,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=100,lr=0.01,depth=3)",
+      "auroc_mean": 0.8155,
+      "auroc_std": 0.0223,
+      "auprc_mean": 0.9489,
+      "f1_mean": 0.9265,
+      "accuracy_mean": 0.8673,
+      "fit_seconds": 5.37,
+      "status": "ok"
+    },
+    {
+      "name": "LogisticRegression(C=1,solver=lbfgs)",
+      "auroc_mean": 0.8154,
+      "auroc_std": 0.021,
+      "auprc_mean": 0.9516,
+      "f1_mean": 0.9184,
+      "accuracy_mean": 0.8572,
+      "fit_seconds": 0.2,
+      "status": "ok"
+    },
+    {
+      "name": "SVC(kernel=rbf,C=10)",
+      "auroc_mean": 0.8151,
+      "auroc_std": 0.024,
+      "auprc_mean": 0.9564,
+      "f1_mean": 0.9149,
+      "accuracy_mean": 0.8518,
+      "fit_seconds": 1.05,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=50,depth=3,lr=0.01)",
+      "auroc_mean": 0.8128,
+      "auroc_std": 0.0345,
+      "auprc_mean": 0.9473,
+      "f1_mean": 0.9141,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 0.22,
+      "status": "ok"
+    },
+    {
+      "name": "SVC(kernel=linear,C=0.1)",
+      "auroc_mean": 0.8117,
+      "auroc_std": 0.02,
+      "auprc_mean": 0.9486,
+      "f1_mean": 0.9204,
+      "accuracy_mean": 0.8588,
+      "fit_seconds": 0.63,
+      "status": "ok"
+    },
+    {
+      "name": "SGDClassifier(loss=hinge,alpha=0.01)",
+      "auroc_mean": 0.8114,
+      "auroc_std": 0.0232,
+      "auprc_mean": 0.9483,
+      "f1_mean": 0.9193,
+      "accuracy_mean": 0.8572,
+      "fit_seconds": 0.15,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=100,lr=0.01,depth=4)",
+      "auroc_mean": 0.8104,
+      "auroc_std": 0.0155,
+      "auprc_mean": 0.9461,
+      "f1_mean": 0.9275,
+      "accuracy_mean": 0.8697,
+      "fit_seconds": 7.37,
+      "status": "ok"
+    },
+    {
+      "name": "LightGBM(n=50,depth=5,lr=0.01)",
+      "auroc_mean": 0.8074,
+      "auroc_std": 0.0337,
+      "auprc_mean": 0.946,
+      "f1_mean": 0.9141,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 0.27,
+      "status": "ok"
+    },
+    {
+      "name": "LogisticRegression(C=10,solver=liblinear)",
+      "auroc_mean": 0.8065,
+      "auroc_std": 0.0209,
+      "auprc_mean": 0.9492,
+      "f1_mean": 0.9192,
+      "accuracy_mean": 0.8588,
+      "fit_seconds": 0.2,
+      "status": "ok"
+    },
+    {
+      "name": "LogisticRegression(C=10,solver=lbfgs)",
+      "auroc_mean": 0.8064,
+      "auroc_std": 0.0205,
+      "auprc_mean": 0.9491,
+      "f1_mean": 0.9196,
+      "accuracy_mean": 0.8596,
+      "fit_seconds": 0.16,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=50,depth=5,lr=0.01)",
+      "auroc_mean": 0.8058,
+      "auroc_std": 0.0393,
+      "auprc_mean": 0.9461,
+      "f1_mean": 0.9141,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 0.66,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=50,depth=4,lr=0.01)",
+      "auroc_mean": 0.8047,
+      "auroc_std": 0.032,
+      "auprc_mean": 0.9449,
+      "f1_mean": 0.9141,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 0.47,
+      "status": "ok"
+    },
+    {
+      "name": "GaussianNB",
+      "auroc_mean": 0.8042,
+      "auroc_std": 0.0207,
+      "auprc_mean": 0.9502,
+      "f1_mean": 0.896,
+      "accuracy_mean": 0.8246,
+      "fit_seconds": 0.1,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=50,depth=3,lr=0.01)",
+      "auroc_mean": 0.8039,
+      "auroc_std": 0.0314,
+      "auprc_mean": 0.9439,
+      "f1_mean": 0.9141,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 0.44,
+      "status": "ok"
+    },
+    {
+      "name": "LogisticRegression(C=100,solver=liblinear)",
+      "auroc_mean": 0.8038,
+      "auroc_std": 0.021,
+      "auprc_mean": 0.9486,
+      "f1_mean": 0.9197,
+      "accuracy_mean": 0.8596,
+      "fit_seconds": 0.25,
+      "status": "ok"
+    },
+    {
+      "name": "XGBoost(n=50,depth=6,lr=0.01)",
+      "auroc_mean": 0.8034,
+      "auroc_std": 0.0401,
+      "auprc_mean": 0.945,
+      "f1_mean": 0.9141,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 0.82,
+      "status": "ok"
+    },
+    {
+      "name": "LogisticRegression(C=100,solver=lbfgs)",
+      "auroc_mean": 0.8033,
+      "auroc_std": 0.0207,
+      "auprc_mean": 0.9484,
+      "f1_mean": 0.9197,
+      "accuracy_mean": 0.8596,
+      "fit_seconds": 0.17,
+      "status": "ok"
+    },
+    {
+      "name": "MLP(hidden=(50,),alpha=0.0001)",
+      "auroc_mean": 0.8033,
+      "auroc_std": 0.0246,
+      "auprc_mean": 0.9497,
+      "f1_mean": 0.9073,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 7.53,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=100,lr=0.01,depth=2)",
+      "auroc_mean": 0.8029,
+      "auroc_std": 0.0265,
+      "auprc_mean": 0.9453,
+      "f1_mean": 0.9177,
+      "accuracy_mean": 0.8495,
+      "fit_seconds": 3.65,
+      "status": "ok"
+    },
+    {
+      "name": "MLP(hidden=(50,),alpha=0.01)",
+      "auroc_mean": 0.8028,
+      "auroc_std": 0.0232,
+      "auprc_mean": 0.9493,
+      "f1_mean": 0.906,
+      "accuracy_mean": 0.8402,
+      "fit_seconds": 7.43,
+      "status": "ok"
+    },
+    {
+      "name": "MLP(hidden=(50,),alpha=0.001)",
+      "auroc_mean": 0.8024,
+      "auroc_std": 0.0245,
+      "auprc_mean": 0.9495,
+      "f1_mean": 0.9071,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 7.41,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=50,lr=0.01,depth=3)",
+      "auroc_mean": 0.8015,
+      "auroc_std": 0.0372,
+      "auprc_mean": 0.9426,
+      "f1_mean": 0.9141,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 2.63,
+      "status": "ok"
+    },
+    {
+      "name": "SVC(kernel=linear,C=1)",
+      "auroc_mean": 0.8,
+      "auroc_std": 0.0205,
+      "auprc_mean": 0.9454,
+      "f1_mean": 0.9179,
+      "accuracy_mean": 0.8549,
+      "fit_seconds": 2.64,
+      "status": "ok"
+    },
+    {
+      "name": "MLP(hidden=(50, 50),alpha=0.001)",
+      "auroc_mean": 0.7986,
+      "auroc_std": 0.0227,
+      "auprc_mean": 0.9478,
+      "f1_mean": 0.9032,
+      "accuracy_mean": 0.8355,
+      "fit_seconds": 4.48,
+      "status": "ok"
+    },
+    {
+      "name": "MLP(hidden=(50, 50),alpha=0.01)",
+      "auroc_mean": 0.7977,
+      "auroc_std": 0.0219,
+      "auprc_mean": 0.9472,
+      "f1_mean": 0.9065,
+      "accuracy_mean": 0.841,
+      "fit_seconds": 4.55,
+      "status": "ok"
+    },
+    {
+      "name": "KNN(k=21,weights=distance)",
+      "auroc_mean": 0.7971,
+      "auroc_std": 0.0527,
+      "auprc_mean": 0.942,
+      "f1_mean": 0.9202,
+      "accuracy_mean": 0.8549,
+      "fit_seconds": 0.15,
+      "status": "ok"
+    },
+    {
+      "name": "MLP(hidden=(50, 50),alpha=0.0001)",
+      "auroc_mean": 0.7966,
+      "auroc_std": 0.0222,
+      "auprc_mean": 0.9472,
+      "f1_mean": 0.9048,
+      "accuracy_mean": 0.8379,
+      "fit_seconds": 4.52,
+      "status": "ok"
+    },
+    {
+      "name": "KNN(k=21,weights=uniform)",
+      "auroc_mean": 0.7965,
+      "auroc_std": 0.0527,
+      "auprc_mean": 0.9377,
+      "f1_mean": 0.9202,
+      "accuracy_mean": 0.8549,
+      "fit_seconds": 0.14,
+      "status": "ok"
+    },
+    {
+      "name": "SVC(kernel=rbf,C=100)",
+      "auroc_mean": 0.7963,
+      "auroc_std": 0.0251,
+      "auprc_mean": 0.9518,
+      "f1_mean": 0.9038,
+      "accuracy_mean": 0.834,
+      "fit_seconds": 1.12,
+      "status": "ok"
+    },
+    {
+      "name": "SVC(kernel=linear,C=10)",
+      "auroc_mean": 0.7959,
+      "auroc_std": 0.0241,
+      "auprc_mean": 0.9444,
+      "f1_mean": 0.9196,
+      "accuracy_mean": 0.858,
+      "fit_seconds": 29.38,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=50,lr=0.01,depth=2)",
+      "auroc_mean": 0.7948,
+      "auroc_std": 0.0294,
+      "auprc_mean": 0.9385,
+      "f1_mean": 0.9141,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 1.85,
+      "status": "ok"
+    },
+    {
+      "name": "SVC(kernel=linear,C=100)",
+      "auroc_mean": 0.7947,
+      "auroc_std": 0.0251,
+      "auprc_mean": 0.9443,
+      "f1_mean": 0.9199,
+      "accuracy_mean": 0.8588,
+      "fit_seconds": 288.93,
+      "status": "ok"
+    },
+    {
+      "name": "SGDClassifier(loss=log_loss,alpha=0.001)",
+      "auroc_mean": 0.7942,
+      "auroc_std": 0.0281,
+      "auprc_mean": 0.9434,
+      "f1_mean": 0.9154,
+      "accuracy_mean": 0.8526,
+      "fit_seconds": 0.17,
+      "status": "ok"
+    },
+    {
+      "name": "SVC(kernel=poly,C=0.1)",
+      "auroc_mean": 0.7878,
+      "auroc_std": 0.0225,
+      "auprc_mean": 0.9324,
+      "f1_mean": 0.9152,
+      "accuracy_mean": 0.8456,
+      "fit_seconds": 0.55,
+      "status": "ok"
+    },
+    {
+      "name": "SGDClassifier(loss=modified_huber,alpha=0.01)",
+      "auroc_mean": 0.7863,
+      "auroc_std": 0.0295,
+      "auprc_mean": 0.9401,
+      "f1_mean": 0.9162,
+      "accuracy_mean": 0.8541,
+      "fit_seconds": 0.14,
+      "status": "ok"
+    },
+    {
+      "name": "SVC(kernel=poly,C=1)",
+      "auroc_mean": 0.7861,
+      "auroc_std": 0.0334,
+      "auprc_mean": 0.9319,
+      "f1_mean": 0.9209,
+      "accuracy_mean": 0.8588,
+      "fit_seconds": 0.63,
+      "status": "ok"
+    },
+    {
+      "name": "MLP(hidden=(100, 50),alpha=0.001)",
+      "auroc_mean": 0.7859,
+      "auroc_std": 0.0228,
+      "auprc_mean": 0.944,
+      "f1_mean": 0.9049,
+      "accuracy_mean": 0.8371,
+      "fit_seconds": 5.17,
+      "status": "ok"
+    },
+    {
+      "name": "MLP(hidden=(100, 50),alpha=0.01)",
+      "auroc_mean": 0.7859,
+      "auroc_std": 0.023,
+      "auprc_mean": 0.9444,
+      "f1_mean": 0.9055,
+      "accuracy_mean": 0.8379,
+      "fit_seconds": 5.26,
+      "status": "ok"
+    },
+    {
+      "name": "MLP(hidden=(100, 50),alpha=0.0001)",
+      "auroc_mean": 0.785,
+      "auroc_std": 0.0233,
+      "auprc_mean": 0.9428,
+      "f1_mean": 0.9054,
+      "accuracy_mean": 0.8379,
+      "fit_seconds": 5.38,
+      "status": "ok"
+    },
+    {
+      "name": "MLP(hidden=(100,),alpha=0.01)",
+      "auroc_mean": 0.7836,
+      "auroc_std": 0.034,
+      "auprc_mean": 0.942,
+      "f1_mean": 0.9064,
+      "accuracy_mean": 0.8394,
+      "fit_seconds": 8.09,
+      "status": "ok"
+    },
+    {
+      "name": "KNN(k=15,weights=uniform)",
+      "auroc_mean": 0.7819,
+      "auroc_std": 0.0541,
+      "auprc_mean": 0.9312,
+      "f1_mean": 0.9199,
+      "accuracy_mean": 0.8549,
+      "fit_seconds": 0.15,
+      "status": "ok"
+    },
+    {
+      "name": "KNN(k=15,weights=distance)",
+      "auroc_mean": 0.7809,
+      "auroc_std": 0.0546,
+      "auprc_mean": 0.9348,
+      "f1_mean": 0.9199,
+      "accuracy_mean": 0.8549,
+      "fit_seconds": 0.15,
+      "status": "ok"
+    },
+    {
+      "name": "MLP(hidden=(100,),alpha=0.001)",
+      "auroc_mean": 0.7801,
+      "auroc_std": 0.0307,
+      "auprc_mean": 0.9406,
+      "f1_mean": 0.9054,
+      "accuracy_mean": 0.8379,
+      "fit_seconds": 7.57,
+      "status": "ok"
+    },
+    {
+      "name": "MLP(hidden=(100,),alpha=0.0001)",
+      "auroc_mean": 0.78,
+      "auroc_std": 0.0307,
+      "auprc_mean": 0.9405,
+      "f1_mean": 0.9077,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 7.73,
+      "status": "ok"
+    },
+    {
+      "name": "GradBoost(n=50,lr=0.01,depth=4)",
+      "auroc_mean": 0.7786,
+      "auroc_std": 0.0223,
+      "auprc_mean": 0.9312,
+      "f1_mean": 0.9141,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 3.35,
+      "status": "ok"
+    },
+    {
+      "name": "SGDClassifier(loss=hinge,alpha=0.001)",
+      "auroc_mean": 0.7696,
+      "auroc_std": 0.0275,
+      "auprc_mean": 0.9339,
+      "f1_mean": 0.913,
+      "accuracy_mean": 0.8495,
+      "fit_seconds": 0.15,
+      "status": "ok"
+    },
+    {
+      "name": "KNN(k=11,weights=distance)",
+      "auroc_mean": 0.763,
+      "auroc_std": 0.0603,
+      "auprc_mean": 0.9274,
+      "f1_mean": 0.9218,
+      "accuracy_mean": 0.8588,
+      "fit_seconds": 0.14,
+      "status": "ok"
+    },
+    {
+      "name": "KNN(k=11,weights=uniform)",
+      "auroc_mean": 0.7623,
+      "auroc_std": 0.0626,
+      "auprc_mean": 0.9235,
+      "f1_mean": 0.9218,
+      "accuracy_mean": 0.8588,
+      "fit_seconds": 0.14,
+      "status": "ok"
+    },
+    {
+      "name": "SVC(kernel=poly,C=10)",
+      "auroc_mean": 0.7587,
+      "auroc_std": 0.0387,
+      "auprc_mean": 0.9211,
+      "f1_mean": 0.9161,
+      "accuracy_mean": 0.8541,
+      "fit_seconds": 0.81,
+      "status": "ok"
+    },
+    {
+      "name": "KNN(k=9,weights=distance)",
+      "auroc_mean": 0.7545,
+      "auroc_std": 0.0499,
+      "auprc_mean": 0.9238,
+      "f1_mean": 0.9217,
+      "accuracy_mean": 0.8588,
+      "fit_seconds": 0.14,
+      "status": "ok"
+    },
+    {
+      "name": "KNN(k=9,weights=uniform)",
+      "auroc_mean": 0.7541,
+      "auroc_std": 0.0497,
+      "auprc_mean": 0.9199,
+      "f1_mean": 0.9217,
+      "accuracy_mean": 0.8588,
+      "fit_seconds": 0.13,
+      "status": "ok"
+    },
+    {
+      "name": "DecisionTree(depth=3,criterion=entropy)",
+      "auroc_mean": 0.7431,
+      "auroc_std": 0.0266,
+      "auprc_mean": 0.9184,
+      "f1_mean": 0.919,
+      "accuracy_mean": 0.858,
+      "fit_seconds": 0.14,
+      "status": "ok"
+    },
+    {
+      "name": "SGDClassifier(loss=modified_huber,alpha=0.0001)",
+      "auroc_mean": 0.7427,
+      "auroc_std": 0.0785,
+      "auprc_mean": 0.9231,
+      "f1_mean": 0.8807,
+      "accuracy_mean": 0.8022,
+      "fit_seconds": 0.13,
+      "status": "ok"
+    },
+    {
+      "name": "KNN(k=7,weights=distance)",
+      "auroc_mean": 0.738,
+      "auroc_std": 0.0445,
+      "auprc_mean": 0.9166,
+      "f1_mean": 0.9207,
+      "accuracy_mean": 0.8572,
+      "fit_seconds": 0.15,
+      "status": "ok"
+    },
+    {
+      "name": "DecisionTree(depth=4,criterion=entropy)",
+      "auroc_mean": 0.7356,
+      "auroc_std": 0.018,
+      "auprc_mean": 0.9156,
+      "f1_mean": 0.9172,
+      "accuracy_mean": 0.8565,
+      "fit_seconds": 0.16,
+      "status": "ok"
+    },
+    {
+      "name": "DecisionTree(depth=3,criterion=gini)",
+      "auroc_mean": 0.7346,
+      "auroc_std": 0.0297,
+      "auprc_mean": 0.9135,
+      "f1_mean": 0.9181,
+      "accuracy_mean": 0.8565,
+      "fit_seconds": 0.14,
+      "status": "ok"
+    },
+    {
+      "name": "KNN(k=7,weights=uniform)",
+      "auroc_mean": 0.7339,
+      "auroc_std": 0.0452,
+      "auprc_mean": 0.9123,
+      "f1_mean": 0.9207,
+      "accuracy_mean": 0.8572,
+      "fit_seconds": 0.13,
+      "status": "ok"
+    },
+    {
+      "name": "DecisionTree(depth=5,criterion=entropy)",
+      "auroc_mean": 0.7325,
+      "auroc_std": 0.0256,
+      "auprc_mean": 0.9122,
+      "f1_mean": 0.9108,
+      "accuracy_mean": 0.8464,
+      "fit_seconds": 0.18,
+      "status": "ok"
+    },
+    {
+      "name": "SGDClassifier(loss=log_loss,alpha=0.0001)",
+      "auroc_mean": 0.7259,
+      "auroc_std": 0.0362,
+      "auprc_mean": 0.9169,
+      "f1_mean": 0.8777,
+      "accuracy_mean": 0.7983,
+      "fit_seconds": 0.17,
+      "status": "ok"
+    },
+    {
+      "name": "KNN(k=5,weights=distance)",
+      "auroc_mean": 0.7222,
+      "auroc_std": 0.0419,
+      "auprc_mean": 0.9101,
+      "f1_mean": 0.9202,
+      "accuracy_mean": 0.8572,
+      "fit_seconds": 0.14,
+      "status": "ok"
+    },
+    {
+      "name": "SVC(kernel=poly,C=100)",
+      "auroc_mean": 0.7218,
+      "auroc_std": 0.0551,
+      "auprc_mean": 0.9052,
+      "f1_mean": 0.9106,
+      "accuracy_mean": 0.8464,
+      "fit_seconds": 0.93,
+      "status": "ok"
+    },
+    {
+      "name": "DecisionTree(depth=2,criterion=entropy)",
+      "auroc_mean": 0.7201,
+      "auroc_std": 0.0378,
+      "auprc_mean": 0.907,
+      "f1_mean": 0.923,
+      "accuracy_mean": 0.8635,
+      "fit_seconds": 0.11,
+      "status": "ok"
+    },
+    {
+      "name": "KNN(k=5,weights=uniform)",
+      "auroc_mean": 0.7172,
+      "auroc_std": 0.0425,
+      "auprc_mean": 0.9061,
+      "f1_mean": 0.9202,
+      "accuracy_mean": 0.8572,
+      "fit_seconds": 0.14,
+      "status": "ok"
+    },
+    {
+      "name": "DecisionTree(depth=2,criterion=gini)",
+      "auroc_mean": 0.7102,
+      "auroc_std": 0.0389,
+      "auprc_mean": 0.9044,
+      "f1_mean": 0.922,
+      "accuracy_mean": 0.8611,
+      "fit_seconds": 0.11,
+      "status": "ok"
+    },
+    {
+      "name": "SGDClassifier(loss=hinge,alpha=0.0001)",
+      "auroc_mean": 0.7079,
+      "auroc_std": 0.0476,
+      "auprc_mean": 0.9079,
+      "f1_mean": 0.8806,
+      "accuracy_mean": 0.7999,
+      "fit_seconds": 0.12,
+      "status": "ok"
+    },
+    {
+      "name": "KNN(k=3,weights=distance)",
+      "auroc_mean": 0.7055,
+      "auroc_std": 0.0339,
+      "auprc_mean": 0.9045,
+      "f1_mean": 0.9195,
+      "accuracy_mean": 0.8572,
+      "fit_seconds": 0.13,
+      "status": "ok"
+    },
+    {
+      "name": "DecisionTree(depth=6,criterion=entropy)",
+      "auroc_mean": 0.7052,
+      "auroc_std": 0.0293,
+      "auprc_mean": 0.9031,
+      "f1_mean": 0.904,
+      "accuracy_mean": 0.8355,
+      "fit_seconds": 0.19,
+      "status": "ok"
+    },
+    {
+      "name": "KNN(k=3,weights=uniform)",
+      "auroc_mean": 0.7048,
+      "auroc_std": 0.0364,
+      "auprc_mean": 0.9015,
+      "f1_mean": 0.9195,
+      "accuracy_mean": 0.8572,
+      "fit_seconds": 0.18,
+      "status": "ok"
+    },
+    {
+      "name": "DecisionTree(depth=5,criterion=gini)",
+      "auroc_mean": 0.7001,
+      "auroc_std": 0.0392,
+      "auprc_mean": 0.9034,
+      "f1_mean": 0.9137,
+      "accuracy_mean": 0.8503,
+      "fit_seconds": 0.17,
+      "status": "ok"
+    },
+    {
+      "name": "DecisionTree(depth=4,criterion=gini)",
+      "auroc_mean": 0.6928,
+      "auroc_std": 0.0245,
+      "auprc_mean": 0.9026,
+      "f1_mean": 0.9085,
+      "accuracy_mean": 0.841,
+      "fit_seconds": 0.15,
+      "status": "ok"
+    },
+    {
+      "name": "SGDClassifier(loss=modified_huber,alpha=0.001)",
+      "auroc_mean": 0.6859,
+      "auroc_std": 0.0828,
+      "auprc_mean": 0.9078,
+      "f1_mean": 0.8852,
+      "accuracy_mean": 0.806,
+      "fit_seconds": 0.14,
+      "status": "ok"
+    },
+    {
+      "name": "DecisionTree(depth=None,criterion=gini)",
+      "auroc_mean": 0.661,
+      "auroc_std": 0.0438,
+      "auprc_mean": 0.8875,
+      "f1_mean": 0.8845,
+      "accuracy_mean": 0.8076,
+      "fit_seconds": 0.3,
+      "status": "ok"
+    },
+    {
+      "name": "DecisionTree(depth=8,criterion=entropy)",
+      "auroc_mean": 0.6575,
+      "auroc_std": 0.0471,
+      "auprc_mean": 0.8867,
+      "f1_mean": 0.8942,
+      "accuracy_mean": 0.82,
+      "fit_seconds": 0.2,
+      "status": "ok"
+    },
+    {
+      "name": "DecisionTree(depth=8,criterion=gini)",
+      "auroc_mean": 0.6572,
+      "auroc_std": 0.0721,
+      "auprc_mean": 0.8898,
+      "f1_mean": 0.9036,
+      "accuracy_mean": 0.8355,
+      "fit_seconds": 0.21,
+      "status": "ok"
+    },
+    {
+      "name": "DecisionTree(depth=6,criterion=gini)",
+      "auroc_mean": 0.6418,
+      "auroc_std": 0.0615,
+      "auprc_mean": 0.8847,
+      "f1_mean": 0.9107,
+      "accuracy_mean": 0.8456,
+      "fit_seconds": 0.18,
+      "status": "ok"
+    },
+    {
+      "name": "DecisionTree(depth=10,criterion=entropy)",
+      "auroc_mean": 0.636,
+      "auroc_std": 0.0358,
+      "auprc_mean": 0.8796,
+      "f1_mean": 0.8895,
+      "accuracy_mean": 0.813,
+      "fit_seconds": 0.21,
+      "status": "ok"
+    },
+    {
+      "name": "DecisionTree(depth=None,criterion=entropy)",
+      "auroc_mean": 0.6336,
+      "auroc_std": 0.0274,
+      "auprc_mean": 0.8791,
+      "f1_mean": 0.8884,
+      "accuracy_mean": 0.8115,
+      "fit_seconds": 0.21,
+      "status": "ok"
+    },
+    {
+      "name": "DecisionTree(depth=10,criterion=gini)",
+      "auroc_mean": 0.5841,
+      "auroc_std": 0.0714,
+      "auprc_mean": 0.8628,
+      "f1_mean": 0.8997,
+      "accuracy_mean": 0.8285,
+      "fit_seconds": 0.23,
+      "status": "ok"
+    },
+    {
+      "name": "BernoulliNB(alpha=1.0)",
+      "auroc_mean": 0.5608,
+      "auroc_std": 0.0448,
+      "auprc_mean": 0.8594,
+      "f1_mean": 0.9141,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 0.09,
+      "status": "ok"
+    },
+    {
+      "name": "BernoulliNB(alpha=2.0)",
+      "auroc_mean": 0.5608,
+      "auroc_std": 0.0448,
+      "auprc_mean": 0.8594,
+      "f1_mean": 0.9141,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 0.09,
+      "status": "ok"
+    },
+    {
+      "name": "BernoulliNB(alpha=0.1)",
+      "auroc_mean": 0.557,
+      "auroc_std": 0.0494,
+      "auprc_mean": 0.8583,
+      "f1_mean": 0.9141,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 0.1,
+      "status": "ok"
+    },
+    {
+      "name": "BernoulliNB(alpha=0.5)",
+      "auroc_mean": 0.5568,
+      "auroc_std": 0.0494,
+      "auprc_mean": 0.8582,
+      "f1_mean": 0.9141,
+      "accuracy_mean": 0.8417,
+      "fit_seconds": 0.1,
+      "status": "ok"
+    }
+  ],
+  "failed": []
+}

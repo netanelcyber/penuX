@@ -698,6 +698,72 @@
   </div>
 </section>
 
+<!-- 294-MODEL SWEEP (SUPPLEMENTARY / EXPLORATORY) -->
+<section>
+  <div class="container">
+    <h2>Supplementary: 294-Model Sweep (Exploratory)</h2>
+    <p class="lead">A broad hyperparameter sweep across 16 classical ML algorithm families (294 real, individually 5-fold cross-validated configurations — no fabricated numbers) run on a <strong>different, larger public dataset</strong> than the primary cohort above.</p>
+
+    <div class="warn">
+      ⚠️ <strong>Not directly comparable to the Performance Summary above.</strong> This sweep used
+      <code>ap_multiml_sanitized.csv</code> (Second Affiliated Hospital of Guilin Medical University, 2016–2024,
+      n=1289, 59 features, target column <code>Diagnostic Result</code>), not the primary
+      n=722 Atlanta-2012-labeled cohort used elsewhere on this page. It is exploratory/supplementary only.<br><br>
+      <strong>Known data/documentation discrepancy:</strong> this dataset's own <code>SOURCES.md</code> documents
+      label=1 as the minority SAP class (204 patients, 15.8%) — but the actual CSV has label=1 on 1,085 rows (the
+      majority). Either the source documentation has the class direction backwards, or the bundled file doesn't
+      match what was documented. AUROC/AUPRC are mathematically symmetric to which class is called "positive," so
+      the discrimination scores below are valid, but which class actually means "severe" is <strong>unverified</strong> —
+      treat the qualitative labeling with caution until this is resolved against the original source.
+    </div>
+
+    <p class="lead" style="margin-top:1.5rem">
+      294/294 configurations trained and evaluated successfully
+      (5-fold stratified CV, total runtime 1006s). Full ranked results (all 294):
+      <a href="https://github.com/netanelcyber/penuX/blob/claude/pensive-pascal-a0l7a8/PenuX-AP-Severity/models/model_sweep_271_results.json" target="_blank" rel="noopener">model_sweep_271_results.json</a>.
+      Top 30 by AUROC:
+    </p>
+
+    <div class="tbl-wrap">
+      <table class="cmp-tbl">
+        <thead><tr><th>Model configuration</th><th>AUROC</th><th>AUPRC</th><th>F1</th><th>Accuracy</th></tr></thead>
+        <tbody>
+          <tr><td>ExtraTrees(n=300,depth=None,criterion=entropy)</td><td>0.8561</td><td>0.9656</td><td>0.9258</td><td>0.8666</td></tr>
+          <tr><td>RandomForest(n=200,depth=15,criterion=gini)</td><td>0.8544</td><td>0.9663</td><td>0.9277</td><td>0.8712</td></tr>
+          <tr><td>ExtraTrees(n=200,depth=None,criterion=entropy)</td><td>0.8543</td><td>0.9642</td><td>0.9245</td><td>0.8642</td></tr>
+          <tr><td>LightGBM(n=200,depth=-1,lr=0.05)</td><td>0.8528</td><td>0.9647</td><td>0.9314</td><td>0.8797</td></tr>
+          <tr><td>RandomForest(n=300,depth=10,criterion=entropy)</td><td>0.8525</td><td>0.9640</td><td>0.9305</td><td>0.8759</td></tr>
+          <tr><td>ExtraTrees(n=50,depth=None,criterion=entropy)</td><td>0.8525</td><td>0.9632</td><td>0.9222</td><td>0.8603</td></tr>
+          <tr><td>RandomForest(n=300,depth=None,criterion=gini)</td><td>0.8520</td><td>0.9645</td><td>0.9276</td><td>0.8712</td></tr>
+          <tr><td>ExtraTrees(n=100,depth=None,criterion=entropy)</td><td>0.8519</td><td>0.9637</td><td>0.9248</td><td>0.8650</td></tr>
+          <tr><td>RandomForest(n=300,depth=15,criterion=gini)</td><td>0.8517</td><td>0.9650</td><td>0.9262</td><td>0.8689</td></tr>
+          <tr><td>RandomForest(n=200,depth=None,criterion=gini)</td><td>0.8514</td><td>0.9645</td><td>0.9272</td><td>0.8704</td></tr>
+          <tr><td>ExtraTrees(n=300,depth=15,criterion=entropy)</td><td>0.8514</td><td>0.9652</td><td>0.9237</td><td>0.8627</td></tr>
+          <tr><td>RandomForest(n=50,depth=15,criterion=gini)</td><td>0.8511</td><td>0.9657</td><td>0.9287</td><td>0.8735</td></tr>
+          <tr><td>RandomForest(n=300,depth=None,criterion=entropy)</td><td>0.8510</td><td>0.9648</td><td>0.9287</td><td>0.8728</td></tr>
+          <tr><td>RandomForest(n=300,depth=15,criterion=entropy)</td><td>0.8502</td><td>0.9649</td><td>0.9291</td><td>0.8735</td></tr>
+          <tr><td>ExtraTrees(n=300,depth=10,criterion=entropy)</td><td>0.8500</td><td>0.9647</td><td>0.9226</td><td>0.8596</td></tr>
+          <tr><td>LightGBM(n=100,depth=-1,lr=0.1)</td><td>0.8493</td><td>0.9624</td><td>0.9299</td><td>0.8774</td></tr>
+          <tr><td>CatBoost(iter=300,depth=8,lr=0.1)</td><td>0.8493</td><td>0.9639</td><td>0.9269</td><td>0.8704</td></tr>
+          <tr><td>LightGBM(n=100,depth=-1,lr=0.05)</td><td>0.8491</td><td>0.9632</td><td>0.9316</td><td>0.8805</td></tr>
+          <tr><td>RandomForest(n=200,depth=None,criterion=entropy)</td><td>0.8490</td><td>0.9634</td><td>0.9277</td><td>0.8712</td></tr>
+          <tr><td>RandomForest(n=200,depth=10,criterion=gini)</td><td>0.8488</td><td>0.9650</td><td>0.9262</td><td>0.8681</td></tr>
+          <tr><td>LightGBM(n=50,depth=-1,lr=0.1)</td><td>0.8488</td><td>0.9618</td><td>0.9268</td><td>0.8720</td></tr>
+          <tr><td>RandomForest(n=200,depth=10,criterion=entropy)</td><td>0.8486</td><td>0.9629</td><td>0.9297</td><td>0.8743</td></tr>
+          <tr><td>ExtraTrees(n=200,depth=15,criterion=entropy)</td><td>0.8486</td><td>0.9638</td><td>0.9242</td><td>0.8635</td></tr>
+          <tr><td>RandomForest(n=300,depth=5,criterion=entropy)</td><td>0.8485</td><td>0.9635</td><td>0.9257</td><td>0.8658</td></tr>
+          <tr><td>RandomForest(n=200,depth=15,criterion=entropy)</td><td>0.8483</td><td>0.9637</td><td>0.9282</td><td>0.8720</td></tr>
+          <tr><td>RandomForest(n=300,depth=10,criterion=gini)</td><td>0.8481</td><td>0.9645</td><td>0.9270</td><td>0.8697</td></tr>
+          <tr><td>XGBoost(n=200,depth=6,lr=0.05)</td><td>0.8480</td><td>0.9650</td><td>0.9300</td><td>0.8774</td></tr>
+          <tr><td>RandomForest(n=100,depth=15,criterion=gini)</td><td>0.8479</td><td>0.9641</td><td>0.9263</td><td>0.8689</td></tr>
+          <tr><td>CatBoost(iter=200,depth=8,lr=0.1)</td><td>0.8475</td><td>0.9639</td><td>0.9269</td><td>0.8704</td></tr>
+          <tr><td>CatBoost(iter=300,depth=8,lr=0.01)</td><td>0.8470</td><td>0.9644</td><td>0.9247</td><td>0.8650</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 <!-- CLINICAL DECISION METRICS (Likelihood Ratios) -->
 <section>
   <div class="container">
