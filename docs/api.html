@@ -235,6 +235,28 @@
               }
             }
           },
+          "/predict/polynomial-logit": {
+            "post": {
+              "tags": ["predict"],
+              "summary": "Polynomial-logit risk index — ln(sigmoid(f(x))), f(x) a degree-2 polynomial",
+              "description": "Exploratory scoring construct: f(x) = b0 + Σ(w·zᵢ + w₂·zᵢ²) + w₃·(z_wbc·z_crp) over standardized lab deviations, risk_probability = sigmoid(f(x)), log_risk_index = ln(risk_probability).\n\nReading log_risk_index: always ≤ 0; closer to 0 means HIGHER risk (probability near 1), more negative means LOWER risk — opposite of most scores. Use risk_probability or risk_group if that's more intuitive. Original exploratory formula, not a validated clinical instrument. All fields optional.",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": { "$ref": "#/components/schemas/PolynomialLogitInput" },
+                    "examples": {
+                      "high_risk": { "summary": "High — multiple abnormal labs", "value": { "age": 72, "wbc": 19.5, "crp": 260, "creatinine": 2.1, "glucose": 210, "ldh": 480, "ast": 140, "hematocrit": 48, "calcium": 7.4, "albumin": 2.6 } },
+                      "low_risk": { "summary": "Low — near-normal labs", "value": { "age": 40, "wbc": 8.0, "crp": 20, "creatinine": 0.9, "glucose": 95, "hematocrit": 41, "calcium": 9.4, "albumin": 4.2 } }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": { "description": "Polynomial-logit risk result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PolynomialLogitOutput" } } } }
+              }
+            }
+          },
           "/fhir/predict": {
             "post": {
               "tags": ["fhir"], "summary": "FHIR R4 RiskAssessment",
@@ -478,6 +500,33 @@
                 "predicted_mortality_probability": { "type": "number", "description": "SAPS II logistic-regression predicted hospital mortality, 0-1", "example": 0.9667 },
                 "point_breakdown": { "type": "object", "description": "Points contributed by each scored variable", "additionalProperties": { "type": "integer" } },
                 "missing_variables": { "type": "array", "items": { "type": "string" }, "description": "Variables not supplied — score is a lower bound until provided" },
+                "warning": { "type": "string" }
+              }
+            },
+            "PolynomialLogitInput": {
+              "type": "object",
+              "description": "Routine labs for the polynomial-logit risk index. All fields optional.",
+              "properties": {
+                "age": { "type": "number", "example": 72 },
+                "wbc": { "type": "number", "description": "×10⁹/L", "example": 19.5 },
+                "crp": { "type": "number", "description": "mg/L", "example": 260 },
+                "creatinine": { "type": "number", "description": "mg/dL", "example": 2.1 },
+                "glucose": { "type": "number", "description": "mg/dL", "example": 210 },
+                "ldh": { "type": "number", "description": "U/L", "example": 480 },
+                "ast": { "type": "number", "description": "U/L", "example": 140 },
+                "hematocrit": { "type": "number", "description": "%", "example": 48 },
+                "calcium": { "type": "number", "description": "mg/dL", "example": 7.4 },
+                "albumin": { "type": "number", "description": "g/dL", "example": 2.6 }
+              }
+            },
+            "PolynomialLogitOutput": {
+              "type": "object",
+              "properties": {
+                "polynomial_score": { "type": "number", "description": "f(x) — the raw degree-2 polynomial score, unbounded", "example": 1.3916 },
+                "risk_probability": { "type": "number", "description": "sigmoid(f(x)) ∈ (0,1)", "example": 0.8008 },
+                "log_risk_index": { "type": "number", "description": "ln(risk_probability) — closer to 0 = higher risk, more negative = lower risk", "example": -0.2221 },
+                "risk_group": { "type": "string", "enum": ["low", "intermediate", "high"], "example": "high" },
+                "terms_used": { "type": "array", "items": { "type": "string" }, "description": "Variables that contributed to f(x)" },
                 "warning": { "type": "string" }
               }
             },

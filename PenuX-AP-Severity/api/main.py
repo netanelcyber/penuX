@@ -1464,3 +1464,151 @@ def predict_saps2(data: SAPS2Input):
         point_breakdown=points,
         missing_variables=missing,
     )
+
+
+# ---------------------------------------------------------------------------
+# Polynomial-logit risk index — f(x) polynomial -> logistic -> natural log
+#
+# risk_probability = sigmoid(f(x)),  where f(x) is a degree-2 polynomial
+# (linear + quadratic + one interaction term) over standardized lab
+# deviations. log_risk_index = ln(risk_probability).
+#
+# Terminology note: strictly, "logit" is the *inverse* of the logistic/
+# sigmoid function (logit(p) = ln(p/(1-p))), while what's applied to f(x)
+# here is the logistic/sigmoid transform itself, sigmoid(f(x)) =
+# 1/(1+e^-f(x)), which is the conventional way to turn an unbounded
+# polynomial score into a (0,1) probability. That probability is what gets
+# logged. This is an original, exploratory scoring construct — not a
+# validated clinical instrument like SAPS II above.
+# ---------------------------------------------------------------------------
+
+class PolynomialLogitInput(BaseModel):
+    age: Optional[float] = Field(None, description="Age in years")
+    wbc: Optional[float] = Field(None, description="WBC ×10⁹/L")
+    crp: Optional[float] = Field(None, description="CRP mg/L")
+    creatinine: Optional[float] = Field(None, description="Creatinine mg/dL")
+    glucose: Optional[float] = Field(None, description="Glucose mg/dL")
+    ldh: Optional[float] = Field(None, description="LDH U/L")
+    ast: Optional[float] = Field(None, description="AST U/L")
+    hematocrit: Optional[float] = Field(None, description="Hematocrit %")
+    calcium: Optional[float] = Field(None, description="Calcium mg/dL")
+    albumin: Optional[float] = Field(None, description="Albumin g/dL")
+
+
+class PolynomialLogitOutput(BaseModel):
+    polynomial_score: float = Field(description="f(x) — the raw degree-2 polynomial score, unbounded")
+    risk_probability: float = Field(description="sigmoid(f(x)) ∈ (0,1) — the logistic transform of the polynomial score")
+    log_risk_index: float = Field(description="ln(risk_probability) — always ≤ 0; closer to 0 means HIGHER risk, more negative means LOWER risk")
+    risk_group: str = Field(description="low | intermediate | high, derived from risk_probability")
+    terms_used: list[str] = Field(description="Variables that contributed to f(x)")
+    warning: str = RESEARCH_WARNING
+
+
+# (center, scale, "higher_is_worse") per variable — z = (x - center)/scale,
+# sign-flipped for variables where a LOW value is the dangerous direction
+# (calcium, albumin), so that in every case a larger positive z means more
+# abnormal/risk-associated, keeping the polynomial's linear-term signs
+# uniformly positive.
+_POLY_VARS = {
+    "age":        (55.0, 15.0, True),
+    "wbc":        (10.0, 4.0,  True),
+    "crp":        (80.0, 60.0, True),
+    "creatinine": (1.0,  0.4,  True),
+    "glucose":    (110.0, 40.0, True),
+    "ldh":        (200.0, 80.0, True),
+    "ast":        (35.0, 30.0, True),
+    "hematocrit": (42.0, 6.0,  True),
+    "calcium":    (9.2,  0.8,  False),
+    "albumin":    (4.0,  0.6,  False),
+}
+_POLY_LINEAR_WEIGHT = 0.10
+_POLY_QUADRATIC_WEIGHT = 0.02
+_POLY_INTERACTION_WEIGHT = 0.02  # wbc x crp — combined inflammatory signal
+_POLY_INTERCEPT = -2.5
+
+
+def _polynomial_logit_score(inp: "PolynomialLogitInput") -> tuple[float, float, float, str, list]:
+    data = inp.model_dump()
+    z = {}
+    terms_used = []
+
+    f_x = _POLY_INTERCEPT
+    for name, (center, scale, higher_is_worse) in _POLY_VARS.items():
+        value = data.get(name)
+        if value is None:
+            continue
+        raw_z = (value - center) / scale
+        z[name] = raw_z if higher_is_worse else -raw_z
+        f_x += _POLY_LINEAR_WEIGHT * z[name] + _POLY_QUADRATIC_WEIGHT * (z[name] ** 2)
+        terms_used.append(name)
+
+    if "wbc" in z and "crp" in z:
+        f_x += _POLY_INTERACTION_WEIGHT * z["wbc"] * z["crp"]
+        terms_used.append("wbc×crp interaction")
+
+    risk_probability = 1.0 / (1.0 + math.exp(-f_x))
+    log_risk_index = math.log(max(risk_probability, 1e-12))
+
+    if risk_probability < 0.2:
+        risk_group = "low"
+    elif risk_probability < 0.5:
+        risk_group = "intermediate"
+    else:
+        risk_group = "high"
+
+    return round(f_x, 4), round(risk_probability, 6), round(log_risk_index, 6), risk_group, terms_used
+
+
+@app.post(
+    "/predict/polynomial-logit",
+    response_model=PolynomialLogitOutput,
+    tags=["predict"],
+    summary="Polynomial-logit risk index — ln(sigmoid(f(x))), f(x) a degree-2 polynomial",
+    description=(
+        "Exploratory scoring construct: builds a degree-2 polynomial `f(x)` "
+        "over standardized deviations of routine labs (linear + quadratic "
+        "terms per variable, plus a WBC×CRP interaction term), passes it "
+        "through the logistic/sigmoid function to get a probability in "
+        "(0,1), then returns the natural log of that probability as the "
+        "`log_risk_index`.\n\n"
+        "`f(x) = b0 + Σ(w·zᵢ + w₂·zᵢ²) + w₃·(z_wbc·z_crp)`, "
+        "`risk_probability = sigmoid(f(x))`, "
+        "`log_risk_index = ln(risk_probability)`\n\n"
+        "**Reading `log_risk_index`:** it is always ≤ 0 (natural log of a "
+        "probability ≤ 1). Values closer to 0 mean *higher* risk "
+        "(probability near 1); very negative values mean *lower* risk "
+        "(probability near 0) — this is the opposite of most clinical "
+        "scores where higher-is-worse, so read `risk_probability` or "
+        "`risk_group` if that's more intuitive.\n\n"
+        "This is an original, exploratory formula — not a validated "
+        "clinical instrument. All fields optional.\n\n"
+        "⚠️ RESEARCH USE ONLY."
+    ),
+    openapi_extra={
+        "requestBody": {
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "high_risk": {
+                            "summary": "High — multiple abnormal labs",
+                            "value": {"age": 72, "wbc": 19.5, "crp": 260, "creatinine": 2.1, "glucose": 210, "ldh": 480, "ast": 140, "hematocrit": 48, "calcium": 7.4, "albumin": 2.6},
+                        },
+                        "low_risk": {
+                            "summary": "Low — near-normal labs",
+                            "value": {"age": 40, "wbc": 8.0, "crp": 20, "creatinine": 0.9, "glucose": 95, "hematocrit": 41, "calcium": 9.4, "albumin": 4.2},
+                        },
+                    }
+                }
+            }
+        }
+    },
+)
+def predict_polynomial_logit(data: PolynomialLogitInput):
+    f_x, proba, log_risk, risk_group, terms_used = _polynomial_logit_score(data)
+    return PolynomialLogitOutput(
+        polynomial_score=f_x,
+        risk_probability=proba,
+        log_risk_index=log_risk,
+        risk_group=risk_group,
+        terms_used=terms_used,
+    )
