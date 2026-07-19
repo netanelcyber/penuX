@@ -213,6 +213,28 @@
               }
             }
           },
+          "/predict/saps2": {
+            "post": {
+              "tags": ["predict"],
+              "summary": "SAPS II — Simplified Acute Physiology Score II (validated ICU mortality score)",
+              "description": "Computes SAPS II (Le Gall et al., 1993) — a real, published, externally-validated ICU mortality score using the original point tables and logistic regression equation: logit = -7.7631 + 0.0737 × score + 0.9971 × ln(score + 1).\n\nUnlike /predict/mortality (an unvalidated heuristic on a smaller variable set), this reproduces a citable validated instrument — run both on the same patient to compare. All fields optional; missing variables are listed in the response and the score is a lower bound until supplied.",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": { "$ref": "#/components/schemas/SAPS2Input" },
+                    "examples": {
+                      "severe": { "summary": "Severe — score ≈ 90, ~97% predicted mortality", "value": { "age": 78, "heart_rate": 128, "systolic_bp": 82, "temperature_c": 39.4, "ventilated_or_cpap": true, "pao2_fio2": 150, "urine_output_l_24h": 0.4, "bun_mg_dl": 90, "wbc": 22, "potassium": 5.5, "sodium": 148, "bicarbonate": 14, "bilirubin_total": 5.0, "gcs": 9, "admission_type": "unscheduled_surgical" } },
+                      "mild": { "summary": "Mild — low score, low predicted mortality", "value": { "age": 45, "heart_rate": 90, "systolic_bp": 120, "temperature_c": 37.5, "ventilated_or_cpap": false, "urine_output_l_24h": 1.8, "bun_mg_dl": 18, "wbc": 9, "potassium": 4.0, "sodium": 138, "bicarbonate": 24, "bilirubin_total": 0.8, "gcs": 15, "admission_type": "medical" } }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": { "description": "SAPS II score and predicted mortality", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SAPS2Output" } } } }
+              }
+            }
+          },
           "/fhir/predict": {
             "post": {
               "tags": ["fhir"], "summary": "FHIR R4 RiskAssessment",
@@ -424,6 +446,38 @@
                 "mortality_risk_probability": { "type": "number", "description": "Estimated 30-day in-hospital mortality risk, 0-1", "example": 0.083 },
                 "risk_group": { "type": "string", "enum": ["low", "moderate", "high", "critical"], "example": "moderate" },
                 "contributing_factors": { "type": "array", "items": { "type": "string" }, "description": "Variables that drove the risk estimate upward" },
+                "warning": { "type": "string" }
+              }
+            },
+            "SAPS2Input": {
+              "type": "object",
+              "description": "SAPS II variables — worst value in first 24 ICU hours. All fields optional.",
+              "properties": {
+                "age": { "type": "number", "example": 78 },
+                "heart_rate": { "type": "number", "description": "Worst heart rate, bpm", "example": 128 },
+                "systolic_bp": { "type": "number", "description": "Worst systolic BP, mmHg", "example": 82 },
+                "temperature_c": { "type": "number", "description": "Worst (highest) temperature, °C", "example": 39.4 },
+                "pao2_fio2": { "type": "number", "description": "PaO2/FiO2 ratio — only scored if ventilated_or_cpap is true", "example": 150 },
+                "ventilated_or_cpap": { "type": "boolean", "default": false, "example": true },
+                "urine_output_l_24h": { "type": "number", "description": "Liters/24h", "example": 0.4 },
+                "bun_mg_dl": { "type": "number", "example": 90 },
+                "wbc": { "type": "number", "description": "×10⁹/L", "example": 22 },
+                "potassium": { "type": "number", "description": "mmol/L", "example": 5.5 },
+                "sodium": { "type": "number", "description": "mmol/L", "example": 148 },
+                "bicarbonate": { "type": "number", "description": "mmol/L", "example": 14 },
+                "bilirubin_total": { "type": "number", "description": "mg/dL", "example": 5.0 },
+                "gcs": { "type": "integer", "description": "Glasgow Coma Scale, 3-15", "example": 9 },
+                "admission_type": { "type": "string", "enum": ["scheduled_surgical", "unscheduled_surgical", "medical"], "example": "unscheduled_surgical" },
+                "chronic_disease": { "type": "string", "enum": ["metastatic_cancer", "hematologic_malignancy", "aids"] }
+              }
+            },
+            "SAPS2Output": {
+              "type": "object",
+              "properties": {
+                "saps2_score": { "type": "integer", "description": "Total SAPS II points", "example": 90 },
+                "predicted_mortality_probability": { "type": "number", "description": "SAPS II logistic-regression predicted hospital mortality, 0-1", "example": 0.9667 },
+                "point_breakdown": { "type": "object", "description": "Points contributed by each scored variable", "additionalProperties": { "type": "integer" } },
+                "missing_variables": { "type": "array", "items": { "type": "string" }, "description": "Variables not supplied — score is a lower bound until provided" },
                 "warning": { "type": "string" }
               }
             },

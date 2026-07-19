@@ -1262,3 +1262,205 @@ def predict_mortality(data: MortalityInput):
         risk_group=risk,
         contributing_factors=factors,
     )
+
+
+# ---------------------------------------------------------------------------
+# SAPS II — Simplified Acute Physiology Score II (Le Gall et al., 1993)
+#
+# A real, published, externally-validated ICU mortality score, implemented
+# faithfully from the original point tables and logistic regression
+# equation — unlike /predict/mortality above (a lightweight, unvalidated
+# heuristic), this reproduces a citable clinical instrument so the two can
+# be compared directly on the same patient.
+# ---------------------------------------------------------------------------
+
+class SAPS2Input(BaseModel):
+    age: Optional[float] = Field(None, description="Age in years")
+    heart_rate: Optional[float] = Field(None, description="Worst (highest deviation from normal) heart rate in 24h, bpm")
+    systolic_bp: Optional[float] = Field(None, description="Worst systolic BP in 24h, mmHg")
+    temperature_c: Optional[float] = Field(None, description="Worst (highest) temperature in 24h, °C")
+    pao2_fio2: Optional[float] = Field(None, description="PaO2/FiO2 ratio — only if mechanically ventilated or on CPAP")
+    ventilated_or_cpap: bool = Field(False, description="True if mechanically ventilated or on CPAP (required for PaO2/FiO2 to score)")
+    urine_output_l_24h: Optional[float] = Field(None, description="Urine output, liters/24h")
+    bun_mg_dl: Optional[float] = Field(None, description="Blood urea nitrogen, mg/dL")
+    wbc: Optional[float] = Field(None, description="WBC ×10⁹/L")
+    potassium: Optional[float] = Field(None, description="Serum potassium mmol/L")
+    sodium: Optional[float] = Field(None, description="Serum sodium mmol/L")
+    bicarbonate: Optional[float] = Field(None, description="Serum bicarbonate (HCO3-) mmol/L")
+    bilirubin_total: Optional[float] = Field(None, description="Total bilirubin mg/dL")
+    gcs: Optional[int] = Field(None, description="Glasgow Coma Scale, 3-15")
+    admission_type: Optional[str] = Field(
+        None, description="scheduled_surgical | unscheduled_surgical | medical — omit for 0 points"
+    )
+    chronic_disease: Optional[str] = Field(
+        None, description="metastatic_cancer | hematologic_malignancy | aids — omit if none"
+    )
+
+
+class SAPS2Output(BaseModel):
+    saps2_score: int = Field(description="Total SAPS II points")
+    predicted_mortality_probability: float = Field(description="SAPS II logistic-regression predicted hospital mortality, 0-1")
+    point_breakdown: dict[str, int] = Field(description="Points contributed by each scored variable")
+    missing_variables: list[str] = Field(description="Variables not supplied — score is a lower bound until they're provided")
+    warning: str = RESEARCH_WARNING
+
+
+def _saps2_score(inp: "SAPS2Input") -> tuple[int, float, dict, list]:
+    """Original Le Gall et al. 1993 point tables + logistic regression
+    equation: logit = -7.7631 + 0.0737*score + 0.9971*ln(score+1).
+    """
+    points: dict[str, int] = {}
+    missing: list[str] = []
+
+    def band(value, table, label):
+        for lo, hi, pts in table:
+            if (lo is None or value >= lo) and (hi is None or value < hi):
+                points[label] = pts
+                return
+
+    if inp.age is not None:
+        band(inp.age, [(None, 40, 0), (40, 60, 7), (60, 70, 12), (70, 75, 15), (75, 80, 16), (80, None, 18)], "age")
+    else:
+        missing.append("age")
+
+    if inp.heart_rate is not None:
+        band(inp.heart_rate, [(None, 40, 11), (40, 70, 2), (70, 120, 0), (120, 160, 4), (160, None, 7)], "heart_rate")
+    else:
+        missing.append("heart_rate")
+
+    if inp.systolic_bp is not None:
+        band(inp.systolic_bp, [(None, 70, 13), (70, 100, 5), (100, 200, 0), (200, None, 2)], "systolic_bp")
+    else:
+        missing.append("systolic_bp")
+
+    if inp.temperature_c is not None:
+        points["temperature"] = 3 if inp.temperature_c >= 39.0 else 0
+    else:
+        missing.append("temperature_c")
+
+    if inp.ventilated_or_cpap and inp.pao2_fio2 is not None:
+        band(inp.pao2_fio2, [(None, 100, 11), (100, 200, 9), (200, None, 6)], "pao2_fio2")
+    elif inp.ventilated_or_cpap:
+        missing.append("pao2_fio2 (ventilated but ratio not supplied)")
+    # else: not ventilated -> 0 points, correctly omitted
+
+    if inp.urine_output_l_24h is not None:
+        band(inp.urine_output_l_24h, [(None, 0.5, 11), (0.5, 1.0, 4), (1.0, None, 0)], "urine_output")
+    else:
+        missing.append("urine_output_l_24h")
+
+    if inp.bun_mg_dl is not None:
+        band(inp.bun_mg_dl, [(None, 28, 0), (28, 84, 6), (84, None, 10)], "bun")
+    else:
+        missing.append("bun_mg_dl")
+
+    if inp.wbc is not None:
+        band(inp.wbc, [(None, 1, 12), (1, 20, 0), (20, None, 3)], "wbc")
+    else:
+        missing.append("wbc")
+
+    if inp.potassium is not None:
+        band(inp.potassium, [(None, 3, 3), (3, 5, 0), (5, None, 3)], "potassium")
+    else:
+        missing.append("potassium")
+
+    if inp.sodium is not None:
+        band(inp.sodium, [(None, 125, 5), (125, 145, 0), (145, None, 1)], "sodium")
+    else:
+        missing.append("sodium")
+
+    if inp.bicarbonate is not None:
+        band(inp.bicarbonate, [(None, 15, 6), (15, 20, 3), (20, None, 0)], "bicarbonate")
+    else:
+        missing.append("bicarbonate")
+
+    if inp.bilirubin_total is not None:
+        band(inp.bilirubin_total, [(None, 4.0, 0), (4.0, 6.0, 4), (6.0, None, 9)], "bilirubin")
+    else:
+        missing.append("bilirubin_total")
+
+    if inp.gcs is not None:
+        band(inp.gcs, [(None, 6, 26), (6, 9, 13), (9, 11, 7), (11, 14, 5), (14, None, 0)], "gcs")
+    else:
+        missing.append("gcs")
+
+    admission_points = {"scheduled_surgical": 0, "medical": 6, "unscheduled_surgical": 8}
+    if inp.admission_type in admission_points:
+        points["admission_type"] = admission_points[inp.admission_type]
+    elif inp.admission_type is not None:
+        missing.append("admission_type (unrecognized value)")
+
+    chronic_points = {"metastatic_cancer": 9, "hematologic_malignancy": 10, "aids": 17}
+    if inp.chronic_disease in chronic_points:
+        points["chronic_disease"] = chronic_points[inp.chronic_disease]
+
+    total = sum(points.values())
+    logit = -7.7631 + 0.0737 * total + 0.9971 * math.log(total + 1)
+    proba = round(1.0 / (1.0 + math.exp(-logit)), 4)
+
+    return total, proba, points, missing
+
+
+@app.post(
+    "/predict/saps2",
+    response_model=SAPS2Output,
+    tags=["predict"],
+    summary="SAPS II — Simplified Acute Physiology Score II (validated ICU mortality score)",
+    description=(
+        "Computes **SAPS II** (Le Gall et al., 1993) — a real, published, "
+        "externally-validated ICU mortality score, using the original point "
+        "tables (age, heart rate, systolic BP, temperature, PaO2/FiO2 if "
+        "ventilated, urine output, BUN, WBC, potassium, sodium, "
+        "bicarbonate, bilirubin, GCS, admission type, chronic disease) and "
+        "the original logistic regression equation:\n\n"
+        "`logit = -7.7631 + 0.0737 × score + 0.9971 × ln(score + 1)`\n\n"
+        "Unlike **`/predict/mortality`** (a lightweight, unvalidated "
+        "heuristic on a different, smaller variable set), this reproduces "
+        "a citable, externally-validated clinical instrument — run both "
+        "endpoints on the same patient to compare a real validated score "
+        "against the simpler heuristic.\n\n"
+        "All fields are optional; missing variables are listed in the "
+        "response and the score is a lower bound until they're supplied — "
+        "SAPS II is designed to use the *worst* value of each variable "
+        "in the first 24 ICU hours.\n\n"
+        "⚠️ RESEARCH USE ONLY — SAPS II was validated on general ICU "
+        "populations, not specifically on acute pancreatitis."
+    ),
+    openapi_extra={
+        "requestBody": {
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "severe": {
+                            "summary": "Severe — score ≈ 90, ~97% predicted mortality",
+                            "value": {
+                                "age": 78, "heart_rate": 128, "systolic_bp": 82, "temperature_c": 39.4,
+                                "ventilated_or_cpap": True, "pao2_fio2": 150, "urine_output_l_24h": 0.4,
+                                "bun_mg_dl": 90, "wbc": 22, "potassium": 5.5, "sodium": 148,
+                                "bicarbonate": 14, "bilirubin_total": 5.0, "gcs": 9,
+                                "admission_type": "unscheduled_surgical",
+                            },
+                        },
+                        "mild": {
+                            "summary": "Mild — low score, low predicted mortality",
+                            "value": {
+                                "age": 45, "heart_rate": 90, "systolic_bp": 120, "temperature_c": 37.5,
+                                "ventilated_or_cpap": False, "urine_output_l_24h": 1.8, "bun_mg_dl": 18,
+                                "wbc": 9, "potassium": 4.0, "sodium": 138, "bicarbonate": 24,
+                                "bilirubin_total": 0.8, "gcs": 15, "admission_type": "medical",
+                            },
+                        },
+                    }
+                }
+            }
+        }
+    },
+)
+def predict_saps2(data: SAPS2Input):
+    total, proba, points, missing = _saps2_score(data)
+    return SAPS2Output(
+        saps2_score=total,
+        predicted_mortality_probability=proba,
+        point_breakdown=points,
+        missing_variables=missing,
+    )
