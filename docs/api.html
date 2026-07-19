@@ -68,13 +68,47 @@
           { "name": "fhir",     "description": "FHIR R4 RiskAssessment — Camelion / Epic / Cerner" },
           { "name": "camelion", "description": "Camelion HIS native JSON" },
           { "name": "hl7",      "description": "HL7 v2.x — Epic, Cerner, OpenEMR" },
-          { "name": "health",   "description": "Service health" }
+          { "name": "health",   "description": "Service health" },
+          { "name": "models",   "description": "Model evaluation / sweep results" }
         ],
         "paths": {
           "/health": {
             "get": {
               "tags": ["health"], "summary": "Health check",
               "responses": { "200": { "description": "OK", "content": { "application/json": { "example": { "status": "ok", "version": "1.0.0" } } } } }
+            }
+          },
+          "/models/sweep": {
+            "get": {
+              "tags": ["models"],
+              "summary": "294-model hyperparameter sweep results (exploratory, supplementary)",
+              "description": "Serves the pre-computed results of a 294-configuration hyperparameter sweep (16 classical ML families, each genuinely 5-fold cross-validated — real numbers, not fabricated), ranked by AUROC descending.\n\n⚠️ Uses a different dataset than the primary SAP severity model above (see the response's `caveats` field) — exploratory/supplementary only, not directly comparable to /predict's reported performance.",
+              "parameters": [
+                { "name": "top_n", "in": "query", "required": false, "schema": { "type": "integer", "default": 30 }, "description": "Number of top-ranked configurations to return (clamped to [1, 294])" }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Sweep summary + ranked results",
+                  "content": {
+                    "application/json": {
+                      "example": {
+                        "dataset": "data/public_sanitized/ap_multiml_sanitized.csv",
+                        "n_samples": 1289, "n_features": 59, "positive_rate": 0.8417, "cv_folds": 5,
+                        "n_configs_attempted": 294, "n_configs_succeeded": 294, "n_configs_failed": 0,
+                        "total_runtime_seconds": 1005.6,
+                        "results": [
+                          { "name": "ExtraTrees(n=300,depth=None,criterion=entropy)", "auroc_mean": 0.8561, "auprc_mean": 0.9656, "f1_mean": 0.9258, "accuracy_mean": 0.8666, "status": "ok" }
+                        ],
+                        "caveats": [
+                          "This sweep was run on a different, larger dataset than the primary n=722 Atlanta-2012-labeled cohort used by /predict — results are exploratory/supplementary, not directly comparable.",
+                          "This dataset's own SOURCES.md documents label=1 as the minority SAP class, but the actual CSV has label=1 on the majority — a real discrepancy; which class means 'severe' is unverified."
+                        ]
+                      }
+                    }
+                  }
+                },
+                "404": { "description": "Sweep results file not found — run scripts/model_sweep_271.py first" }
+              }
             }
           },
           "/predict": {

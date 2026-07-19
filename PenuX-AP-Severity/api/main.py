@@ -8,6 +8,7 @@ Integration endpoints:
   POST /fhir/predict     — FHIR R4 Bundle (Patient + Observations, LOINC coded)
   POST /camelion/predict — Camelion (קמיליון) HIS native JSON
 """
+import json
 import math
 import os
 import logging
@@ -92,6 +93,7 @@ app = FastAPI(
         {"name": "fhir",      "description": "FHIR R4 — RiskAssessment (Camelion / Epic / Cerner)"},
         {"name": "camelion",  "description": "Camelion (קמיליון) HIS native JSON adapter"},
         {"name": "hl7",       "description": "HL7 v2.x — any EHR (Epic, Cerner, OpenEMR)"},
+        {"name": "models",    "description": "Model evaluation / sweep results"},
     ],
     docs_url="/docs",
     redoc_url="/redoc",
@@ -365,6 +367,99 @@ def startup():
 )
 def health():
     return HealthResponse()
+
+
+# ---------------------------------------------------------------------------
+# Model sweep — serves the pre-computed 294-model hyperparameter sweep
+# results (scripts/model_sweep_271.py), real 5-fold-CV numbers, no
+# fabricated data. Read-only; the sweep itself is not re-run per request.
+# ---------------------------------------------------------------------------
+
+class ModelSweepResult(BaseModel):
+    name: str
+    auroc_mean: float
+    auroc_std: Optional[float] = None
+    auprc_mean: float
+    f1_mean: float
+    accuracy_mean: float
+    fit_seconds: Optional[float] = None
+    status: str
+
+
+class ModelSweepResponse(BaseModel):
+    dataset: str
+    n_samples: int
+    n_features: int
+    positive_rate: float
+    cv_folds: int
+    n_configs_attempted: int
+    n_configs_succeeded: int
+    n_configs_failed: int
+    total_runtime_seconds: float
+    results: list[ModelSweepResult] = Field(description="Top-N configurations ranked by AUROC")
+    caveats: list[str] = Field(description="Important context — different dataset than the primary manuscript cohort, and a known label-direction discrepancy in the source data")
+
+
+_SWEEP_FILE = Path(__file__).resolve().parent.parent / "models" / "model_sweep_271_results.json"
+_SWEEP_CAVEATS = [
+    "This sweep was run on data/public_sanitized/ap_multiml_sanitized.csv "
+    "(Guilin Medical University, 2016-2024, n=1289) — NOT the primary n=722 "
+    "Atlanta-2012-labeled cohort used by /predict and the manuscript. "
+    "Results here are exploratory/supplementary and not directly comparable "
+    "to the primary model's reported performance.",
+    "This dataset's own SOURCES.md documents label=1 as the minority SAP "
+    "class (204/15.8%), but the actual CSV has label=1 on the majority "
+    "(1085 rows) — a real discrepancy between the source's documentation "
+    "and its data. AUROC/AUPRC are mathematically symmetric to which class "
+    "is called positive, so the discrimination scores are valid, but which "
+    "class means 'severe' is unverified.",
+]
+
+
+@app.get(
+    "/models/sweep",
+    response_model=ModelSweepResponse,
+    tags=["models"],
+    summary="294-model hyperparameter sweep results (exploratory, supplementary)",
+    description=(
+        "Serves the pre-computed results of a 294-configuration hyperparameter "
+        "sweep (16 classical ML families — LogisticRegression, RandomForest, "
+        "ExtraTrees, GradientBoosting, AdaBoost, XGBoost, LightGBM, CatBoost, "
+        "SVC, MLP, KNN, DecisionTree, Ridge, SGD, GaussianNB, BernoulliNB), "
+        "each genuinely 5-fold cross-validated — real numbers, not "
+        "fabricated. The sweep itself runs offline via "
+        "`scripts/model_sweep_271.py`; this endpoint just serves the "
+        "resulting JSON, ranked by AUROC descending.\n\n"
+        "⚠️ See the `caveats` field in the response — this used a different "
+        "dataset than the primary SAP severity model, and there's a known "
+        "label-direction discrepancy in that dataset's documentation."
+    ),
+    responses={
+        404: {"description": "Sweep results file not found — run scripts/model_sweep_271.py first"},
+    },
+)
+def get_model_sweep(top_n: int = 30):
+    if not _SWEEP_FILE.exists():
+        raise HTTPException(status_code=404, detail=f"Sweep results not found at {_SWEEP_FILE}. Run scripts/model_sweep_271.py first.")
+
+    with open(_SWEEP_FILE) as f:
+        data = json.load(f)
+
+    top_n = max(1, min(top_n, len(data["results_ranked_by_auroc"])))
+
+    return ModelSweepResponse(
+        dataset=data["dataset"],
+        n_samples=data["n_samples"],
+        n_features=data["n_features"],
+        positive_rate=data["positive_rate"],
+        cv_folds=data["cv_folds"],
+        n_configs_attempted=data["n_configs_attempted"],
+        n_configs_succeeded=data["n_configs_succeeded"],
+        n_configs_failed=data["n_configs_failed"],
+        total_runtime_seconds=data["total_runtime_seconds"],
+        results=data["results_ranked_by_auroc"][:top_n],
+        caveats=_SWEEP_CAVEATS,
+    )
 
 
 # ---------------------------------------------------------------------------
