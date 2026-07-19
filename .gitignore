@@ -5,6 +5,7 @@ __pycache__/
 # Python env
 .env/
 .venv/
+.venv_sweep/
 
 # Data outputs
 docs/images/
