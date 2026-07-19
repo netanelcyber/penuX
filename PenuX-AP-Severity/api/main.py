@@ -1088,3 +1088,177 @@ def predict_deterioration(data: DeteriorationInput):
         component_scores=component_scores,
         escalation=escalation,
     )
+
+
+# ---------------------------------------------------------------------------
+# 30-day in-hospital mortality risk — routine admission variables
+# ---------------------------------------------------------------------------
+
+class MortalityInput(BaseModel):
+    age: Optional[float] = Field(None, description="Age in years")
+    comorbidity_count: Optional[int] = Field(
+        None, description="Number of major comorbidities (e.g. CHF, COPD, cirrhosis, CKD, active malignancy, diabetes with end-organ damage)"
+    )
+    systolic_bp: Optional[float] = Field(None, description="Systolic BP mmHg")
+    heart_rate: Optional[float] = Field(None, description="Heart rate bpm")
+    respiratory_rate: Optional[float] = Field(None, description="Respiratory rate /min")
+    temperature_c: Optional[float] = Field(None, description="Body temperature °C")
+    spo2: Optional[float] = Field(None, description="SpO2 %")
+    consciousness_altered: Optional[bool] = Field(None, description="Altered consciousness (anything other than fully Alert)")
+    creatinine: Optional[float] = Field(None, description="Creatinine mg/dL")
+    bun: Optional[float] = Field(None, description="BUN mg/dL")
+    bilirubin_total: Optional[float] = Field(None, description="Total bilirubin mg/dL")
+    albumin: Optional[float] = Field(None, description="Albumin g/dL")
+    platelets: Optional[float] = Field(None, description="Platelets ×10³/µL")
+    lactate: Optional[float] = Field(None, description="Lactate mmol/L")
+    wbc: Optional[float] = Field(None, description="WBC ×10⁹/L")
+
+
+class MortalityOutput(BaseModel):
+    mortality_risk_probability: float = Field(description="Estimated 30-day in-hospital mortality risk, 0-1")
+    risk_group: str = Field(description="low | moderate | high | critical")
+    contributing_factors: list[str] = Field(description="Variables that drove the risk estimate upward")
+    warning: str = RESEARCH_WARNING
+
+
+def _mortality_score(inp: "MortalityInput") -> tuple[float, str, list[str]]:
+    """Logistic combination of age, comorbidity burden, hemodynamic
+    instability, and organ-dysfunction labs — a lightweight, explainable
+    stand-in for a full APACHE II / SAPS-style score, intended for research
+    use on routine admission-panel variables (not curve-fit to any specific
+    cohort).
+    """
+    factors: list[str] = []
+    logit = -4.2  # anchors ~1.5% baseline risk when nothing else is abnormal
+
+    if inp.age is not None:
+        if inp.age > 65:
+            age_term = 0.03 * (inp.age - 65)
+            logit += age_term
+            if inp.age > 75:
+                factors.append(f"Advanced age ({inp.age:.0f})")
+
+    if inp.comorbidity_count is not None and inp.comorbidity_count > 0:
+        logit += 0.35 * inp.comorbidity_count
+        factors.append(f"Comorbidity burden ({inp.comorbidity_count} major comorbidities)")
+
+    if inp.systolic_bp is not None and inp.systolic_bp < 90:
+        logit += 0.9
+        factors.append(f"Hypotension (SBP {inp.systolic_bp} < 90)")
+
+    if inp.heart_rate is not None and inp.heart_rate > 120:
+        logit += 0.4
+        factors.append(f"Severe tachycardia (HR {inp.heart_rate} > 120)")
+
+    if inp.respiratory_rate is not None and inp.respiratory_rate > 24:
+        logit += 0.4
+        factors.append(f"Tachypnea (RR {inp.respiratory_rate} > 24)")
+
+    if inp.temperature_c is not None and (inp.temperature_c < 35.0 or inp.temperature_c > 39.5):
+        logit += 0.5
+        factors.append(f"Temperature dysregulation ({inp.temperature_c}°C)")
+
+    if inp.spo2 is not None and inp.spo2 < 90:
+        logit += 0.6
+        factors.append(f"Hypoxia (SpO2 {inp.spo2}% < 90%)")
+
+    if inp.consciousness_altered:
+        logit += 0.8
+        factors.append("Altered consciousness")
+
+    if inp.creatinine is not None and inp.creatinine > 2.0:
+        logit += 0.5
+        factors.append(f"Renal dysfunction (Creatinine {inp.creatinine} > 2.0)")
+
+    if inp.bun is not None and inp.bun > 40:
+        logit += 0.3
+        factors.append(f"Elevated BUN ({inp.bun} > 40)")
+
+    if inp.bilirubin_total is not None and inp.bilirubin_total > 3.0:
+        logit += 0.4
+        factors.append(f"Hepatic dysfunction (Bilirubin {inp.bilirubin_total} > 3.0)")
+
+    if inp.albumin is not None and inp.albumin < 2.5:
+        logit += 0.5
+        factors.append(f"Hypoalbuminemia (Albumin {inp.albumin} < 2.5)")
+
+    if inp.platelets is not None and inp.platelets < 100:
+        logit += 0.4
+        factors.append(f"Thrombocytopenia (Platelets {inp.platelets} < 100)")
+
+    if inp.lactate is not None and inp.lactate > 2.0:
+        logit += 0.5 * min(inp.lactate / 2.0, 3.0)
+        factors.append(f"Elevated lactate ({inp.lactate} mmol/L)")
+
+    if inp.wbc is not None and (inp.wbc > 15.0 or inp.wbc < 3.0):
+        logit += 0.3
+        factors.append(f"Leukocyte abnormality (WBC {inp.wbc})")
+
+    proba = round(1.0 / (1.0 + math.exp(-logit)), 4)
+
+    if proba < 0.05:
+        risk = "low"
+    elif proba < 0.20:
+        risk = "moderate"
+    elif proba < 0.50:
+        risk = "high"
+    else:
+        risk = "critical"
+
+    return proba, risk, factors
+
+
+@app.post(
+    "/predict/mortality",
+    response_model=MortalityOutput,
+    tags=["predict"],
+    summary="30-day in-hospital mortality risk — routine admission variables",
+    description=(
+        "Estimates 30-day in-hospital mortality risk from routine admission "
+        "variables: age, comorbidity burden, hemodynamic/respiratory "
+        "instability, consciousness, and organ-dysfunction labs (renal, "
+        "hepatic, coagulation, lactate).\n\n"
+        "All fields are optional — supply whatever is available.\n\n"
+        "**Risk groups:** low (<5%) · moderate (5–20%) · high (20–50%) · "
+        "critical (>50%)\n\n"
+        "This is a lightweight, explainable logistic combination of known "
+        "mortality risk factors — **not** a validated score like APACHE II "
+        "or SAPS II, and not specific to any single diagnosis.\n\n"
+        "⚠️ RESEARCH USE ONLY — not for prognostication in individual "
+        "patient care."
+    ),
+    openapi_extra={
+        "requestBody": {
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "critical": {
+                            "summary": "Critical — elderly, multi-organ dysfunction",
+                            "value": {
+                                "age": 82, "comorbidity_count": 3, "systolic_bp": 82, "heart_rate": 128,
+                                "respiratory_rate": 28, "temperature_c": 35.2, "spo2": 87,
+                                "consciousness_altered": True, "creatinine": 3.1, "bilirubin_total": 4.2,
+                                "albumin": 2.1, "platelets": 78, "lactate": 5.5,
+                            },
+                        },
+                        "moderate": {
+                            "summary": "Moderate — older patient, mild organ stress",
+                            "value": {"age": 75, "comorbidity_count": 2, "bun": 45, "albumin": 2.4},
+                        },
+                        "low_risk": {
+                            "summary": "Low — young, no comorbidities, normal vitals/labs",
+                            "value": {"age": 38, "comorbidity_count": 0, "systolic_bp": 118, "heart_rate": 76, "spo2": 98},
+                        },
+                    }
+                }
+            }
+        }
+    },
+)
+def predict_mortality(data: MortalityInput):
+    proba, risk, factors = _mortality_score(data)
+    return MortalityOutput(
+        mortality_risk_probability=proba,
+        risk_group=risk,
+        contributing_factors=factors,
+    )

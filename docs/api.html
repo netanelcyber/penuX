@@ -190,6 +190,29 @@
               }
             }
           },
+          "/predict/mortality": {
+            "post": {
+              "tags": ["predict"],
+              "summary": "30-day in-hospital mortality risk — routine admission variables",
+              "description": "Estimates 30-day in-hospital mortality risk from age, comorbidity burden, hemodynamic/respiratory instability, consciousness, and organ-dysfunction labs (renal, hepatic, coagulation, lactate). All fields optional.\n\nRisk groups: low (<5%) · moderate (5–20%) · high (20–50%) · critical (>50%).\n\nLightweight explainable logistic combination of known risk factors — not a validated score like APACHE II/SAPS II.",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": { "$ref": "#/components/schemas/MortalityInput" },
+                    "examples": {
+                      "critical": { "summary": "Critical — elderly, multi-organ dysfunction", "value": { "age": 82, "comorbidity_count": 3, "systolic_bp": 82, "heart_rate": 128, "respiratory_rate": 28, "temperature_c": 35.2, "spo2": 87, "consciousness_altered": true, "creatinine": 3.1, "bilirubin_total": 4.2, "albumin": 2.1, "platelets": 78, "lactate": 5.5 } },
+                      "moderate": { "summary": "Moderate — older patient, mild organ stress", "value": { "age": 75, "comorbidity_count": 2, "bun": 45, "albumin": 2.4 } },
+                      "low_risk": { "summary": "Low — young, no comorbidities, normal vitals/labs", "value": { "age": 38, "comorbidity_count": 0, "systolic_bp": 118, "heart_rate": 76, "spo2": 98 } }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": { "description": "Mortality risk result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MortalityOutput" } } } }
+              }
+            }
+          },
           "/fhir/predict": {
             "post": {
               "tags": ["fhir"], "summary": "FHIR R4 RiskAssessment",
@@ -371,6 +394,36 @@
                 "risk_group": { "type": "string", "enum": ["low", "low-medium", "medium", "high"], "example": "medium" },
                 "component_scores": { "type": "object", "description": "Per-parameter NEWS2 sub-scores", "additionalProperties": { "type": "integer" } },
                 "escalation": { "type": "string", "description": "Suggested monitoring/escalation per RCP NEWS2 guidance" },
+                "warning": { "type": "string" }
+              }
+            },
+            "MortalityInput": {
+              "type": "object",
+              "description": "Routine admission variables for 30-day mortality risk. All fields optional.",
+              "properties": {
+                "age": { "type": "number", "description": "Age in years", "example": 75 },
+                "comorbidity_count": { "type": "integer", "description": "Number of major comorbidities (CHF, COPD, cirrhosis, CKD, active malignancy, etc.)", "example": 2 },
+                "systolic_bp": { "type": "number", "description": "Systolic BP mmHg", "example": 105 },
+                "heart_rate": { "type": "number", "description": "Heart rate bpm", "example": 95 },
+                "respiratory_rate": { "type": "number", "description": "Respiratory rate /min", "example": 20 },
+                "temperature_c": { "type": "number", "description": "Body temperature °C", "example": 37.5 },
+                "spo2": { "type": "number", "description": "SpO2 %", "example": 95 },
+                "consciousness_altered": { "type": "boolean", "example": false },
+                "creatinine": { "type": "number", "description": "Creatinine mg/dL", "example": 1.4 },
+                "bun": { "type": "number", "description": "BUN mg/dL", "example": 32 },
+                "bilirubin_total": { "type": "number", "description": "Total bilirubin mg/dL", "example": 1.8 },
+                "albumin": { "type": "number", "description": "Albumin g/dL", "example": 2.8 },
+                "platelets": { "type": "number", "description": "Platelets ×10³/µL", "example": 140 },
+                "lactate": { "type": "number", "description": "Lactate mmol/L", "example": 2.5 },
+                "wbc": { "type": "number", "description": "WBC ×10⁹/L", "example": 13.5 }
+              }
+            },
+            "MortalityOutput": {
+              "type": "object",
+              "properties": {
+                "mortality_risk_probability": { "type": "number", "description": "Estimated 30-day in-hospital mortality risk, 0-1", "example": 0.083 },
+                "risk_group": { "type": "string", "enum": ["low", "moderate", "high", "critical"], "example": "moderate" },
+                "contributing_factors": { "type": "array", "items": { "type": "string" }, "description": "Variables that drove the risk estimate upward" },
                 "warning": { "type": "string" }
               }
             },
