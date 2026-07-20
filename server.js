@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { startReplyWatcher } from './reply-watcher.js';
 import { getClient, wrapCompat } from './db.js';
+import predictRoutes from './predict-routes.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -40,6 +41,14 @@ if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
 app.use(cors());
 app.use(express.json());
 app.use(express.static(join(__dirname, 'public')));
+
+// PenuX-AP-Severity prediction endpoints (/predict, /predict/sepsis,
+// /predict/deterioration, /predict/mortality, /predict/saps2,
+// /predict/polynomial-logit, /models/sweep) — ported from the Python
+// FastAPI service (PenuX-AP-Severity/api/main.py) so this single Node
+// deployment serves both the task board and the prediction API. See
+// predict-routes.js for the full port with source-of-truth notes.
+app.use(predictRoutes);
 
 // Initialize database (properly sequenced with awaits — libsql's promise
 // API doesn't have sqlite3's implicit serialize() queueing behavior).
