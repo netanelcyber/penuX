@@ -1,0 +1,101 @@
+[
+  {
+    "threshold": 0.1,
+    "TP": 4,
+    "TN": 0,
+    "FP": 4,
+    "FN": 0,
+    "sensitivity": 1.0,
+    "specificity": 0.0,
+    "ppv": 0.5,
+    "npv": null
+  },
+  {
+    "threshold": 0.2,
+    "TP": 2,
+    "TN": 3,
+    "FP": 1,
+    "FN": 2,
+    "sensitivity": 0.5,
+    "specificity": 0.75,
+    "ppv": 0.6667,
+    "npv": 0.6
+  },
+  {
+    "threshold": 0.3,
+    "TP": 1,
+    "TN": 4,
+    "FP": 0,
+    "FN": 3,
+    "sensitivity": 0.25,
+    "specificity": 1.0,
+    "ppv": 1.0,
+    "npv": 0.5714
+  },
+  {
+    "threshold": 0.4,
+    "TP": 0,
+    "TN": 4,
+    "FP": 0,
+    "FN": 4,
+    "sensitivity": 0.0,
+    "specificity": 1.0,
+    "ppv": null,
+    "npv": 0.5
+  },
+  {
+    "threshold": 0.5,
+    "TP": 0,
+    "TN": 4,
+    "FP": 0,
+    "FN": 4,
+    "sensitivity": 0.0,
+    "specificity": 1.0,
+    "ppv": null,
+    "npv": 0.5
+  },
+  {
+    "threshold": 0.6,
+    "TP": 0,
+    "TN": 4,
+    "FP": 0,
+    "FN": 4,
+    "sensitivity": 0.0,
+    "specificity": 1.0,
+    "ppv": null,
+    "npv": 0.5
+  },
+  {
+    "threshold": 0.7,
+    "TP": 0,
+    "TN": 4,
+    "FP": 0,
+    "FN": 4,
+    "sensitivity": 0.0,
+    "specificity": 1.0,
+    "ppv": null,
+    "npv": 0.5
+  },
+  {
+    "threshold": 0.8,
+    "TP": 0,
+    "TN": 4,
+    "FP": 0,
+    "FN": 4,
+    "sensitivity": 0.0,
+    "specificity": 1.0,
+    "ppv": null,
+    "npv": 0.5
+  },
+  {
+    "threshold": 0.9,
+    "TP": 0,
+    "TN": 4,
+    "FP": 0,
+    "FN": 4,
+    "sensitivity": 0.0,
+    "specificity": 1.0,
+    "ppv": null,
+    "npv": 0.5
+  }
+]

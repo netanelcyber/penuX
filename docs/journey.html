@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clinical Decision Support — Patient Journey · PenuX</title>
+  <meta name="description" content="How PenuX integrates into the acute pancreatitis patient pathway — from ED arrival to ICU triage. AI-assisted severity stratification using routine admission labs." />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue:      #1a56db;
+      --blue-dk:   #1e429f;
+      --blue-lt:   #e8f0fe;
+      --red:       #c81e1e;
+      --red-lt:    #fde8e8;
+      --green:     #057a55;
+      --green-lt:  #def7ec;
+      --amber:     #92400e;
+      --amber-lt:  #fdf3c0;
+      --gray-50:   #f9fafb;
+      --gray-100:  #f3f4f6;
+      --gray-200:  #e5e7eb;
+      --gray-400:  #9ca3af;
+      --gray-600:  #4b5563;
+      --gray-700:  #374151;
+      --gray-800:  #1f2937;
+      --gray-900:  #111827;
+      --white:     #ffffff;
+      --radius:    8px;
+      --shadow:    0 1px 3px rgba(0,0,0,.10), 0 1px 2px rgba(0,0,0,.06);
+      --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+      --shadow-lg: 0 10px 15px rgba(0,0,0,.08), 0 4px 6px rgba(0,0,0,.05);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; color: var(--gray-800); background: var(--white); line-height: 1.6; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,.95); backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .nav-brand { display: flex; align-items: center; gap: .6rem; font-weight: 700; font-size: 1.1rem; color: var(--blue-dk); text-decoration: none; }
+    .nav-brand svg { width: 28px; height: 28px; }
+    .nav-links { display: flex; gap: 1.8rem; list-style: none; }
+    .nav-links a { color: var(--gray-600); text-decoration: none; font-size: .9rem; font-weight: 500; transition: color .15s; }
+    .nav-links a:hover { color: var(--blue); }
+    .nav-links a.active { color: var(--blue); border-bottom: 2px solid var(--blue); padding-bottom: 2px; }
+    .nav-cta { background: var(--blue); color: var(--white) !important; padding: .4rem 1rem; border-radius: 6px; }
+    .nav-cta:hover { background: var(--blue-dk) !important; color: var(--white) !important; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1a56db 55%, #2563eb 100%);
+      color: var(--white);
+      padding: 5rem 2rem 4.5rem;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+      padding: .3rem .9rem; border-radius: 999px; font-size: .8rem; font-weight: 500;
+      margin-bottom: 1.5rem;
+    }
+    .hero-badge::before {
+      content: ''; display: inline-block; width: 7px; height: 7px;
+      border-radius: 50%; background: #86efac; flex-shrink: 0;
+    }
+    .hero h1 { font-size: clamp(1.9rem, 4.5vw, 3rem); font-weight: 700; line-height: 1.2; max-width: 780px; margin: 0 auto 1rem; }
+    .hero h1 span { color: #93c5fd; }
+    .hero p { font-size: 1.1rem; color: rgba(255,255,255,.85); max-width: 640px; margin: 0 auto; }
+
+    /* ── SECTIONS ── */
+    section { padding: 4rem 2rem; }
+    .bg-gray { background: var(--gray-50); }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-header { text-align: center; margin-bottom: 3rem; }
+    .section-header h2 { font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 700; color: var(--gray-900); margin-bottom: .6rem; }
+    .section-header p { color: var(--gray-600); font-size: 1rem; max-width: 560px; margin: 0 auto; }
+
+    /* ── BUTTONS ── */
+    .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .65rem 1.4rem; border-radius: var(--radius); font-weight: 600; font-size: .95rem; text-decoration: none; transition: all .15s; border: 2px solid transparent; }
+    .btn-white { background: var(--white); color: var(--blue-dk); }
+    .btn-white:hover { background: var(--blue-lt); }
+    .btn-outline-white { background: transparent; color: var(--white); border-color: rgba(255,255,255,.6); }
+    .btn-outline-white:hover { background: rgba(255,255,255,.1); }
+    .btn-blue { background: var(--blue); color: var(--white); }
+    .btn-blue:hover { background: var(--blue-dk); }
+    .btn-outline { background: transparent; color: var(--blue); border-color: var(--blue); }
+    .btn-outline:hover { background: var(--blue-lt); }
+
+    /* ── JOURNEY TIMELINE ── */
+    .timeline-wrap { position: relative; padding: 1rem 0 2rem; }
+
+    .timeline-track {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0;
+      position: relative;
+    }
+    /* Horizontal connector */
+    .timeline-track::before {
+      content: '';
+      position: absolute;
+      top: 27px;
+      left: calc(100% / 12);
+      right: calc(100% / 12);
+      height: 3px;
+      background: linear-gradient(90deg, #bfdbfe, var(--blue), #bfdbfe);
+      z-index: 0;
+    }
+
+    .timeline-step {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; padding: 0 .6rem;
+      position: relative; z-index: 1;
+    }
+    .step-circle {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--white); border: 3px solid var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--blue);
+      box-shadow: 0 0 0 5px var(--blue-lt), var(--shadow-md);
+      margin-bottom: 1.1rem; flex-shrink: 0;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .timeline-step:hover .step-circle { transform: scale(1.1); box-shadow: 0 0 0 6px #bfdbfe, var(--shadow-lg); }
+    .step-body { flex: 1; }
+    .step-num {
+      font-size: .63rem; font-weight: 800; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--blue); margin-bottom: .25rem;
+    }
+    .step-title { font-size: .92rem; font-weight: 700; color: var(--gray-900); margin-bottom: .4rem; line-height: 1.3; }
+    .step-desc { font-size: .77rem; color: var(--gray-600); line-height: 1.55; }
+
+    /* Highlighted PenuX step */
+    .timeline-step.penux-step .step-circle {
+      background: var(--blue); color: var(--white);
+      border-color: var(--blue-dk);
+      box-shadow: 0 0 0 5px var(--blue-lt), 0 8px 20px rgba(26,86,219,.35);
+    }
+    .timeline-step.penux-step .step-num { color: var(--blue-dk); }
+    .timeline-step.penux-step .step-title { color: var(--blue-dk); }
+
+    /* Small inline chips */
+    .chip {
+      display: inline-block; margin-top: .45rem;
+      font-size: .67rem; font-weight: 700; padding: .15rem .5rem; border-radius: 999px;
+    }
+    .chip-amber { background: #fef3c7; border: 1px solid #f59e0b; color: var(--amber); }
+    .chip-green { background: var(--green-lt); border: 1px solid #34d399; color: var(--green); }
+
+    /* ── TIMING CALLOUT ── */
+    .callout {
+      background: var(--blue-lt); border: 1px solid #bfdbfe; border-radius: var(--radius);
+      padding: 1.1rem 1.5rem; margin-top: 2rem;
+      display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
+    }
+    .callout-icon { font-size: 1.6rem; flex-shrink: 0; }
+    .callout p { font-size: .9rem; color: var(--blue-dk); margin: 0; }
+    .callout strong { color: var(--blue-dk); }
+
+    /* ── RISK TIER CARDS ── */
+    .risk-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .risk-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-left: 5px solid;
+      border-radius: var(--radius);
+      padding: 1.6rem 1.5rem;
+      box-shadow: var(--shadow-md);
+      transition: box-shadow .2s, transform .2s;
+    }
+    .risk-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+    .risk-card.low  { border-left-color: var(--green); }
+    .risk-card.mod  { border-left-color: #f59e0b; }
+    .risk-card.high { border-left-color: var(--red); }
+
+    .risk-header { display: flex; align-items: center; gap: .7rem; margin-bottom: .9rem; }
+    .risk-icon { font-size: 1.6rem; line-height: 1; }
+    .risk-label { font-size: 1.1rem; font-weight: 700; }
+    .risk-card.low  .risk-label { color: var(--green); }
+    .risk-card.mod  .risk-label { color: #b45309; }
+    .risk-card.high .risk-label { color: var(--red); }
+
+    .risk-prob {
+      display: inline-block; font-size: .8rem; font-weight: 700;
+      padding: .2rem .65rem; border-radius: 999px; margin-bottom: 1rem;
+    }
+    .risk-card.low  .risk-prob { background: var(--green-lt); color: var(--green); }
+    .risk-card.mod  .risk-prob { background: #fffbeb; color: #b45309; }
+    .risk-card.high .risk-prob { background: var(--red-lt); color: var(--red); }
+
+    .risk-card h4 { font-size: .85rem; font-weight: 600; color: var(--gray-700); margin-bottom: .5rem; }
+    .risk-card ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: .25rem; }
+    .risk-card ul li { font-size: .82rem; color: var(--gray-600); display: flex; gap: .4rem; }
+    .risk-card ul li::before { content: '\2192'; font-weight: 700; flex-shrink: 0; }
+    .risk-card.low  ul li::before { color: var(--green); }
+    .risk-card.mod  ul li::before { color: #b45309; }
+    .risk-card.high ul li::before { color: var(--red); }
+
+    /* ── COMPARISON TABLE ── */
+    .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--gray-200); background: var(--white); box-shadow: var(--shadow-md); }
+    table { width: 100%; border-collapse: collapse; font-size: .87rem; }
+    th {
+      background: var(--gray-50); color: var(--gray-600); font-weight: 600;
+      font-size: .73rem; text-transform: uppercase; letter-spacing: .05em;
+      padding: .75rem 1rem; text-align: left; border-bottom: 2px solid var(--gray-200);
+      white-space: nowrap;
+    }
+    td { padding: .75rem 1rem; border-bottom: 1px solid var(--gray-100); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr.penux-row { background: var(--blue-lt); }
+    tr.penux-row td { font-weight: 600; color: var(--blue-dk); }
+    .badge { display: inline-block; padding: .15rem .5rem; border-radius: 4px; font-size: .72rem; font-weight: 700; white-space: nowrap; }
+    .badge-blue   { background: #dbeafe; color: #1e40af; }
+    .badge-green  { background: var(--green-lt); color: var(--green); }
+    .badge-amber  { background: #fef3c7; color: var(--amber); }
+    .badge-red    { background: var(--red-lt); color: var(--red); }
+
+    /* ── PRIVACY ── */
+    .privacy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.2rem;
+    }
+    .privacy-card {
+      background: var(--white); border: 1px solid var(--gray-200);
+      border-radius: var(--radius); padding: 1.3rem 1.4rem; box-shadow: var(--shadow);
+      display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .privacy-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1; margin-top: .1rem; }
+    .privacy-card h4 { font-size: .9rem; font-weight: 700; color: var(--gray-900); margin-bottom: .3rem; }
+    .privacy-card p { font-size: .82rem; color: var(--gray-600); line-height: 1.55; }
+    .disclaimer-box {
+      background: #fffbeb; border: 1px solid #f59e0b; border-radius: var(--radius);
+      padding: 1.2rem 1.5rem; display: flex; gap: 1rem; align-items: flex-start;
+      margin-top: 2rem;
+    }
+    .disclaimer-box .d-icon { font-size: 1.4rem; flex-shrink: 0; line-height: 1; margin-top: .1rem; }
+    .disclaimer-box p { font-size: .88rem; color: #78350f; font-style: italic; margin: 0; line-height: 1.6; }
+
+    /* ── DATA FLOW ── */
+    .dataflow {
+      display: flex; align-items: stretch; flex-wrap: wrap;
+      gap: 0; justify-content: center;
+    }
+    .flow-node {
+      background: var(--white); border: 2px solid var(--gray-200); border-radius: var(--radius);
+      padding: 1rem 1.1rem; text-align: center; min-width: 110px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3rem;
+      box-shadow: var(--shadow); transition: border-color .2s, box-shadow .2s;
+    }
+    .flow-node:hover { border-color: var(--blue); box-shadow: var(--shadow-md); }
+    .flow-node.hl { border-color: var(--blue); background: var(--blue-lt); }
+    .flow-icon { font-size: 1.5rem; line-height: 1.2; }
+    .flow-label { font-size: .78rem; font-weight: 700; color: var(--gray-800); line-height: 1.3; }
+    .flow-node.hl .flow-label { color: var(--blue-dk); }
+    .flow-sub { font-size: .67rem; color: var(--gray-400); }
+    .flow-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 .5rem; color: var(--gray-400); align-self: center; }
+    .flow-arrow-glyph { font-size: 1.3rem; line-height: 1; }
+    .flow-arrow-sub { font-size: .6rem; color: var(--gray-400); text-align: center; line-height: 1.3; }
+    .code-block {
+      background: var(--gray-900); border-radius: var(--radius); padding: 1.5rem;
+      overflow-x: auto; font-family: 'JetBrains Mono', monospace;
+      font-size: .82rem; color: #e2e8f0; line-height: 1.7; margin: 0;
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1a56db 100%);
+      color: var(--white); text-align: center;
+    }
+    .cta-section h2 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; color: var(--white); margin-bottom: .8rem; }
+    .cta-section p { color: rgba(255,255,255,.85); max-width: 560px; margin: 0 auto 2rem; }
+    .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    /* ── FOOTER ── */
+    footer { background: var(--gray-900); color: var(--gray-400); padding: 3rem 2rem 1.5rem; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; }
+    .footer-grid {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2.5rem;
+      padding-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .footer-brand h3 { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: .7rem; }
+    .footer-brand p { font-size: .82rem; line-height: 1.7; }
+    .footer-col h4 { font-size: .82rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--gray-400); margin-bottom: .9rem; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
+    .footer-col a { color: var(--gray-400); text-decoration: none; font-size: .85rem; transition: color .15s; }
+    .footer-col a:hover { color: var(--white); }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding-top: 1.5rem; font-size: .8rem; }
+    .footer-badges { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .fbadge { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); padding: .2rem .55rem; border-radius: 4px; font-size: .7rem; font-weight: 600; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .timeline-track {
+        grid-template-columns: 1fr;
+      }
+      .timeline-track::before {
+        top: 0; bottom: 0; left: 27px; right: auto;
+        width: 3px; height: auto;
+        background: linear-gradient(180deg, #bfdbfe, var(--blue), #bfdbfe);
+      }
+      .timeline-step { flex-direction: row; text-align: left; padding: .5rem 0 1.8rem; align-items: flex-start; }
+      .step-circle { margin-bottom: 0; margin-right: 1.1rem; }
+
+      .risk-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
+      .footer-brand { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 700px) {
+      .dataflow { flex-direction: column; align-items: center; }
+      .flow-arrow { transform: rotate(90deg); }
+    }
+
+    @media (max-width: 640px) {
+      nav { padding: 0 1rem; }
+      .nav-links { display: none; }
+      section { padding: 3rem 1.2rem; }
+      .hero { padding: 3.5rem 1.2rem 3rem; }
+      .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-brand">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">
+      <circle cx="16" cy="16" r="15" fill="#1a56db"/>
+      <circle cx="16" cy="16" r="5" fill="none" stroke="white" stroke-width="2.5"/>
+      <circle cx="16" cy="16" r="2" fill="white"/>
+      <line x1="16" y1="4" x2="16" y2="9" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <line x1="16" y1="23" x2="16" y2="28" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <line x1="4" y1="16" x2="9" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <line x1="23" y1="16" x2="28" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    PenuX
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="journey.html" class="active">Patient Journey</a></li>
+    <li><a href="review.html">Review Article</a></li>
+    <li><a href="models.html">Models</a></li>
+    <li><a href="predict.html">Predict</a></li>
+    <li><a href="tasks.html" style="font-size:.85rem">📋 Tasks</a></li><li><a href="transcribe.html" style="font-size:.85rem">🎙️ Transcribe</a></li><li><a href="api.html" class="nav-cta">Swagger UI</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">Clinical Decision Support &middot; Research Preview</div>
+  <h1>PenuX in the <span>Clinical Workflow</span></h1>
+  <p>From emergency admission to ICU triage &mdash; how AI-assisted risk stratification fits the acute pancreatitis patient journey.</p>
+</section>
+
+<!-- JOURNEY TIMELINE -->
+<section>
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>The AP Patient Pathway</h2>
+      <p>Six key steps from ED presentation to early targeted intervention. PenuX integrates at step&nbsp;3, adding an automated risk score with no additional tests required.</p>
+    </div>
+
+    <div class="timeline-wrap">
+      <div class="timeline-track">
+
+        <!-- 1. ED Arrival -->
+        <div class="timeline-step">
+          <div class="step-circle" aria-label="Step 1: ED Arrival">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <div class="step-body">
+            <div class="step-num">Step 1</div>
+            <div class="step-title">ED Arrival</div>
+            <div class="step-desc">Patient presents with epigastric pain, nausea, vomiting. Serum amylase/lipase &gt;3&times; ULN. AP diagnosis established per 2012 Revised Atlanta Classification.</div>
+          </div>
+        </div>
+
+        <!-- 2. Routine Labs -->
+        <div class="timeline-step">
+          <div class="step-circle" aria-label="Step 2: Routine Labs">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/>
+            </svg>
+          </div>
+          <div class="step-body">
+            <div class="step-num">Step 2</div>
+            <div class="step-title">Routine Labs Drawn</div>
+            <div class="step-desc">Standard admission panel: WBC, CRP, LDH, creatinine, BUN, calcium, glucose, hematocrit, AST, ALT, albumin, bilirubin, lipase, amylase&hellip; <strong>No extra tests needed.</strong></div>
+          </div>
+        </div>
+
+        <!-- 3. PenuX -->
+        <div class="timeline-step penux-step">
+          <div class="step-circle" aria-label="Step 3: PenuX scores risk">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+          </div>
+          <div class="step-body">
+            <div class="step-num">Step 3 &middot; PenuX</div>
+            <div class="step-title">PenuX Scores Risk</div>
+            <div class="step-desc">59 lab features fed to the Random Forest model via FHIR&nbsp;R4 or HL7&nbsp;v2. Severe-AP probability returned in &lt;200&nbsp;ms. Risk tier assigned automatically.
+              <br><span class="chip chip-green">AUROC 0.877</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Alert -->
+        <div class="timeline-step">
+          <div class="step-circle" aria-label="Step 4: Clinical Alert">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+          </div>
+          <div class="step-body">
+            <div class="step-num">Step 4</div>
+            <div class="step-title">Clinical Alert</div>
+            <div class="step-desc">If P(severe) &ge;&nbsp;<strong>0.535</strong>: alert fires to attending physician and ICU team. If Low risk: standard ward pathway proceeds.
+              <br><span class="chip chip-amber">Threshold 0.535 &middot; Sensitivity 96.8%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Triage -->
+        <div class="timeline-step">
+          <div class="step-circle" aria-label="Step 5: Triage Decision">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+          </div>
+          <div class="step-body">
+            <div class="step-num">Step 5</div>
+            <div class="step-title">Triage Decision</div>
+            <div class="step-desc">Physician reviews PenuX score alongside clinical context and imaging. <strong>High</strong> &rarr; ICU/HDU. <strong>Moderate</strong> &rarr; enhanced monitoring, repeat labs at 6&nbsp;h. <strong>Low</strong> &rarr; gastro ward.</div>
+          </div>
+        </div>
+
+        <!-- 6. Intervention -->
+        <div class="timeline-step">
+          <div class="step-circle" aria-label="Step 6: Early Intervention">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <div class="step-body">
+            <div class="step-num">Step 6</div>
+            <div class="step-title">Early Intervention</div>
+            <div class="step-desc">Aggressive IV fluid resuscitation (Ringer's lactate 250&ndash;500&nbsp;mL/hr), NPO, analgesia, continuous organ-function monitoring, early enteral nutrition when tolerated.</div>
+          </div>
+        </div>
+
+      </div><!-- .timeline-track -->
+    </div><!-- .timeline-wrap -->
+
+    <div class="callout">
+      <div class="callout-icon">&#9201;</div>
+      <p><strong>PenuX result available within 4 hours of admission</strong> &mdash; before Ranson (48&nbsp;h), BISAP (24&nbsp;h), and APACHE-II (24&nbsp;h). No CT scan, no mental-status exam, no second blood draw required.</p>
+    </div>
+  </div>
+</section>
+
+<!-- RISK TIER CARDS -->
+<section class="bg-gray">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>Risk Tier Definitions</h2>
+      <p>PenuX returns one of three risk tiers based on the predicted probability of severe AP, aligned with the 2012 Revised Atlanta Classification.</p>
+    </div>
+
+    <div class="risk-grid">
+
+      <div class="risk-card low">
+        <div class="risk-header">
+          <div class="risk-icon">&#129001;</div>
+          <div class="risk-label">Low Risk</div>
+        </div>
+        <div class="risk-prob">P(severe) &lt; 0.35</div>
+        <h4>Mild AP likely</h4>
+        <ul>
+          <li>Standard gastroenterology ward admission</li>
+          <li>Oral fluids when clinically tolerated</li>
+          <li>Routine observations every 4&ndash;6 hours</li>
+          <li>Clinical reassessment at 24 hours</li>
+          <li>Early mobilisation encouraged</li>
+        </ul>
+      </div>
+
+      <div class="risk-card mod">
+        <div class="risk-header">
+          <div class="risk-icon">&#128993;</div>
+          <div class="risk-label">Moderate Risk</div>
+        </div>
+        <div class="risk-prob">P(severe) 0.35 &ndash; 0.535</div>
+        <h4>Moderately severe AP possible</h4>
+        <ul>
+          <li>Enhanced observation frequency (2-hourly)</li>
+          <li>Repeat labs at 6 h (CRP, creatinine, WBC)</li>
+          <li>Consider Intermediate Care Unit (IMC/HDU)</li>
+          <li>IV fluid support with strict fluid balance</li>
+          <li>Gastroenterology / HPB consultant review</li>
+        </ul>
+      </div>
+
+      <div class="risk-card high">
+        <div class="risk-header">
+          <div class="risk-icon">&#128308;</div>
+          <div class="risk-label">High Risk</div>
+        </div>
+        <div class="risk-prob">P(severe) &ge; 0.535</div>
+        <h4>Severe AP likely &mdash; act immediately</h4>
+        <ul>
+          <li>ICU / HDU admission &mdash; activate care pathway</li>
+          <li>Ringer's lactate 250&ndash;500 mL/hr IV</li>
+          <li>Continuous organ-function monitoring</li>
+          <li>Early HPB and intensive-care specialist activation</li>
+          <li>Early enteral nutrition when haemodynamically stable</li>
+        </ul>
+      </div>
+
+    </div>
+    <p style="font-size:.78rem;color:var(--gray-400);margin-top:1.2rem;text-align:center;">Threshold 0.535 achieves 96.8% sensitivity (TP=566, FN=19) with 38.7% specificity on 5-fold CV (n=722). Clinical context always takes precedence over the score.</p>
+  </div>
+</section>
+
+<!-- COMPARISON TABLE -->
+<section>
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>PenuX vs Existing Severity Scores</h2>
+      <p>Comparing timing, data requirements, and key differentiators of PenuX against established clinical scoring systems for acute pancreatitis.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Score</th>
+            <th>When Available</th>
+            <th>Data Required</th>
+            <th>Key Limitation</th>
+            <th>PenuX Advantage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Ranson Criteria</strong></td>
+            <td><span class="badge badge-red">48 hours</span></td>
+            <td>11 criteria across two time-points (admission + 48&nbsp;h)</td>
+            <td>Not usable at presentation; requires a second data set at 48&nbsp;h</td>
+            <td>PenuX result available at admission</td>
+          </tr>
+          <tr>
+            <td><strong>BISAP</strong></td>
+            <td><span class="badge badge-amber">24 hours</span></td>
+            <td>BUN, SIRS criteria, mental status, age, pleural effusion</td>
+            <td>Subjective mental-status component; 24&nbsp;h wait</td>
+            <td>PenuX needs no clinical exam findings</td>
+          </tr>
+          <tr>
+            <td><strong>APACHE-II</strong></td>
+            <td><span class="badge badge-amber">24 hours</span></td>
+            <td>12 physiological parameters + Glasgow Coma Scale</td>
+            <td>Complex, time-consuming; GCS unreliable at admission</td>
+            <td>PenuX uses routine labs only; fully automated</td>
+          </tr>
+          <tr>
+            <td><strong>CTSI</strong></td>
+            <td><span class="badge badge-red">CT required</span></td>
+            <td>Contrast-enhanced CT (Balthazar grade + % necrosis)</td>
+            <td>Radiation, contrast risk, costly, delayed availability</td>
+            <td>PenuX requires no imaging</td>
+          </tr>
+          <tr>
+            <td><strong>Marshall Score</strong></td>
+            <td><span class="badge badge-amber">24 hours</span></td>
+            <td>Respiratory, renal, cardiovascular parameters</td>
+            <td>Organ-failure focus; less predictive at early presentation</td>
+            <td>PenuX predicts severity, not only organ failure</td>
+          </tr>
+          <tr class="penux-row">
+            <td><strong>PenuX-AP-Severity</strong> <span class="badge badge-blue">This work</span></td>
+            <td><span class="badge badge-green">&lt; 4 hours</span></td>
+            <td>Routine admission labs (59 features from 19 parameters)</td>
+            <td>Research prototype; single Chinese cohort n=722; external validation pending</td>
+            <td><strong>Earliest available &middot; Fully automated &middot; No imaging &middot; No extra tests</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:.78rem;color:var(--gray-400);margin-top:.8rem;">* Comparative figures are from published meta-analyses. PenuX AUROC&nbsp;0.877 from 5-fold stratified cross-validation on n=722; no external test cohort has been evaluated.</p>
+  </div>
+</section>
+
+<!-- PRIVACY & SAFETY -->
+<section class="bg-gray">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>Privacy &amp; Clinical Safety</h2>
+      <p>PenuX is designed to augment clinical judgment &mdash; never to replace it. These principles are non-negotiable by design.</p>
+    </div>
+
+    <div class="privacy-grid">
+      <div class="privacy-card">
+        <div class="privacy-icon">&#128274;</div>
+        <div>
+          <h4>De-identified at Source</h4>
+          <p>Patient date-of-birth, MRN, and name are stripped before the API call is formed. The PenuX server never receives or retains identifiable patient data.</p>
+        </div>
+      </div>
+      <div class="privacy-card">
+        <div class="privacy-icon">&#127959;</div>
+        <div>
+          <h4>No Data Retention</h4>
+          <p>Lab values transmitted to the API are used solely for inference. No request payload is persisted. GDPR Article&nbsp;5(1)(e) storage-limitation principle is upheld by design.</p>
+        </div>
+      </div>
+      <div class="privacy-card">
+        <div class="privacy-icon">&#129485;</div>
+        <div>
+          <h4>Physician Retains Full Authority</h4>
+          <p>PenuX provides a probability score and a suggested risk tier. All clinical decisions &mdash; admission, treatment, escalation &mdash; remain exclusively with the treating physician.</p>
+        </div>
+      </div>
+      <div class="privacy-card">
+        <div class="privacy-icon">&#128203;</div>
+        <div>
+          <h4>Transparent Uncertainty</h4>
+          <p>The API response lists which fields were used and which are missing, so clinicians can gauge confidence. Missing critical labs are flagged explicitly in every response.</p>
+        </div>
+      </div>
+      <div class="privacy-card">
+        <div class="privacy-icon">&#128679;</div>
+        <div>
+          <h4>Research Prototype &mdash; Not Approved</h4>
+          <p>PenuX has not received CE mark, FDA 510(k) clearance, or any other regulatory approval. It must not be used as the sole basis for any clinical decision.</p>
+        </div>
+      </div>
+      <div class="privacy-card">
+        <div class="privacy-icon">&#128200;</div>
+        <div>
+          <h4>Cohort Bias Disclosed</h4>
+          <p>Training data is a single-centre Chinese cohort (n=722). Performance may differ across other ethnic or geographic populations. External validation is actively sought.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="disclaimer-box">
+      <div class="d-icon">&#9888;&#65039;</div>
+      <p>"The model augments clinical judgment; it does not replace it. A high PenuX score is a prompt to look harder &mdash; not a substitute for the physician's examination, imaging, and holistic evaluation of the patient."</p>
+    </div>
+  </div>
+</section>
+
+<!-- INTEGRATION DIAGRAM -->
+<section>
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>EHR Integration Data Flow</h2>
+      <p>PenuX slots into your existing clinical infrastructure via FHIR&nbsp;R4 or HL7&nbsp;v2 &mdash; no proprietary connector required.</p>
+    </div>
+
+    <div class="dataflow">
+
+      <div class="flow-node">
+        <div class="flow-icon">&#127968;</div>
+        <div class="flow-label">EHR / LIS</div>
+        <div class="flow-sub">Camelion &middot; Epic &middot; Cerner</div>
+      </div>
+
+      <div class="flow-arrow">
+        <div class="flow-arrow-glyph">&#8594;</div>
+        <div class="flow-arrow-sub">FHIR R4 Bundle<br>or HL7 v2 ORU</div>
+      </div>
+
+      <div class="flow-node">
+        <div class="flow-icon">&#128260;</div>
+        <div class="flow-label">Lab Results</div>
+        <div class="flow-sub">LOINC-coded values</div>
+      </div>
+
+      <div class="flow-arrow">
+        <div class="flow-arrow-glyph">&#8594;</div>
+        <div class="flow-arrow-sub">HTTPS POST<br>/fhir/predict</div>
+      </div>
+
+      <div class="flow-node hl">
+        <div class="flow-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 32 32" style="display:block;" aria-hidden="true">
+            <circle cx="16" cy="16" r="15" fill="#1a56db"/>
+            <circle cx="16" cy="16" r="5" fill="none" stroke="white" stroke-width="2.2"/>
+            <circle cx="16" cy="16" r="2" fill="white"/>
+            <line x1="16" y1="4" x2="16" y2="9" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <line x1="16" y1="23" x2="16" y2="28" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <line x1="4" y1="16" x2="9" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <line x1="23" y1="16" x2="28" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="flow-label">PenuX API</div>
+        <div class="flow-sub">Random Forest &middot; &lt;200&nbsp;ms</div>
+      </div>
+
+      <div class="flow-arrow">
+        <div class="flow-arrow-glyph">&#8594;</div>
+        <div class="flow-arrow-sub">JSON response<br>P(severe) + tier</div>
+      </div>
+
+      <div class="flow-node">
+        <div class="flow-icon">&#128276;</div>
+        <div class="flow-label">Risk Score</div>
+        <div class="flow-sub">Low / Moderate / High</div>
+      </div>
+
+      <div class="flow-arrow">
+        <div class="flow-arrow-glyph">&#8594;</div>
+        <div class="flow-arrow-sub">Alert if<br>P &ge; 0.535</div>
+      </div>
+
+      <div class="flow-node">
+        <div class="flow-icon">&#128065;&#65039;</div>
+        <div class="flow-label">Physician Dashboard</div>
+        <div class="flow-sub">EHR alert &middot; Mobile pager</div>
+      </div>
+
+    </div>
+
+    <!-- Example response -->
+    <div style="margin-top:2.5rem;">
+      <div style="font-size:.7rem;font-weight:700;letter-spacing:.08em;color:var(--gray-400);text-transform:uppercase;margin-bottom:.8rem;">Example API Response</div>
+      <pre class="code-block">{
+  <span style="color:#93c5fd;">"severe_ap_probability"</span>: <span style="color:#86efac;">0.782</span>,
+  <span style="color:#93c5fd;">"risk_group"</span>:            <span style="color:#fca5a5;">"High"</span>,
+  <span style="color:#93c5fd;">"recommendation"</span>:       <span style="color:#fde68a;">"Consider ICU/HDU admission. Early aggressive fluid resuscitation."</span>,
+  <span style="color:#93c5fd;">"atlanta_classification"</span>: <span style="color:#fde68a;">"Potentially Severe"</span>,
+  <span style="color:#93c5fd;">"fields_used"</span>:          <span style="color:#d1d5db;">["wbc", "crp", "creatinine", "glucose", "ldh", "ast"]</span>,
+  <span style="color:#93c5fd;">"missing_fields"</span>:       <span style="color:#d1d5db;">["bun", "calcium", "albumin"]</span>,
+  <span style="color:#93c5fd;">"model_version"</span>:        <span style="color:#d1d5db;">"1.0.0"</span>
+}</pre>
+    </div>
+
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem;">
+      <a href="api.html" class="btn btn-blue">View Swagger UI</a>
+      <a href="https://github.com/netanelcyber/penuX" target="_blank" rel="noopener noreferrer" class="btn btn-outline">GitHub Repository</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="section-inner" style="max-width:780px;">
+    <h2>Stage 0 — Seeking Hospital Data Partners</h2>
+    <p>We are currently in <strong style="color:white;">Stage 0</strong> — building hospital data partnerships before formal validation begins. We are looking for gastroenterology or acute-medicine departments willing to provide de-identified retrospective SAP data, co-develop an IRB protocol, and serve as the first external validation site. <strong style="color:white;">Co-authorship offered</strong>. Data stays on-site — PenuX supplies the model, pipeline, and analysis.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;margin-bottom:1.5rem;">
+      <div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:.6rem 1.1rem;font-size:.85rem;">&#128203; n=220 validation cohort#129309; Data partnership MOU</div>
+      <div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:.6rem 1.1rem;font-size:.85rem;">&#128336; 12-month enrolment</div>
+      <div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:.6rem 1.1rem;font-size:.85rem;">&#128394; Co-authorship offered</div>
+      <div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:.6rem 1.1rem;font-size:.85rem;">&#9878; Shared IRB framework</div>
+    </div>
+    <div class="cta-buttons">
+      <a href="https://github.com/netanelcyber/penuX" target="_blank" rel="noopener noreferrer" class="btn btn-white">View on GitHub</a>
+      <a href="mailto:nsh531@gmail.com?subject=Stage%20I%20Validation%20Study%20Enquiry" class="btn btn-outline-white">&#9993; nsh531@gmail.com</a>
+      <a href="tel:+972559708708" class="btn btn-outline-white">&#128222; +972-55-970-8708</a>
+    </div>
+    <p style="margin-top:1.2rem;font-size:.82rem;color:rgba(255,255,255,.65);">PI: Netanel Stern &mdash; PenuX Research Initiative</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h3>PenuX-AP-Severity</h3>
+        <p>Open-source machine learning model for early prediction of Severe Acute Pancreatitis using routine admission laboratory data. Built with the 2012 Revised Atlanta Classification.</p>
+        <p style="margin-top:.6rem;font-size:.8rem;">PI: <strong style="color:var(--white);">Netanel Stern</strong> &mdash; <a href="mailto:nsh531@gmail.com" style="color:var(--gray-400);">nsh531@gmail.com</a> &middot; <a href="tel:+972559708708" style="color:var(--gray-400);">+972-55-970-8708</a></p>
+      </div>
+      <div class="footer-col">
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/netanelcyber/penuX">GitHub Repository</a></li>
+          <li><a href="https://github.com/netanelcyber/penuX/tree/main/PenuX-AP-Severity">Documentation</a></li>
+          <li><a href="index.html#performance">Performance</a></li>
+          <li><a href="api.html">API Reference</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Integration</h4>
+        <ul>
+          <li><a href="index.html#integration">EHR Systems</a></li>
+          <li><a href="api.html">FHIR R4</a></li>
+          <li><a href="api.html">HL7 v2</a></li>
+          <li><a href="index.html#integration">Camelion</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Research</h4>
+        <ul>
+          <li><a href="review.html">Review Article</a></li>
+          <li><a href="models.html">Model Details</a></li>
+          <li><a href="journey.html">Patient Journey</a></li>
+          <li><a href="mailto:nsh531@gmail.com">Collaborate</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2024&ndash;2026 PenuX Research Initiative &middot; MIT Licence &middot; <a href="https://penux.uk" style="color:var(--gray-400)">penux.uk</a></span>
+      <div class="footer-badges">
+        <span class="fbadge">FHIR R4</span>
+        <span class="fbadge">HL7 v2</span>
+        <span class="fbadge">IRB Approved</span>
+        <span class="fbadge">GDPR Compliant</span>
+        <span class="fbadge">Open Source</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

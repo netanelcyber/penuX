@@ -5,6 +5,7 @@ __pycache__/
 # Python env
 .env/
 .venv/
+.venv_sweep/
 
 # Data outputs
 docs/images/
@@ -14,3 +15,12 @@ docs/examples/
 .vscode/
 .idea/
 .claude/
+.claude/
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
+catboost_info/

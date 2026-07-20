@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>PenuX — Task Board</title>
+<style>
+  :root {
+    --blue:   #1F497D;
+    --blue2:  #2563EB;
+    --green:  #16A34A;
+    --amber:  #D97706;
+    --red:    #DC2626;
+    --gray:   #6B7280;
+    --light:  #F3F4F6;
+    --border: #E5E7EB;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #F9FAFB; color: #111827; }
+
+  #auth-overlay {
+    position: fixed; inset: 0; background: #0f172a;
+    display: flex; align-items: center; justify-content: center; z-index: 9999;
+  }
+  #auth-box {
+    background: #1e293b; border: 1px solid #334155; border-radius: 12px;
+    padding: 2.5rem; width: 360px; text-align: center;
+  }
+  #auth-box h2 { color: #f1f5f9; font-size: 1.3rem; margin-bottom: .25rem; }
+  #auth-box p  { color: #94a3b8; font-size: .85rem; margin-bottom: 1.5rem; }
+  #auth-box input {
+    width: 100%; padding: .75rem 1rem; background: #0f172a;
+    border: 1px solid #475569; border-radius: 8px; color: #f1f5f9;
+    font-size: 1rem; margin-bottom: .75rem; text-align: center; letter-spacing: .15em;
+  }
+  #auth-box input:focus { outline: none; border-color: #3b82f6; }
+  #auth-box button {
+    width: 100%; padding: .75rem; background: #2563EB; color: #fff;
+    border: none; border-radius: 8px; font-size: 1rem; font-weight: 600;
+    cursor: pointer; transition: background .2s;
+  }
+  #auth-box button:hover { background: #1d4ed8; }
+  #auth-error { color: #f87171; font-size: .85rem; margin-top: .75rem; min-height: 1.2em; }
+  #auth-logo { font-size: 2rem; font-weight: 800; color: #3b82f6; margin-bottom: 1rem; }
+
+  #app { display: none; min-height: 100vh; }
+
+  nav {
+    background: var(--blue); color: #fff; padding: .75rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  nav .brand { font-size: 1.1rem; font-weight: 700; }
+  nav .brand span { opacity: .6; font-weight: 400; font-size: .9rem; margin-left: .5rem; }
+  nav button {
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+    color: #fff; padding: .35rem .9rem; border-radius: 6px; cursor: pointer; font-size: .85rem;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  h1 { font-size: 1.5rem; font-weight: 700; color: var(--blue); margin-bottom: .25rem; }
+  .subtitle { color: var(--gray); font-size: .9rem; margin-bottom: 2rem; }
+
+  .stats { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .stat {
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    padding: .75rem 1.25rem; flex: 1; min-width: 130px; text-align: center;
+  }
+  .stat-val { font-size: 1.6rem; font-weight: 800; }
+  .stat-lbl { font-size: .75rem; color: var(--gray); margin-top: .1rem; }
+  .c-green { color: var(--green); } .c-amber { color: var(--amber); }
+  .c-red   { color: var(--red);  } .c-blue  { color: var(--blue2); }
+
+  .add-bar {
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+    display: flex; gap: .75rem; flex-wrap: wrap; align-items: flex-end;
+  }
+  .add-bar input, .add-bar select {
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: .5rem .75rem; font-size: .9rem; flex: 1; min-width: 140px;
+  }
+  .add-bar input:focus, .add-bar select:focus { outline: none; border-color: var(--blue2); }
+  .add-bar .btn-add {
+    background: var(--blue2); color: #fff; border: none; border-radius: 6px;
+    padding: .55rem 1.25rem; font-size: .9rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .add-bar .btn-add:hover { background: #1d4ed8; }
+
+  .filter-bar { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .filter-btn {
+    padding: .35rem .9rem; border-radius: 20px; font-size: .82rem; cursor: pointer;
+    border: 1px solid var(--border); background: #fff; color: var(--gray); transition: all .15s;
+  }
+  .filter-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+  /* ── CALENDAR (ASP.NET WebForms Calendar-control style, server-backed) ── */
+  .cal-wrap { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 0; margin-bottom: 1.5rem; overflow: hidden; }
+  .cal-titlebar { background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: space-between; padding: .5rem .75rem; }
+  .cal-titlebar button { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); color: #fff; width: 28px; height: 28px; border-radius: 4px; cursor: pointer; font-size: .95rem; line-height: 1; }
+  .cal-titlebar button:hover { background: rgba(255,255,255,.28); }
+  .cal-titlebar .cal-title { font-weight: 700; font-size: .95rem; }
+  .cal-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .cal-table th { background: var(--light); color: var(--gray); font-size: .72rem; font-weight: 600; padding: .4rem 0; text-align: center; border: 1px solid var(--border); }
+  .cal-table td { border: 1px solid var(--border); height: 64px; vertical-align: top; padding: .25rem; cursor: pointer; transition: background .12s; position: relative; }
+  .cal-table td:hover { background: #EFF6FF; }
+  .cal-table td.cal-other-month { background: #FAFAFA; color: #C7CCD4; cursor: default; }
+  .cal-table td.cal-other-month:hover { background: #FAFAFA; }
+  .cal-table td.cal-today { background: #FEF9C3; }
+  .cal-table td.cal-selected { background: var(--blue2) !important; }
+  .cal-table td.cal-selected .cal-daynum { color: #fff; }
+  .cal-daynum { font-size: .78rem; font-weight: 600; color: var(--gray); }
+  .cal-badges { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 2px; }
+  .cal-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .cal-dot.urgent  { background: var(--red); }
+  .cal-dot.pending { background: var(--amber); }
+  .cal-dot.waiting { background: #3730A3; }
+  .cal-dot.done    { background: var(--green); }
+  .cal-count { font-size: .68rem; background: var(--blue2); color: #fff; border-radius: 8px; padding: 0 5px; margin-top: 2px; display: inline-block; }
+  .cal-footer { display: flex; align-items: center; justify-content: space-between; padding: .5rem .75rem; border-top: 1px solid var(--border); font-size: .78rem; color: var(--gray); }
+  .cal-footer button { background: none; border: none; color: var(--blue2); cursor: pointer; font-size: .78rem; font-weight: 600; }
+
+  .table-wrap { background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    background: var(--light); padding: .65rem 1rem; text-align: left;
+    font-size: .78rem; font-weight: 600; color: var(--gray); border-bottom: 1px solid var(--border);
+  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #F9FAFB; }
+  tbody td { padding: .7rem 1rem; font-size: .88rem; vertical-align: middle; }
+  .task-title { font-weight: 500; }
+  .task-sub   { font-size: .78rem; color: var(--gray); margin-top: .15rem; }
+
+  .badge {
+    display: inline-block; padding: .2rem .6rem; border-radius: 20px;
+    font-size: .74rem; font-weight: 600; white-space: nowrap;
+  }
+  .badge-done    { background: #DCFCE7; color: #15803D; }
+  .badge-pending { background: #FEF9C3; color: #92400E; }
+  .badge-urgent  { background: #FEE2E2; color: #991B1B; }
+  .badge-waiting { background: #E0E7FF; color: #3730A3; }
+
+  .cat-badge {
+    display: inline-block; padding: .15rem .5rem; border-radius: 4px;
+    font-size: .72rem; font-weight: 500;
+  }
+  .cat-meeting  { background: #DBEAFE; color: #1e40af; }
+  .cat-follow   { background: #F3E8FF; color: #6B21A8; }
+  .cat-research { background: #DCFCE7; color: #166534; }
+  .cat-admin    { background: #FEF3C7; color: #92400E; }
+
+  .btn-done, .btn-del {
+    border: none; border-radius: 5px; padding: .25rem .6rem;
+    font-size: .78rem; cursor: pointer; font-weight: 500; margin-left: .25rem;
+  }
+  .btn-done { background: #DCFCE7; color: #15803D; }
+  .btn-done:hover { background: #BBF7D0; }
+  .btn-del  { background: #FEE2E2; color: #991B1B; }
+  .btn-del:hover  { background: #FECACA; }
+
+  .empty-state { text-align: center; padding: 3rem; color: var(--gray); }
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: .5rem; }
+
+  /* ── EMAIL MODAL ── */
+  #email-modal {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
+    z-index: 10000; align-items: center; justify-content: center;
+  }
+  #email-modal.show { display: flex; }
+  #email-box {
+    background: #fff; border-radius: 12px; padding: 2rem; max-width: 600px;
+    width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,.3);
+  }
+  #email-box h2 { color: var(--blue); margin-bottom: 1rem; font-size: 1.3rem; }
+  #email-box .form-group { margin-bottom: 1rem; }
+  #email-box label { display: block; font-weight: 600; margin-bottom: .25rem; font-size: .9rem; color: var(--gray); }
+  #email-box input, #email-box textarea {
+    width: 100%; padding: .75rem; border: 1px solid var(--border); border-radius: 6px;
+    font-family: monospace; font-size: .85rem;
+  }
+  #email-box textarea { min-height: 300px; resize: vertical; }
+  #email-box input:focus, #email-box textarea:focus { outline: none; border-color: var(--blue2); }
+  .email-actions { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1.5rem; }
+  .btn-cancel { background: var(--light); color: var(--gray); border: none; padding: .5rem 1rem; border-radius: 6px; cursor: pointer; }
+  .btn-cancel:hover { background: var(--border); }
+  .btn-send { background: var(--green); color: #fff; border: none; padding: .5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  .btn-send:hover { background: #15803D; }
+  .btn-email { background: #EA4335; color: #fff; border: none; padding: .25rem .5rem; border-radius: 4px; cursor: pointer; font-size: .75rem; margin-left: .25rem; }
+  .btn-email:hover { background: #C5221F; }
+
+  @media (max-width: 700px) {
+    thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
+  }
+
+  /* ── AUTO-DRAFTED REPLIES ── */
+  .draft-card {
+    background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--amber);
+    border-radius: 8px; padding: 1rem; margin-bottom: .75rem;
+  }
+  .draft-card .draft-from { font-weight: 600; font-size: .9rem; color: var(--blue); }
+  .draft-card .draft-subject { font-size: .8rem; color: var(--gray); margin-bottom: .5rem; }
+  .draft-card textarea {
+    width: 100%; min-height: 140px; border: 1px solid var(--border); border-radius: 6px;
+    padding: .6rem; font-family: monospace; font-size: .82rem; resize: vertical;
+  }
+  .draft-actions { display: flex; gap: .5rem; margin-top: .6rem; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<div id="auth-overlay">
+  <div id="auth-box">
+    <div id="auth-logo">PenuX</div>
+    <h2>Task Board</h2>
+    <p>Protected area — enter password</p>
+    <input type="password" id="pw-input" placeholder="••••••••••"
+           onkeydown="if(event.key==='Enter')tryLogin()">
+    <button onclick="tryLogin()">Sign In</button>
+    <div id="auth-error"></div>
+  </div>
+</div>
+
+<!-- ── EMAIL MODAL ── -->
+<div id="email-modal">
+  <div id="email-box">
+    <h2>Send Follow-Up Email</h2>
+    <div class="form-group">
+      <label>To:</label>
+      <input type="email" id="email-to" readonly>
+    </div>
+    <div class="form-group">
+      <label>Subject:</label>
+      <input type="text" id="email-subject">
+    </div>
+    <div class="form-group">
+      <label>Message:</label>
+      <textarea id="email-body"></textarea>
+    </div>
+    <div id="email-status" style="font-size:.85rem; margin-top:.5rem; min-height:1.2em;"></div>
+    <div class="email-actions">
+      <button class="btn-cancel" onclick="closeEmailModal()">Cancel</button>
+      <button class="btn-send" onclick="copyEmailToClipboard()">📋 Copy to Clipboard</button>
+      <button class="btn-email" onclick="openGmailDraft()">📧 Open Gmail</button>
+      <button class="btn-send" id="btn-send-now" style="background:var(--red)" onclick="sendEmailNow()">🚀 Send Now</button>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <nav>
+    <div class="brand">PenuX <span>Task Board</span></div>
+    <button onclick="logout()">Sign Out</button>
+  </nav>
+
+  <div class="container">
+    <h1>Task Board</h1>
+    <p class="subtitle" id="last-updated"></p>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-val c-blue"  id="cnt-total">0</div><div class="stat-lbl">Total Tasks</div></div>
+      <div class="stat"><div class="stat-val c-red"   id="cnt-urgent">0</div><div class="stat-lbl">Urgent</div></div>
+      <div class="stat"><div class="stat-val c-amber" id="cnt-pending">0</div><div class="stat-lbl">Pending</div></div>
+      <div class="stat"><div class="stat-val c-green" id="cnt-done">0</div><div class="stat-lbl">Done</div></div>
+    </div>
+
+    <!-- Auto-drafted replies from inbox watcher -->
+    <div id="drafts-section" style="display:none; margin-bottom:1.5rem;">
+      <h2 style="font-size:1.1rem; color:var(--blue); margin-bottom:.5rem;">📬 Auto-Drafted Replies <span id="drafts-count" class="badge badge-waiting"></span></h2>
+      <div id="drafts-list"></div>
+    </div>
+
+    <div class="add-bar">
+      <input  id="new-title" placeholder="Task title..." style="flex:2; min-width:200px;">
+      <input  id="new-sub"   placeholder="Details / contact...">
+      <input  id="new-due"   type="date">
+      <select id="new-cat">
+        <option value="meeting">Meeting</option>
+        <option value="follow">Follow-Up</option>
+        <option value="research">Research</option>
+        <option value="admin">Admin</option>
+      </select>
+      <select id="new-status">
+        <option value="pending">Pending</option>
+        <option value="urgent">Urgent</option>
+        <option value="waiting">Waiting</option>
+        <option value="done">Done</option>
+      </select>
+      <button class="btn-add" onclick="addTask()">+ Add Task</button>
+    </div>
+
+    <!-- Calendar (ASP.NET WebForms Calendar-control style, backed by the server's task data) -->
+    <div class="cal-wrap">
+      <div class="cal-titlebar">
+        <button onclick="calNav(-1)" type="button">‹</button>
+        <span class="cal-title" id="cal-title"></span>
+        <button onclick="calNav(1)" type="button">›</button>
+      </div>
+      <table class="cal-table">
+        <thead><tr id="cal-weekdays"></tr></thead>
+        <tbody id="cal-body"></tbody>
+      </table>
+      <div class="cal-footer">
+        <span id="cal-selected-label">Click a day to filter tasks</span>
+        <button onclick="calClearSelection()" type="button">Clear selection</button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('urgent',this)">🔴 Urgent</button>
+      <button class="filter-btn" onclick="setFilter('pending',this)">🟡 Pending</button>
+      <button class="filter-btn" onclick="setFilter('waiting',this)">🔵 Waiting</button>
+      <button class="filter-btn" onclick="setFilter('done',this)">✅ Done</button>
+      <button class="filter-btn" onclick="setFilter('meeting',this)">📅 Meetings</button>
+      <button class="filter-btn" onclick="setFilter('follow',this)">📬 Follow-Ups</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:35%">Task</th>
+            <th>Category</th>
+            <th>Due</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="task-tbody"></tbody>
+      </table>
+      <div class="empty-state" id="empty-state" style="display:none">
+        <div class="icon">📋</div>
+        <div>No tasks found</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '/api';
+let allTasks = [];
+let currentFilter = 'all';
+
+async function tryLogin() {
+  const pw = document.getElementById('pw-input').value;
+  try {
+    const res = await fetch(`${API}/auth`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
+    if (res.ok) {
+      sessionStorage.setItem('penux_auth', '1');
+      document.getElementById('auth-overlay').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      loadTasks();
+      loadDrafts();
+      startDraftsPolling();
+    } else {
+      document.getElementById('auth-error').textContent = 'Incorrect password.';
+      document.getElementById('pw-input').value = '';
+      document.getElementById('pw-input').focus();
+    }
+  } catch (err) {
+    document.getElementById('auth-error').textContent = 'Error: ' + err.message;
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('penux_auth');
+  location.reload();
+}
+
+async function loadTasks() {
+  try {
+    const res = await fetch(`${API}/tasks`);
+    allTasks = await res.json();
+    renderTasks();
+  } catch (err) {
+    console.error('Error loading tasks:', err);
+  }
+}
+
+async function addTask() {
+  const title = document.getElementById('new-title').value.trim();
+  if (!title) { document.getElementById('new-title').focus(); return; }
+
+  const task = {
+    title,
+    sub: document.getElementById('new-sub').value.trim(),
+    due: document.getElementById('new-due').value,
+    cat: document.getElementById('new-cat').value,
+    status: document.getElementById('new-status').value,
+  };
+
+  try {
+    const res = await fetch(`${API}/tasks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(task)
+    });
+    if (res.ok) {
+      document.getElementById('new-title').value = '';
+      document.getElementById('new-sub').value = '';
+      document.getElementById('new-due').value = '';
+      loadTasks();
+    }
+  } catch (err) {
+    console.error('Error adding task:', err);
+  }
+}
+
+async function markDone(id) {
+  try {
+    await fetch(`${API}/tasks/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'done' })
+    });
+    loadTasks();
+  } catch (err) {
+    console.error('Error updating task:', err);
+  }
+}
+
+async function deleteTask(id) {
+  if (!confirm('Delete this task?')) return;
+  try {
+    await fetch(`${API}/tasks/${id}`, { method: 'DELETE' });
+    loadTasks();
+  } catch (err) {
+    console.error('Error deleting task:', err);
+  }
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTasks();
+}
+
+// ── CALENDAR (ASP.NET WebForms Calendar-control style) ──────────────────────
+// Data source is `allTasks`, which is always loaded from the server's
+// SQLite-backed /api/tasks — so the calendar reflects server-side state,
+// not browser localStorage.
+const calToday = new Date();
+let calViewYear = calToday.getFullYear();
+let calViewMonth = calToday.getMonth();
+let selectedCalDate = null;
+
+const CAL_WEEKDAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const CAL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function calNav(delta) {
+  calViewMonth += delta;
+  if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
+  if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+  renderCalendar();
+}
+
+function calClearSelection() {
+  selectedCalDate = null;
+  renderTasks();
+}
+
+function calSelectDay(iso) {
+  selectedCalDate = (selectedCalDate === iso) ? null : iso;
+  renderTasks();
+}
+
+function calPad2(n) { return String(n).padStart(2, '0'); }
+
+function renderCalendar() {
+  const byDate = {};
+  allTasks.forEach(t => {
+    if (!t.due) return;
+    (byDate[t.due] = byDate[t.due] || []).push(t);
+  });
+
+  document.getElementById('cal-title').textContent = `${CAL_MONTHS[calViewMonth]} ${calViewYear}`;
+
+  const weekdaysRow = document.getElementById('cal-weekdays');
+  weekdaysRow.innerHTML = CAL_WEEKDAYS.map(w => `<th>${w}</th>`).join('');
+
+  const firstOfMonth = new Date(calViewYear, calViewMonth, 1);
+  const startWeekday = firstOfMonth.getDay();
+  const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+  const daysInPrevMonth = new Date(calViewYear, calViewMonth, 0).getDate();
+  const todayIso = `${calToday.getFullYear()}-${calPad2(calToday.getMonth()+1)}-${calPad2(calToday.getDate())}`;
+
+  const cells = [];
+  for (let i = 0; i < startWeekday; i++) {
+    cells.push({ day: daysInPrevMonth - startWeekday + 1 + i, otherMonth: true });
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    cells.push({ day: d, otherMonth: false, iso: `${calViewYear}-${calPad2(calViewMonth+1)}-${calPad2(d)}` });
+  }
+  while (cells.length % 7 !== 0) {
+    cells.push({ day: cells.length - (startWeekday + daysInMonth) + 1, otherMonth: true });
+  }
+
+  const body = document.getElementById('cal-body');
+  body.innerHTML = '';
+  for (let row = 0; row < cells.length / 7; row++) {
+    const tr = body.insertRow();
+    for (let col = 0; col < 7; col++) {
+      const cell = cells[row * 7 + col];
+      const td = tr.insertCell();
+      if (cell.otherMonth) {
+        td.classList.add('cal-other-month');
+        td.innerHTML = `<div class="cal-daynum">${cell.day}</div>`;
+        continue;
+      }
+      if (cell.iso === todayIso) td.classList.add('cal-today');
+      if (cell.iso === selectedCalDate) td.classList.add('cal-selected');
+      const dayTasks = byDate[cell.iso] || [];
+      const dots = dayTasks.slice(0, 6).map(t => `<span class="cal-dot ${t.status}"></span>`).join('');
+      td.innerHTML = `
+        <div class="cal-daynum">${cell.day}</div>
+        ${dayTasks.length ? `<div class="cal-badges">${dots}</div><span class="cal-count">${dayTasks.length}</span>` : ''}
+      `;
+      td.onclick = () => calSelectDay(cell.iso);
+    }
+  }
+
+  const label = document.getElementById('cal-selected-label');
+  if (selectedCalDate) {
+    const [y,m,d] = selectedCalDate.split('-');
+    label.textContent = `Showing tasks for ${d}/${m}/${y} (${(byDate[selectedCalDate]||[]).length})`;
+  } else {
+    label.textContent = 'Click a day to filter tasks';
+  }
+}
+
+const STATUS_BADGE = {
+  done:    '<span class="badge badge-done">✓ Done</span>',
+  pending: '<span class="badge badge-pending">⏳ Pending</span>',
+  urgent:  '<span class="badge badge-urgent">🔴 Urgent</span>',
+  waiting: '<span class="badge badge-waiting">⏸ Waiting</span>',
+};
+
+const CAT_BADGE = {
+  meeting:  '<span class="cat-badge cat-meeting">📅 Meeting</span>',
+  follow:   '<span class="cat-badge cat-follow">📬 Follow-Up</span>',
+  research: '<span class="cat-badge cat-research">🔬 Research</span>',
+  admin:    '<span class="cat-badge cat-admin">⚙️ Admin</span>',
+};
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function isOverdue(iso) {
+  if (!iso) return false;
+  return new Date(iso) < new Date(new Date().toDateString());
+}
+
+function renderTasks() {
+  const tbody = document.getElementById('task-tbody');
+  const empty = document.getElementById('empty-state');
+
+  document.getElementById('cnt-total').textContent = allTasks.length;
+  document.getElementById('cnt-urgent').textContent = allTasks.filter(t=>t.status==='urgent').length;
+  document.getElementById('cnt-pending').textContent = allTasks.filter(t=>t.status==='pending').length;
+  document.getElementById('cnt-done').textContent = allTasks.filter(t=>t.status==='done').length;
+  document.getElementById('last-updated').textContent = 'Last updated ' + new Date().toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
+
+  let filtered = allTasks;
+  if (['urgent','pending','waiting','done'].includes(currentFilter))
+    filtered = allTasks.filter(t => t.status === currentFilter);
+  else if (['meeting','follow','research','admin'].includes(currentFilter))
+    filtered = allTasks.filter(t => t.cat === currentFilter);
+  if (selectedCalDate) filtered = filtered.filter(t => t.due === selectedCalDate);
+
+  renderCalendar();
+
+  const order = {urgent:0, pending:1, waiting:2, done:3};
+  filtered.sort((a,b) => {
+    if (order[a.status] !== order[b.status]) return order[a.status] - order[b.status];
+    return (a.due||'9').localeCompare(b.due||'9');
+  });
+
+  tbody.innerHTML = '';
+  if (!filtered.length) { empty.style.display='block'; return; }
+  empty.style.display = 'none';
+
+  filtered.forEach(t => {
+    const overdue = t.status !== 'done' && isOverdue(t.due);
+    const row = tbody.insertRow();
+    if (overdue) row.style.background = '#FFF7F7';
+    const emailTemplate = getEmailTemplate(t.title, t.sub);
+    row.innerHTML = `
+      <td>
+        <div class="task-title" style="${t.status==='done'?'text-decoration:line-through;color:#9CA3AF':''}">
+          ${t.title}
+        </div>
+        ${t.sub ? `<div class="task-sub">${t.sub}</div>` : ''}
+      </td>
+      <td>${CAT_BADGE[t.cat]||''}</td>
+      <td style="white-space:nowrap; ${overdue?'color:#DC2626;font-weight:600':''}">
+        ${fmtDate(t.due)}${overdue?' ⚠️':''}
+      </td>
+      <td>${STATUS_BADGE[t.status]||t.status}</td>
+      <td style="white-space:nowrap">
+        ${t.status!=='done'?`<button class="btn-done" onclick="markDone(${t.id})">✓</button>`:''}
+        ${t.cat==='follow' && emailTemplate ? `<button class="btn-email" onclick="openEmailModal('${emailTemplate}', ${t.id})">✉️</button>` : ''}
+        <button class="btn-del" onclick="deleteTask(${t.id})">✕</button>
+      </td>`;
+  });
+}
+
+function getEmailTemplate(title, sub) {
+  if (title.includes('Buxbaum')) return 'buxbaum';
+  if (title.includes('Chawla')) return 'chawla';
+  if (title.includes('Hegyi')) return 'hegyi';
+  if (title.includes('Frulloni')) return 'frulloni';
+  return null;
+}
+
+let currentEmailTaskId = null;
+
+async function openEmailModal(template, taskId) {
+  currentEmailTaskId = taskId ?? null;
+  try {
+    const res = await fetch(`${API}/tasks/0/email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ template })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const email = data.email;
+      document.getElementById('email-to').value = email.to;
+      document.getElementById('email-subject').value = email.subject;
+      document.getElementById('email-body').value = email.body;
+      document.getElementById('email-status').textContent = '';
+      document.getElementById('email-status').style.color = '';
+      document.getElementById('btn-send-now').disabled = false;
+      document.getElementById('email-modal').classList.add('show');
+    }
+  } catch (err) {
+    console.error('Error loading email template:', err);
+  }
+}
+
+function closeEmailModal() {
+  document.getElementById('email-modal').classList.remove('show');
+  currentEmailTaskId = null;
+}
+
+async function sendEmailNow() {
+  const to = document.getElementById('email-to').value;
+  const subject = document.getElementById('email-subject').value;
+  const body = document.getElementById('email-body').value;
+  const status = document.getElementById('email-status');
+  const btn = document.getElementById('btn-send-now');
+
+  if (!confirm(`Send this email to ${to} now? This cannot be undone.`)) return;
+
+  btn.disabled = true;
+  status.style.color = 'var(--gray)';
+  status.textContent = 'Sending…';
+
+  try {
+    const res = await fetch(`${API}/tasks/${currentEmailTaskId ?? 0}/send-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to, subject, body })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      status.style.color = 'var(--green)';
+      status.textContent = '✅ ' + data.message;
+      loadTasks();
+      setTimeout(closeEmailModal, 1500);
+    } else {
+      status.style.color = 'var(--red)';
+      status.textContent = '❌ ' + (data.error || 'Failed to send');
+      btn.disabled = false;
+    }
+  } catch (err) {
+    status.style.color = 'var(--red)';
+    status.textContent = '❌ ' + err.message;
+    btn.disabled = false;
+  }
+}
+
+function copyEmailToClipboard() {
+  const to = document.getElementById('email-to').value;
+  const subject = document.getElementById('email-subject').value;
+  const body = document.getElementById('email-body').value;
+  const text = `To: ${to}\nSubject: ${subject}\n\n${body}`;
+  navigator.clipboard.writeText(text);
+  alert('✅ Email copied to clipboard');
+  closeEmailModal();
+}
+
+function openGmailDraft() {
+  const to = document.getElementById('email-to').value;
+  const subject = document.getElementById('email-subject').value;
+  const body = document.getElementById('email-body').value;
+  const gmailUrl = `https://mail.google.com/mail/?ui=2&fs=1&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.open(gmailUrl, '_blank');
+  closeEmailModal();
+}
+
+// ── AUTO-DRAFTED REPLIES ──────────────────────────────────────────────────
+let draftsPollHandle = null;
+
+async function loadDrafts() {
+  try {
+    const res = await fetch(`${API}/draft-replies`);
+    if (!res.ok) return; // e.g. old server without this route yet
+    const drafts = await res.json();
+    renderDrafts(drafts);
+  } catch (err) {
+    console.error('Error loading drafts:', err);
+  }
+}
+
+function startDraftsPolling() {
+  if (draftsPollHandle) return;
+  draftsPollHandle = setInterval(loadDrafts, 60000);
+}
+
+function renderDrafts(drafts) {
+  const section = document.getElementById('drafts-section');
+  const list = document.getElementById('drafts-list');
+  const count = document.getElementById('drafts-count');
+
+  if (!drafts.length) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  count.textContent = drafts.length;
+  list.innerHTML = drafts.map(d => `
+    <div class="draft-card" data-id="${d.id}">
+      <div class="draft-from">✉️ Reply detected from ${d.from_addr}</div>
+      <div class="draft-subject">${d.subject || '(no subject)'}</div>
+      <textarea id="draft-body-${d.id}">${d.draft_body}</textarea>
+      <div class="draft-actions">
+        <button class="btn-cancel" onclick="discardDraft(${d.id})">Discard</button>
+        <button class="btn-send" onclick="sendDraft(${d.id})">🚀 Send Reply</button>
+      </div>
+      <div id="draft-status-${d.id}" style="font-size:.8rem; margin-top:.4rem;"></div>
+    </div>
+  `).join('');
+}
+
+async function sendDraft(id) {
+  const body = document.getElementById(`draft-body-${id}`).value;
+  const status = document.getElementById(`draft-status-${id}`);
+
+  if (!confirm('Send this reply now? This cannot be undone.')) return;
+
+  status.style.color = 'var(--gray)';
+  status.textContent = 'Sending…';
+
+  try {
+    // Save any edits first
+    await fetch(`${API}/draft-replies/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ draft_body: body })
+    });
+
+    const res = await fetch(`${API}/draft-replies/${id}/send`, { method: 'POST' });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      status.style.color = 'var(--green)';
+      status.textContent = '✅ ' + data.message;
+      setTimeout(loadDrafts, 1200);
+    } else {
+      status.style.color = 'var(--red)';
+      status.textContent = '❌ ' + (data.error || 'Failed to send');
+    }
+  } catch (err) {
+    status.style.color = 'var(--red)';
+    status.textContent = '❌ ' + err.message;
+  }
+}
+
+async function discardDraft(id) {
+  if (!confirm('Discard this drafted reply?')) return;
+  try {
+    await fetch(`${API}/draft-replies/${id}`, { method: 'DELETE' });
+    loadDrafts();
+  } catch (err) {
+    console.error('Error discarding draft:', err);
+  }
+}
+
+if (sessionStorage.getItem('penux_auth') === '1') {
+  document.getElementById('auth-overlay').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadTasks();
+  loadDrafts();
+  startDraftsPolling();
+} else {
+  setTimeout(() => document.getElementById('pw-input').focus(), 100);
+}
+</script>
+</body>
+</html>

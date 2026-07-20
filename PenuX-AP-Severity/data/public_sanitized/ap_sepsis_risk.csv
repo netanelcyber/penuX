@@ -1,0 +1,723 @@
+age,sap_label,sepsis_prob,risk_group,sirs_wbc,criteria
+82,1,0.1096,low,1,WBC↑ 19.3×10⁹ | Alb low 2.8
+54,0,0.0557,low,0,—
+66,0,0.1359,low,1,WBC↑ 25.6×10⁹ | Bili↑ 2.5
+70,1,0.0601,low,0,—
+42,0,0.1166,low,0,PLT low 142 | Lact↑ 2.80
+66,1,0.0998,low,1,WBC↑ 13.8×10⁹
+51,1,0.0998,low,0,Lact↑ 2.20
+57,0,0.0752,low,0,Bili↑ 3.0
+57,0,0.0542,low,0,—
+28,1,0.0998,low,0,Lact↑ 2.90
+58,1,0.0542,low,0,—
+63,1,0.0542,low,0,—
+60,1,0.0542,low,0,—
+45,1,0.0998,low,0,Lact↑ 3.30
+45,1,0.0998,low,0,Lact↑ 3.30
+45,1,0.0522,low,0,—
+82,1,0.1722,moderate,1,WBC↑ 16.0×10⁹ | Lact↑ 3.90
+34,0,0.1611,moderate,1,WBC↑ 16.7×10⁹ | Lact↑ 3.00
+30,1,0.0522,low,0,—
+56,1,0.0639,low,0,PLT low 147
+56,1,0.0542,low,0,—
+83,0,0.0663,low,0,PLT low 131
+79,1,0.0563,low,0,—
+47,1,0.0522,low,0,—
+35,1,0.1166,low,0,PLT low 114 | Lact↑ 2.10
+67,1,0.1722,moderate,1,WBC↑ 16.3×10⁹ | Lact↑ 3.30
+40,1,0.0871,low,1,WBC↑ 13.5×10⁹
+31,1,0.0522,low,0,—
+31,1,0.0522,low,0,—
+31,1,0.0522,low,0,—
+31,1,0.0871,low,1,WBC↑ 20.1×10⁹
+56,0,0.1978,moderate,1,WBC↑ 16.6×10⁹ | Lact↑ 3.10 | D-dimer↑ 4.2
+77,0,0.5362,high,1,WBC↑ 17.9×10⁹ | Bili↑ 2.2 | Lact↑ 3.80 | SpO2↓ 83.0% | PaO2↓ 50mmHg | CRP↑ 177 | D-dimer↑ 6.3
+53,1,0.0522,low,0,—
+62,0,0.2288,moderate,0,Lact↑ 2.40 | SpO2↓ 85.2% | PaO2↓ 48mmHg
+69,1,0.1625,moderate,1,WBC↑ 16.2×10⁹ | Creat↑mod 1.9 | Bili↑ 2.1
+70,1,0.1455,low,0,Bili↑ 5.2 | Lact↑ 2.60
+32,1,0.0928,low,1,WBC↑ 15.1×10⁹
+43,1,0.0615,low,0,PLT low 149
+51,1,0.0871,low,1,WBC↑ 13.2×10⁹
+52,1,0.0522,low,0,—
+40,1,0.3307,moderate,1,WBC↑ 25.0×10⁹ | Lact CRIT 4.80 | Acidosis pH 7.327 | Alb low 2.8
+56,1,0.0639,low,0,PLT low 105
+56,1,0.0639,low,0,PLT low 102
+45,1,0.1086,low,1,WBC↑ 12.8×10⁹ | PLT low 125
+31,1,0.0557,low,0,—
+62,1,0.1312,low,1,WBC↑ 15.1×10⁹ | Bili↑ 7.0
+56,1,0.0542,low,0,—
+53,1,0.0998,low,0,Lact↑ 2.60
+63,1,0.0542,low,0,—
+61,0,0.246,moderate,1,WBC↑ 13.5×10⁹ | Creat↑ 2.2 | PLT low 101 | CRP↑ 164 | Alb low 2.9
+44,1,0.1673,moderate,0,Bili↑ 3.7 | PLT↓ 55 | Acidosis pH 7.323
+46,0,0.2262,moderate,1,WBC↑ 15.2×10⁹ | Lact↑ 3.50 | Acidosis pH 7.319
+47,1,0.0522,low,0,—
+39,1,0.0522,low,0,—
+23,1,0.0871,low,1,WBC↑ 13.9×10⁹
+55,1,0.0967,low,0,Creat↑mod 1.7 | D-dimer↑ 7.0 | Alb low 2.9
+28,1,0.0615,low,0,PLT low 149
+28,1,0.0871,low,1,WBC↑ 13.8×10⁹
+81,0,0.0563,low,0,—
+60,0,0.1525,moderate,1,WBC↑ 20.8×10⁹ | CRP↑ 199 | D-dimer↑ 7.3 | Alb low 2.7
+35,1,0.0871,low,1,WBC↑ 20.1×10⁹
+37,1,0.0871,low,1,WBC↑ 16.1×10⁹
+48,1,0.0928,low,1,WBC↑ 12.6×10⁹
+57,1,0.1994,moderate,0,PLT low 125 | Lact↑ 2.60 | CRP↑ 150 | D-dimer↑ 4.0 | Alb low 2.9
+49,1,0.1708,moderate,1,WBC↑ 12.7×10⁹ | Lact↑ 3.70
+64,1,0.2288,moderate,0,Bili↑ 2.1 | PLT low 147 | Lact↑ 2.80 | CRP↑ 189 | D-dimer↑ 11.4
+76,1,0.2809,moderate,1,WBC↑ 24.7×10⁹ | Creat↑ 2.4 | Lact↑ 2.50
+60,1,0.0903,low,1,WBC↓ 3.3×10⁹
+32,1,0.1053,low,1,WBC↑ 18.0×10⁹ | CRP↑ 190
+30,1,0.0615,low,0,PLT low 148
+69,1,0.1532,moderate,1,WBC↑ 12.2×10⁹ | Bili↑ 4.3 | D-dimer↑ 3.6
+69,1,0.2689,moderate,0,Creat↑mod 1.6 | Lact↑ 2.30 | Acidosis pH 7.207 | CRP↑ 204 | D-dimer↑ 4.2
+62,1,0.0542,low,0,—
+62,1,0.0542,low,0,—
+91,1,0.0936,low,1,WBC↑ 20.0×10⁹
+57,1,0.0962,low,1,WBC↑ 15.1×10⁹
+65,1,0.1208,low,0,PLT low 145 | Lact↑ 2.40
+51,1,0.0851,low,0,PLT low 126 | SpO2low 93.0%
+53,1,0.1611,moderate,1,WBC↑ 16.4×10⁹ | Lact↑ 2.90
+58,1,0.1312,low,1,WBC↑ 14.4×10⁹ | Bili↑ 11.6
+40,0,0.1611,moderate,1,WBC↑ 14.1×10⁹ | Lact↑ 2.40
+40,1,0.0724,low,0,Bili↑ 8.6
+65,1,0.1666,moderate,1,WBC↑ 18.8×10⁹ | Lact↑ 3.00
+66,1,0.1455,low,0,Creat↑ 5.4 | Acidosis pH 7.345
+39,1,0.102,low,1,WBC↓ 3.4×10⁹ | PLT low 148
+29,1,0.1519,moderate,1,WBC↑ 21.1×10⁹ | Acidosis pH 7.273 | CRP↑ 198
+43,0,0.1611,moderate,1,WBC↑ 17.2×10⁹ | Lact↑ 2.60
+36,0,0.1166,low,0,Creat↑mod 1.9 | PLT low 148 | CRP↑ 266 | D-dimer↑ 8.4
+29,1,0.1611,moderate,1,WBC↑ 16.3×10⁹ | Lact↑ 2.50
+29,1,0.0522,low,0,—
+71,1,0.3894,moderate,1,WBC↑ 16.2×10⁹ | Bili↑ 2.6 | Lact CRIT 6.00 | Acidosis pH 7.277
+48,1,0.0522,low,0,—
+42,0,0.0998,low,0,Lact↑ 2.50
+42,0,0.1915,moderate,1,WBC↑ 15.6×10⁹ | Lact↑ 2.40 | CRP↑ 182
+35,1,0.0522,low,0,—
+82,1,0.3176,moderate,1,WBC↑ 12.9×10⁹ | Creat↑mod 1.6 | Bili↑ 2.8 | PLT low 148 | Lact↑ 3.40
+28,1,0.1611,moderate,1,WBC↑ 14.0×10⁹ | Lact↑ 2.10
+44,1,0.0615,low,0,PLT low 147
+78,0,0.5037,high,0,Creat↑ 2.4 | Bili↑ 4.8 | PLT↓ 73 | Lact CRIT 4.20 | D-dimer↑ 14.5
+43,1,0.0557,low,0,—
+31,0,0.1443,low,0,Lact↑ 3.90 | Acidosis pH 7.331
+45,0,0.0724,low,0,Bili↑ 4.2
+80,1,0.0936,low,1,WBC↑ 12.9×10⁹
+37,1,0.1673,moderate,0,Bili↑ 9.1 | SpO2↓ 80.1% | PaO2↓ 43mmHg
+37,1,0.1192,low,1,WBC↑ 12.2×10⁹ | Bili↑ 4.1
+37,1,0.0998,low,0,Lact↑ 3.10
+77,1,0.1371,low,0,Bili↑ 2.4 | Acidosis pH 7.341 | CRP↑ 241
+57,0,0.0903,low,1,WBC↑ 18.1×10⁹
+44,0,0.2026,moderate,1,WBC↑ 22.3×10⁹ | Lact↑ 2.40 | D-dimer↑ 2.8
+28,1,0.2516,moderate,1,WBC↑ 31.1×10⁹ | Lact CRIT 5.20 | CRP↑ 178
+28,1,0.1611,moderate,1,WBC↑ 19.2×10⁹ | Lact↑ 2.10
+38,1,0.0522,low,0,—
+41,1,0.0724,low,0,Bili↑ 4.5
+63,1,0.1034,low,0,Lact↑ 2.10
+56,1,0.1994,moderate,0,Bili↑ 5.6 | Lact CRIT 4.20
+30,1,0.1877,moderate,0,SpO2↓ 82.9% | PaO2↓ 44mmHg | Acidosis pH 7.347
+26,1,0.0928,low,1,WBC↓ 3.5×10⁹
+79,1,0.1532,moderate,1,WBC↑ 13.3×10⁹ | Bili↑ 3.3 | CRP↑ 188
+37,0,0.1862,moderate,1,WBC↑ 19.4×10⁹ | Creat↑mod 1.7 | CRP↑ 163 | D-dimer↑ 2.1 | Alb low 2.9
+72,1,0.1787,moderate,0,Bili↑ 2.9 | Lact↑ 2.50 | Alb low 2.8
+53,1,0.0724,low,0,Bili↑ 3.1
+47,1,0.0998,low,0,Lact↑ 2.10
+72,1,0.1279,low,1,WBC↑ 15.7×10⁹ | Creat↑mod 1.9
+26,0,0.112,low,1,WBC↑ 21.2×10⁹ | D-dimer↑ 3.3
+26,0,0.0657,low,0,Alb low 3.0
+59,1,0.0802,low,0,Acidosis pH 7.321
+33,0,0.1268,low,1,WBC↑ 14.8×10⁹ | Acidosis pH 7.195
+48,1,0.0522,low,0,—
+69,1,0.0832,low,0,Acidosis pH 7.346
+35,1,0.1029,low,0,Bili↑ 3.3 | CRP↑ 330 | Alb low 2.9
+89,0,0.2159,moderate,1,WBC↑ 18.5×10⁹ | Lact↑ 2.80 | D-dimer↑ 3.2
+33,0,0.0907,low,0,CRP↑ 192 | D-dimer↑ 6.8 | Alb low 2.8
+26,0,0.1347,low,1,WBC↑ 16.1×10⁹ | Acidosis pH 7.175
+36,1,0.0522,low,0,—
+35,1,0.0522,low,0,—
+68,1,0.0563,low,0,—
+67,1,0.0601,low,0,—
+58,1,0.0903,low,1,WBC↑ 18.7×10⁹
+66,1,0.0563,low,0,—
+28,1,0.0522,low,0,—
+46,1,0.1279,low,0,Lact↑ 3.20 | SpO2low 91.8%
+46,1,0.0522,low,0,—
+83,1,0.113,low,1,WBC↑ 18.4×10⁹ | D-dimer↑ 2.7
+59,1,0.1101,low,0,Bili↑ 4.2 | Acidosis pH 7.345
+35,1,0.0522,low,0,—
+31,1,0.2342,moderate,0,Lact↑ 2.20 | SpO2↓ 87.2% | PaO2↓ 48mmHg
+58,1,0.0542,low,0,—
+57,1,0.1057,low,1,WBC↓ 3.7×10⁹ | PLT low 112
+57,1,0.0542,low,0,—
+37,0,0.3307,moderate,1,WBC↑ 12.3×10⁹ | Lact↑ 3.20 | SpO2↓ 86.0% | Acidosis pH 7.328
+32,1,0.0522,low,0,—
+39,0,0.1708,moderate,1,WBC↑ 16.5×10⁹ | Lact↑ 2.30
+32,1,0.0522,low,0,—
+32,1,0.0871,low,1,WBC↑ 12.4×10⁹
+57,1,0.0639,low,0,PLT low 145
+68,1,0.1072,low,0,Lact↑ 2.73
+29,1,0.1915,moderate,1,WBC↑ 12.3×10⁹ | Lact↑ 2.60 | CRP↑ 203
+73,0,0.1986,moderate,1,WBC↑ 25.5×10⁹ | PLT low 146 | Lact↑ 2.10
+33,1,0.0871,low,1,WBC↑ 14.2×10⁹
+38,1,0.112,low,1,WBC↑ 20.3×10⁹ | D-dimer↑ 3.6
+44,1,0.0773,low,0,Acidosis pH 7.325
+51,1,0.2218,moderate,0,Lact↑ 2.10 | SpO2↓ 73.3% | PaO2↓ 40mmHg
+51,1,0.0522,low,0,—
+53,1,0.0557,low,0,—
+32,0,0.1673,moderate,0,PLT low 148 | Lact CRIT 4.30
+32,1,0.0522,low,0,—
+72,1,0.0563,low,0,—
+62,1,0.0542,low,0,—
+28,1,0.0724,low,0,Bili↑ 2.5
+69,1,0.1279,low,1,WBC↑ 14.4×10⁹ | Creat↑mod 1.6
+36,1,0.0871,low,1,WBC↑ 12.9×10⁹
+67,1,0.0563,low,0,—
+52,1,0.0657,low,0,PLT low 111
+70,1,0.0975,low,0,Bili↑ 3.4 | PLT low 141
+46,1,0.1359,low,0,Bili↑ 2.1 | Lact↑ 3.10
+78,1,0.0663,low,0,PLT low 104
+58,1,0.0903,low,1,WBC↑ 12.1×10⁹
+57,1,0.0802,low,0,Bili↑ 2.1
+57,1,0.1312,low,1,WBC↑ 12.9×10⁹ | Bili↑ 6.4
+28,1,0.1268,low,1,WBC↑ 15.3×10⁹ | Acidosis pH 7.348
+33,0,0.0522,low,0,—
+37,0,0.1773,moderate,0,Lact↑ 3.90 | Acidosis pH 7.293 | Alb low 3.0
+37,1,0.1443,low,0,Lact CRIT 4.12
+31,1,0.2201,moderate,1,WBC↑ 19.1×10⁹ | PLT low 148 | Lact↑ 2.10 | CRP↑ 235
+73,0,0.4576,high,1,WBC↑ 17.9×10⁹ | Creat↑ 3.3 | Bili↑ 3.4 | Lact↑ 3.20 | CRP↑ 202 | D-dimer↑ 12.1
+56,1,0.1618,moderate,1,WBC↑ 39.1×10⁹ | Creat↑mod 1.5 | CRP↑ 160 | Alb low 2.7
+36,1,0.0522,low,0,—
+65,1,0.0542,low,0,—
+51,1,0.1053,low,1,WBC↑ 12.5×10⁹ | D-dimer↑ 6.4
+37,1,0.0522,low,0,—
+52,0,0.2142,moderate,1,WBC↑ 15.1×10⁹ | Creat↑mod 2.0 | Lact↑ 2.10
+21,1,0.0636,low,0,CRP↑ 273
+45,0,0.4146,high,0,Creat↑ 2.3 | Lact CRIT 4.60 | Acidosis pH 7.227 | D-dimer↑ 3.0 | Alb low 2.7
+50,1,0.0871,low,1,WBC↑ 12.0×10⁹
+59,1,0.0903,low,1,WBC↑ 12.8×10⁹
+46,0,0.0871,low,1,WBC↑ 18.8×10⁹
+44,1,0.1708,moderate,1,WBC↑ 17.9×10⁹ | Lact↑ 2.40
+44,1,0.1611,moderate,1,WBC↑ 12.3×10⁹ | Lact↑ 2.12
+34,1,0.0871,low,1,WBC↑ 12.3×10⁹
+40,0,0.1519,moderate,1,WBC↑ 16.2×10⁹ | Acidosis pH 7.271 | CRP↑ 157
+51,0,0.113,low,0,Creat↑mod 1.9 | Bili↑ 2.7 | CRP↑ 201
+49,0,0.0998,low,0,Lact↑ 2.40
+46,1,0.0998,low,0,SpO2low 92.0% | PaO2↓ 58mmHg
+40,1,0.0998,low,0,Lact↑ 3.72
+41,1,0.0522,low,0,—
+34,1,0.0522,low,0,—
+45,0,0.1203,low,0,Lact↑ 3.30 | CRP↑ 201
+52,1,0.0615,low,0,PLT low 148
+62,1,0.1666,moderate,1,WBC↑ 12.8×10⁹ | Lact↑ 2.10
+26,0,0.1062,low,0,CRP↑ 208 | D-dimer↑ 2.6 | Alb↓ 1.6
+31,0,0.0871,low,1,WBC↑ 21.2×10⁹
+31,1,0.1611,moderate,1,WBC↑ 15.8×10⁹ | Lact↑ 2.18
+31,1,0.0522,low,0,—
+64,0,0.1125,low,1,WBC↑ 21.4×10⁹ | Alb low 2.9
+58,1,0.0579,low,0,—
+72,1,0.0563,low,0,—
+68,1,0.1578,moderate,1,WBC↑ 17.3×10⁹ | Bili↑ 5.4 | PLT low 130
+68,1,0.0563,low,0,—
+44,0,0.2451,moderate,1,WBC↑ 17.7×10⁹ | Creat↑ 2.6 | Bili↑ 3.1 | Alb low 2.6
+42,1,0.0773,low,0,Bili↑ 8.3
+42,1,0.0522,low,0,—
+63,1,0.0579,low,0,—
+32,1,0.1708,moderate,1,WBC↑ 14.4×10⁹ | Lact↑ 2.10
+35,0,0.0824,low,0,PaO2↓ 59mmHg
+59,1,0.1666,moderate,1,WBC↑ 12.6×10⁹ | Lact↑ 2.10
+44,1,0.0871,low,1,WBC↑ 12.5×10⁹
+45,1,0.0522,low,0,—
+36,0,0.1192,low,1,WBC↑ 23.3×10⁹ | Bili↑ 5.5
+72,1,0.113,low,1,WBC↑ 15.5×10⁹ | CRP↑ 163
+58,1,0.0752,low,0,Bili↑ 2.4
+59,1,0.0542,low,0,—
+45,0,0.2159,moderate,0,Creat↑mod 1.6 | Lact↑ 3.90 | Acidosis pH 7.335 | CRP↑ 197
+32,1,0.0773,low,0,Bili↑ 2.4
+32,1,0.0615,low,0,PLT low 111
+44,1,0.0928,low,1,WBC↑ 15.1×10⁹
+39,0,0.112,low,1,WBC↑ 18.8×10⁹ | D-dimer↑ 4.8
+75,0,0.113,low,1,WBC↑ 16.5×10⁹ | D-dimer↑ 7.9
+73,0,0.2809,moderate,1,WBC↑ 19.7×10⁹ | Lact↑ 4.00 | Acidosis pH 7.319 | D-dimer↑ 9.8
+68,1,0.0975,low,0,Bili↑ 3.7 | PLT low 143
+43,1,0.0557,low,0,—
+26,1,0.1611,moderate,1,WBC↑ 15.7×10⁹ | Lact↑ 2.90
+32,1,0.0522,low,0,—
+36,1,0.197,moderate,1,WBC↑ 16.2×10⁹ | SpO2↓ 84.8% | PaO2↓ 51mmHg
+43,0,0.0636,low,0,CRP↑ 321
+32,1,0.0522,low,0,—
+32,1,0.0522,low,0,—
+54,0,0.14,low,0,Lact↑ 3.13 | CRP↑ 165 | Alb low 2.9
+70,1,0.2469,moderate,1,WBC↑ 19.8×10⁹ | PLT low 118 | Lact↑ 3.88 | INR↑ 1.61
+84,0,0.5387,high,0,Creat↑mod 1.5 | Bili↑ 4.2 | PLT↓ 38 | Lact CRIT 12.51 | Acidosis pH 7.292 | INR↑ 1.92
+35,0,0.1431,low,1,WBC↑ 14.8×10⁹ | Bili↑ 2.6 | CRP↑ 219
+84,1,0.0563,low,0,—
+26,1,0.0871,low,1,WBC↑ 12.5×10⁹
+99,1,0.0859,low,0,PLT low 130 | INR↑ 2.45
+38,1,0.0928,low,1,WBC↑ 16.2×10⁹
+72,1,0.1545,moderate,0,Bili↑ 2.1 | Lact↑ 3.07
+58,1,0.0542,low,0,—
+23,1,0.1915,moderate,1,WBC↑ 14.4×10⁹ | Lact↑ 2.47 | CRP↑ 166
+57,1,0.2396,moderate,1,WBC↑ 18.3×10⁹ | PLT low 145 | Lact↑ 2.13 | D-dimer↑ 21.0
+48,0,0.3787,moderate,1,WBC↑ 30.0×10⁹ | Creat↑ 15.6 | Bili↑ 2.1 | CRP↑ 182 | D-dimer↑ 9.0 | INR↑ 1.55 | Alb low 2.5
+55,1,0.0522,low,0,—
+68,1,0.1722,moderate,1,WBC↑ 20.0×10⁹ | Lact↑ 3.11
+39,1,0.0522,low,0,—
+46,0,0.1318,low,0,Creat↑ 6.3 | CRP↑ 223 | Alb low 2.6
+57,1,0.0903,low,1,WBC↑ 17.1×10⁹
+56,1,0.0542,low,0,—
+30,0,0.0871,low,1,WBC↑ 12.4×10⁹
+44,1,0.0871,low,1,WBC↑ 21.6×10⁹
+83,0,0.0563,low,0,—
+72,0,0.1578,moderate,1,WBC↑ 17.3×10⁹ | PLT low 127 | CRP↑ 235 | D-dimer↑ 17.1
+63,1,0.066,low,0,CRP↑ 151
+54,1,0.0522,low,0,—
+25,1,0.0522,low,0,—
+36,1,0.1611,moderate,1,WBC↑ 19.9×10⁹ | Lact↑ 2.28
+36,1,0.1229,low,1,WBC↑ 21.8×10⁹ | CRP↑ 179 | Alb low 2.9
+32,1,0.0928,low,1,WBC↑ 16.5×10⁹
+57,1,0.1571,moderate,1,WBC↑ 13.5×10⁹ | Creat↑ 9.0
+55,0,0.1809,moderate,1,WBC↑ 13.0×10⁹ | Creat↑ 2.6 | D-dimer↑ 3.7
+49,0,0.2201,moderate,1,WBC↑ 20.4×10⁹ | PLT low 117 | Lact↑ 2.40 | D-dimer↑ 2.5
+52,1,0.0615,low,0,PLT low 128
+79,1,0.1687,moderate,0,PLT↓ 89 | Lact↑ 2.92
+71,0,0.3566,moderate,1,WBC↑ 18.5×10⁹ | Creat↑ 2.8 | CRP↑ 187 | D-dimer↑ 21.0 | INR↑ 2.03 | Alb↓ 2.3
+79,1,0.0563,low,0,—
+79,1,0.1279,low,1,WBC↑ 15.6×10⁹ | Bili↑ 2.1
+57,1,0.1765,moderate,1,WBC↑ 22.0×10⁹ | Lact↑ 2.17
+44,1,0.1359,low,0,Bili↑ 3.1 | Lact↑ 2.39
+70,1,0.0563,low,0,—
+68,1,0.0975,low,0,PLT↓ 59
+66,1,0.0563,low,0,—
+47,1,0.0522,low,0,—
+85,0,0.0708,low,0,PLT low 122
+69,1,0.0601,low,0,—
+50,0,0.1229,low,1,WBC↑ 12.4×10⁹ | CRP↑ 169 | Alb low 2.8
+33,1,0.0871,low,1,WBC↑ 16.7×10⁹
+45,1,0.0522,low,0,—
+44,1,0.6189,high,1,WBC↓ 2.4×10⁹ | Creat↑mod 1.5 | Bili↑ 2.3 | PLT↓ 53 | Lact CRIT 5.24 | Acidosis pH 7.327 | D-dimer↑ 17.6
+58,1,0.0639,low,0,PLT low 134
+58,1,0.1057,low,1,WBC↓ 3.4×10⁹ | PLT low 130
+58,1,0.0639,low,0,PLT low 141
+33,1,0.1708,moderate,1,WBC↑ 19.7×10⁹ | Lact↑ 2.14
+86,1,0.0563,low,0,—
+86,1,0.0685,low,0,D-dimer↑ 3.0
+34,1,0.0522,low,0,—
+39,1,0.0928,low,1,WBC↑ 18.7×10⁹
+45,1,0.0773,low,0,Acidosis pH 7.299
+52,1,0.0522,low,0,—
+54,1,0.0522,low,0,—
+82,1,0.0915,low,0,Bili↑ 3.9 | Alb low 2.6
+39,1,0.1166,low,0,PLT low 126 | Lact↑ 3.50
+33,1,0.0557,low,0,—
+72,1,0.2405,moderate,1,WBC↑ 15.1×10⁹ | Lact CRIT 7.28
+36,1,0.0522,low,0,—
+66,1,0.0936,low,1,WBC↑ 18.2×10⁹
+69,0,0.0998,low,1,WBC↑ 18.9×10⁹
+44,0,0.1268,low,1,WBC↑ 15.9×10⁹ | CRP↑ 179 | D-dimer↑ 2.1
+30,1,0.2142,moderate,1,WBC↑ 15.4×10⁹ | Creat↑ 2.2 | CRP↑ 186 | D-dimer↑ 2.0
+30,1,0.112,low,1,WBC↑ 15.4×10⁹ | Creat↑mod 1.5
+43,1,0.0928,low,1,WBC↑ 13.9×10⁹
+46,1,0.0557,low,0,—
+38,0,0.3977,moderate,0,Creat↑ 2.3 | Lact CRIT 4.18 | Acidosis pH 7.289 | D-dimer↑ 7.7 | Alb low 2.6
+32,1,0.3307,moderate,1,WBC↑ 14.6×10⁹ | Lact↑ 3.66 | SpO2↓ 86.0% | PaO2↓ 49mmHg
+32,1,0.0871,low,1,WBC↑ 12.8×10⁹
+74,1,0.1251,low,0,PLT low 143 | Lact↑ 2.05
+74,0,0.113,low,1,WBC↑ 24.2×10⁹ | D-dimer↑ 5.4
+74,1,0.0563,low,0,—
+74,1,0.0563,low,0,—
+27,1,0.0871,low,1,WBC↑ 13.9×10⁹
+46,1,0.0871,low,1,WBC↑ 19.0×10⁹
+58,0,0.1246,low,0,Lact↑ 2.47 | CRP↑ 183
+33,1,0.0522,low,0,—
+57,1,0.0542,low,0,—
+58,1,0.0752,low,0,Bili↑ 4.3
+77,0,0.1096,low,1,WBC↑ 25.4×10⁹ | PLT low 121
+77,1,0.0731,low,0,D-dimer↑ 4.1
+37,1,0.0522,low,0,—
+55,0,0.0522,low,0,—
+49,0,0.0879,low,0,Bili↑ 3.4 | D-dimer↑ 3.8
+49,1,0.0522,low,0,—
+50,1,0.0636,low,0,D-dimer↑ 4.4
+50,1,0.0998,low,0,Lact↑ 2.16
+59,0,0.4134,high,1,WBC↑ 19.6×10⁹ | Lact CRIT 4.69 | SpO2low 93.2% | Acidosis pH 7.273 | D-dimer↑ 9.3
+35,1,0.1268,low,1,WBC↑ 12.3×10⁹ | Acidosis pH 7.349
+43,1,0.1708,moderate,1,WBC↑ 13.8×10⁹ | Lact↑ 3.06
+59,1,0.0903,low,1,WBC↑ 14.5×10⁹
+46,1,0.0724,low,0,Bili↑ 3.5
+50,1,0.0522,low,0,—
+62,1,0.0542,low,0,—
+29,1,0.0522,low,0,—
+69,1,0.1007,low,0,Creat↑ 6.0
+57,1,0.3635,moderate,1,WBC↑ 17.7×10⁹ | Creat↑mod 1.8 | Lact CRIT 5.88 | Acidosis pH 7.258
+28,1,0.0928,low,1,WBC↑ 16.2×10⁹
+42,1,0.0636,low,0,CRP↑ 184
+30,0,0.1062,low,0,Lact↑ 3.40
+69,1,0.0859,low,0,D-dimer↑ 7.9 | Alb low 2.7
+29,1,0.2324,moderate,1,WBC↑ 16.5×10⁹ | Lact↑ 3.93 | D-dimer↑ 2.3 | Alb low 2.6
+41,1,0.0928,low,1,WBC↑ 13.3×10⁹
+28,1,0.1062,low,0,Lact↑ 2.12
+35,0,0.1474,low,1,WBC↑ 12.1×10⁹ | PLT low 147 | CRP↑ 152 | D-dimer↑ 3.4
+47,1,0.0928,low,1,WBC↑ 16.1×10⁹
+33,1,0.1086,low,1,WBC↑ 12.5×10⁹ | Alb low 2.8
+33,0,0.21,moderate,0,Creat↑ 7.9 | PLT low 132 | CRP↑ 192 | D-dimer↑ 21.0 | Alb↓ 2.3
+57,1,0.1101,low,0,Lact↑ 2.04
+45,1,0.0936,low,0,Bili↑ 2.5 | D-dimer↑ 10.8
+53,1,0.0522,low,0,—
+53,1,0.0522,low,0,—
+79,1,0.0663,low,0,PLT low 146
+33,1,0.1443,low,0,PLT low 134 | SpO2↓ 89.7% | PaO2↓ 52mmHg
+41,1,0.0871,low,1,WBC↑ 12.6×10⁹
+72,1,0.0563,low,0,—
+78,0,0.2042,moderate,1,WBC↑ 14.8×10⁹ | Lact↑ 2.60 | D-dimer↑ 4.7
+60,1,0.0776,low,0,PLT low 118 | CRP↑ 199
+39,1,0.1053,low,1,WBC↑ 16.7×10⁹ | CRP↑ 257
+45,1,0.0636,low,0,D-dimer↑ 3.9
+20,1,0.0522,low,0,—
+55,1,0.0724,low,0,Bili↑ 3.6
+31,0,0.1519,moderate,1,WBC↑ 14.0×10⁹ | Acidosis pH 7.321 | CRP↑ 233
+72,1,0.0945,low,0,Bili↑ 6.1 | D-dimer↑ 5.2
+18,1,0.0871,low,1,WBC↑ 13.8×10⁹
+66,0,0.267,moderate,1,WBC↑ 19.0×10⁹ | Bili↑ 3.2 | Lact↑ 2.14 | D-dimer↑ 3.6
+72,1,0.1279,low,1,WBC↑ 13.8×10⁹ | Bili↑ 2.2
+72,1,0.1072,low,0,Lact↑ 2.49
+70,0,0.1931,moderate,1,WBC↑ 13.1×10⁹ | Creat↑ 10.2 | D-dimer↑ 6.9
+45,1,0.1611,moderate,1,WBC↑ 15.4×10⁹ | Lact↑ 2.16
+31,1,0.1915,moderate,1,WBC↑ 13.4×10⁹ | Lact↑ 2.06 | CRP↑ 210
+61,1,0.1125,low,1,WBC↑ 12.6×10⁹ | PLT low 132
+60,1,0.1406,low,0,Bili↑ 2.6 | Lact↑ 2.63
+85,1,0.0936,low,1,WBC↑ 19.3×10⁹
+26,0,0.1053,low,1,WBC↑ 24.0×10⁹ | D-dimer↑ 3.4
+31,1,0.0522,low,0,—
+43,1,0.2516,moderate,1,WBC↓ 3.4×10⁹ | PLT low 119 | Lact↑ 2.48 | CRP↑ 195 | Alb low 2.9
+31,1,0.0522,low,0,—
+52,1,0.0557,low,0,—
+47,0,0.112,low,1,WBC↑ 20.9×10⁹ | D-dimer↑ 3.0
+87,1,0.0998,low,1,WBC↑ 30.3×10⁹
+83,1,0.1931,moderate,1,WBC↑ 20.5×10⁹ | Creat↑ 4.8 | CRP↑ 171
+25,1,0.0679,low,0,D-dimer↑ 4.2
+25,0,0.1268,low,1,WBC↑ 12.9×10⁹ | CRP↑ 219 | D-dimer↑ 5.2
+44,1,0.0871,low,1,WBC↓ 3.3×10⁹
+72,0,0.267,moderate,1,WBC↑ 25.6×10⁹ | Bili↑ 5.9 | Lact↑ 2.97 | D-dimer↑ 3.9
+24,1,0.1708,moderate,1,WBC↑ 18.2×10⁹ | Lact↑ 2.05
+58,1,0.0542,low,0,—
+36,0,0.0998,low,0,Lact↑ 2.22
+69,1,0.0685,low,0,CRP↑ 151
+81,1,0.0563,low,0,—
+47,1,0.0522,low,0,—
+79,0,0.2953,moderate,1,WBC↑ 15.9×10⁹ | SpO2↓ 89.5% | PaO2↓ 51mmHg | D-dimer↑ 4.6 | Alb low 2.9
+24,1,0.1192,low,1,WBC↑ 17.4×10⁹ | Bili↑ 4.0
+85,0,0.0936,low,1,WBC↑ 19.4×10⁹
+54,1,0.0928,low,1,WBC↑ 19.5×10⁹
+25,1,0.0522,low,0,—
+53,1,0.1053,low,1,WBC↑ 17.4×10⁹ | CRP↑ 280
+73,1,0.0563,low,0,—
+36,1,0.0657,low,0,PLT low 143
+79,1,0.2953,moderate,1,WBC↑ 13.9×10⁹ | Bili↑ 3.6 | Lact CRIT 4.10
+40,1,0.1519,moderate,1,WBC↑ 15.2×10⁹ | Acidosis pH 7.348 | D-dimer↑ 2.1
+73,1,0.078,low,0,Bili↑ 2.3
+84,1,0.0998,low,1,WBC↑ 15.5×10⁹
+51,1,0.1611,moderate,1,WBC↑ 12.7×10⁹ | PaO2↓ 59mmHg | D-dimer↑ 3.3
+38,1,0.2809,moderate,0,Lact↑ 2.28 | SpO2low 93.4% | Acidosis pH 7.348 | D-dimer↑ 2.7 | Alb↓ 2.5
+69,1,0.0563,low,0,—
+33,1,0.0871,low,1,WBC↑ 14.6×10⁹
+64,1,0.0941,low,0,Bili↑ 2.4 | PLT low 137
+72,1,0.0832,low,0,Bili↑ 6.7
+73,1,0.0563,low,0,—
+40,1,0.112,low,1,WBC↑ 16.6×10⁹ | D-dimer↑ 7.2
+36,1,0.1611,moderate,1,WBC↑ 14.6×10⁹ | Lact↑ 2.60
+84,1,0.0663,low,0,PLT low 111
+37,1,0.0998,low,0,Lact↑ 2.74
+32,1,0.0773,low,0,CRP↑ 202 | D-dimer↑ 2.1
+43,1,0.1708,moderate,1,WBC↑ 18.4×10⁹ | Lact↑ 2.01
+21,1,0.0871,low,1,WBC↓ 3.9×10⁹
+29,0,0.21,moderate,0,Creat↑ 4.9 | Lact↑ 2.37 | Alb low 2.5
+35,1,0.0522,low,0,—
+44,0,0.112,low,1,WBC↑ 17.7×10⁹ | D-dimer↑ 3.5
+45,1,0.1611,moderate,1,WBC↑ 12.5×10⁹ | Lact↑ 2.10
+50,1,0.1192,low,1,WBC↑ 23.5×10⁹ | Bili↑ 3.1
+66,1,0.0936,low,1,WBC↑ 14.2×10⁹
+57,1,0.1034,low,0,Lact↑ 2.49
+79,1,0.2159,moderate,1,WBC↑ 17.2×10⁹ | Bili↑ 2.8 | D-dimer↑ 7.9 | Alb↓ 2.4
+55,1,0.0522,low,0,—
+54,1,0.1192,low,1,WBC↑ 14.9×10⁹ | Bili↑ 2.4
+57,1,0.0542,low,0,—
+44,1,0.0522,low,0,—
+49,0,0.265,moderate,1,WBC↑ 13.5×10⁹ | Bili↑ 2.5 | Lact↑ 2.25 | D-dimer↑ 12.2
+49,0,0.1773,moderate,0,SpO2low 92.8% | PaO2↓ 59mmHg | D-dimer↑ 21.0 | INR↑ 1.85 | Alb low 2.6
+25,1,0.1053,low,1,WBC↑ 12.4×10⁹ | CRP↑ 174
+65,1,0.0962,low,1,WBC↑ 14.9×10⁹
+20,1,0.0522,low,0,—
+51,1,0.0522,low,0,—
+41,1,0.0522,low,0,—
+42,1,0.1053,low,1,WBC↑ 16.7×10⁹ | CRP↑ 192
+69,1,0.0563,low,0,—
+71,0,0.2602,moderate,1,WBC↓ 3.0×10⁹ | PLT low 146 | Lact CRIT 4.03
+76,1,0.1176,low,0,Bili↑ 2.7 | PLT low 114 | INR↑ 1.55
+30,1,0.0522,low,0,—
+48,1,0.0522,low,0,—
+54,1,0.0522,low,0,—
+62,1,0.0542,low,0,—
+62,1,0.0542,low,0,—
+76,1,0.2953,moderate,1,WBC↑ 31.9×10⁹ | Lact CRIT 4.40 | INR↑ 1.60
+48,1,0.0557,low,0,—
+34,1,0.0522,low,0,—
+31,1,0.0871,low,1,WBC↑ 13.7×10⁹
+37,1,0.0522,low,0,—
+61,1,0.066,low,0,D-dimer↑ 2.3
+60,1,0.2592,moderate,1,WBC↑ 18.9×10⁹ | Lact CRIT 6.74 | CRP↑ 186
+46,1,0.0522,low,0,—
+61,1,0.1246,low,0,Creat↑ 2.5 | D-dimer↑ 4.6
+40,1,0.1166,low,0,PLT low 117 | Lact↑ 2.86
+41,1,0.0615,low,0,PLT low 141
+65,1,0.0542,low,0,—
+65,1,0.0542,low,0,—
+40,1,0.0522,low,0,—
+79,1,0.0936,low,1,WBC↑ 23.8×10⁹
+45,1,0.0871,low,1,WBC↑ 13.2×10⁹
+34,1,0.0522,low,0,—
+34,1,0.1443,low,0,PLT low 142 | SpO2↓ 80.2% | PaO2↓ 42mmHg
+34,1,0.0522,low,0,—
+41,1,0.0522,low,0,—
+32,1,0.1053,low,1,WBC↑ 18.1×10⁹ | D-dimer↑ 8.6
+33,1,0.0871,low,1,WBC↑ 17.0×10⁹
+33,1,0.0928,low,1,WBC↑ 15.6×10⁹
+56,1,0.0752,low,0,Bili↑ 5.2
+28,1,0.1268,low,1,WBC↑ 20.1×10⁹ | Acidosis pH 7.339
+70,1,0.0563,low,0,—
+38,1,0.0522,low,0,—
+29,0,0.265,moderate,1,WBC↑ 17.6×10⁹ | Lact↑ 2.48 | Acidosis pH 7.338 | D-dimer↑ 2.7
+52,1,0.0522,low,0,—
+38,1,0.0907,low,0,CRP↑ 226 | D-dimer↑ 7.5 | Alb low 2.8
+51,1,0.0522,low,0,—
+51,1,0.0636,low,0,D-dimer↑ 2.4
+86,1,0.1213,low,0,Creat↑ 2.2 | CRP↑ 245
+30,1,0.0522,low,0,—
+43,1,0.0928,low,1,WBC↑ 18.6×10⁹
+49,1,0.0557,low,0,—
+32,0,0.0928,low,1,WBC↑ 23.6×10⁹
+72,1,0.2176,moderate,0,Lact CRIT 4.27 | SpO2low 93.6% | CRP↑ 179
+66,1,0.2176,moderate,0,Bili↑ 5.4 | PLT↓ 51 | D-dimer↑ 7.0 | INR↑ 1.54 | Alb low 2.7
+65,1,0.0903,low,1,WBC↑ 13.6×10⁹
+29,0,0.0522,low,0,—
+65,1,0.0971,low,0,Creat↑ 8.7
+38,1,0.0522,low,0,—
+50,1,0.0928,low,1,WBC↑ 12.1×10⁹
+58,0,0.1978,moderate,1,WBC↑ 25.5×10⁹ | Lact↑ 2.03 | D-dimer↑ 4.5
+26,1,0.0522,low,0,—
+66,1,0.0563,low,0,—
+81,1,0.0936,low,1,WBC↑ 20.1×10⁹
+60,1,0.0682,low,0,PLT low 109
+31,1,0.0636,low,0,CRP↑ 162
+69,1,0.1359,low,1,WBC↑ 18.6×10⁹ | Bili↑ 4.3
+45,1,0.1915,moderate,1,WBC↑ 19.6×10⁹ | Lact↑ 2.33 | CRP↑ 178
+40,1,0.0522,low,0,—
+40,1,0.0522,low,0,—
+36,1,0.0871,low,1,WBC↑ 20.1×10⁹
+36,1,0.0522,low,0,—
+44,1,0.0557,low,0,—
+81,1,0.2042,moderate,1,WBC↑ 12.2×10⁹ | Lact↑ 3.72 | D-dimer↑ 2.6
+81,1,0.1455,low,0,Bili↑ 3.6 | Lact↑ 2.55
+69,0,0.2809,moderate,1,WBC↑ 16.1×10⁹ | Lact↑ 2.57 | Acidosis pH 7.305 | D-dimer↑ 2.2
+49,1,0.0615,low,0,PLT low 137
+44,1,0.0928,low,1,WBC↑ 12.1×10⁹
+57,0,0.0704,low,0,Creat↑mod 1.5
+73,1,0.1072,low,0,Creat↑mod 1.6 | Acidosis pH 7.309
+32,1,0.0871,low,1,WBC↑ 16.2×10⁹
+37,1,0.1166,low,0,PLT low 122 | SpO2low 91.8% | PaO2↓ 55mmHg
+45,1,0.1708,moderate,1,WBC↑ 12.7×10⁹ | Bili↑ 2.5 | CRP↑ 202 | D-dimer↑ 4.2
+23,1,0.0522,low,0,—
+82,1,0.2059,moderate,0,Bili↑ 6.0 | SpO2low 90.3% | PaO2↓ 55mmHg | Alb↓ 1.8
+47,1,0.1062,low,0,Lact↑ 2.74
+57,0,0.1312,low,1,WBC↑ 14.2×10⁹ | CRP↑ 171 | D-dimer↑ 3.5
+47,1,0.0879,low,0,Bili↑ 16.1 | CRP↑ 173
+31,1,0.1578,moderate,0,PLT low 138 | Lact CRIT 4.51
+39,1,0.1192,low,1,WBC↑ 13.2×10⁹ | Bili↑ 2.9
+60,1,0.1101,low,0,Lact↑ 2.68
+44,0,0.265,moderate,1,WBC↑ 20.7×10⁹ | Lact↑ 3.42 | Acidosis pH 7.278 | D-dimer↑ 7.3
+55,1,0.0522,low,0,—
+70,0,0.2297,moderate,0,Creat↑mod 1.8 | Lact↑ 2.09 | Acidosis pH 7.339 | CRP↑ 220
+37,1,0.0522,low,0,—
+67,1,0.1072,low,0,Lact↑ 2.71
+34,1,0.0522,low,0,—
+60,1,0.1034,low,0,Lact↑ 2.48
+60,1,0.0903,low,1,WBC↑ 16.7×10⁹
+21,1,0.0522,low,0,—
+64,1,0.0903,low,1,WBC↑ 12.4×10⁹
+42,0,0.265,moderate,1,WBC↑ 18.4×10⁹ | Bili↑ 2.5 | Lact↑ 2.15 | D-dimer↑ 3.2
+42,1,0.0522,low,0,—
+50,1,0.0724,low,0,Bili↑ 5.0
+51,1,0.1268,low,1,WBC↑ 13.4×10⁹ | Acidosis pH 7.341
+37,1,0.0748,low,0,PLT low 117 | CRP↑ 215
+71,1,0.129,low,0,Lact↑ 2.07 | D-dimer↑ 5.3
+24,0,0.525,high,1,WBC↑ 14.0×10⁹ | Creat↑ 2.1 | Lact↑ 2.15 | Acidosis pH 7.190 | CRP↑ 221 | D-dimer↑ 4.7 | INR↑ 1.52
+58,1,0.1161,low,1,WBC↑ 12.3×10⁹ | Creat↑mod 1.8
+88,1,0.0563,low,0,—
+57,1,0.0542,low,0,—
+43,1,0.0522,low,0,—
+56,0,0.2333,moderate,1,WBC↑ 14.9×10⁹ | Lact↑ 2.57 | Acidosis pH 7.347
+29,1,0.0871,low,1,WBC↑ 19.1×10⁹
+36,1,0.0998,low,0,Lact↑ 2.35
+52,1,0.0522,low,0,—
+75,1,0.0936,low,1,WBC↑ 17.5×10⁹
+66,0,0.4403,high,1,WBC↑ 26.6×10⁹ | Creat↑ 3.9 | Lact↑ 3.65 | Acidosis pH 7.341 | D-dimer↑ 11.4
+66,1,0.1166,low,1,WBC↑ 12.9×10⁹ | Alb low 2.6
+47,1,0.0615,low,0,PLT low 124
+24,1,0.1268,low,1,WBC↑ 15.6×10⁹ | CRP↑ 201 | D-dimer↑ 3.0
+46,1,0.0748,low,0,PLT low 139 | CRP↑ 248
+74,1,0.1072,low,0,Lact↑ 2.06
+37,0,0.1824,moderate,0,Lact↑ 2.49 | SpO2low 90.5% | PaO2↓ 55mmHg
+69,1,0.0563,low,0,—
+65,1,0.066,low,0,D-dimer↑ 20.0
+47,1,0.21,moderate,0,Bili↑ 5.9 | PLT↓ 86 | Lact↑ 2.24
+21,1,0.1443,low,0,Lact CRIT 4.52
+32,1,0.0998,low,0,Lact↑ 2.01
+42,0,0.1611,moderate,1,WBC↑ 15.0×10⁹ | Lact↑ 3.23
+42,1,0.0522,low,0,—
+64,0,0.0962,low,1,WBC↑ 13.7×10⁹
+39,1,0.0615,low,0,PLT low 124
+64,1,0.1034,low,0,Lact↑ 2.11
+77,1,0.133,low,0,PLT low 138 | Lact↑ 2.42
+35,1,0.1519,moderate,1,WBC↑ 15.5×10⁹ | Acidosis pH 7.275 | CRP↑ 164
+65,1,0.0752,low,0,Bili↑ 4.9
+33,1,0.1915,moderate,1,WBC↑ 12.0×10⁹ | Lact↑ 2.38 | D-dimer↑ 3.4
+41,1,0.1443,low,0,Lact↑ 2.02 | Acidosis pH 7.340
+23,1,0.0522,low,0,—
+23,1,0.0522,low,0,—
+44,1,0.2142,moderate,1,WBC↑ 13.3×10⁹ | Bili↑ 6.0 | Lact↑ 2.88
+61,1,0.0579,low,0,—
+87,1,0.0685,low,0,CRP↑ 197
+77,0,0.7281,critical,1,WBC↑ 15.1×10⁹ | Creat↑ 3.4 | Bili↑ 6.5 | PLT↓ 83 | Lact CRIT 4.12 | CRP↑ 176 | D-dimer↑ 14.3 | INR↑ 1.78
+85,1,0.1072,low,0,Lact↑ 3.86
+35,0,0.1053,low,1,WBC↑ 16.7×10⁹ | CRP↑ 343
+69,1,0.0998,low,1,WBC↑ 12.0×10⁹
+40,1,0.1611,moderate,1,WBC↑ 13.1×10⁹ | Lact↑ 3.46
+53,1,0.0998,low,0,Lact↑ 2.95
+26,1,0.2262,moderate,1,WBC↑ 14.3×10⁹ | Lact↑ 2.83 | Acidosis pH 7.342
+46,1,0.0522,low,0,—
+45,0,0.4988,high,1,WBC↑ 13.9×10⁹ | Creat↑ 2.3 | Lact↑ 3.05 | Acidosis pH 7.299 | CRP↑ 228 | D-dimer↑ 4.6 | Alb low 2.9
+48,0,0.0748,low,0,CRP↑ 203 | Alb low 2.9
+54,1,0.0724,low,0,Bili↑ 2.8
+65,1,0.0542,low,0,—
+39,1,0.1268,low,1,WBC↑ 28.2×10⁹ | Acidosis pH 7.347
+79,1,0.1986,moderate,1,WBC↑ 18.2×10⁹ | Creat↑mod 1.8 | PLT low 131 | CRP↑ 251 | D-dimer↑ 3.8
+42,1,0.0871,low,1,WBC↑ 14.3×10⁹
+45,1,0.0636,low,0,D-dimer↑ 2.5
+61,0,0.1666,moderate,1,WBC↑ 16.7×10⁹ | Lact↑ 3.37
+38,1,0.0928,low,1,WBC↑ 12.9×10⁹
+72,0,0.1931,moderate,1,WBC↑ 23.5×10⁹ | Creat↑ 2.9 | CRP↑ 251
+89,1,0.0601,low,0,—
+36,1,0.1053,low,1,WBC↑ 12.4×10⁹ | D-dimer↑ 3.9
+62,1,0.0542,low,0,—
+62,1,0.0542,low,0,—
+34,1,0.0871,low,1,WBC↑ 12.0×10⁹
+88,1,0.0936,low,1,WBC↑ 12.5×10⁹
+86,1,0.2159,moderate,1,WBC↑ 15.9×10⁹ | Lact↑ 2.71 | INR↑ 1.90
+34,1,0.0871,low,1,WBC↑ 23.1×10⁹
+70,1,0.1279,low,1,WBC↑ 12.0×10⁹ | Bili↑ 2.7
+34,1,0.1053,low,1,WBC↑ 19.1×10⁹ | CRP↑ 188
+51,1,0.0522,low,0,—
+45,1,0.0522,low,0,—
+53,1,0.1192,low,1,WBC↑ 21.3×10⁹ | Bili↑ 5.1
+60,1,0.066,low,0,CRP↑ 181
+46,0,0.2279,moderate,0,Bili↑ 7.0 | Lact CRIT 4.37 | D-dimer↑ 2.0
+77,1,0.0936,low,1,WBC↑ 18.4×10⁹
+43,1,0.0907,low,0,Bili↑ 3.1 | PLT low 136
+47,1,0.0522,low,0,—
+58,1,0.0828,low,0,D-dimer↑ 3.5 | Alb low 2.9
+80,1,0.0601,low,0,—
+71,0,0.1532,moderate,1,WBC↑ 12.7×10⁹ | Bili↑ 4.6 | D-dimer↑ 3.3
+30,1,0.0636,low,0,D-dimer↑ 3.2
+52,1,0.1722,moderate,0,Lact↑ 2.56 | Acidosis pH 7.341 | D-dimer↑ 2.5
+34,1,0.0998,low,0,Lact↑ 2.25
+26,1,0.1611,moderate,1,WBC↑ 14.7×10⁹ | Lact↑ 2.19
+33,1,0.0871,low,1,WBC↑ 13.7×10⁹
+33,1,0.0871,low,1,WBC↑ 17.7×10⁹
+32,1,0.1519,moderate,1,WBC↑ 16.1×10⁹ | Acidosis pH 7.185 | D-dimer↑ 2.1
+60,1,0.0542,low,0,—
+51,1,0.0871,low,1,WBC↑ 12.7×10⁹
+37,1,0.102,low,1,WBC↑ 14.5×10⁹ | PLT low 147
+34,1,0.0522,low,0,—
+78,1,0.0685,low,0,D-dimer↑ 2.3
+47,1,0.1611,moderate,1,WBC↑ 17.1×10⁹ | Lact↑ 3.15
+47,1,0.1611,moderate,1,WBC↑ 14.7×10⁹ | Lact↑ 2.86
+32,0,0.1915,moderate,1,WBC↑ 20.6×10⁹ | Lact↑ 3.12 | D-dimer↑ 3.9
+32,0,0.265,moderate,1,WBC↑ 20.1×10⁹ | Lact↑ 3.60 | PaO2↓ 59mmHg | CRP↑ 178
+86,1,0.3566,moderate,1,WBC↑ 20.4×10⁹ | Lact CRIT 6.35 | Acidosis pH 7.347 | D-dimer↑ 3.1
+74,1,0.0936,low,1,WBC↓ 3.8×10⁹
+26,1,0.0871,low,1,WBC↑ 13.2×10⁹
+26,1,0.0522,low,0,—
+38,1,0.0871,low,1,WBC↑ 20.6×10⁹
+45,1,0.1611,moderate,1,WBC↑ 14.2×10⁹ | Lact↑ 2.01
+44,1,0.0522,low,0,—
+44,1,0.0871,low,1,WBC↑ 12.4×10⁹
+45,1,0.1053,low,1,WBC↑ 18.2×10⁹ | D-dimer↑ 2.6
+67,1,0.267,moderate,1,WBC↑ 14.4×10⁹ | Bili↑ 2.1 | Lact↑ 2.68 | D-dimer↑ 2.9
+27,1,0.0928,low,1,WBC↑ 13.0×10⁹
+37,0,0.1673,moderate,0,PLT low 131 | Lact↑ 2.55 | Acidosis pH 7.325
+80,1,0.0563,low,0,—
+32,1,0.2142,moderate,1,WBC↑ 17.6×10⁹ | Lact CRIT 4.36
+69,1,0.0563,low,0,—
+33,1,0.0522,low,0,—
+42,0,0.2201,moderate,1,WBC↑ 25.5×10⁹ | PLT low 111 | Lact↑ 4.00 | D-dimer↑ 3.2
+64,0,0.1978,moderate,1,WBC↑ 20.6×10⁹ | Creat↑mod 1.5 | Bili↑ 2.5 | D-dimer↑ 2.8
+23,1,0.0636,low,0,D-dimer↑ 2.6
+44,1,0.1611,moderate,1,WBC↑ 15.7×10⁹ | Lact↑ 3.94
+33,1,0.0522,low,0,—
+50,1,0.1611,moderate,1,WBC↑ 15.0×10⁹ | Lact↑ 2.60
+55,1,0.0522,low,0,—
+43,0,0.2262,moderate,1,WBC↑ 22.1×10⁹ | Lact↑ 2.35 | Acidosis pH 7.341
+38,1,0.3307,moderate,1,WBC↑ 18.4×10⁹ | Lact↑ 3.47 | SpO2↓ 85.9% | PaO2↓ 47mmHg
+50,1,0.0557,low,0,—
+74,1,0.0563,low,0,—
+50,1,0.0615,low,0,PLT low 148
+61,1,0.1666,moderate,1,WBC↑ 18.7×10⁹ | Lact↑ 2.71
+28,1,0.1708,moderate,1,WBC↑ 12.9×10⁹ | Bili↑ 2.4 | CRP↑ 201 | D-dimer↑ 15.5
+27,1,0.0871,low,1,WBC↑ 14.7×10⁹
+39,1,0.0824,low,0,Creat↑mod 1.8 | CRP↑ 152
+48,1,0.0998,low,0,Lact↑ 2.04
+53,1,0.1915,moderate,1,WBC↑ 18.9×10⁹ | Lact↑ 2.08 | D-dimer↑ 4.0
+47,1,0.0679,low,0,D-dimer↑ 3.3
+72,1,0.1455,low,0,Bili↑ 2.2 | Lact↑ 2.28
+80,1,0.4231,high,1,WBC↑ 24.5×10⁹ | Creat↑ 3.1 | Lact CRIT 6.66 | D-dimer↑ 4.1
+39,1,0.0871,low,1,WBC↑ 14.7×10⁹
+41,1,0.0871,low,1,WBC↑ 16.0×10⁹
+43,1,0.0871,low,1,WBC↑ 16.2×10⁹
+37,1,0.0871,low,1,WBC↑ 14.9×10⁹
+44,1,0.1611,moderate,1,WBC↑ 19.4×10⁹ | Lact↑ 3.20
+77,0,0.1443,low,1,WBC↑ 14.7×10⁹ | Creat↑mod 1.8 | D-dimer↑ 3.7
+39,1,0.0871,low,1,WBC↑ 14.2×10⁹
+55,1,0.1062,low,0,Lact↑ 2.13
+40,0,0.1708,moderate,1,WBC↑ 25.1×10⁹ | Lact↑ 3.29
+39,1,0.0557,low,0,—
+38,1,0.1053,low,1,WBC↑ 23.5×10⁹ | CRP↑ 191
+41,0,0.265,moderate,1,WBC↑ 12.6×10⁹ | Lact↑ 2.47 | Acidosis pH 7.341 | D-dimer↑ 2.3
+39,0,0.1915,moderate,1,WBC↑ 23.1×10⁹ | Lact↑ 3.71 | D-dimer↑ 2.1
+48,1,0.0522,low,0,—
+74,0,0.5878,high,1,WBC↑ 17.7×10⁹ | Creat↑ 2.5 | Lact CRIT 8.58 | SpO2low 91.4% | Acidosis pH 7.201 | Alb low 2.9
+46,1,0.0522,low,0,—
+38,1,0.2262,moderate,1,WBC↑ 20.9×10⁹ | Lact↑ 2.10 | Acidosis pH 7.089
+51,1,0.1611,moderate,1,WBC↑ 13.1×10⁹ | Lact↑ 2.70
+59,0,0.1885,moderate,0,Creat↑mod 1.5 | Bili↑ 2.8 | Lact↑ 3.59
+32,1,0.0928,low,1,WBC↑ 18.9×10⁹
+39,1,0.1611,moderate,1,WBC↑ 14.5×10⁹ | Lact↑ 2.05
+77,1,0.1722,moderate,1,WBC↑ 23.1×10⁹ | Creat↑mod 1.9 | CRP↑ 188 | D-dimer↑ 2.9
+50,1,0.0871,low,1,WBC↑ 16.2×10⁹
+22,1,0.0773,low,0,Acidosis pH 7.336
+22,1,0.0998,low,0,Lact↑ 2.05
+50,1,0.0871,low,1,WBC↑ 12.8×10⁹
+31,0,0.2026,moderate,1,WBC↑ 14.1×10⁹ | Lact↑ 3.17 | D-dimer↑ 2.1
+34,1,0.0928,low,1,WBC↑ 14.7×10⁹
+36,1,0.0636,low,0,D-dimer↑ 7.8
+69,1,0.0663,low,0,PLT low 134
+59,1,0.221,moderate,1,WBC↑ 18.3×10⁹ | Lact CRIT 4.49
+34,1,0.0998,low,0,Lact↑ 2.13
+46,1,0.1611,moderate,1,WBC↑ 12.1×10⁹ | Lact↑ 3.23
+50,1,0.1611,moderate,1,WBC↑ 19.4×10⁹ | Lact↑ 2.77
+78,1,0.1166,low,1,WBC↑ 16.0×10⁹ | PLT low 144
+73,0,0.4317,high,1,WBC↑ 15.4×10⁹ | Bili↑ 7.7 | Lact↑ 2.54 | SpO2low 90.3% | PaO2↓ 53mmHg | Alb low 2.9
+42,1,0.0871,low,1,WBC↑ 17.1×10⁹
+75,0,0.2176,moderate,0,Lact↑ 3.19 | Acidosis pH 7.317 | CRP↑ 251 | D-dimer↑ 6.2
+38,1,0.1192,low,1,WBC↑ 12.3×10⁹ | SpO2low 93.5%
+47,1,0.0998,low,0,Lact↑ 2.18
+37,1,0.0615,low,0,PLT low 140
+53,0,0.4813,high,1,WBC↑ 13.2×10⁹ | Bili↑ 3.7 | PLT low 106 | Lact CRIT 7.81 | Acidosis pH 7.207 | D-dimer↑ 2.1

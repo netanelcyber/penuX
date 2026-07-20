@@ -1,0 +1,514 @@
+{
+  "betas": [
+    0.5,
+    1.0,
+    1.5,
+    2.0,
+    3.0,
+    5.0
+  ],
+  "results": {
+    "0.5": [
+      {
+        "model": "Logistic Regression",
+        "beta": 0.5,
+        "fbeta": 0.8825,
+        "threshold": 0.605,
+        "sens": 89.6,
+        "spec": 47.4,
+        "fn": 61,
+        "degenerate": false
+      },
+      {
+        "model": "Random Forest",
+        "beta": 0.5,
+        "fbeta": 0.9205,
+        "threshold": 0.73,
+        "sens": 87.5,
+        "spec": 73.0,
+        "fn": 73,
+        "degenerate": false
+      },
+      {
+        "model": "Gradient Boosting",
+        "beta": 0.5,
+        "fbeta": 0.915,
+        "threshold": 0.808,
+        "sens": 86.5,
+        "spec": 71.5,
+        "fn": 79,
+        "degenerate": false
+      },
+      {
+        "model": "XGBoost",
+        "beta": 0.5,
+        "fbeta": 0.9219,
+        "threshold": 0.791,
+        "sens": 87.5,
+        "spec": 73.7,
+        "fn": 73,
+        "degenerate": false
+      },
+      {
+        "model": "LightGBM",
+        "beta": 0.5,
+        "fbeta": 0.9232,
+        "threshold": 0.925,
+        "sens": 85.1,
+        "spec": 78.1,
+        "fn": 87,
+        "degenerate": false
+      },
+      {
+        "model": "CatBoost",
+        "beta": 0.5,
+        "fbeta": 0.9231,
+        "threshold": 0.847,
+        "sens": 87.0,
+        "spec": 75.2,
+        "fn": 76,
+        "degenerate": false
+      },
+      {
+        "model": "NGBoost",
+        "beta": 0.5,
+        "fbeta": 0.9118,
+        "threshold": 0.96,
+        "sens": 83.1,
+        "spec": 75.2,
+        "fn": 99,
+        "degenerate": false
+      },
+      {
+        "model": "EBM",
+        "beta": 0.5,
+        "fbeta": 0.914,
+        "threshold": 0.762,
+        "sens": 87.5,
+        "spec": 69.3,
+        "fn": 73,
+        "degenerate": false
+      }
+    ],
+    "1.0": [
+      {
+        "model": "Logistic Regression",
+        "beta": 1.0,
+        "fbeta": 0.9018,
+        "threshold": 0.321,
+        "sens": 95.7,
+        "spec": 29.2,
+        "fn": 25,
+        "degenerate": false
+      },
+      {
+        "model": "Random Forest",
+        "beta": 1.0,
+        "fbeta": 0.921,
+        "threshold": 0.521,
+        "sens": 98.6,
+        "spec": 33.6,
+        "fn": 8,
+        "degenerate": false
+      },
+      {
+        "model": "Gradient Boosting",
+        "beta": 1.0,
+        "fbeta": 0.9184,
+        "threshold": 0.622,
+        "sens": 93.3,
+        "spec": 57.7,
+        "fn": 39,
+        "degenerate": false
+      },
+      {
+        "model": "XGBoost",
+        "beta": 1.0,
+        "fbeta": 0.9235,
+        "threshold": 0.522,
+        "sens": 94.9,
+        "spec": 54.7,
+        "fn": 30,
+        "degenerate": false
+      },
+      {
+        "model": "LightGBM",
+        "beta": 1.0,
+        "fbeta": 0.9181,
+        "threshold": 0.516,
+        "sens": 94.9,
+        "spec": 49.6,
+        "fn": 30,
+        "degenerate": false
+      },
+      {
+        "model": "CatBoost",
+        "beta": 1.0,
+        "fbeta": 0.9263,
+        "threshold": 0.592,
+        "sens": 95.6,
+        "spec": 54.0,
+        "fn": 26,
+        "degenerate": false
+      },
+      {
+        "model": "NGBoost",
+        "beta": 1.0,
+        "fbeta": 0.9141,
+        "threshold": 0.364,
+        "sens": 97.3,
+        "spec": 33.6,
+        "fn": 16,
+        "degenerate": false
+      },
+      {
+        "model": "EBM",
+        "beta": 1.0,
+        "fbeta": 0.9221,
+        "threshold": 0.427,
+        "sens": 97.1,
+        "spec": 42.3,
+        "fn": 17,
+        "degenerate": false
+      }
+    ],
+    "1.5": [
+      {
+        "model": "Logistic Regression",
+        "beta": 1.5,
+        "fbeta": 0.9328,
+        "threshold": 0.0,
+        "sens": 100.0,
+        "spec": 0.0,
+        "fn": 0,
+        "degenerate": true
+      },
+      {
+        "model": "Random Forest",
+        "beta": 1.5,
+        "fbeta": 0.9451,
+        "threshold": 0.521,
+        "sens": 98.6,
+        "spec": 33.6,
+        "fn": 8,
+        "degenerate": false
+      },
+      {
+        "model": "Gradient Boosting",
+        "beta": 1.5,
+        "fbeta": 0.9432,
+        "threshold": 0.285,
+        "sens": 98.6,
+        "spec": 30.7,
+        "fn": 8,
+        "degenerate": false
+      },
+      {
+        "model": "XGBoost",
+        "beta": 1.5,
+        "fbeta": 0.9417,
+        "threshold": 0.213,
+        "sens": 99.0,
+        "spec": 24.8,
+        "fn": 6,
+        "degenerate": false
+      },
+      {
+        "model": "LightGBM",
+        "beta": 1.5,
+        "fbeta": 0.9433,
+        "threshold": 0.124,
+        "sens": 99.5,
+        "spec": 21.9,
+        "fn": 3,
+        "degenerate": false
+      },
+      {
+        "model": "CatBoost",
+        "beta": 1.5,
+        "fbeta": 0.9438,
+        "threshold": 0.251,
+        "sens": 99.1,
+        "spec": 26.3,
+        "fn": 5,
+        "degenerate": false
+      },
+      {
+        "model": "NGBoost",
+        "beta": 1.5,
+        "fbeta": 0.9395,
+        "threshold": 0.105,
+        "sens": 99.5,
+        "spec": 16.1,
+        "fn": 3,
+        "degenerate": false
+      },
+      {
+        "model": "EBM",
+        "beta": 1.5,
+        "fbeta": 0.9426,
+        "threshold": 0.239,
+        "sens": 99.0,
+        "spec": 26.3,
+        "fn": 6,
+        "degenerate": false
+      }
+    ],
+    "2.0": [
+      {
+        "model": "Logistic Regression",
+        "beta": 2.0,
+        "fbeta": 0.9553,
+        "threshold": 0.0,
+        "sens": 100.0,
+        "spec": 0.0,
+        "fn": 0,
+        "degenerate": true
+      },
+      {
+        "model": "Random Forest",
+        "beta": 2.0,
+        "fbeta": 0.9605,
+        "threshold": 0.418,
+        "sens": 99.8,
+        "spec": 15.3,
+        "fn": 1,
+        "degenerate": false
+      },
+      {
+        "model": "Gradient Boosting",
+        "beta": 2.0,
+        "fbeta": 0.9608,
+        "threshold": 0.104,
+        "sens": 99.8,
+        "spec": 16.1,
+        "fn": 1,
+        "degenerate": false
+      },
+      {
+        "model": "XGBoost",
+        "beta": 2.0,
+        "fbeta": 0.9594,
+        "threshold": 0.162,
+        "sens": 99.5,
+        "spec": 19.0,
+        "fn": 3,
+        "degenerate": false
+      },
+      {
+        "model": "LightGBM",
+        "beta": 2.0,
+        "fbeta": 0.9607,
+        "threshold": 0.124,
+        "sens": 99.5,
+        "spec": 21.9,
+        "fn": 3,
+        "degenerate": false
+      },
+      {
+        "model": "CatBoost",
+        "beta": 2.0,
+        "fbeta": 0.9599,
+        "threshold": 0.251,
+        "sens": 99.1,
+        "spec": 26.3,
+        "fn": 5,
+        "degenerate": false
+      },
+      {
+        "model": "NGBoost",
+        "beta": 2.0,
+        "fbeta": 0.9586,
+        "threshold": 0.089,
+        "sens": 99.7,
+        "spec": 13.9,
+        "fn": 2,
+        "degenerate": false
+      },
+      {
+        "model": "EBM",
+        "beta": 2.0,
+        "fbeta": 0.9586,
+        "threshold": 0.239,
+        "sens": 99.0,
+        "spec": 26.3,
+        "fn": 6,
+        "degenerate": false
+      }
+    ],
+    "3.0": [
+      {
+        "model": "Logistic Regression",
+        "beta": 3.0,
+        "fbeta": 0.9771,
+        "threshold": 0.0,
+        "sens": 100.0,
+        "spec": 0.0,
+        "fn": 0,
+        "degenerate": true
+      },
+      {
+        "model": "Random Forest",
+        "beta": 3.0,
+        "fbeta": 0.979,
+        "threshold": 0.418,
+        "sens": 99.8,
+        "spec": 15.3,
+        "fn": 1,
+        "degenerate": false
+      },
+      {
+        "model": "Gradient Boosting",
+        "beta": 3.0,
+        "fbeta": 0.9794,
+        "threshold": 0.084,
+        "sens": 100.0,
+        "spec": 10.2,
+        "fn": 0,
+        "degenerate": false
+      },
+      {
+        "model": "XGBoost",
+        "beta": 3.0,
+        "fbeta": 0.9771,
+        "threshold": 0.009,
+        "sens": 100.0,
+        "spec": 0.0,
+        "fn": 0,
+        "degenerate": true
+      },
+      {
+        "model": "LightGBM",
+        "beta": 3.0,
+        "fbeta": 0.9775,
+        "threshold": 0.124,
+        "sens": 99.5,
+        "spec": 21.9,
+        "fn": 3,
+        "degenerate": false
+      },
+      {
+        "model": "CatBoost",
+        "beta": 3.0,
+        "fbeta": 0.9784,
+        "threshold": 0.06,
+        "sens": 99.8,
+        "spec": 12.4,
+        "fn": 1,
+        "degenerate": false
+      },
+      {
+        "model": "NGBoost",
+        "beta": 3.0,
+        "fbeta": 0.9773,
+        "threshold": 0.014,
+        "sens": 100.0,
+        "spec": 0.7,
+        "fn": 0,
+        "degenerate": true
+      },
+      {
+        "model": "EBM",
+        "beta": 3.0,
+        "fbeta": 0.9779,
+        "threshold": 0.009,
+        "sens": 100.0,
+        "spec": 3.6,
+        "fn": 0,
+        "degenerate": false
+      }
+    ],
+    "5.0": [
+      {
+        "model": "Logistic Regression",
+        "beta": 5.0,
+        "fbeta": 0.9911,
+        "threshold": 0.0,
+        "sens": 100.0,
+        "spec": 0.0,
+        "fn": 0,
+        "degenerate": true
+      },
+      {
+        "model": "Random Forest",
+        "beta": 5.0,
+        "fbeta": 0.9913,
+        "threshold": 0.277,
+        "sens": 100.0,
+        "spec": 2.2,
+        "fn": 0,
+        "degenerate": false
+      },
+      {
+        "model": "Gradient Boosting",
+        "beta": 5.0,
+        "fbeta": 0.992,
+        "threshold": 0.084,
+        "sens": 100.0,
+        "spec": 10.2,
+        "fn": 0,
+        "degenerate": false
+      },
+      {
+        "model": "XGBoost",
+        "beta": 5.0,
+        "fbeta": 0.9911,
+        "threshold": 0.009,
+        "sens": 100.0,
+        "spec": 0.0,
+        "fn": 0,
+        "degenerate": true
+      },
+      {
+        "model": "LightGBM",
+        "beta": 5.0,
+        "fbeta": 0.9911,
+        "threshold": 0.009,
+        "sens": 100.0,
+        "spec": 0.7,
+        "fn": 0,
+        "degenerate": true
+      },
+      {
+        "model": "CatBoost",
+        "beta": 5.0,
+        "fbeta": 0.9912,
+        "threshold": 0.014,
+        "sens": 100.0,
+        "spec": 1.5,
+        "fn": 0,
+        "degenerate": false
+      },
+      {
+        "model": "NGBoost",
+        "beta": 5.0,
+        "fbeta": 0.9911,
+        "threshold": 0.014,
+        "sens": 100.0,
+        "spec": 0.7,
+        "fn": 0,
+        "degenerate": true
+      },
+      {
+        "model": "EBM",
+        "beta": 5.0,
+        "fbeta": 0.9914,
+        "threshold": 0.009,
+        "sens": 100.0,
+        "spec": 3.6,
+        "fn": 0,
+        "degenerate": false
+      }
+    ]
+  },
+  "auc": {
+    "Logistic Regression": 0.7875,
+    "Random Forest": 0.8774,
+    "Gradient Boosting": 0.862,
+    "XGBoost": 0.8828,
+    "LightGBM": 0.8793,
+    "CatBoost": 0.8818,
+    "NGBoost": 0.8536,
+    "EBM": 0.8563
+  }
+}

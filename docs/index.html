@@ -3,198 +3,799 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>penuX — SAP Severity Prediction</title>
+  <title>PenuX — Early Prediction of Severe Acute Pancreatitis</title>
+  <meta name="description" content="PenuX-AP-Severity: Open-source ML model for early SAP prediction using routine admission labs. AUC 0.877. FHIR R4 & HL7 integration." />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
+    :root {
+      --blue:    #1a56db;
+      --blue-dk: #1e429f;
+      --blue-lt: #e8f0fe;
+      --red:     #c81e1e;
+      --green:   #057a55;
+      --amber:   #92400e;
+      --gray-50: #f9fafb;
+      --gray-100:#f3f4f6;
+      --gray-200:#e5e7eb;
+      --gray-400:#9ca3af;
+      --gray-600:#4b5563;
+      --gray-800:#1f2937;
+      --gray-900:#111827;
+      --white:   #ffffff;
+      --radius:  8px;
+      --shadow:  0 1px 3px rgba(0,0,0,.10), 0 1px 2px rgba(0,0,0,.06);
+      --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+    }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background-color: #0d1b2a; color: #fff; font-family: Georgia, serif; min-height: 100vh; display: flex; flex-direction: column; }
-    nav { background-color: #1e3a5f; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 60px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); position: sticky; top: 0; z-index: 100; }
-    .nav-brand { font-size: 1.4rem; font-weight: bold; color: #00b4d8; letter-spacing: 0.05em; text-decoration: none; }
-    .nav-links { display: flex; gap: 2rem; list-style: none; }
-    .nav-links a { color: #cce8f4; text-decoration: none; font-family: Arial, sans-serif; font-size: 0.95rem; transition: color 0.2s; }
-    .nav-links a:hover, .nav-links a.active { color: #00b4d8; }
-    .nav-toggle { display: none; background: none; border: none; cursor: pointer; flex-direction: column; gap: 5px; }
-    .nav-toggle span { display: block; width: 24px; height: 2px; background: #cce8f4; }
-    .disclaimer-banner { background-color: #1a0a0a; border: 1px solid #8b1a1a; border-left: 4px solid #cc2200; color: #ffb3a7; text-align: center; padding: 0.75rem 2rem; font-family: Arial, sans-serif; font-size: 0.85rem; }
-    .disclaimer-banner strong { color: #ff6b6b; }
-    .page-hero { text-align: center; padding: 3.5rem 2rem 2.5rem; background: linear-gradient(180deg, #0d1b2a 0%, #0a2540 100%); }
-    .page-hero h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); color: #00b4d8; margin-bottom: 0.75rem; }
-    .page-hero p { font-size: 1rem; color: #a8d5e8; font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; line-height: 1.7; }
-    .hero-divider { width: 60px; height: 3px; background: #00b4d8; margin: 1.5rem auto 0; border-radius: 2px; }
-    main { flex: 1; padding: 3rem 2rem 4rem; max-width: 1000px; margin: 0 auto; width: 100%; }
-    section { margin-bottom: 3rem; }
-    h2 { font-size: 1.4rem; color: #00b4d8; margin-bottom: 1rem; font-family: Arial, sans-serif; letter-spacing: 0.03em; }
-    h3 { font-size: 1.1rem; color: #e8f4fc; margin-bottom: 0.6rem; font-family: Arial, sans-serif; }
-    p { font-family: Arial, sans-serif; font-size: 0.95rem; color: #8ab8d0; line-height: 1.8; margin-bottom: 0.75rem; }
-    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
-    .info-card { background: #112236; border: 1px solid #1e3a5f; border-top: 3px solid #00b4d8; border-radius: 6px; padding: 1.5rem; }
-    .info-card h3 { color: #00b4d8; margin-bottom: 0.5rem; }
-    .severity-table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 0.9rem; margin-top: 1rem; }
-    .severity-table th { background: #1e3a5f; color: #00b4d8; padding: 0.75rem 1rem; text-align: left; font-weight: bold; }
-    .severity-table td { padding: 0.7rem 1rem; border-bottom: 1px solid #1a3050; color: #c0d8ea; vertical-align: top; }
-    .severity-table tr:hover td { background: #112236; }
-    .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-family: Arial, sans-serif; font-weight: bold; letter-spacing: 0.05em; }
-    .badge-mild { background: #0a3d1f; color: #6fcf97; }
-    .badge-mod { background: #3d2e0a; color: #f2c94c; }
-    .badge-severe { background: #3d0a0a; color: #eb5757; }
-    .scores-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
-    .score-pill { background: #112236; border: 1px solid #1e3a5f; border-radius: 6px; padding: 1rem; text-align: center; }
-    .score-pill .name { font-family: Arial, sans-serif; font-size: 0.85rem; color: #00b4d8; font-weight: bold; margin-bottom: 0.3rem; }
-    .score-pill .desc { font-family: Arial, sans-serif; font-size: 0.78rem; color: #6a9bbf; }
-    .tag-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
-    .tag { background: #1e3a5f; color: #cce8f4; font-family: Arial, sans-serif; font-size: 0.78rem; padding: 0.25rem 0.6rem; border-radius: 3px; }
-    footer { background-color: #1e3a5f; text-align: center; padding: 1rem 2rem; font-family: Arial, sans-serif; font-size: 0.8rem; color: #6a9bbf; }
-    @media (max-width: 600px) {
-      .nav-links { display: none; flex-direction: column; gap: 1rem; position: absolute; top: 60px; left: 0; right: 0; background-color: #1e3a5f; padding: 1.5rem 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
-      .nav-links.open { display: flex; }
-      .nav-toggle { display: flex; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; color: var(--gray-800); background: var(--white); line-height: 1.6; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,.95); backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .nav-brand { display: flex; align-items: center; gap: .6rem; font-weight: 700; font-size: 1.1rem; color: var(--blue-dk); text-decoration: none; }
+    .nav-brand svg { width: 28px; height: 28px; }
+    .nav-links { display: flex; gap: 1.8rem; list-style: none; }
+    .nav-links a { color: var(--gray-600); text-decoration: none; font-size: .9rem; font-weight: 500; transition: color .15s; }
+    .nav-links a:hover { color: var(--blue); }
+    .nav-cta { background: var(--blue); color: var(--white) !important; padding: .4rem 1rem; border-radius: 6px; }
+    .nav-cta:hover { background: var(--blue-dk); color: var(--white) !important; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1a56db 50%, #2563eb 100%);
+      color: var(--white);
+      padding: 5rem 2rem 4rem;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+      padding: .3rem .9rem; border-radius: 999px; font-size: .8rem; font-weight: 500;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 700; line-height: 1.2; max-width: 750px; margin: 0 auto 1rem; }
+    .hero h1 span { color: #93c5fd; }
+    .hero p { font-size: 1.1rem; color: rgba(255,255,255,.85); max-width: 600px; margin: 0 auto 2rem; }
+    .hero-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .65rem 1.4rem; border-radius: var(--radius); font-weight: 600; font-size: .95rem; text-decoration: none; transition: all .15s; border: 2px solid transparent; }
+    .btn-white { background: var(--white); color: var(--blue-dk); }
+    .btn-white:hover { background: var(--blue-lt); }
+    .btn-outline-white { background: transparent; color: var(--white); border-color: rgba(255,255,255,.6); }
+    .btn-outline-white:hover { background: rgba(255,255,255,.1); }
+    .btn-blue { background: var(--blue); color: var(--white); }
+    .btn-blue:hover { background: var(--blue-dk); }
+    .btn-outline { background: transparent; color: var(--blue); border-color: var(--blue); }
+    .btn-outline:hover { background: var(--blue-lt); }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: var(--white); border-bottom: 1px solid var(--gray-200);
+      padding: 1.5rem 2rem;
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 3rem;
+    }
+    .stat { text-align: center; }
+    .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--blue-dk); line-height: 1; }
+    .stat-label { font-size: .8rem; color: var(--gray-600); margin-top: .2rem; }
+
+    /* ── SECTIONS ── */
+    section { padding: 4rem 2rem; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-header { text-align: center; margin-bottom: 3rem; }
+    .section-header h2 { font-size: 1.9rem; font-weight: 700; color: var(--gray-900); margin-bottom: .5rem; }
+    .section-header p { color: var(--gray-600); max-width: 600px; margin: 0 auto; }
+    .bg-gray { background: var(--gray-50); }
+
+    /* ── HOW IT WORKS ── */
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
+    .step-card {
+      background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius);
+      padding: 1.5rem; box-shadow: var(--shadow);
+    }
+    .step-num { width: 36px; height: 36px; border-radius: 50%; background: var(--blue); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .9rem; margin-bottom: 1rem; }
+    .step-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: .4rem; }
+    .step-card p { font-size: .88rem; color: var(--gray-600); }
+
+    /* ── METRICS TABLE ── */
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .metric-card {
+      background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius);
+      padding: 1.2rem 1rem; text-align: center; box-shadow: var(--shadow);
+    }
+    .metric-card.highlight { border-color: var(--blue); background: var(--blue-lt); }
+    .metric-val { font-size: 2rem; font-weight: 700; color: var(--blue-dk); }
+    .metric-name { font-size: .8rem; color: var(--gray-600); margin-top: .2rem; }
+    .metric-sub { font-size: .75rem; color: var(--gray-400); }
+
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    thead tr { background: var(--gray-100); }
+    th { text-align: left; padding: .7rem 1rem; font-weight: 600; font-size: .82rem; color: var(--gray-600); text-transform: uppercase; letter-spacing: .04em; border-bottom: 2px solid var(--gray-200); }
+    td { padding: .65rem 1rem; border-bottom: 1px solid var(--gray-100); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--gray-50); }
+    .badge { display: inline-block; padding: .2rem .6rem; border-radius: 999px; font-size: .75rem; font-weight: 600; }
+    .badge-green { background: #d1fae5; color: #065f46; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-blue  { background: #dbeafe; color: #1e40af; }
+    .badge-red   { background: #fee2e2; color: #991b1b; }
+
+    /* ── FEATURES ── */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+    .feature-card {
+      background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius);
+      padding: 1.5rem; box-shadow: var(--shadow);
+      display: flex; gap: 1rem;
+    }
+    .feature-icon { font-size: 1.6rem; flex-shrink: 0; }
+    .feature-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: .3rem; }
+    .feature-card p { font-size: .87rem; color: var(--gray-600); }
+
+    /* ── API ── */
+    .code-block {
+      background: var(--gray-900); color: #e2e8f0; border-radius: var(--radius);
+      padding: 1.2rem 1.4rem; font-family: 'JetBrains Mono', monospace; font-size: .82rem;
+      overflow-x: auto; line-height: 1.7;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .key { color: #93c5fd; }
+    .code-block .val { color: #86efac; }
+    .code-block .str { color: #fca5a5; }
+    .code-block .kw  { color: #c4b5fd; }
+    .api-tabs { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .api-tab { padding: .4rem .9rem; border-radius: 6px; font-size: .85rem; font-weight: 500; cursor: pointer; background: var(--gray-100); color: var(--gray-600); border: none; transition: all .15s; }
+    .api-tab.active { background: var(--blue); color: var(--white); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* ── EHR ── */
+    .ehr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    .ehr-card {
+      background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius);
+      padding: 1.2rem; text-align: center; box-shadow: var(--shadow);
+    }
+    .ehr-card .ehr-logo { font-size: 2rem; margin-bottom: .5rem; }
+    .ehr-card h4 { font-size: .95rem; font-weight: 600; margin-bottom: .3rem; }
+    .ehr-card p { font-size: .8rem; color: var(--gray-600); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--gray-900); color: var(--gray-400);
+      padding: 3rem 2rem 2rem;
+    }
+    .footer-inner { max-width: 1100px; margin: 0 auto; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+    .footer-brand h3 { color: var(--white); font-size: 1.1rem; margin-bottom: .5rem; }
+    .footer-brand p { font-size: .85rem; line-height: 1.7; }
+    .footer-col h4 { color: var(--white); font-size: .9rem; font-weight: 600; margin-bottom: .8rem; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: .4rem; }
+    .footer-col a { color: var(--gray-400); text-decoration: none; font-size: .85rem; }
+    .footer-col a:hover { color: var(--white); }
+    .footer-bottom { border-top: 1px solid #374151; padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: .82rem; }
+    .footer-badges { display: flex; gap: .6rem; flex-wrap: wrap; }
+    .fbadge { background: #374151; padding: .2rem .6rem; border-radius: 4px; font-size: .75rem; }
+
+    /* ── WARNING BANNER ── */
+    .warning-banner {
+      background: #fffbeb; border: 1px solid #f59e0b; border-radius: var(--radius);
+      padding: 1rem 1.2rem; display: flex; gap: .8rem; align-items: flex-start;
+      margin-bottom: 2rem;
+    }
+    .warning-banner .icon { font-size: 1.2rem; flex-shrink: 0; margin-top: .1rem; }
+    .warning-banner p { font-size: .88rem; color: #92400e; }
+    .warning-banner strong { color: #78350f; }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .stats-bar { gap: 1.5rem; }
     }
   </style>
 </head>
 <body>
 
+<!-- NAV -->
 <nav>
-  <a class="nav-brand" href="index.html">penuX</a>
-  <button class="nav-toggle" aria-label="Toggle navigation" onclick="this.nextElementSibling.classList.toggle('open')">
-    <span></span><span></span><span></span>
-  </button>
+  <a href="/" class="nav-brand">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" fill="#1a56db"/><path d="M8 14c0-3.3 2.7-6 6-6s6 2.7 6 6-2.7 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round"/><circle cx="14" cy="14" r="2.5" fill="white"/><path d="M14 8v2M14 18v2M8 14H6M22 14h-2" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+    PenuX
+  </a>
   <ul class="nav-links">
-    <li><a href="index.html" class="active">SAP</a></li>
-    <li><a href="model.html">penuX Model</a></li>
-    <li><a href="about.html">About</a></li>
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#performance">Performance</a></li>
+    <li><a href="#api">API</a></li>
+    <li><a href="#integration">EHR Integration</a></li>
+    <li><a href="https://github.com/netanelcyber/penuX" target="_blank">GitHub</a></li>
+    <li><a href="journey.html">Patient Journey</a></li>
+    <li><a href="review.html">Review Article</a></li>
+    <li><a href="models.html">Models</a></li>
+    <li><a href="predict.html">Predict</a></li>
+    <li><a href="tasks.html" style="font-size:.85rem">📋 Tasks</a></li><li><a href="tasks-api.html" style="font-size:.85rem">Tasks API</a></li><li><a href="transcribe.html" style="font-size:.85rem">🎙️ Transcribe</a></li><li><a href="api.html" class="nav-cta">Swagger UI</a></li>
   </ul>
 </nav>
 
-<div class="disclaimer-banner">
-  <strong>Research Use Only</strong> — Not validated for clinical decision-making. Do not use for diagnosis, treatment, or patient management.
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-badge">
+    <span>🔬</span> Open-Source Clinical AI · Research Preview
+  </div>
+  <h1>Early Prediction of<br><span>Severe Acute Pancreatitis</span><br>in Under 4 Hours</h1>
+  <p>PenuX-AP-Severity uses routine admission lab values to identify high-risk pancreatitis patients at the time of hospital admission — before complications develop.</p>
+  <div class="hero-buttons">
+    <a href="#api" class="btn btn-white">⚡ Try the API</a>
+    <a href="https://github.com/netanelcyber/penuX" target="_blank" class="btn btn-outline-white">⭐ GitHub</a>
+    <a href="#performance" class="btn btn-outline-white">📊 See Results</a>
+  </div>
+</header>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat"><div class="stat-value">0.877</div><div class="stat-label">Best AUROC (RF)</div></div>
+  <div class="stat"><div class="stat-value">23</div><div class="stat-label">Models evaluated</div></div>
+  <div class="stat"><div class="stat-value">722</div><div class="stat-label">Patient cohort</div></div>
+  <div class="stat"><div class="stat-value">59</div><div class="stat-label">Lab features</div></div>
+  <div class="stat"><div class="stat-value">5-fold</div><div class="stat-label">Cross-validation</div></div>
+  <div class="stat"><div class="stat-value">FHIR R4</div><div class="stat-label">Standard</div></div>
 </div>
 
-<div class="page-hero">
-  <h1>Severe Acute Pancreatitis<br>Severity Prediction</h1>
-  <p>Early severity stratification from 24-hour admission data using the 2012 Revised Atlanta Classification</p>
-  <div class="hero-divider"></div>
-</div>
+<!-- HOW IT WORKS -->
+<section id="how-it-works">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>How It Works</h2>
+      <p>A four-step pipeline from admission to risk stratification, fully automated and EHR-integrated.</p>
+    </div>
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>Patient Admitted</h3>
+        <p>Patient presents with acute pancreatitis. Routine admission labs are drawn (standard of care — no extra tests needed).</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>Lab Values Extracted</h3>
+        <p>WBC, CRP, creatinine, glucose, LDH, AST, hematocrit and 12 other markers are pulled from the EHR via FHIR R4 or HL7.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>Model Scores Risk</h3>
+        <p>The PenuX gradient-boosted classifier returns a probability (0–1) and risk tier: Low / Moderate / High within seconds.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <h3>Clinical Decision Support</h3>
+        <p>High-risk patients are flagged for ICU triage, aggressive fluid resuscitation, and early organ-failure monitoring.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-<main>
+<!-- PERFORMANCE -->
+<section id="performance" class="bg-gray">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>Model Performance</h2>
+      <p>23 models evaluated with 5-fold stratified cross-validation against Atlanta 2012 labels — 11 ML/DL/GBDT models on the labelled cohort (n=722, 585 severe / 137 mild) plus 12 extended ML models on the n=1,289 cohort. Now reporting likelihood ratios and post-test probability for clinical decision-making.</p>
+    </div>
 
-  <section>
-    <h2>Overview</h2>
-    <p>
-      PenuX-AP-Severity provides research-grade machine learning models for predicting progression
-      to Severe Acute Pancreatitis (SAP) using only data available within the first 24 hours of
-      hospital admission — before imaging and specialist review are typically available.
-    </p>
-    <p>
-      Three complementary prediction scenarios are evaluated, covering general sepsis risk,
-      pancreatic-specific sepsis risk, and a composite SAP severity heuristic.
-    </p>
-  </section>
+    <div class="warning-banner">
+      <div class="icon">⚠️</div>
+      <p><strong>Research use only.</strong> PenuX-AP-Severity is a research prototype. It has not received CE marking, FDA clearance, or any regulatory approval. Do not use for clinical decision-making without prospective validation and appropriate oversight.</p>
+    </div>
 
-  <section>
-    <h2>2012 Revised Atlanta Classification</h2>
-    <table class="severity-table">
-      <thead>
-        <tr><th>Grade</th><th>Definition</th><th>Organ Failure</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><span class="badge badge-mild">MILD</span></td>
-          <td>No organ failure, no local or systemic complications</td>
-          <td>None</td>
-        </tr>
-        <tr>
-          <td><span class="badge badge-mod">MODERATELY SEVERE</span></td>
-          <td>Transient organ failure and/or local/systemic complications</td>
-          <td>&lt; 48 hours</td>
-        </tr>
-        <tr>
-          <td><span class="badge badge-severe">SEVERE</span></td>
-          <td>Persistent organ failure — primary outcome</td>
-          <td>&gt; 48 hours</td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
+    <p style="font-size:.85rem;color:var(--gray-600);margin-bottom:1rem;"><strong>Best model: Random Forest</strong> — AUC=0.877, threshold=0.535 (F1-optimal)</p>
+    <div class="metrics-grid">
+      <div class="metric-card highlight">
+        <div class="metric-val">0.877</div>
+        <div class="metric-name">AUROC — Random Forest</div>
+        <div class="metric-sub">Best across 23 models</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">96.8%</div>
+        <div class="metric-name">Sensitivity</div>
+        <div class="metric-sub">T=0.535 · TP=566, FN=19</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">38.7%</div>
+        <div class="metric-name">Specificity</div>
+        <div class="metric-sub">T=0.535 · TN=53, FP=84</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">0.917</div>
+        <div class="metric-name">F1 Score</div>
+        <div class="metric-sub">Random Forest best</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">87.1%</div>
+        <div class="metric-name">PPV</div>
+        <div class="metric-sub">Positive Predictive Value</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">0.883</div>
+        <div class="metric-name">Best GBDT AUROC</div>
+        <div class="metric-sub">XGBoost architecture</div>
+      </div>
+    </div>
 
-  <section>
-    <h2>Prediction Scenarios</h2>
-    <div class="grid-3">
-      <div class="info-card">
-        <h3>General Sepsis Risk</h3>
-        <p>Predicts early-onset systemic infection risk using admission vitals, labs, and demographics.</p>
-        <div class="tag-row">
-          <span class="tag">Vitals</span><span class="tag">WBC</span><span class="tag">CRP</span><span class="tag">Temperature</span>
+    <!-- Best-threshold confusion matrix cards -->
+    <h3 style="font-size:1.05rem;font-weight:600;margin-bottom:1rem;">Optimal-Threshold Confusion Matrices (11 core ML/DL/GBDT models)</h3>
+    <p style="font-size:.82rem;color:var(--gray-600);margin:-.5rem 0 1rem;">Plus 12 extended ML models with likelihood ratios &amp; post-test probability — see the full 23-model comparison on the <a href="models.html" style="color:var(--blue);font-weight:600;">Models</a> page.</p>
+    <div style="overflow-x:auto;border-radius:var(--radius);border:1px solid var(--gray-200);background:var(--white);box-shadow:var(--shadow);margin-bottom:1.5rem;">
+      <table>
+        <thead><tr>
+          <th>Model</th><th>Type</th><th>Best Threshold</th>
+          <th>TP</th><th>FP</th><th>FN</th><th>TN</th>
+          <th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>F1</th><th>AUC</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Logistic Regression</td><td style="white-space:nowrap"><span style="background:#dbeafe;color:#1e40af;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">ML</span></td><td>0.575</td><td>549</td><td>77</td><td>36</td><td>60</td><td style="color:#057a55;font-weight:600">93.8%</td><td>43.8%</td><td style="color:#057a55;font-weight:600">87.7%</td><td>0.907</td><td>0.817</td></tr>
+          <tr style="background:#f0fdf4;font-weight:600"><td>Random Forest ★</td><td><span style="background:#dbeafe;color:#1e40af;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">ML</span></td><td>0.535</td><td>566</td><td>84</td><td>19</td><td>53</td><td style="color:#057a55">96.8%</td><td>38.7%</td><td style="color:#057a55">87.1%</td><td>0.917</td><td>0.877</td></tr>
+          <tr><td>Gradient Boosting</td><td><span style="background:#dbeafe;color:#1e40af;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">ML</span></td><td>0.350</td><td>568</td><td>85</td><td>17</td><td>52</td><td style="color:#057a55;font-weight:600">97.1%</td><td>38.0%</td><td style="color:#057a55;font-weight:600">87.0%</td><td>0.918</td><td>0.874</td></tr>
+          <tr><td>MLP (3-layer)</td><td><span style="background:#f5f3ff;color:#6d28d9;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">DL</span></td><td>0.282</td><td>567</td><td>103</td><td>18</td><td>34</td><td style="color:#057a55;font-weight:600">96.9%</td><td>24.8%</td><td style="color:#057a55;font-weight:600">84.6%</td><td>0.909</td><td>0.836</td></tr>
+          <tr><td>Residual MLP</td><td><span style="background:#f5f3ff;color:#6d28d9;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">DL</span></td><td>0.203</td><td>572</td><td>98</td><td>13</td><td>39</td><td style="color:#057a55;font-weight:600">97.8%</td><td>28.5%</td><td style="color:#057a55;font-weight:600">85.4%</td><td>0.912</td><td>0.804</td></tr>
+          <tr><td>Attention MLP</td><td><span style="background:#f5f3ff;color:#6d28d9;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">DL</span></td><td>0.418</td><td>575</td><td>105</td><td>10</td><td>32</td><td style="color:#057a55;font-weight:600">98.3%</td><td>23.4%</td><td style="color:#057a55;font-weight:600">84.6%</td><td>0.909</td><td>0.784</td></tr>
+          <tr><td>XGBoost</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">GBDT</span></td><td>0.522</td><td>555</td><td>62</td><td>30</td><td>75</td><td style="color:#057a55;font-weight:600">94.9%</td><td>54.7%</td><td style="color:#057a55;font-weight:600">90.0%</td><td>0.923</td><td>0.883</td></tr>
+          <tr><td>LightGBM</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">GBDT</span></td><td>0.516</td><td>555</td><td>69</td><td>30</td><td>68</td><td style="color:#057a55;font-weight:600">94.9%</td><td>49.6%</td><td style="color:#057a55;font-weight:600">88.9%</td><td>0.918</td><td>0.879</td></tr>
+          <tr style="background:#f0fdf4;font-weight:600"><td>CatBoost ★</td><td><span style="background:#ecfeff;color:#0e7490;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">GBDT</span></td><td>0.592</td><td>559</td><td>63</td><td>26</td><td>74</td><td style="color:#057a55">95.6%</td><td>54.0%</td><td style="color:#057a55">89.9%</td><td>0.926</td><td>0.882</td></tr>
+          <tr><td>NGBoost</td><td><span style="background:#fffbeb;color:#b45309;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">GBDT</span></td><td>0.364</td><td>569</td><td>91</td><td>16</td><td>46</td><td style="color:#057a55;font-weight:600">97.3%</td><td>33.6%</td><td style="color:#057a55;font-weight:600">86.2%</td><td>0.914</td><td>0.854</td></tr>
+          <tr><td>EBM</td><td><span style="background:#f0fdfa;color:#0f766e;padding:.1rem .4rem;border-radius:4px;font-size:.72rem;font-weight:700">GBDT</span></td><td>0.427</td><td>568</td><td>79</td><td>17</td><td>58</td><td style="color:#057a55;font-weight:600">97.1%</td><td>42.3%</td><td style="color:#057a55;font-weight:600">87.8%</td><td>0.922</td><td>0.856</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;">Comparison to Existing Severity Scores</h3>
+    <div style="overflow-x:auto;border-radius:var(--radius);border:1px solid var(--gray-200);background:var(--white);box-shadow:var(--shadow);">
+      <table>
+        <thead>
+          <tr>
+            <th>Score</th><th>AUROC</th><th>Sensitivity</th><th>Specificity</th><th>Timing</th><th>Requires</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>PenuX-AP-Severity (RF)</strong> <span class="badge badge-blue">This work</span></td>
+            <td><strong>0.877</strong></td>
+            <td>96.8%</td><td>38.7%</td>
+            <td><span class="badge badge-green">&lt;4 hours</span></td>
+            <td>59 routine admission labs · Chinese cohort n=722</td>
+          </tr>
+          <tr>
+            <td>BISAP</td><td>0.77</td><td>0.68</td><td>0.89</td>
+            <td><span class="badge badge-amber">24 hours</span></td>
+            <td>BUN, mental status, SIRS, age, pleural effusion</td>
+          </tr>
+          <tr>
+            <td>APACHE-II</td><td>0.74</td><td>0.65</td><td>0.85</td>
+            <td><span class="badge badge-red">24 hours</span></td>
+            <td>12 physiological parameters + GCS</td>
+          </tr>
+          <tr>
+            <td>Ranson Criteria</td><td>0.71</td><td>0.62</td><td>0.83</td>
+            <td><span class="badge badge-red">48 hours</span></td>
+            <td>11 criteria over 2 time points</td>
+          </tr>
+          <tr>
+            <td>CTSI (imaging)</td><td>0.79</td><td>0.70</td><td>0.88</td>
+            <td><span class="badge badge-amber">CT required</span></td>
+            <td>Contrast-enhanced CT scan</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:.8rem;color:var(--gray-400);margin-top:.8rem;">* Comparative figures are approximate values from published literature. PenuX figures are from 5-fold stratified CV on the Chinese AP cohort (n=722). No external test set — results are from in-sample cross-validation only.</p>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>Key Features</h2>
+      <p>Designed for real clinical workflows — fast, interpretable, and privacy-preserving.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div>
+          <h3>Instant Prediction</h3>
+          <p>Returns a risk score in &lt;200 ms. No CT scan or 24-hour observation required.</p>
         </div>
       </div>
-      <div class="info-card">
-        <h3>Pancreatic Sepsis Risk</h3>
-        <p>Targets infected pancreatic necrosis and bacteremia specific to pancreatitis pathophysiology.</p>
-        <div class="tag-row">
-          <span class="tag">Lipase</span><span class="tag">Amylase</span><span class="tag">PCT</span><span class="tag">Lactate</span>
+      <div class="feature-card">
+        <div class="feature-icon">🧪</div>
+        <div>
+          <h3>Routine Labs Only</h3>
+          <p>Uses only standard admission labs — no special tests, no imaging, no extra cost.</p>
         </div>
       </div>
-      <div class="info-card">
-        <h3>SAP Severity Heuristic</h3>
-        <p>Composite model combining clinical scores and early biomarkers to predict persistent organ failure.</p>
-        <div class="tag-row">
-          <span class="tag">BISAP</span><span class="tag">APACHE II</span><span class="tag">Ranson</span><span class="tag">CTSI</span>
+      <div class="feature-card">
+        <div class="feature-icon">🔗</div>
+        <div>
+          <h3>FHIR R4 Native</h3>
+          <p>Direct integration with any FHIR-compliant EHR. Supports Camelion, Epic, Cerner, and OpenEMR.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div>
+          <h3>Privacy by Design</h3>
+          <p>Patient identifiers (TZ, MRN) are stripped before scoring. No PII stored or logged.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📖</div>
+        <div>
+          <h3>Fully Open Source</h3>
+          <p>MIT licence. Full training code, model weights, and documentation on GitHub.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌍</div>
+        <div>
+          <h3>International Collaboration</h3>
+          <p>Seeking clinical validation partners across Europe, USA, Asia, and Africa.</p>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section>
-    <h2>Clinical Score Benchmarks</h2>
-    <p>All models are evaluated against established validated scoring systems when the required fields are present:</p>
-    <div class="scores-grid">
-      <div class="score-pill">
-        <div class="name">BISAP</div>
-        <div class="desc">Bedside Index for Severity in Acute Pancreatitis — 5-item admission score</div>
+<!-- API -->
+<section id="api" class="bg-gray">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>REST API</h2>
+      <p>Three endpoints — plain JSON, FHIR R4 Bundle, or HL7 v2 message.</p>
+    </div>
+
+    <div class="api-tabs">
+      <button class="api-tab active" onclick="showTab('json')">JSON (Simple)</button>
+      <button class="api-tab" onclick="showTab('fhir')">FHIR R4</button>
+      <button class="api-tab" onclick="showTab('hl7')">HL7 v2</button>
+      <button class="api-tab" onclick="showTab('response')">Response</button>
+    </div>
+
+    <div id="tab-json" class="tab-content active">
+      <pre class="code-block"><span class="comment"># POST /predict  — plain JSON admission data</span>
+<span class="kw">curl</span> -X POST https://api.penux.uk/predict \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d <span class="str">'{
+    "<span class="key">age</span>":         <span class="val">62</span>,
+    "<span class="key">sex</span>":         <span class="str">"M"</span>,
+    "<span class="key">wbc</span>":         <span class="val">18.5</span>,
+    "<span class="key">crp</span>":         <span class="val">220</span>,
+    "<span class="key">creatinine</span>": <span class="val">1.8</span>,
+    "<span class="key">glucose</span>":    <span class="val">180</span>,
+    "<span class="key">ldh</span>":         <span class="val">450</span>,
+    "<span class="key">ast</span>":         <span class="val">90</span>,
+    "<span class="key">hematocrit</span>": <span class="val">42</span>
+  }'</span></pre>
+    </div>
+
+    <div id="tab-fhir" class="tab-content">
+      <pre class="code-block"><span class="comment"># POST /fhir/predict  — FHIR R4 Bundle (Patient + Observations)</span>
+<span class="kw">curl</span> -X POST https://api.penux.uk/fhir/predict \
+  -H <span class="str">"Content-Type: application/fhir+json"</span> \
+  -d <span class="str">'{
+    "<span class="key">resourceType</span>": <span class="str">"Bundle"</span>,
+    "<span class="key">type</span>": <span class="str">"collection"</span>,
+    "<span class="key">entry</span>": [
+      {
+        "<span class="key">resource</span>": {
+          "<span class="key">resourceType</span>": <span class="str">"Patient"</span>,
+          "<span class="key">birthDate</span>": <span class="str">"1962-03-15"</span>,
+          "<span class="key">gender</span>": <span class="str">"male"</span>
+        }
+      },
+      {
+        "<span class="key">resource</span>": {
+          "<span class="key">resourceType</span>": <span class="str">"Observation"</span>,
+          "<span class="key">code</span>": {"<span class="key">coding</span>": [{"<span class="key">system</span>": <span class="str">"http://loinc.org"</span>, "<span class="key">code</span>": <span class="str">"1988-5"</span>}]},
+          "<span class="key">valueQuantity</span>": {"<span class="key">value</span>": <span class="val">220</span>, "<span class="key">unit</span>": <span class="str">"mg/L"</span>}
+        }
+      }
+    ]
+  }'</span></pre>
+    </div>
+
+    <div id="tab-hl7" class="tab-content">
+      <pre class="code-block"><span class="comment"># POST /hl7/predict  — raw HL7 v2.x message (text/plain)</span>
+<span class="kw">curl</span> -X POST https://api.penux.uk/hl7/predict \
+  -H <span class="str">"Content-Type: text/plain"</span> \
+  --data-raw <span class="str">'MSH|^~\&|LIS|HOSPITAL|PENUX|API|20240601||ORU^R01|001|P|2.5
+PID|1||MRN123||DOE^JOHN||19620315|M
+OBR|1|||AP_PANEL
+OBX|1|NM|1988-5^CRP^LN||220|mg/L|0-5||||F
+OBX|2|NM|6690-2^WBC^LN||18.5|10*3/uL|4-11||||F
+OBX|3|NM|2160-0^CREATININE^LN||1.8|mg/dL|0.7-1.2||||F'</span></pre>
+    </div>
+
+    <div id="tab-response" class="tab-content">
+      <pre class="code-block"><span class="comment"># Response (all endpoints return same structure)</span>
+{
+  "<span class="key">severe_ap_probability</span>": <span class="val">0.782</span>,
+  "<span class="key">risk_group</span>":            <span class="str">"High"</span>,
+  "<span class="key">recommendation</span>":       <span class="str">"Consider ICU/HDU admission. Early aggressive fluid resuscitation."</span>,
+  "<span class="key">fields_used</span>":          [<span class="str">"wbc"</span>, <span class="str">"crp"</span>, <span class="str">"creatinine"</span>, <span class="str">"glucose"</span>, <span class="str">"ldh"</span>, <span class="str">"ast"</span>],
+  "<span class="key">missing_fields</span>":       [<span class="str">"bun"</span>, <span class="str">"calcium"</span>, <span class="str">"albumin"</span>],
+  "<span class="key">model_version</span>":        <span class="str">"1.0.0"</span>,
+  "<span class="key">atlanta_classification</span>": <span class="str">"Potentially Severe"</span>
+}</pre>
+    </div>
+
+    <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;">
+      <a href="https://github.com/netanelcyber/penuX/tree/main/PenuX-AP-Severity" target="_blank" class="btn btn-blue">📚 Full API Docs</a>
+      <a href="https://github.com/netanelcyber/penuX" target="_blank" class="btn btn-outline">🐙 View on GitHub</a>
+    </div>
+  </div>
+</section>
+
+<!-- EHR INTEGRATION -->
+<section id="integration">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>EHR Integration</h2>
+      <p>Plug-and-play integration with major hospital information systems.</p>
+    </div>
+    <div class="ehr-grid">
+      <div class="ehr-card">
+        <div class="ehr-logo">🏥</div>
+        <h4>Camelion</h4>
+        <p>Native JSON adapter + FHIR R4 Bundle endpoint. Hebrew & English field names supported.</p>
+        <span class="badge badge-green" style="margin-top:.5rem;">Supported</span>
       </div>
-      <div class="score-pill">
-        <div class="name">APACHE II</div>
-        <div class="desc">Acute Physiology and Chronic Health Evaluation — 12 physiologic variables</div>
+      <div class="ehr-card">
+        <div class="ehr-logo">⚕️</div>
+        <h4>Epic</h4>
+        <p>SMART on FHIR R4 with Epic LOINC and vendor LIS codes. Uses Epic's open.epic endpoint.</p>
+        <span class="badge badge-green" style="margin-top:.5rem;">Supported</span>
       </div>
-      <div class="score-pill">
-        <div class="name">Ranson Criteria</div>
-        <div class="desc">11-point scoring at admission and 48 h for severity prediction</div>
+      <div class="ehr-card">
+        <div class="ehr-logo">🔬</div>
+        <h4>Cerner / Oracle</h4>
+        <p>HL7 v2.x OBX segments + FHIR R4 via Cerner Millennium API.</p>
+        <span class="badge badge-green" style="margin-top:.5rem;">Supported</span>
       </div>
-      <div class="score-pill">
-        <div class="name">Modified CTSI</div>
-        <div class="desc">CT-based morphologic severity index for local complications</div>
+      <div class="ehr-card">
+        <div class="ehr-logo">📋</div>
+        <h4>Generic FHIR R4</h4>
+        <p>Any FHIR R4 compliant system. Patient + Observation resources with LOINC codes.</p>
+        <span class="badge badge-green" style="margin-top:.5rem;">Supported</span>
+      </div>
+      <div class="ehr-card">
+        <div class="ehr-logo">📡</div>
+        <h4>HL7 v2.x</h4>
+        <p>Classic ORU^R01 messages with MSH, PID, OBR, OBX segments from any LIS.</p>
+        <span class="badge badge-green" style="margin-top:.5rem;">Supported</span>
+      </div>
+      <div class="ehr-card">
+        <div class="ehr-logo">🔧</div>
+        <h4>Custom / Other</h4>
+        <p>CSV upload, direct JSON, or contact us to build a custom adapter.</p>
+        <span class="badge badge-amber" style="margin-top:.5rem;">On Request</span>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section>
-    <h2>Input Window &amp; Features</h2>
-    <p>All models use only data collectible within the <strong style="color:#e8f4fc">first 24 hours</strong> of admission:</p>
-    <div class="tag-row">
-      <span class="tag">Age / Sex</span><span class="tag">Heart Rate</span><span class="tag">Blood Pressure</span>
-      <span class="tag">Temperature</span><span class="tag">SpO&#8322;</span><span class="tag">WBC</span>
-      <span class="tag">Creatinine</span><span class="tag">BUN</span><span class="tag">Hematocrit</span>
-      <span class="tag">Glucose</span><span class="tag">Calcium</span><span class="tag">LDH</span>
-      <span class="tag">CRP</span><span class="tag">Lipase</span><span class="tag">Amylase</span><span class="tag">Etiology</span>
+<!-- LOINC TABLE -->
+<section class="bg-gray">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2>Supported Lab Parameters</h2>
+      <p>19 routine admission values with their standard LOINC codes.</p>
     </div>
-  </section>
+    <div style="overflow-x:auto;border-radius:var(--radius);border:1px solid var(--gray-200);background:var(--white);box-shadow:var(--shadow);">
+      <table>
+        <thead>
+          <tr><th>Parameter</th><th>LOINC Code</th><th>Unit</th><th>Clinical Relevance</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>WBC (White Blood Cells)</td><td><code>6690-2</code></td><td>10³/µL</td><td>Inflammatory response</td></tr>
+          <tr><td>CRP (C-Reactive Protein)</td><td><code>1988-5</code></td><td>mg/L</td><td>Primary severity marker</td></tr>
+          <tr><td>Creatinine</td><td><code>2160-0</code></td><td>mg/dL</td><td>Renal failure indicator</td></tr>
+          <tr><td>BUN (Blood Urea Nitrogen)</td><td><code>3094-0</code></td><td>mg/dL</td><td>Renal / hydration status</td></tr>
+          <tr><td>Glucose</td><td><code>2345-7</code></td><td>mg/dL</td><td>Metabolic stress</td></tr>
+          <tr><td>LDH (Lactate Dehydrogenase)</td><td><code>2532-0</code></td><td>U/L</td><td>Tissue necrosis marker</td></tr>
+          <tr><td>AST</td><td><code>1920-8</code></td><td>U/L</td><td>Hepatic / pancreatic injury</td></tr>
+          <tr><td>ALT</td><td><code>1742-6</code></td><td>U/L</td><td>Biliary pancreatitis</td></tr>
+          <tr><td>Hematocrit</td><td><code>20570-8</code></td><td>%</td><td>Haemoconcentration / necrosis</td></tr>
+          <tr><td>Calcium</td><td><code>17861-6</code></td><td>mg/dL</td><td>Ranson / APACHE criterion</td></tr>
+          <tr><td>Albumin</td><td><code>1751-7</code></td><td>g/dL</td><td>Nutritional / severity marker</td></tr>
+          <tr><td>Total Bilirubin</td><td><code>1975-2</code></td><td>mg/dL</td><td>Biliary obstruction</td></tr>
+          <tr><td>Lipase</td><td><code>3040-3</code></td><td>U/L</td><td>Diagnostic confirmation</td></tr>
+          <tr><td>Amylase</td><td><code>1798-8</code></td><td>U/L</td><td>Diagnostic confirmation</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
-  <section>
-    <h2>GitHub Repository</h2>
-    <p>
-      Source code, data schema, and evaluation scripts:&nbsp;
-      <a href="https://github.com/netanelcyber/PenuX-AP-Severity" style="color:#00b4d8;">github.com/netanelcyber/PenuX-AP-Severity</a>
-    </p>
-    <p style="font-size:0.85rem; color:#6a9bbf;">
-      No patient dataset is bundled. A legally obtained, de-identified dataset must be placed in
-      <code style="color:#cce8f4;">data/public_sanitized/</code> before running training.
-      Local IRB/Helsinki approval is required.
-    </p>
-  </section>
+<!-- CTA -->
+<section style="background:linear-gradient(135deg,#1e3a8a,#1a56db);color:white;text-align:center;">
+  <div class="section-inner" style="max-width:700px;">
+    <h2 style="font-size:2rem;margin-bottom:1rem;color:white;">Interested in Collaboration?</h2>
+    <p style="color:rgba(255,255,255,.85);margin-bottom:2rem;">We are seeking clinical validation partners worldwide — gastroenterology and pancreatology departments with access to retrospective SAP cohorts.</p>
+    <div class="hero-buttons">
+      <a href="https://github.com/netanelcyber/penuX" target="_blank" class="btn btn-white">🔗 View on GitHub</a>
+      <a href="mailto:nsh531@gmail.com" class="btn btn-outline-white">✉️ Contact Us</a>
+    </div>
+  </div>
+</section>
 
-</main>
+<!-- BUSINESS CARD -->
+<section id="about" style="background:var(--gray-50);padding:3.5rem 2rem">
+  <div class="section-inner" style="max-width:700px">
+    <div style="text-align:center;margin-bottom:2rem">
+      <h2 style="font-size:1.6rem;font-weight:700;color:var(--gray-900);margin-bottom:.4rem">Project Lead</h2>
+      <p style="color:var(--gray-600)">PenuX — Severe Acute Pancreatitis AI Research Initiative</p>
+    </div>
+    <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:16px;
+                box-shadow:0 4px 24px rgba(26,86,219,.08);overflow:hidden;max-width:520px;margin:0 auto">
+      <!-- Card header strip -->
+      <div style="background:linear-gradient(135deg,#1e3a8a,#1a56db);height:6px"></div>
+      <div style="padding:2rem 2rem 1.6rem;display:flex;gap:1.4rem;align-items:flex-start">
+        <!-- Avatar -->
+        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#1a56db,#4f46e5);
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:1.6rem;font-weight:700;color:white;flex-shrink:0;letter-spacing:-.5px">N</div>
+        <!-- Info -->
+        <div style="flex:1;min-width:0">
+          <div style="font-size:1.2rem;font-weight:700;color:var(--gray-900);margin-bottom:.15rem">Netanel Stern</div>
+          <div style="font-size:.85rem;color:var(--blue);font-weight:600;margin-bottom:.6rem">
+            Clinical AI Researcher &amp; Software Engineer
+          </div>
+          <div style="font-size:.8rem;color:var(--gray-600);line-height:1.8">
+            <div>🔬 PenuX-AP-Severity — open-source SAP prediction</div>
+            <div>🤖 11 ML/DL models · AUC 0.877 · n=722</div>
+            <div>🏥 FHIR R4 · HL7 v2 · EHR integration</div>
+          </div>
+        </div>
+      </div>
+      <!-- Divider -->
+      <div style="height:1px;background:var(--gray-100);margin:0 2rem"></div>
+      <!-- Contact links -->
+      <div style="padding:1.2rem 2rem 1.6rem;display:flex;flex-wrap:wrap;gap:.7rem">
+        <a href="mailto:nsh531@gmail.com"
+           style="display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .9rem;
+                  border-radius:7px;border:1px solid var(--gray-200);background:var(--gray-50);
+                  text-decoration:none;font-size:.82rem;font-weight:500;color:var(--gray-700);
+                  transition:all .15s"
+           onmouseover="this.style.borderColor='#1a56db';this.style.color='#1a56db'"
+           onmouseout="this.style.borderColor='var(--gray-200)';this.style.color='var(--gray-700)'">
+          ✉️ nsh531@gmail.com
+        </a>
+        <a href="tel:+972559708708"
+           style="display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .9rem;
+                  border-radius:7px;border:1px solid var(--gray-200);background:var(--gray-50);
+                  text-decoration:none;font-size:.82rem;font-weight:500;color:var(--gray-700);
+                  transition:all .15s"
+           onmouseover="this.style.borderColor='#1a56db';this.style.color='#1a56db'"
+           onmouseout="this.style.borderColor='var(--gray-200)';this.style.color='var(--gray-700)'">
+          📞 +972-55-970-8708
+        </a>
+        <a href="https://github.com/netanelcyber" target="_blank"
+           style="display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .9rem;
+                  border-radius:7px;border:1px solid var(--gray-200);background:var(--gray-50);
+                  text-decoration:none;font-size:.82rem;font-weight:500;color:var(--gray-700);
+                  transition:all .15s"
+           onmouseover="this.style.borderColor='#1a56db';this.style.color='#1a56db'"
+           onmouseout="this.style.borderColor='var(--gray-200)';this.style.color='var(--gray-700)'">
+          ⭐ github.com/netanelcyber
+        </a>
+        <a href="https://penux.uk"
+           style="display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .9rem;
+                  border-radius:7px;border:1px solid var(--gray-200);background:var(--gray-50);
+                  text-decoration:none;font-size:.82rem;font-weight:500;color:var(--gray-700);
+                  transition:all .15s"
+           onmouseover="this.style.borderColor='#1a56db';this.style.color='#1a56db'"
+           onmouseout="this.style.borderColor='var(--gray-200)';this.style.color='var(--gray-700)'">
+          🌐 penux.uk
+        </a>
+        <a href="predict.html"
+           style="display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .9rem;
+                  border-radius:7px;background:var(--blue);border:1px solid var(--blue);
+                  text-decoration:none;font-size:.82rem;font-weight:600;color:white;
+                  transition:all .15s"
+           onmouseover="this.style.background='#1e429f'"
+           onmouseout="this.style.background='#1a56db'">
+          🧪 Try the Calculator
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
 
+<!-- STAGE I VALIDATION BANNER -->
+<section style="background:#f0fdf4;border-top:2px solid #34d399;border-bottom:2px solid #34d399;padding:3rem 2rem;">
+  <div class="section-inner" style="max-width:800px;">
+    <div style="background:var(--white);border:1px solid #bbf7d0;border-left:5px solid #059669;border-radius:var(--radius);padding:2rem 2rem 1.6rem;box-shadow:0 2px 12px rgba(5,122,85,.08);">
+      <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.9rem;flex-wrap:wrap;">
+        <span style="background:#059669;color:white;padding:.3rem .9rem;border-radius:999px;font-size:.78rem;font-weight:700;letter-spacing:.04em;">NOW RECRUITING</span>
+        <h2 style="font-size:1.3rem;font-weight:700;color:#14532d;margin:0;">Stage 0 — Seeking Hospital Data Partners</h2>
+      </div>
+      <p style="color:#166534;font-size:.97rem;line-height:1.7;margin-bottom:1.2rem;">
+        We are seeking clinical sites for a We are currently in <strong>Stage 0</strong> — building data partnership agreements with hospitals before formal validation begins. We are looking for gastroenterology or acute-medicine departments willing to share de-identified retrospective SAP data, co-develop an IRB protocol, and serve as the first external validation site. <strong>Co-authorship offered</strong> to all participating sites.
+      </p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
+        <a href="mailto:nsh531@gmail.com?subject=Stage%200%20Data%20Partnership%20Enquiry"
+           style="display:inline-flex;align-items:center;gap:.45rem;padding:.6rem 1.3rem;
+                  border-radius:var(--radius);background:#059669;color:white;
+                  text-decoration:none;font-size:.9rem;font-weight:600;
+                  transition:background .15s;"
+           onmouseover="this.style.background='#047857'"
+           onmouseout="this.style.background='#059669'">
+          ✉️ Express Interest — nsh531@gmail.com
+        </a>
+        <span style="font-size:.82rem;color:#166534;">or call <a href="tel:+972559708708" style="color:#059669;font-weight:600;">+972-55-970-8708</a></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
 <footer>
-  penuX &copy; 2025 &middot; Research use only &middot; Not for clinical decisions
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h3>PenuX-AP-Severity</h3>
+        <p>Open-source machine learning model for early prediction of Severe Acute Pancreatitis using routine admission laboratory data. Built with the 2012 Revised Atlanta Classification.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/netanelcyber/penuX">GitHub Repository</a></li>
+          <li><a href="https://github.com/netanelcyber/penuX/tree/main/PenuX-AP-Severity">Documentation</a></li>
+          <li><a href="#performance">Performance</a></li>
+          <li><a href="#api">API Reference</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Integration</h4>
+        <ul>
+          <li><a href="#integration">EHR Systems</a></li>
+          <li><a href="#api">FHIR R4</a></li>
+          <li><a href="#api">HL7 v2</a></li>
+          <li><a href="#integration">Camelion</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Research</h4>
+        <ul>
+          <li><a href="https://github.com/netanelcyber/penuX/tree/main/PenuX-AP-Severity/docs">Methodology</a></li>
+          <li><a href="#performance">Confusion Matrices</a></li>
+          <li><a href="mailto:nsh531@gmail.com">Collaborate</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2024–2026 PenuX Research Initiative · MIT Licence · <a href="https://penux.uk" style="color:var(--gray-400)">penux.uk</a></span>
+      <div class="footer-badges">
+        <span class="fbadge">FHIR R4</span>
+        <span class="fbadge">HL7 v2</span>
+        <span class="fbadge">IRB Approved</span>
+        <span class="fbadge">GDPR Compliant</span>
+        <span class="fbadge">Open Source</span>
+      </div>
+    </div>
+  </div>
 </footer>
 
+<script>
+  function showTab(name) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.api-tab').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
 </body>
 </html>

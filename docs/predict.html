@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SAP Risk Calculator · PenuX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --blue:#1a56db;--blue-dk:#1e429f;--blue-lt:#e8f0fe;
+  --red:#c81e1e;--red-lt:#fdf2f2;
+  --green:#057a55;--green-lt:#f0fdf4;
+  --amber:#92400e;--amber-lt:#fffbeb;
+  --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;
+  --gray-400:#9ca3af;--gray-500:#6b7280;--gray-600:#4b5563;--gray-800:#1f2937;--gray-900:#111827;
+  --white:#ffffff;--radius:10px;--shadow:0 1px 3px rgba(0,0,0,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--gray-50);color:var(--gray-800);min-height:100vh}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:60px;box-shadow:var(--shadow)}
+.nav-brand{display:flex;align-items:center;gap:.5rem;text-decoration:none;font-weight:700;font-size:1.1rem;color:var(--gray-900)}
+.nav-brand svg{width:32px;height:32px}
+.nav-links{display:flex;align-items:center;gap:.25rem;list-style:none}
+.nav-links a{text-decoration:none;color:var(--gray-600);font-size:.875rem;font-weight:500;padding:.4rem .75rem;border-radius:6px;transition:background .15s,color .15s}
+.nav-links a:hover{background:var(--gray-100);color:var(--gray-900)}
+.nav-links a.active{background:var(--blue-lt);color:var(--blue)}
+.nav-cta{background:var(--blue)!important;color:var(--white)!important;border-radius:6px}
+.nav-cta:hover{background:var(--blue-dk)!important}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#1e3a8a 0%,#1a56db 55%,#4f46e5 100%);color:var(--white);padding:3.5rem 2rem 3rem;text-align:center}
+.hero h1{font-size:2.2rem;font-weight:700;margin-bottom:.75rem}
+.hero p{font-size:1.05rem;opacity:.88;max-width:560px;margin:0 auto .75rem}
+.hero-badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:.35rem 1rem;font-size:.8rem;font-weight:600;letter-spacing:.02em}
+
+/* MAIN LAYOUT */
+.container{max-width:1200px;margin:0 auto;padding:2rem 1.5rem}
+.grid{display:grid;grid-template-columns:1fr 380px;gap:2rem;align-items:start}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+
+/* CARD */
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--gray-200);overflow:hidden}
+.card-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--gray-200)}
+.card-header h2{font-size:1rem;font-weight:600;color:var(--gray-900)}
+.card-header p{font-size:.8rem;color:var(--gray-500);margin-top:.2rem}
+.card-body{padding:1.5rem}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--gray-200);padding:0 1.5rem}
+.tab-btn{padding:.75rem 1rem;font-size:.875rem;font-weight:500;color:var(--gray-500);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-panel{display:none;padding:1.5rem}
+.tab-panel.active{display:block}
+
+/* FIELD GROUPS */
+.field-group{margin-bottom:1.5rem}
+.field-group-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-500);margin-bottom:.75rem;padding-bottom:.4rem;border-bottom:1px solid var(--gray-100)}
+.fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+@media(max-width:600px){.fields-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:.3rem}
+.field label{font-size:.78rem;font-weight:500;color:var(--gray-700)}
+.field label .loinc{font-size:.68rem;color:var(--gray-400);font-weight:400;margin-left:.3rem}
+.field label .unit{font-size:.68rem;color:var(--blue);font-weight:500;margin-left:.2rem}
+.field input,.field select{border:1px solid var(--gray-200);border-radius:6px;padding:.45rem .65rem;font-size:.85rem;font-family:inherit;color:var(--gray-800);background:var(--white);transition:border-color .15s,box-shadow .15s;width:100%}
+.field input:focus,.field select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.12)}
+.impute-note{font-size:.75rem;color:var(--gray-500);margin-top:.5rem;font-style:italic}
+
+/* UNIT TOGGLE */
+.unit-toggle-bar{display:flex;align-items:center;justify-content:flex-end;gap:.6rem;padding:.6rem 1.5rem;background:var(--gray-50);border-bottom:1px solid var(--gray-100);font-size:.8rem;color:var(--gray-600)}
+.toggle-track{width:44px;height:24px;border-radius:12px;background:var(--gray-300);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;border:none;padding:0}
+.toggle-track.on{background:var(--blue)}
+.toggle-thumb{width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.toggle-track.on .toggle-thumb{left:23px}
+.unit-label-si{color:var(--gray-500)}
+.unit-label-us{color:var(--blue);font-weight:600}
+
+/* FHIR TAB */
+.fhir-area textarea{width:100%;border:1px solid var(--gray-200);border-radius:6px;padding:.75rem;font-size:.8rem;font-family:'Courier New',monospace;color:var(--gray-700);resize:vertical;min-height:180px}
+.fhir-area textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.12)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.6rem 1.25rem;font-size:.875rem;font-weight:600;border-radius:7px;cursor:pointer;border:none;transition:all .15s;text-decoration:none}
+.btn-primary{background:var(--blue);color:var(--white)}
+.btn-primary:hover{background:var(--blue-dk)}
+.btn-primary:disabled{background:var(--gray-400);cursor:not-allowed}
+.btn-outline{background:var(--white);color:var(--blue);border:1.5px solid var(--blue)}
+.btn-outline:hover{background:var(--blue-lt)}
+.btn-sm{padding:.45rem .9rem;font-size:.8rem}
+.btn-row{display:flex;gap:.75rem;margin-top:1.25rem}
+
+/* RESULTS PANEL */
+.results-sticky{position:sticky;top:76px}
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:1.5rem 1.5rem 1rem}
+.gauge-svg{width:200px;height:200px}
+.gauge-label{text-align:center;margin-top:.5rem}
+.gauge-pct{font-size:2.4rem;font-weight:700;color:var(--gray-900);line-height:1}
+.gauge-sub{font-size:.8rem;color:var(--gray-500);margin-top:.2rem}
+.tier-badge{display:inline-block;padding:.4rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;letter-spacing:.02em;margin-top:.75rem}
+.tier-low{background:var(--green-lt);color:var(--green)}
+.tier-mod{background:var(--amber-lt);color:var(--amber)}
+.tier-high{background:var(--red-lt);color:var(--red)}
+.tier-none{background:var(--gray-100);color:var(--gray-500)}
+.results-meta{padding:0 1.5rem 1rem;border-top:1px solid var(--gray-100)}
+.meta-row{padding:.6rem 0;border-bottom:1px solid var(--gray-100);font-size:.8rem;color:var(--gray-600)}
+.meta-row:last-child{border-bottom:none}
+.meta-row strong{display:block;color:var(--gray-800);margin-bottom:.1rem;font-size:.82rem}
+.reco-box{margin:0 1.5rem 1rem;padding:.85rem 1rem;border-radius:8px;font-size:.82rem;line-height:1.5;display:none}
+.reco-low{background:var(--green-lt);color:#065f46}
+.reco-mod{background:var(--amber-lt);color:#78350f}
+.reco-high{background:var(--red-lt);color:#7f1d1d}
+.results-actions{padding:0 1.5rem 1rem;display:flex;flex-direction:column;gap:.6rem}
+.disclaimer{padding:.75rem 1.5rem 1.25rem;font-size:.72rem;color:var(--gray-400);line-height:1.5;border-top:1px solid var(--gray-100)}
+
+/* LOADING OVERLAY */
+.loading-bar{height:3px;background:linear-gradient(90deg,var(--blue),#4f46e5);width:0%;transition:width .3s;border-radius:2px}
+#status-bar{padding:.6rem 1.5rem;font-size:.78rem;color:var(--gray-500);display:flex;align-items:center;gap:.5rem}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--gray-300);flex-shrink:0}
+.dot.ready{background:var(--green)}
+.dot.loading{background:var(--amber);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-brand">
+    <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" fill="#1a56db"/><path d="M9 16c2-5 6-7 7-7s5 2 7 7c-2 5-6 7-7 7s-5-2-7-7z" fill="white" opacity=".25"/><ellipse cx="16" cy="16" rx="3.5" ry="3.5" fill="white"/></svg>
+    PenuX
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="journey.html">Patient Journey</a></li>
+    <li><a href="review.html">Review Article</a></li>
+    <li><a href="models.html">Models</a></li>
+    <li><a href="predict.html" class="active">Predict</a></li>
+    <li><a href="tasks.html" style="font-size:.85rem">📋 Tasks</a></li><li><a href="transcribe.html" style="font-size:.85rem">🎙️ Transcribe</a></li><li><a href="api.html" class="nav-cta">Swagger UI</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <h1>Client-Side SAP Risk Calculator</h1>
+  <p>Enter routine admission labs — prediction runs entirely in your browser. No data leaves your device.</p>
+  <span class="hero-badge">Privacy-First · Zero Server Contact · FHIR R4 Ready</span>
+</div>
+
+<div class="container">
+  <div class="grid">
+
+    <!-- LEFT: INPUT FORM -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Patient Data Entry</h2>
+        <p>All 59 lab features supported · blanks are imputed with cohort means</p>
+      </div>
+      <div id="status-bar">
+        <span class="dot loading" id="status-dot"></span>
+        <span id="status-text">Loading model…</span>
+        <div class="loading-bar" id="loading-bar" style="flex:1"></div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('manual')">Manual Entry</button>
+        <button class="tab-btn" onclick="switchTab('fhir')">FHIR R4 Bundle</button>
+      </div>
+
+      <!-- UNIT TOGGLE -->
+      <div class="unit-toggle-bar">
+        <span id="lbl-si" class="unit-label-si">SI units</span>
+        <button class="toggle-track" id="unit-toggle" onclick="toggleUnits()" title="Switch between SI and US conventional units">
+          <span class="toggle-thumb"></span>
+        </button>
+        <span id="lbl-us" class="unit-label-us">US conventional (mg/dL)</span>
+      </div>
+
+      <!-- MANUAL ENTRY TAB -->
+      <div class="tab-panel active" id="tab-manual">
+
+        <div class="field-group">
+          <div class="field-group-title">Inflammatory / Haematological</div>
+          <div class="fields-grid">
+            <div class="field">
+              <label>白细胞 (WBC) <span class="loinc">6690-2</span> <span class="unit">10³/µL</span></label>
+              <input type="number" step="any" id="f_白细胞" placeholder="11.53" data-loinc="6690-2"/>
+            </div>
+            <div class="field">
+              <label>中性粒细胞百分比 (Neutrophils %) <span class="loinc">770-8</span> <span class="unit">%</span></label>
+              <input type="number" step="any" id="f_中性粒细胞百分比" placeholder="74.06" data-loinc="770-8"/>
+            </div>
+            <div class="field">
+              <label>淋巴细胞百分比 (Lymphocytes %) <span class="loinc">736-9</span> <span class="unit">%</span></label>
+              <input type="number" step="any" id="f_淋巴细胞百分比" placeholder="12.05" data-loinc="736-9"/>
+            </div>
+            <div class="field">
+              <label>C反应蛋白 (CRP) <span class="loinc">1988-5</span> <span class="unit">mg/L</span></label>
+              <input type="number" step="any" id="f_C反应蛋白" placeholder="49.24" data-loinc="1988-5"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="field-group-title">Renal / Metabolic</div>
+          <div class="fields-grid">
+            <div class="field">
+              <label>肌酐 (Creatinine) <span class="loinc">2160-0</span> <span class="unit" id="unit-肌酐">µmol/L</span></label>
+              <input type="number" step="any" id="f_肌酐" placeholder="76.59" data-loinc="2160-0" data-conv="creatinine"/>
+            </div>
+            <div class="field">
+              <label>尿素 (BUN) <span class="loinc">3094-0</span> <span class="unit" id="unit-尿素">mmol/L</span></label>
+              <input type="number" step="any" id="f_尿素" placeholder="4.94" data-loinc="3094-0" data-conv="bun"/>
+            </div>
+            <div class="field">
+              <label>葡萄糖 (Glucose) <span class="loinc">2345-7</span> <span class="unit" id="unit-葡萄糖">mmol/L</span></label>
+              <input type="number" step="any" id="f_葡萄糖" placeholder="5.97" data-loinc="2345-7" data-conv="glucose"/>
+            </div>
+            <div class="field">
+              <label>钙 (Calcium) <span class="loinc">17861-6</span> <span class="unit" id="unit-钙">mmol/L</span></label>
+              <input type="number" step="any" id="f_钙" placeholder="2.02" data-loinc="17861-6" data-conv="calcium"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="field-group-title">Hepatic / Pancreatic</div>
+          <div class="fields-grid">
+            <div class="field">
+              <label>谷丙转氨酶 (ALT) <span class="loinc">1742-6</span> <span class="unit">U/L</span></label>
+              <input type="number" step="any" id="f_谷丙转氨酶" placeholder="72.02" data-loinc="1742-6"/>
+            </div>
+            <div class="field">
+              <label>谷草转氨酶 (AST) <span class="loinc">1920-8</span> <span class="unit">U/L</span></label>
+              <input type="number" step="any" id="f_谷草转氨酶" placeholder="85.47" data-loinc="1920-8"/>
+            </div>
+            <div class="field">
+              <label>总胆红素 (Total Bilirubin) <span class="loinc">1975-2</span> <span class="unit" id="unit-总胆红素">µmol/L</span></label>
+              <input type="number" step="any" id="f_总胆红素" placeholder="19.81" data-loinc="1975-2" data-conv="bilirubin"/>
+            </div>
+            <div class="field">
+              <label>淀粉酶 (Amylase) <span class="loinc">1798-8</span> <span class="unit">U/L</span></label>
+              <input type="number" step="any" id="f_淀粉酶" placeholder="537.65" data-loinc="1798-8"/>
+            </div>
+            <div class="field">
+              <label>脂肪酶 (Lipase) <span class="loinc">3040-3</span> <span class="unit">U/L</span></label>
+              <input type="number" step="any" id="f_脂肪酶" placeholder="598.57" data-loinc="3040-3"/>
+            </div>
+            <div class="field">
+              <label>乳酸脱氢酶 (LDH) <span class="loinc">2532-0</span> <span class="unit">U/L</span></label>
+              <input type="number" step="any" id="f_乳酸脱氢酶" placeholder="252.54" data-loinc="2532-0"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="field-group-title">Coagulation / Haematology</div>
+          <div class="fields-grid">
+            <div class="field">
+              <label>红细胞压积 (Hematocrit) <span class="loinc">20570-8</span> <span class="unit">%</span></label>
+              <input type="number" step="any" id="f_红细胞压积" placeholder="38.14" data-loinc="20570-8"/>
+            </div>
+            <div class="field">
+              <label>D-二聚体测定 (D-dimer) <span class="loinc">48065-7</span> <span class="unit">µg/mL FEU</span></label>
+              <input type="number" step="any" id="f_D-二聚体测定" placeholder="1.11" data-loinc="48065-7"/>
+            </div>
+            <div class="field">
+              <label>白蛋白 (Albumin) <span class="loinc">1751-7</span> <span class="unit" id="unit-白蛋白">g/L</span></label>
+              <input type="number" step="any" id="f_白蛋白" placeholder="37.23" data-loinc="1751-7" data-conv="albumin"/>
+            </div>
+            <div class="field">
+              <label>乳酸 (Lactate) <span class="loinc">2524-7</span> <span class="unit" id="unit-乳酸">mmol/L</span></label>
+              <input type="number" step="any" id="f_乳酸" placeholder="1.42" data-loinc="2524-7" data-conv="lactate"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="field-group-title">Demographics</div>
+          <div class="fields-grid">
+            <div class="field">
+              <label>年龄 (Age) <span class="unit">years</span></label>
+              <input type="number" step="1" id="f_年龄" placeholder="50"/>
+            </div>
+            <div class="field">
+              <label>性别 (Sex)</label>
+              <select id="f_性别">
+                <option value="">— select —</option>
+                <option value="1">Male (1)</option>
+                <option value="2">Female (2)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <p class="impute-note">Fields left blank are imputed with cohort means (n=722).</p>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" id="predict-btn" onclick="runPrediction()" disabled>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z" fill="currentColor"/></svg>
+            Predict
+          </button>
+        </div>
+      </div>
+
+      <!-- FHIR TAB -->
+      <div class="tab-panel" id="tab-fhir">
+        <p style="font-size:.82rem;color:var(--gray-600);margin-bottom:.75rem">Paste a FHIR R4 Bundle containing Observation resources. Observations are matched by LOINC code and mapped to the corresponding feature.</p>
+        <div class="fhir-area">
+          <textarea id="fhir-input" rows="10" placeholder='{"resourceType":"Bundle","type":"collection","entry":[{"resource":{"resourceType":"Observation","code":{"coding":[{"system":"http://loinc.org","code":"6690-2"}]},"valueQuantity":{"value":12.5}}}]}'></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="parseFHIR()" id="fhir-predict-btn" disabled>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z" fill="currentColor"/></svg>
+            Parse &amp; Predict
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: RESULTS PANEL -->
+    <div class="results-sticky">
+      <div class="card">
+        <div class="card-header">
+          <h2>Risk Assessment</h2>
+          <p>Random Forest · 200 trees · AUC 0.877</p>
+        </div>
+
+        <div class="gauge-wrap">
+          <svg class="gauge-svg" viewBox="0 0 200 200" id="gauge-svg">
+            <!-- Track arc -->
+            <circle cx="100" cy="100" r="80"
+              fill="none" stroke="#e5e7eb" stroke-width="18"
+              stroke-dasharray="339.3 113.1"
+              stroke-dashoffset="-56.55"
+              stroke-linecap="round"
+              transform="rotate(135 100 100)"/>
+            <!-- Fill arc -->
+            <circle cx="100" cy="100" r="80"
+              fill="none" id="gauge-fill" stroke="#9ca3af" stroke-width="18"
+              stroke-dasharray="0 452.4"
+              stroke-dashoffset="-56.55"
+              stroke-linecap="round"
+              transform="rotate(135 100 100)"
+              style="transition:stroke-dasharray .8s cubic-bezier(.4,0,.2,1),stroke .4s"/>
+            <text x="100" y="95" text-anchor="middle" font-family="Inter,sans-serif" font-size="28" font-weight="700" fill="#1f2937" id="gauge-pct-text">—</text>
+            <text x="100" y="118" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" fill="#6b7280">SAP Probability</text>
+          </svg>
+
+          <div id="tier-badge" class="tier-badge tier-none">Awaiting input</div>
+        </div>
+
+        <div id="reco-box" class="reco-box"></div>
+
+        <div class="results-meta">
+          <div class="meta-row">
+            <strong>Optimal Threshold</strong>
+            0.535 (F1-optimised, AUC = 0.877)
+          </div>
+          <div class="meta-row">
+            <strong>Performance at threshold</strong>
+            Sensitivity 96.8% · Specificity 38.7% · PPV 87.1%
+          </div>
+          <div class="meta-row" id="tree-votes-row" style="display:none">
+            <strong>Tree consensus</strong>
+            <span id="tree-votes-text"></span>
+          </div>
+        </div>
+
+        <div class="results-actions">
+          <button class="btn btn-primary" onclick="runPrediction()" id="predict-btn-2" disabled>
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z" fill="currentColor"/></svg>
+            Predict
+          </button>
+          <button class="btn btn-outline" onclick="doExportFHIR()" id="export-fhir-btn" disabled>
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Export FHIR R4
+          </button>
+        </div>
+
+        <div class="disclaimer">
+          For research purposes only. Not validated for clinical decision-making. Always apply clinical judgement.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CONTACT FOOTER -->
+<footer style="background:#1f2937;color:#9ca3af;padding:1.5rem 2rem;text-align:center;font-size:.82rem;">
+  <div style="max-width:1200px;margin:0 auto;">
+    <span>PenuX Research Initiative &mdash; PI: <strong style="color:#e5e7eb;">Netanel Stern</strong> &mdash;
+    <a href="mailto:nsh531@gmail.com" style="color:#9ca3af;">nsh531@gmail.com</a> &middot;
+    <a href="tel:+972559708708" style="color:#9ca3af;">+972-55-970-8708</a></span>
+    &nbsp;&middot;&nbsp;
+    <span>Research prototype only &mdash; not approved for clinical use</span>
+    &nbsp;&middot;&nbsp;
+    <a href="index.html" style="color:#9ca3af;">penux.uk</a>
+  </div>
+</footer>
+
+<script>
+// ── CONSTANTS ─────────────────────────────────────────────────────────────────
+
+const FEATURE_MEANS = {
+  "性别":1.3282548476454294,"年龄":50.26592797783933,"白蛋白":37.22770083102493,
+  "白细胞":11.526329639889196,"钙":2.019612188365651,"甘油三脂":6.036246537396122,
+  "甘油三酯":0.9244459833795015,"谷氨酰转肽酶":145.49598337950138,
+  "谷丙转氨酶":72.02160664819945,"谷草转氨酶":85.47257617728532,
+  "红细胞":4.319681440443214,"肌酐":76.59279778393352,"碱性磷酸酶":79.16772853185596,
+  "尿素":4.943490304709141,"尿酸":240.35872576177286,"葡萄糖":5.965166204986149,
+  "乳酸脱氢酶":252.5360110803324,"血红蛋白":129.8060941828255,"血小板":220.07479224376732,
+  "总胆固醇":5.3650138504155125,"总胆红素":19.814390581717447,"总蛋白":67.43808864265928,
+  "5′核苷酸酶测定":1.6526315789473685,"C反应蛋白":49.24368421052632,
+  "D-二聚体测定":1.1132132963988919,"PT活动度":89.89952908587259,
+  "α-L-岩藻糖苷酶":11.078670360110804,"α-羟丁酸脱氢酶":173.47783933518005,
+  "β2微量球蛋白":0.2576869806094183,"癌胚抗原":0.281191135734072,
+  "白球比":1.1819390581717453,"标准碳酸氢根":14.637396121883658,
+  "不饱和铁结合力":2.884349030470914,"部分凝血酶原时间":33.93365650969529,
+  "超氧化物歧化酶":21.509695290858726,"大型血小板比率":25.958310249307477,
+  "单核细胞百分比":5.916204986149585,"单核细胞计数":0.6988227146814404,
+  "胆碱酯酶":6883.483379501385,"低密度脂蛋白":1.8839058171745153,
+  "淀粉酶":537.6469529085872,"二氧化碳分压":24.46396952908587,
+  "二氧化碳结合力":19.24584487534626,"二氧化碳总量":12.847423822714681,
+  "高密度脂蛋白":0.8413850415512466,"高铁血红蛋白":0.36635083102493077,
+  "谷草/谷丙":1.3572991689750693,"胱抑素C":0.5965927977839335,
+  "国际标准化比值":1.0321191135734071,"红细胞分布宽度CV":12.398891966759003,
+  "红细胞分布宽度SD":39.80734072022161,"红细胞平均体积":82.84459833795015,
+  "红细胞压积":38.135595567867036,"肌酸激酶":157.84806094182827,
+  "肌酸酶同工酶":16.281717451523544,"钾":3.5562692520775623,
+  "间接胆红素":7.897603878116344,"离子钙":0.5865942382271468,
+  "淋巴细胞百分比":12.047368421052633,"淋巴细胞计数":1.2699307479224378,
+  "磷":0.36275623268698054,"氯":93.89986149584489,"氯化物":67.87266066481995,
+  "镁":0.3250415512465374,"钠":131.12671745152355,"凝血酶时间":16.56283933518006,
+  "凝血酶原时间":13.093213296398892,"平均血红蛋白量":28.17146814404432,
+  "平均血红蛋白浓度":316.72437673130196,"平均血小板体积":9.55720221606648,
+  "前白蛋白":205.5551246537396,"球蛋白":30.21038781163435,"乳酸":1.4162975069252077,
+  "肾小球滤过率":48.75,"剩余碱":-1.3774930747922438,"实际碳酸氢根":14.551662049861495,
+  "视黄醇结合蛋白":22.342936288088644,"嗜碱性粒细胞百分比":0.2670360110803324,
+  "嗜碱性粒细胞计数":0.029819944598337953,"嗜酸性粒细胞百分比":0.9257617728531857,
+  "嗜酸性粒细胞计数":0.0840027700831025,"酸碱度":4.7903344875346265,
+  "碳氧血红蛋白":1.2922155124653738,"铁":2.955346260387812,
+  "脱氧血红蛋白":1.44049432132964,"细胞外碱超":-1.63196675900277,
+  "纤维蛋白降解产物":2.4595290858725765,"纤维蛋白原":4.264947368421052,
+  "腺苷脱氨酶":7.886842105263158,"血清5′核苷酸酶测定":6.400000000000001,
+  "血细胞比容":29.266738227146814,"血小板分布宽度":11.204293628808864,
+  "血小板压积":0.22599722991689752,"氧饱和度":62.599801939058175,
+  "氧分压":63.685652354570635,"氧合血红蛋白":59.921243767313015,
+  "载脂蛋白A1":0.42811634349030475,"载脂蛋白B":0.33675900277008314,
+  "脂蛋白(a)":17.99792243767313,"脂肪酶":598.574515235457,
+  "直接胆红素":11.91678670360111,"中性粒细胞百分比":74.05650969529086,
+  "中性粒细胞计数":9.454695290858727,"总胆汁酸":10.054847645429364,
+  "总铁结合力":3.7562603878116345,"总血红蛋白浓度":8.83992409972299
+};
+
+const LOINC_MAP = {
+  "6690-2":"白细胞","770-8":"中性粒细胞百分比","736-9":"淋巴细胞百分比",
+  "1988-5":"C反应蛋白","2160-0":"肌酐","3094-0":"尿素","2345-7":"葡萄糖",
+  "17861-6":"钙","1742-6":"谷丙转氨酶","1920-8":"谷草转氨酶",
+  "1975-2":"总胆红素","1798-8":"淀粉酶","3040-3":"脂肪酶",
+  "2532-0":"乳酸脱氢酶","20570-8":"红细胞压积","48065-7":"D-二聚体测定",
+  "1751-7":"白蛋白","2524-7":"乳酸"
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let MODEL = null;
+let lastProb = null;
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active', (i===0&&tab==='manual')||(i===1&&tab==='fhir'));
+  });
+  document.getElementById('tab-manual').classList.toggle('active', tab==='manual');
+  document.getElementById('tab-fhir').classList.toggle('active', tab==='fhir');
+}
+
+// ── MODEL LOADING ─────────────────────────────────────────────────────────────
+async function loadModel() {
+  const bar = document.getElementById('loading-bar');
+  const dot = document.getElementById('status-dot');
+  const txt = document.getElementById('status-text');
+  bar.style.width = '30%';
+  try {
+    const res = await fetch('penux_rf_model.json');
+    bar.style.width = '70%';
+    MODEL = await res.json();
+    bar.style.width = '100%';
+    dot.className = 'dot ready';
+    txt.textContent = `Model ready · ${MODEL.n_trees} trees · ${MODEL.n_features} features`;
+    document.getElementById('predict-btn').disabled = false;
+    document.getElementById('predict-btn-2').disabled = false;
+    document.getElementById('fhir-predict-btn').disabled = false;
+    setTimeout(()=>{ bar.style.opacity='0'; }, 800);
+  } catch(e) {
+    dot.className = 'dot';
+    dot.style.background = 'var(--red)';
+    txt.textContent = 'Failed to load model — check penux_rf_model.json';
+  }
+}
+
+// ── INFERENCE ─────────────────────────────────────────────────────────────────
+function traverseTree(node, fv) {
+  if ('leaf' in node) return node.leaf;
+  return fv[node.feature] <= node.threshold
+    ? traverseTree(node.left, fv)
+    : traverseTree(node.right, fv);
+}
+
+function predictRF(fv, model) {
+  let sum = 0;
+  for (const tree of model.trees) sum += traverseTree(tree, fv);
+  return sum / model.trees.length;
+}
+
+// buildFeatureVector is defined later (after unit-conversion section) so it can handle SI↔US toggle
+
+function runPrediction() {
+  if (!MODEL) return;
+  const fv = buildFeatureVector(MODEL);
+  const prob = predictRF(fv, MODEL);
+  lastProb = prob;
+  document.getElementById('export-fhir-btn').disabled = false;
+  updateUI(prob);
+}
+
+// ── UI UPDATE ─────────────────────────────────────────────────────────────────
+function updateUI(prob) {
+  // Gauge
+  const TOTAL_ARC = 339.3; // circumference fraction for 270 degrees (r=80: 2πr=502.7, 270/360*502.7=376.8... actually dasharray approach)
+  // r=80, circumference=2*π*80=502.65
+  // 270° arc total = 502.65 * 270/360 = 376.99
+  const C = 2 * Math.PI * 80; // 502.65
+  const arcLength = C * (270/360); // 376.99
+  const fill = prob * arcLength;
+  const gap = C - fill;
+  const fillEl = document.getElementById('gauge-fill');
+  fillEl.style.strokeDasharray = `${fill} ${gap}`;
+
+  // Color
+  let color, tierClass, tierText, recoClass, recoText;
+  if (prob < 0.535) {
+    color = '#057a55'; tierClass = 'tier-low'; tierText = 'Low Risk — MAP';
+    recoClass = 'reco-low'; recoText = 'Routine ward monitoring. Reassess in 24 h.';
+  } else if (prob <= 0.70) {
+    color = '#92400e'; tierClass = 'tier-mod'; tierText = 'Moderate Risk — HDU';
+    recoClass = 'reco-mod'; recoText = 'High-dependency unit admission. Aggressive fluid resuscitation. Repeat labs in 6 h.';
+  } else {
+    color = '#c81e1e'; tierClass = 'tier-high'; tierText = 'High Risk — ICU';
+    recoClass = 'reco-high'; recoText = 'ICU admission indicated. Consider early ERCP if biliary aetiology. Multidisciplinary review.';
+  }
+  fillEl.style.stroke = color;
+
+  // Text
+  const pctText = document.getElementById('gauge-pct-text');
+  pctText.textContent = (prob*100).toFixed(1) + '%';
+  pctText.style.fill = color;
+
+  // Badge
+  const badge = document.getElementById('tier-badge');
+  badge.className = 'tier-badge ' + tierClass;
+  badge.textContent = tierText;
+
+  // Reco
+  const reco = document.getElementById('reco-box');
+  reco.className = 'reco-box ' + recoClass;
+  reco.textContent = recoText;
+  reco.style.display = 'block';
+
+  // Tree votes
+  const votesRow = document.getElementById('tree-votes-row');
+  const votesText = document.getElementById('tree-votes-text');
+  const posVotes = MODEL.trees.filter(t => {
+    const fv = buildFeatureVector(MODEL);
+    return traverseTree(t, fv) >= 0.535;
+  }).length;
+  votesText.textContent = `${posVotes} / ${MODEL.n_trees} trees predict SAP`;
+  votesRow.style.display = 'block';
+}
+
+// ── FHIR PARSE ────────────────────────────────────────────────────────────────
+function parseFHIR() {
+  if (!MODEL) return;
+  const raw = document.getElementById('fhir-input').value.trim();
+  if (!raw) { alert('Please paste a FHIR R4 Bundle.'); return; }
+  let bundle;
+  try { bundle = JSON.parse(raw); } catch(e) { alert('Invalid JSON: ' + e.message); return; }
+
+  const entries = bundle.entry || [];
+  let matched = 0;
+  for (const entry of entries) {
+    const res = entry.resource || entry;
+    if (res.resourceType !== 'Observation') continue;
+    const codings = (res.code && res.code.coding) || [];
+    for (const coding of codings) {
+      if (coding.system && coding.system.includes('loinc') && LOINC_MAP[coding.code]) {
+        const featName = LOINC_MAP[coding.code];
+        const val = res.valueQuantity ? res.valueQuantity.value : res.valueDecimal;
+        if (val !== undefined && val !== null) {
+          const el = document.getElementById('f_' + featName);
+          if (el) { el.value = val; matched++; }
+        }
+      }
+    }
+  }
+  if (matched === 0) { alert('No matching LOINC observations found in bundle.'); return; }
+  switchTab('manual');
+  runPrediction();
+}
+
+// ── FHIR EXPORT ───────────────────────────────────────────────────────────────
+function doExportFHIR() {
+  if (lastProb === null) { alert('Run prediction first.'); return; }
+  exportFHIR(lastProb);
+}
+
+function exportFHIR(prob) {
+  const now = new Date().toISOString();
+  const tier = prob < 0.535 ? 'low' : prob <= 0.70 ? 'moderate' : 'high';
+  const ra = {
+    resourceType: "RiskAssessment",
+    id: "penux-sap-" + Date.now(),
+    status: "final",
+    subject: { reference: "Patient/unknown" },
+    occurrenceDateTime: now,
+    method: { coding: [{ system: "http://snomed.info/sct", code: "416940007", display: "Random forest classifier" }] },
+    basis: [{ reference: "#" }],
+    prediction: [{
+      outcome: { coding: [{ system: "http://snomed.info/sct", code: "373942003", display: "Severe acute pancreatitis" }] },
+      probabilityDecimal: Math.round(prob * 10000) / 10000,
+      qualitativeRisk: { coding: [{ system: "http://terminology.hl7.org/CodeSystem/risk-probability", code: tier }] },
+      rationale: `PenuX RF-200 · threshold=0.535 · AUC=0.877`
+    }],
+    meta: { tag: [{ system: "http://penux.ai/tags", code: "research-only" }] }
+  };
+  const blob = new Blob([JSON.stringify(ra, null, 2)], { type: 'application/fhir+json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'penux_risk_assessment.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+// ── UNIT CONVERSION ───────────────────────────────────────────────────────────
+// All conversions: SI → US (multiply), US → SI (divide)
+// The model always receives SI values.
+const CONV = {
+  glucose:    { siUnit:'mmol/L',  usUnit:'mg/dL',  factor:18.016, siPlaceholder:'5.97',  usPlaceholder:'107.6' },
+  bun:        { siUnit:'mmol/L',  usUnit:'mg/dL',  factor:2.801,  siPlaceholder:'4.94',  usPlaceholder:'13.8'  },
+  creatinine: { siUnit:'µmol/L',  usUnit:'mg/dL',  factor:0.01131,siPlaceholder:'76.59', usPlaceholder:'0.87'  },
+  calcium:    { siUnit:'mmol/L',  usUnit:'mg/dL',  factor:4.008,  siPlaceholder:'2.02',  usPlaceholder:'8.1'   },
+  bilirubin:  { siUnit:'µmol/L',  usUnit:'mg/dL',  factor:0.05848,siPlaceholder:'19.81', usPlaceholder:'1.16'  },
+  albumin:    { siUnit:'g/L',     usUnit:'g/dL',   factor:0.1,    siPlaceholder:'37.23', usPlaceholder:'3.72'  },
+  lactate:    { siUnit:'mmol/L',  usUnit:'mg/dL',  factor:9.01,   siPlaceholder:'1.42',  usPlaceholder:'12.8'  },
+};
+
+// Map field id → conv key
+const FIELD_CONV_MAP = {
+  'f_葡萄糖':'glucose', 'f_尿素':'bun', 'f_肌酐':'creatinine',
+  'f_钙':'calcium', 'f_总胆红素':'bilirubin', 'f_白蛋白':'albumin', 'f_乳酸':'lactate'
+};
+
+// Unit label elements
+const UNIT_LABEL_MAP = {
+  'f_葡萄糖':'unit-葡萄糖', 'f_尿素':'unit-尿素', 'f_肌酐':'unit-肌酐',
+  'f_钙':'unit-钙', 'f_总胆红素':'unit-总胆红素', 'f_白蛋白':'unit-白蛋白', 'f_乳酸':'unit-乳酸'
+};
+
+let isUSUnits = false;
+
+function toggleUnits() {
+  isUSUnits = !isUSUnits;
+  const btn = document.getElementById('unit-toggle');
+  btn.classList.toggle('on', isUSUnits);
+  document.getElementById('lbl-si').style.fontWeight = isUSUnits ? '' : '600';
+  document.getElementById('lbl-si').style.color = isUSUnits ? '' : 'var(--blue)';
+  document.getElementById('lbl-us').style.fontWeight = isUSUnits ? '600' : '';
+  document.getElementById('lbl-us').style.color = isUSUnits ? 'var(--blue)' : 'var(--gray-500)';
+
+  for (const [fieldId, convKey] of Object.entries(FIELD_CONV_MAP)) {
+    const cfg = CONV[convKey];
+    const el = document.getElementById(fieldId);
+    const labelEl = document.getElementById(UNIT_LABEL_MAP[fieldId]);
+
+    // Convert existing value
+    if (el.value !== '') {
+      const v = parseFloat(el.value);
+      if (!isNaN(v)) {
+        if (isUSUnits) {
+          el.value = (v * cfg.factor).toFixed(2);
+        } else {
+          el.value = (v / cfg.factor).toFixed(2);
+        }
+      }
+    }
+
+    // Update label + placeholder
+    labelEl.textContent = isUSUnits ? cfg.usUnit : cfg.siUnit;
+    el.placeholder = isUSUnits ? cfg.usPlaceholder : cfg.siPlaceholder;
+  }
+}
+
+// Convert US → SI before inference when US mode is active
+function buildFeatureVector(model) {
+  const fv = new Float32Array(model.n_features);
+  for (let i = 0; i < model.n_features; i++) {
+    const name = model.feature_names[i];
+    const el = document.getElementById('f_' + name);
+    let val = null;
+    if (el) {
+      val = el.value !== '' ? parseFloat(el.value) : null;
+      // Convert US → SI before inference
+      if (val !== null && !isNaN(val) && isUSUnits) {
+        const convKey = FIELD_CONV_MAP['f_' + name];
+        if (convKey) val = val / CONV[convKey].factor;
+      }
+    }
+    fv[i] = (val !== null && !isNaN(val)) ? val : FEATURE_MEANS[name];
+  }
+  return fv;
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+loadModel();
+</script>
+</body>
+</html>
