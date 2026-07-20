@@ -317,6 +317,16 @@ router.get('/health', (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────
+// /docs — Swagger UI for this service's own endpoints (task board + the
+// merged prediction endpoints), served directly rather than only as a
+// static page on penux.uk. Matches the conventional /docs path the
+// original standalone FastAPI service used.
+// ─────────────────────────────────────────────────────────────────────────
+router.get('/docs', (req, res) => {
+  res.sendFile(join(__dirname, 'public', 'docs.html'));
+});
+
+// ─────────────────────────────────────────────────────────────────────────
 // /models/sweep — serves the pre-computed 294-model sweep results
 // (a bundled snapshot copy — see tasks-api/data/model_sweep_271_results.json)
 // ─────────────────────────────────────────────────────────────────────────
