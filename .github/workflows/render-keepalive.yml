@@ -1,0 +1,19 @@
+name: Keep Render service awake
+
+on:
+  schedule:
+    # Every 10 minutes — under Render free tier's 15-minute sleep timeout.
+    - cron: '*/10 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping /health on penux-1.onrender.com
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://penux-1.onrender.com/health)
+          echo "Response: HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "::warning::penux-1.onrender.com/health returned $code (service may be down or still waking up)"
+          fi

@@ -308,6 +308,15 @@ router.post('/predict/polynomial-logit', (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────
+// /health — lightweight endpoint for uptime/keep-alive pings (see
+// .github/workflows/render-keepalive.yml). Deliberately does nothing but
+// return 200 — no DB query, no file read — so pings are cheap.
+// ─────────────────────────────────────────────────────────────────────────
+router.get('/health', (req, res) => {
+  res.json({ status: 'ok', service: 'penux-tasks-api', timestamp: new Date().toISOString() });
+});
+
+// ─────────────────────────────────────────────────────────────────────────
 // /models/sweep — serves the pre-computed 294-model sweep results
 // (a bundled snapshot copy — see tasks-api/data/model_sweep_271_results.json)
 // ─────────────────────────────────────────────────────────────────────────
