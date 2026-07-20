@@ -60,8 +60,10 @@
           "license": { "name": "MIT", "url": "https://github.com/netanelcyber/penuX/blob/main/PenuX-AP-Severity/LICENSE" }
         },
         "servers": [
-          { "url": "https://api.penux.uk", "description": "Production" },
-          { "url": "http://localhost:8000", "description": "Local dev" }
+          { "url": "https://penux-1.onrender.com", "description": "Production (merged into the tasks-api Node service on Render)" },
+          { "url": "https://api.penux.uk", "description": "Production (once api.penux.uk DNS is pointed at penux-1.onrender.com)" },
+          { "url": "http://localhost:8000", "description": "Local dev (standalone Python FastAPI)" },
+          { "url": "http://localhost:3000", "description": "Local dev (merged into tasks-api Node service)" }
         ],
         "tags": [
           { "name": "predict",  "description": "Plain JSON prediction" },
