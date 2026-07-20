@@ -67,9 +67,120 @@
           { "name": "auth",   "description": "Task board login" },
           { "name": "tasks",  "description": "Task CRUD" },
           { "name": "email",  "description": "Follow-up email templates & sending" },
-          { "name": "drafts", "description": "Auto-drafted inbox replies" }
+          { "name": "drafts", "description": "Auto-drafted inbox replies" },
+          { "name": "health", "description": "Service health / uptime pings" },
+          { "name": "predict", "description": "PenuX-AP-Severity prediction endpoints, merged in from the Python FastAPI service (see predict-routes.js) so this one Render deployment serves both the task board and these endpoints" }
         ],
         "paths": {
+          "/health": {
+            "get": {
+              "tags": ["health"], "summary": "Lightweight health check (for uptime/keep-alive pings)",
+              "description": "No-op — no DB query, no file read. Used by .github/workflows/render-keepalive.yml to ping every 10 minutes and keep the Render free-tier service from sleeping.",
+              "responses": { "200": { "description": "OK", "content": { "application/json": { "example": { "status": "ok", "service": "penux-tasks-api", "timestamp": "2026-07-20T06:00:00.000Z" } } } } }
+            }
+          },
+          "/predict": {
+            "post": {
+              "tags": ["predict"], "summary": "Predict SAP risk — plain JSON (heuristic)",
+              "description": "Ported from PenuX-AP-Severity's logistic BISAP/Ranson-weighted fallback heuristic (no trained ML model on this deployment). All fields optional.\n\n⚠️ Research use only — not validated for clinical use.",
+              "requestBody": {
+                "required": true,
+                "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdmissionInput" }, "examples": {
+                  "high_risk": { "summary": "High-risk patient", "value": { "age": 65, "sex": "M", "wbc": 18.5, "crp": 220, "creatinine": 1.8, "glucose": 180, "ldh": 450, "ast": 90, "hematocrit": 47, "bun": 32, "calcium": 7.8, "albumin": 2.9 } },
+                  "low_risk": { "summary": "Low-risk patient", "value": { "age": 42, "sex": "F", "wbc": 9.1, "crp": 45, "creatinine": 0.8, "glucose": 110, "ldh": 180, "ast": 38 } }
+                } } }
+              },
+              "responses": { "200": { "description": "Prediction result", "content": { "application/json": { "example": { "severe_ap_probability": 0.3521, "threshold_used": 0.5, "risk_group": "intermediate", "model_version": "0.1.0", "warning": "Research prototype only. Not for clinical use.", "error": null } } } } }
+            }
+          },
+          "/predict/sepsis": {
+            "post": {
+              "tags": ["predict"], "summary": "Sepsis risk — SIRS + qSOFA + organ dysfunction",
+              "description": "SIRS (temp/HR/RR/WBC) + qSOFA (RR≥22, SBP≤100) + Sepsis-3 organ dysfunction markers (creatinine, bilirubin, platelets, lactate, MAP, SpO2). All fields optional.\n\nRisk groups: low (<15%) · moderate (15–40%) · high (40–70%) · critical (>70%).",
+              "requestBody": {
+                "required": true,
+                "content": { "application/json": { "examples": {
+                  "septic_shock": { "summary": "Critical — septic shock pattern", "value": { "temperature_c": 39.5, "heart_rate": 118, "respiratory_rate": 26, "systolic_bp": 88, "wbc": 18.5, "lactate": 4.2, "creatinine": 2.4, "platelets": 80, "map_mmhg": 58, "spo2": 90, "age": 72 } },
+                  "low_risk": { "summary": "Low — near-normal vitals and labs", "value": { "temperature_c": 37.1, "heart_rate": 78, "respiratory_rate": 16, "systolic_bp": 122, "wbc": 8.5, "spo2": 98, "age": 40 } }
+                } } }
+              },
+              "responses": { "200": { "description": "Sepsis risk result", "content": { "application/json": { "example": { "sepsis_risk_probability": 0.9848, "risk_group": "critical", "sirs_score": 4, "qsofa_score": 2, "criteria_met": ["Fever (39.5°C > 38.3)", "Tachycardia (HR 118 > 90)"], "warning": "Research prototype only. Not for clinical use." } } } } }
+            }
+          },
+          "/predict/deterioration": {
+            "post": {
+              "tags": ["predict"], "summary": "Clinical deterioration risk — NEWS2 early warning score",
+              "description": "NEWS2 (National Early Warning Score 2, Royal College of Physicians) from respiratory rate, SpO2, supplemental oxygen, systolic BP, heart rate, consciousness (AVPU), temperature. All fields optional.\n\nRisk groups: low (0) · low-medium (1-4) · medium (5-6, or any single parameter scoring 3) · high (≥7).",
+              "requestBody": {
+                "required": true,
+                "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DeteriorationInput" }, "examples": {
+                  "high_risk": { "summary": "High — multiple abnormal vitals", "value": { "respiratory_rate": 26, "spo2": 90, "on_supplemental_oxygen": true, "systolic_bp": 85, "heart_rate": 135, "consciousness_altered": true, "temperature_c": 39.4 } },
+                  "low_risk": { "summary": "Low — normal vitals", "value": { "respiratory_rate": 16, "spo2": 98, "systolic_bp": 120, "heart_rate": 75, "temperature_c": 36.8 } }
+                } } }
+              },
+              "responses": { "200": { "description": "NEWS2 result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DeteriorationOutput" } } } } }
+            }
+          },
+          "/predict/mortality": {
+            "post": {
+              "tags": ["predict"], "summary": "30-day in-hospital mortality risk — routine admission variables",
+              "description": "Lightweight, explainable logistic combination of age, comorbidity burden, hemodynamic/respiratory instability, consciousness, and organ-dysfunction labs. All fields optional.\n\nRisk groups: low (<5%) · moderate (5–20%) · high (20–50%) · critical (>50%). Not a validated score like APACHE II/SAPS II — see /predict/saps2 for that.",
+              "requestBody": {
+                "required": true,
+                "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MortalityInput" }, "examples": {
+                  "critical": { "summary": "Critical — elderly, multi-organ dysfunction", "value": { "age": 82, "comorbidity_count": 3, "systolic_bp": 82, "heart_rate": 128, "respiratory_rate": 28, "temperature_c": 35.2, "spo2": 87, "consciousness_altered": true, "creatinine": 3.1, "bilirubin_total": 4.2, "albumin": 2.1, "platelets": 78, "lactate": 5.5 } },
+                  "low_risk": { "summary": "Low — young, no comorbidities, normal vitals/labs", "value": { "age": 38, "comorbidity_count": 0, "systolic_bp": 118, "heart_rate": 76, "spo2": 98 } }
+                } } }
+              },
+              "responses": { "200": { "description": "Mortality risk result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MortalityOutput" } } } } }
+            }
+          },
+          "/predict/saps2": {
+            "post": {
+              "tags": ["predict"], "summary": "SAPS II — Simplified Acute Physiology Score II (validated ICU mortality score)",
+              "description": "Real, published, externally-validated ICU mortality score (Le Gall et al., 1993) — original point tables + logistic regression equation `logit = -7.7631 + 0.0737×score + 0.9971×ln(score+1)`. Run alongside /predict/mortality to compare a validated score against the lightweight heuristic. All fields optional.",
+              "requestBody": {
+                "required": true,
+                "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SAPS2Input" }, "examples": {
+                  "severe": { "summary": "Severe — score ≈ 90, ~97% predicted mortality", "value": { "age": 78, "heart_rate": 128, "systolic_bp": 82, "temperature_c": 39.4, "ventilated_or_cpap": true, "pao2_fio2": 150, "urine_output_l_24h": 0.4, "bun_mg_dl": 90, "wbc": 22, "potassium": 5.5, "sodium": 148, "bicarbonate": 14, "bilirubin_total": 5.0, "gcs": 9, "admission_type": "unscheduled_surgical" } },
+                  "mild": { "summary": "Mild — low score, low predicted mortality", "value": { "age": 45, "heart_rate": 90, "systolic_bp": 120, "temperature_c": 37.5, "ventilated_or_cpap": false, "urine_output_l_24h": 1.8, "bun_mg_dl": 18, "wbc": 9, "potassium": 4.0, "sodium": 138, "bicarbonate": 24, "bilirubin_total": 0.8, "gcs": 15, "admission_type": "medical" } }
+                } } }
+              },
+              "responses": { "200": { "description": "SAPS II score and predicted mortality", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SAPS2Output" } } } } }
+            }
+          },
+          "/predict/polynomial-logit": {
+            "post": {
+              "tags": ["predict"], "summary": "Polynomial-logit risk index — ln(sigmoid(f(x))), f(x) a degree-2 polynomial",
+              "description": "Exploratory scoring construct: f(x) = b0 + Σ(w·zᵢ + w₂·zᵢ²) + w₃·(z_wbc·z_crp) over standardized lab deviations, risk_probability = sigmoid(f(x)), log_risk_index = ln(risk_probability).\n\nReading log_risk_index: closer to 0 = higher risk, more negative = lower risk (opposite of most scores). Original exploratory formula, not a validated clinical instrument. All fields optional.",
+              "requestBody": {
+                "required": true,
+                "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PolynomialLogitInput" }, "examples": {
+                  "high_risk": { "summary": "High — multiple abnormal labs", "value": { "age": 72, "wbc": 19.5, "crp": 260, "creatinine": 2.1, "glucose": 210, "ldh": 480, "ast": 140, "hematocrit": 48, "calcium": 7.4, "albumin": 2.6 } },
+                  "low_risk": { "summary": "Low — near-normal labs", "value": { "age": 40, "wbc": 8.0, "crp": 20, "creatinine": 0.9, "glucose": 95, "hematocrit": 41, "calcium": 9.4, "albumin": 4.2 } }
+                } } }
+              },
+              "responses": { "200": { "description": "Polynomial-logit risk result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PolynomialLogitOutput" } } } } }
+            }
+          },
+          "/models/sweep": {
+            "get": {
+              "tags": ["predict"], "summary": "294-model hyperparameter sweep results (exploratory, supplementary)",
+              "description": "Serves the pre-computed results of a 294-configuration hyperparameter sweep (16 classical ML families), each genuinely 5-fold cross-validated, ranked by AUROC descending — a bundled snapshot copy served from disk (tasks-api/data/model_sweep_271_results.json).\n\n⚠️ Uses a different dataset than /predict's primary SAP severity heuristic — see the response's `caveats` field.",
+              "parameters": [
+                { "name": "top_n", "in": "query", "required": false, "schema": { "type": "integer", "default": 30 }, "description": "Number of top-ranked configurations to return (clamped to [1, 294])" }
+              ],
+              "responses": {
+                "200": { "description": "Sweep summary + ranked results", "content": { "application/json": { "example": {
+                  "dataset": "data/public_sanitized/ap_multiml_sanitized.csv", "n_samples": 1289, "n_features": 59, "positive_rate": 0.8417, "cv_folds": 5,
+                  "n_configs_attempted": 294, "n_configs_succeeded": 294, "n_configs_failed": 0, "total_runtime_seconds": 1005.6,
+                  "results": [{ "name": "ExtraTrees(n=300,depth=None,criterion=entropy)", "auroc_mean": 0.8561, "auprc_mean": 0.9656, "f1_mean": 0.9258, "accuracy_mean": 0.8666, "status": "ok" }],
+                  "caveats": ["This sweep was run on a different, larger dataset than the primary SAP severity heuristic — exploratory/supplementary only."]
+                } } } },
+                "404": { "description": "Sweep results file not found" }
+              }
+            }
+          },
           "/api/auth": {
             "post": {
               "tags": ["auth"], "summary": "Log in to the task board",
@@ -206,6 +317,15 @@
               },
               "required": ["title"]
             },
+            "AdmissionInput": {"type": "object", "title": "AdmissionInput", "description": "Routine admission lab values. All fields optional.", "properties": {"age": {"type": "number", "description": "Age in years", "example": 65}, "sex": {"type": "string", "enum": ["M", "F"], "description": "Sex", "example": "M"}, "wbc": {"type": "number", "description": "WBC \u00d710\u2079/L (LOINC 6690-2)", "example": 18.5}, "crp": {"type": "number", "description": "CRP mg/L (LOINC 1988-5)", "example": 220}, "creatinine": {"type": "number", "description": "Creatinine mg/dL (LOINC 2160-0)", "example": 1.8}, "bun": {"type": "number", "description": "BUN mg/dL (LOINC 3094-0)", "example": 32}, "glucose": {"type": "number", "description": "Glucose mg/dL (LOINC 2345-7)", "example": 180}, "ldh": {"type": "number", "description": "LDH U/L (LOINC 2532-0)", "example": 450}, "ast": {"type": "number", "description": "AST U/L (LOINC 1920-8)", "example": 90}, "alt": {"type": "number", "description": "ALT U/L (LOINC 1742-6)", "example": 45}, "hematocrit": {"type": "number", "description": "Hematocrit % (LOINC 20570-8)", "example": 47}, "calcium": {"type": "number", "description": "Calcium mg/dL (LOINC 17861-6)", "example": 7.8}, "albumin": {"type": "number", "description": "Albumin g/dL (LOINC 1751-7)", "example": 2.9}, "bilirubin_total": {"type": "number", "description": "Total bilirubin mg/dL (LOINC 1975-2)", "example": 2.1}, "triglycerides": {"type": "number", "description": "Triglycerides mg/dL (LOINC 2571-8)", "example": 450}, "heart_rate": {"type": "number", "description": "Heart rate bpm", "example": 102}, "systolic_bp": {"type": "number", "description": "Systolic BP mmHg", "example": 95}, "temperature": {"type": "number", "description": "Temperature \u00b0C", "example": 38.6}, "spo2": {"type": "number", "description": "SpO\u2082 %", "example": 94}}},
+            "DeteriorationInput": {"type": "object", "description": "Routine vital signs for NEWS2 scoring. All fields optional.", "properties": {"respiratory_rate": {"type": "number", "description": "Respiratory rate /min", "example": 22}, "spo2": {"type": "number", "description": "SpO2 %", "example": 94}, "on_supplemental_oxygen": {"type": "boolean", "description": "On any supplemental oxygen", "example": false}, "systolic_bp": {"type": "number", "description": "Systolic BP mmHg", "example": 110}, "heart_rate": {"type": "number", "description": "Heart rate bpm", "example": 95}, "consciousness_altered": {"type": "boolean", "description": "Anything other than fully Alert on AVPU", "example": false}, "temperature_c": {"type": "number", "description": "Body temperature \u00b0C", "example": 37.8}}},
+            "DeteriorationOutput": {"type": "object", "properties": {"news2_score": {"type": "integer", "description": "Total NEWS2 score (0-20)", "example": 5}, "risk_group": {"type": "string", "enum": ["low", "low-medium", "medium", "high"], "example": "medium"}, "component_scores": {"type": "object", "description": "Per-parameter NEWS2 sub-scores", "additionalProperties": {"type": "integer"}}, "escalation": {"type": "string", "description": "Suggested monitoring/escalation per RCP NEWS2 guidance"}, "warning": {"type": "string"}}},
+            "MortalityInput": {"type": "object", "description": "Routine admission variables for 30-day mortality risk. All fields optional.", "properties": {"age": {"type": "number", "description": "Age in years", "example": 75}, "comorbidity_count": {"type": "integer", "description": "Number of major comorbidities (CHF, COPD, cirrhosis, CKD, active malignancy, etc.)", "example": 2}, "systolic_bp": {"type": "number", "description": "Systolic BP mmHg", "example": 105}, "heart_rate": {"type": "number", "description": "Heart rate bpm", "example": 95}, "respiratory_rate": {"type": "number", "description": "Respiratory rate /min", "example": 20}, "temperature_c": {"type": "number", "description": "Body temperature \u00b0C", "example": 37.5}, "spo2": {"type": "number", "description": "SpO2 %", "example": 95}, "consciousness_altered": {"type": "boolean", "example": false}, "creatinine": {"type": "number", "description": "Creatinine mg/dL", "example": 1.4}, "bun": {"type": "number", "description": "BUN mg/dL", "example": 32}, "bilirubin_total": {"type": "number", "description": "Total bilirubin mg/dL", "example": 1.8}, "albumin": {"type": "number", "description": "Albumin g/dL", "example": 2.8}, "platelets": {"type": "number", "description": "Platelets \u00d710\u00b3/\u00b5L", "example": 140}, "lactate": {"type": "number", "description": "Lactate mmol/L", "example": 2.5}, "wbc": {"type": "number", "description": "WBC \u00d710\u2079/L", "example": 13.5}}},
+            "MortalityOutput": {"type": "object", "properties": {"mortality_risk_probability": {"type": "number", "description": "Estimated 30-day in-hospital mortality risk, 0-1", "example": 0.083}, "risk_group": {"type": "string", "enum": ["low", "moderate", "high", "critical"], "example": "moderate"}, "contributing_factors": {"type": "array", "items": {"type": "string"}, "description": "Variables that drove the risk estimate upward"}, "warning": {"type": "string"}}},
+            "SAPS2Input": {"type": "object", "description": "SAPS II variables \u2014 worst value in first 24 ICU hours. All fields optional.", "properties": {"age": {"type": "number", "example": 78}, "heart_rate": {"type": "number", "description": "Worst heart rate, bpm", "example": 128}, "systolic_bp": {"type": "number", "description": "Worst systolic BP, mmHg", "example": 82}, "temperature_c": {"type": "number", "description": "Worst (highest) temperature, \u00b0C", "example": 39.4}, "pao2_fio2": {"type": "number", "description": "PaO2/FiO2 ratio \u2014 only scored if ventilated_or_cpap is true", "example": 150}, "ventilated_or_cpap": {"type": "boolean", "default": false, "example": true}, "urine_output_l_24h": {"type": "number", "description": "Liters/24h", "example": 0.4}, "bun_mg_dl": {"type": "number", "example": 90}, "wbc": {"type": "number", "description": "\u00d710\u2079/L", "example": 22}, "potassium": {"type": "number", "description": "mmol/L", "example": 5.5}, "sodium": {"type": "number", "description": "mmol/L", "example": 148}, "bicarbonate": {"type": "number", "description": "mmol/L", "example": 14}, "bilirubin_total": {"type": "number", "description": "mg/dL", "example": 5.0}, "gcs": {"type": "integer", "description": "Glasgow Coma Scale, 3-15", "example": 9}, "admission_type": {"type": "string", "enum": ["scheduled_surgical", "unscheduled_surgical", "medical"], "example": "unscheduled_surgical"}, "chronic_disease": {"type": "string", "enum": ["metastatic_cancer", "hematologic_malignancy", "aids"]}}},
+            "SAPS2Output": {"type": "object", "properties": {"saps2_score": {"type": "integer", "description": "Total SAPS II points", "example": 90}, "predicted_mortality_probability": {"type": "number", "description": "SAPS II logistic-regression predicted hospital mortality, 0-1", "example": 0.9667}, "point_breakdown": {"type": "object", "description": "Points contributed by each scored variable", "additionalProperties": {"type": "integer"}}, "missing_variables": {"type": "array", "items": {"type": "string"}, "description": "Variables not supplied \u2014 score is a lower bound until provided"}, "warning": {"type": "string"}}},
+            "PolynomialLogitInput": {"type": "object", "description": "Routine labs for the polynomial-logit risk index. All fields optional.", "properties": {"age": {"type": "number", "example": 72}, "wbc": {"type": "number", "description": "\u00d710\u2079/L", "example": 19.5}, "crp": {"type": "number", "description": "mg/L", "example": 260}, "creatinine": {"type": "number", "description": "mg/dL", "example": 2.1}, "glucose": {"type": "number", "description": "mg/dL", "example": 210}, "ldh": {"type": "number", "description": "U/L", "example": 480}, "ast": {"type": "number", "description": "U/L", "example": 140}, "hematocrit": {"type": "number", "description": "%", "example": 48}, "calcium": {"type": "number", "description": "mg/dL", "example": 7.4}, "albumin": {"type": "number", "description": "g/dL", "example": 2.6}}},
+            "PolynomialLogitOutput": {"type": "object", "properties": {"polynomial_score": {"type": "number", "description": "f(x) \u2014 the raw degree-2 polynomial score, unbounded", "example": 1.3916}, "risk_probability": {"type": "number", "description": "sigmoid(f(x)) \u2208 (0,1)", "example": 0.8008}, "log_risk_index": {"type": "number", "description": "ln(risk_probability) \u2014 closer to 0 = higher risk, more negative = lower risk", "example": -0.2221}, "risk_group": {"type": "string", "enum": ["low", "intermediate", "high"], "example": "high"}, "terms_used": {"type": "array", "items": {"type": "string"}, "description": "Variables that contributed to f(x)"}, "warning": {"type": "string"}}},
             "DraftReply": {
               "type": "object", "title": "DraftReply",
               "properties": {
