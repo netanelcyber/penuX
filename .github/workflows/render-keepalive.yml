@@ -17,3 +17,10 @@ jobs:
           if [ "$code" != "200" ]; then
             echo "::warning::penux-1.onrender.com/health returned $code (service may be down or still waking up)"
           fi
+      - name: Check /docs (Swagger UI) is reachable
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://penux-1.onrender.com/docs)
+          echo "Response: HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "::warning::penux-1.onrender.com/docs returned $code"
+          fi
