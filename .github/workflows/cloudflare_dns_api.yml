@@ -1,0 +1,69 @@
+name: Point api.penux.uk to PenuX-AP-Severity (Render)
+
+on:
+  workflow_dispatch:
+    inputs:
+      render_domain:
+        description: 'Render domain for the PenuX-AP-Severity FastAPI service (e.g. penux-ap-severity.onrender.com) — get this from the Render dashboard service page'
+        required: true
+        type: string
+
+jobs:
+  add-dns:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add/update CNAME for api.penux.uk -> Render
+        env:
+          CF_TOKEN: ${{ secrets.CF_TOKEN }}
+          RENDER_DOMAIN: ${{ inputs.render_domain }}
+        run: |
+          python3 << 'EOF'
+          import requests, os
+
+          TOKEN   = os.environ["CF_TOKEN"]
+          TARGET  = os.environ["RENDER_DOMAIN"]
+          HEADERS = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
+          BASE    = "https://api.cloudflare.com/client/v4"
+
+          r = requests.get(f"{BASE}/zones?name=penux.uk", headers=HEADERS, timeout=15)
+          d = r.json()
+          if not d.get("success") or not d["result"]:
+              print("ERROR:", d.get("errors"))
+              exit(1)
+
+          ZONE_ID = d["result"][0]["id"]
+          print(f"Zone ID: {ZONE_ID}")
+
+          # Check for an existing 'api' record to update instead of duplicating.
+          r = requests.get(f"{BASE}/zones/{ZONE_ID}/dns_records?type=CNAME&name=api.penux.uk",
+                            headers=HEADERS, timeout=15)
+          existing = r.json().get("result", [])
+
+          record = {
+              "type": "CNAME",
+              "name": "api",
+              "content": TARGET,
+              "proxied": False,  # unproxied so Render's own TLS cert / routing works directly
+              "ttl": 1,
+          }
+
+          if existing:
+              rec_id = existing[0]["id"]
+              r = requests.put(f"{BASE}/zones/{ZONE_ID}/dns_records/{rec_id}", headers=HEADERS, json=record, timeout=15)
+              action = "UPDATED"
+          else:
+              r = requests.post(f"{BASE}/zones/{ZONE_ID}/dns_records", headers=HEADERS, json=record, timeout=15)
+              action = "CREATED"
+
+          res = r.json()
+          if res.get("success"):
+              x = res["result"]
+              print(f"{action}  {x['type']:5} {x['name']} -> {x['content']}")
+          else:
+              print(f"FAIL: {res.get('errors')}")
+              exit(1)
+
+          print("Done! api.penux.uk should resolve within a few minutes.")
+          print("Remember to also add 'api.penux.uk' as a custom domain in the Render service settings,")
+          print("so Render issues a TLS certificate for it (Render dashboard -> service -> Settings -> Custom Domains).")
+          EOF
