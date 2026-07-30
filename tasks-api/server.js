@@ -62,9 +62,18 @@ async function initDb() {
       due TEXT,
       cat TEXT,
       status TEXT,
+      talking_points TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // ALTER for pre-existing databases created before talking_points existed —
+  // libsql throws "duplicate column" if it's already there, which we ignore.
+  try {
+    await dbClient.execute('ALTER TABLE tasks ADD COLUMN talking_points TEXT');
+  } catch {
+    // column already exists
+  }
 
   await dbClient.execute(`
     CREATE TABLE IF NOT EXISTS sent_emails (

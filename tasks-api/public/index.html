@@ -133,6 +133,8 @@
   tbody td { padding: .7rem 1rem; font-size: .88rem; vertical-align: middle; }
   .task-title { font-weight: 500; }
   .task-sub   { font-size: .78rem; color: var(--gray); margin-top: .15rem; }
+  .task-talking-points { font-size: .76rem; color: var(--gray); margin: .3rem 0 0 1.1rem; padding: 0; }
+  .task-talking-points li { margin-bottom: .1rem; }
 
   .badge {
     display: inline-block; padding: .2rem .6rem; border-radius: 20px;
@@ -587,6 +589,14 @@ function isOverdue(iso) {
   return new Date(iso) < new Date(new Date().toDateString());
 }
 
+function renderTalkingPoints(raw) {
+  if (!raw) return '';
+  let points;
+  try { points = JSON.parse(raw); } catch { return ''; }
+  if (!Array.isArray(points) || !points.length) return '';
+  return `<ul class="task-talking-points">${points.map(p => `<li>${p}</li>`).join('')}</ul>`;
+}
+
 function renderTasks() {
   const tbody = document.getElementById('task-tbody');
   const empty = document.getElementById('empty-state');
@@ -627,6 +637,7 @@ function renderTasks() {
           ${t.title}
         </div>
         ${t.sub ? `<div class="task-sub">${t.sub}</div>` : ''}
+        ${renderTalkingPoints(t.talking_points)}
       </td>
       <td>${CAT_BADGE[t.cat]||''}</td>
       <td style="white-space:nowrap; ${overdue?'color:#DC2626;font-weight:600':''}">

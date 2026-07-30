@@ -199,6 +199,28 @@ const TASK_STATUS_FROM_CORRESPONDENCE = {
   waiting_on_them: 'waiting',
 };
 
+// Templated, not AI-generated — this cron has no model in the loop, so
+// points are derived mechanically from direction/snippet/dates rather than
+// written fresh each time. Good enough to walk in prepared; not a substitute
+// for reading the actual thread before the call.
+function generateTalkingPoints(corr) {
+  const dateStr = corr.last_date ? new Date(corr.last_date).toLocaleDateString('en-GB') : 'an earlier date';
+  const snippet = (corr.last_snippet || corr.last_subject || '').slice(0, 140);
+  const points = [];
+
+  if (corr.status === 'waiting_on_you') {
+    points.push(`Acknowledge their reply from ${dateStr}`);
+    if (snippet) points.push(`Respond directly to: "${snippet}"`);
+    points.push('Propose a concrete next step (specific time/date) rather than leaving it open-ended');
+  } else if (corr.status === 'waiting_on_them') {
+    points.push(`Reference your last outreach from ${dateStr}`);
+    if (snippet) points.push(`You last said: "${snippet}"`);
+    points.push('Briefly restate the ask in one line (Zoom time / feedback / referral)');
+    points.push('If still no response after this, consider an alternate contact at the same institution');
+  }
+  return points;
+}
+
 export function startTaskBoardSync(db, { schedule = '0 */12 * * *' } = {}) {
   async function syncOnce() {
     db.all('SELECT id, title FROM tasks', [], (err, tasks) => {
@@ -226,8 +248,9 @@ export function startTaskBoardSync(db, { schedule = '0 */12 * * *' } = {}) {
 
           const dateStr = corr.last_date ? new Date(corr.last_date).toLocaleDateString('en-GB') : 'unknown date';
           const newSub = `[Auto-synced ${dateStr}] ${corr.status_label}: "${(corr.last_snippet || corr.last_subject || '').slice(0, 160)}"`;
+          const talkingPoints = JSON.stringify(generateTalkingPoints(corr));
 
-          db.run('UPDATE tasks SET status = ?, sub = ? WHERE id = ?', [newStatus, newSub, task.id]);
+          db.run('UPDATE tasks SET status = ?, sub = ?, talking_points = ? WHERE id = ?', [newStatus, newSub, talkingPoints, task.id]);
           updated++;
         }
 
