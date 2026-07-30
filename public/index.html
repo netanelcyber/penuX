@@ -272,6 +272,30 @@
       <div id="drafts-list"></div>
     </div>
 
+    <!-- Correspondence status — auto-updates from the mailbox itself (see
+         correspondence-tracker.js), not from hand-maintained task text that
+         can silently go stale. -->
+    <div id="correspondence-section" style="margin-bottom:1.5rem;">
+      <h2 style="font-size:1.1rem; color:var(--blue); margin-bottom:.5rem;">📊 Correspondence Status <span style="font-size:.72rem; font-weight:400; color:var(--gray);" id="correspondence-updated"></span></h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:22%">Contact</th>
+              <th>Status</th>
+              <th>Last message</th>
+              <th style="width:14%">Date</th>
+            </tr>
+          </thead>
+          <tbody id="correspondence-tbody"></tbody>
+        </table>
+        <div class="empty-state" id="correspondence-empty" style="display:none">
+          <div class="icon">📭</div>
+          <div>No correspondence data yet — the tracker polls every 10 minutes once GMAIL_USER/GMAIL_APP_PASSWORD are set.</div>
+        </div>
+      </div>
+    </div>
+
     <div class="add-bar">
       <input  id="new-title" placeholder="Task title..." style="flex:2; min-width:200px;">
       <input  id="new-sub"   placeholder="Details / contact...">
@@ -359,6 +383,8 @@ async function tryLogin() {
       loadTasks();
       loadDrafts();
       startDraftsPolling();
+      loadCorrespondence();
+      startCorrespondencePolling();
     } else {
       document.getElementById('auth-error').textContent = 'Incorrect password.';
       document.getElementById('pw-input').value = '';
@@ -729,6 +755,63 @@ function startDraftsPolling() {
   draftsPollHandle = setInterval(loadDrafts, 60000);
 }
 
+// ── CORRESPONDENCE STATUS TABLE (auto-updates from the mailbox) ───────────
+let correspondencePollHandle = null;
+
+const CORRESPONDENCE_STATUS_BADGE = {
+  waiting_on_you: '<span class="badge badge-urgent">⚠️ Waiting on you</span>',
+  waiting_on_them: '<span class="badge badge-waiting">⏸ Waiting on them</span>',
+  no_correspondence_found: '<span class="badge" style="background:var(--light);color:var(--gray)">— No data —</span>',
+};
+
+async function loadCorrespondence() {
+  try {
+    const res = await fetch(`${API}/correspondence`);
+    if (!res.ok) return; // e.g. old server without this route yet
+    const rows = await res.json();
+    renderCorrespondence(rows);
+  } catch (err) {
+    console.error('Error loading correspondence:', err);
+  }
+}
+
+function startCorrespondencePolling() {
+  if (correspondencePollHandle) return;
+  correspondencePollHandle = setInterval(loadCorrespondence, 60000);
+}
+
+function renderCorrespondence(rows) {
+  const tbody = document.getElementById('correspondence-tbody');
+  const empty = document.getElementById('correspondence-empty');
+  const updatedEl = document.getElementById('correspondence-updated');
+
+  if (!rows.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    updatedEl.textContent = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const mostRecentUpdate = rows
+    .map(r => r.updated_at)
+    .filter(Boolean)
+    .sort()
+    .at(-1);
+  updatedEl.textContent = mostRecentUpdate
+    ? `updated ${new Date(mostRecentUpdate).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`
+    : '';
+
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td><div class="task-title">${r.contact_name}</div></td>
+      <td>${CORRESPONDENCE_STATUS_BADGE[r.status] || r.status || ''}</td>
+      <td><div class="task-sub" style="white-space:normal">${r.last_subject || ''}${r.last_snippet ? ' — ' + r.last_snippet.slice(0, 80) : ''}</div></td>
+      <td style="white-space:nowrap">${r.last_date ? fmtDate(r.last_date.slice(0, 10)) : '—'}</td>
+    </tr>
+  `).join('');
+}
+
 function renderDrafts(drafts) {
   const section = document.getElementById('drafts-section');
   const list = document.getElementById('drafts-list');
@@ -804,6 +887,8 @@ if (sessionStorage.getItem('penux_auth') === '1') {
   loadTasks();
   loadDrafts();
   startDraftsPolling();
+  loadCorrespondence();
+  startCorrespondencePolling();
 } else {
   setTimeout(() => document.getElementById('pw-input').focus(), 100);
 }
