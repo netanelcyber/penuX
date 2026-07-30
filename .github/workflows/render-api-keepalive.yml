@@ -1,0 +1,19 @@
+name: Keep Render API (PenuX-AP-Severity) awake
+
+on:
+  schedule:
+    # Every 5 minutes — under Render free tier's 15-minute sleep timeout.
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping /health on penux-api.onrender.com
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://penux-api.onrender.com/health)
+          echo "Response: HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "::warning::penux-api.onrender.com/health returned $code (service may be down or still waking up)"
+          fi
