@@ -6,6 +6,7 @@ import nodemailer from 'nodemailer';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { startReplyWatcher } from './reply-watcher.js';
+import { startCorrespondenceTracker } from './correspondence-tracker.js';
 import { getClient, wrapCompat } from './db.js';
 import predictRoutes from './predict-routes.js';
 
@@ -72,6 +73,25 @@ async function initDb() {
       to_addr TEXT,
       subject TEXT,
       sent_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Created here (not just inside correspondence-tracker.js's startup path)
+  // so GET /api/correspondence never 500s with "no such table" even when
+  // GMAIL_USER/GMAIL_APP_PASSWORD aren't set and the tracker never runs —
+  // it just serves an empty array instead.
+  await dbClient.execute(`
+    CREATE TABLE IF NOT EXISTS correspondence (
+      contact_match TEXT PRIMARY KEY,
+      contact_name TEXT,
+      category TEXT,
+      last_direction TEXT,
+      last_date DATETIME,
+      last_subject TEXT,
+      last_snippet TEXT,
+      status TEXT,
+      status_label TEXT,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
@@ -374,7 +394,19 @@ app.post('/api/draft-replies/:id/send', async (req, res) => {
   });
 });
 
+// ── AUTO-UPDATING CORRESPONDENCE TABLE ─────────────────────────────────────
+// Backed by correspondence-tracker.js, which polls the mailbox on a
+// schedule and re-derives each contact's status from the actual latest
+// message — no manually-maintained text to go stale.
+app.get('/api/correspondence', (req, res) => {
+  db.all('SELECT * FROM correspondence ORDER BY last_date DESC', (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`🎯 PenuX Tasks API running on http://localhost:${PORT}`);
   startReplyWatcher(db);
+  startCorrespondenceTracker(db);
 });
