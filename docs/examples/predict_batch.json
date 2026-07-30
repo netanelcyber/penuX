@@ -1,0 +1,4 @@
+[
+  {"Normal": 0.1, "Bacterial": 0.7, "Viral": 0.2, "temperature_c": 36.6, "wbc": 7000, "spo2": 96, "age": 60},
+  {"Normal": 0.2, "Bacterial": 0.3, "Viral": 0.5, "temperature_c": 37.0, "wbc": 6000, "spo2": 95, "age": 50}
+]

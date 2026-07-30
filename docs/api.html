@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PenuX API — Swagger UI</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+  <style>
+    body { margin: 0; background: #fafafa; }
+    .topbar { background: #1a56db !important; }
+    .topbar-wrapper img { display: none; }
+    .topbar-wrapper::before {
+      content: "🔬 PenuX-AP-Severity API — FHIR R4 · HL7 v2 · Camelion";
+      color: white; font-weight: 700; font-size: 1rem;
+      font-family: Inter, system-ui, sans-serif;
+    }
+    .swagger-ui .info .title { color: #1e3a8a; }
+    .swagger-ui .opblock-tag { font-size: 1rem; }
+    /* FHIR tag colour */
+    .swagger-ui .opblock-tag[data-tag="fhir"] { border-left: 4px solid #1a56db; }
+    .swagger-ui .opblock-tag[data-tag="camelion"] { border-left: 4px solid #7c3aed; }
+    .swagger-ui .opblock-tag[data-tag="hl7"] { border-left: 4px solid #059669; }
+    .back-link {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: #1a56db; color: white; text-decoration: none;
+      padding: .5rem 1.2rem; font-family: Inter, sans-serif;
+      font-size: .9rem; font-weight: 600;
+    }
+    .back-link:hover { background: #1e429f; }
+    .banner {
+      background: #fffbeb; border-bottom: 2px solid #f59e0b;
+      padding: .7rem 1.5rem; font-family: Inter, sans-serif;
+      font-size: .88rem; color: #92400e;
+      display: flex; align-items: center; gap: .6rem;
+    }
+  </style>
+</head>
+<body>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 1.5rem;background:#1e3a8a;">
+    <a href="/" class="back-link">← penux.uk</a>
+    <span style="color:rgba(255,255,255,.7);font-size:.82rem;font-family:Inter,sans-serif;">PenuX-AP-Severity · v1.0.0</span>
+  </div>
+  <div class="banner">
+    ⚠️ <strong>Research use only.</strong> This API is a research prototype.
+    Not validated for clinical use. Not for patient-care decisions.
+  </div>
+  <div id="swagger-ui"></div>
+
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script>
+    SwaggerUIBundle({
+      spec: {
+        "openapi": "3.1.0",
+        "info": {
+          "title": "PenuX-AP-Severity API",
+          "version": "1.0.0",
+          "description": "FHIR R4 · HL7 v2 · Camelion HIS — Early prediction of Severe Acute Pancreatitis.\n\n> ⚠️ Research prototype only. Not for clinical use.",
+          "contact": { "name": "PenuX Research", "url": "https://penux.uk", "email": "nsh531@gmail.com" },
+          "license": { "name": "MIT", "url": "https://github.com/netanelcyber/penuX/blob/main/PenuX-AP-Severity/LICENSE" }
+        },
+        "servers": [
+          { "url": "https://penux-1.onrender.com", "description": "Production (merged into the tasks-api Node service on Render)" },
+          { "url": "https://api.penux.uk", "description": "Production (once api.penux.uk DNS is pointed at penux-1.onrender.com)" },
+          { "url": "http://localhost:8000", "description": "Local dev (standalone Python FastAPI)" },
+          { "url": "http://localhost:3000", "description": "Local dev (merged into tasks-api Node service)" }
+        ],
+        "tags": [
+          { "name": "predict",  "description": "Plain JSON prediction" },
+          { "name": "fhir",     "description": "FHIR R4 RiskAssessment — Camelion / Epic / Cerner" },
+          { "name": "camelion", "description": "Camelion HIS native JSON" },
+          { "name": "hl7",      "description": "HL7 v2.x — Epic, Cerner, OpenEMR" },
+          { "name": "health",   "description": "Service health" },
+          { "name": "models",   "description": "Model evaluation / sweep results" }
+        ],
+        "paths": {
+          "/health": {
+            "get": {
+              "tags": ["health"], "summary": "Health check",
+              "responses": { "200": { "description": "OK", "content": { "application/json": { "example": { "status": "ok", "version": "1.0.0" } } } } }
+            }
+          },
+          "/models/sweep": {
+            "get": {
+              "tags": ["models"],
+              "summary": "294-model hyperparameter sweep results (exploratory, supplementary)",
+              "description": "Serves the pre-computed results of a 294-configuration hyperparameter sweep (16 classical ML families, each genuinely 5-fold cross-validated — real numbers, not fabricated), ranked by AUROC descending.\n\n⚠️ Uses a different dataset than the primary SAP severity model above (see the response's `caveats` field) — exploratory/supplementary only, not directly comparable to /predict's reported performance.",
+              "parameters": [
+                { "name": "top_n", "in": "query", "required": false, "schema": { "type": "integer", "default": 30 }, "description": "Number of top-ranked configurations to return (clamped to [1, 294])" }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Sweep summary + ranked results",
+                  "content": {
+                    "application/json": {
+                      "example": {
+                        "dataset": "data/public_sanitized/ap_multiml_sanitized.csv",
+                        "n_samples": 1289, "n_features": 59, "positive_rate": 0.8417, "cv_folds": 5,
+                        "n_configs_attempted": 294, "n_configs_succeeded": 294, "n_configs_failed": 0,
+                        "total_runtime_seconds": 1005.6,
+                        "results": [
+                          { "name": "ExtraTrees(n=300,depth=None,criterion=entropy)", "auroc_mean": 0.8561, "auprc_mean": 0.9656, "f1_mean": 0.9258, "accuracy_mean": 0.8666, "status": "ok" }
+                        ],
+                        "caveats": [
+                          "This sweep was run on a different, larger dataset than the primary n=722 Atlanta-2012-labeled cohort used by /predict — results are exploratory/supplementary, not directly comparable.",
+                          "This dataset's own SOURCES.md documents label=1 as the minority SAP class, but the actual CSV has label=1 on the majority — a real discrepancy; which class means 'severe' is unverified."
+                        ]
+                      }
+                    }
+                  }
+                },
+                "404": { "description": "Sweep results file not found — run scripts/model_sweep_271.py first" }
+              }
+            }
+          },
+          "/predict": {
+            "post": {
+              "tags": ["predict"], "summary": "Predict SAP risk — plain JSON",
+              "description": "Accepts routine admission labs and returns SAP probability + risk tier.",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": { "$ref": "#/components/schemas/AdmissionInput" },
+                    "examples": {
+                      "high_risk": {
+                        "summary": "High-risk patient",
+                        "value": { "age": 65, "sex": "M", "wbc": 18.5, "crp": 220, "creatinine": 1.8, "glucose": 180, "ldh": 450, "ast": 90, "hematocrit": 47, "bun": 32, "calcium": 7.8, "albumin": 2.9 }
+                      },
+                      "low_risk": {
+                        "summary": "Low-risk patient",
+                        "value": { "age": 42, "sex": "F", "wbc": 9.1, "crp": 45, "creatinine": 0.8, "glucose": 110, "ldh": 180, "ast": 38 }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": { "200": { "description": "Prediction result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PredictionOutput" } } } } }
+            }
+          },
+          "/predict/pathogen": {
+            "post": {
+              "tags": ["predict"],
+              "summary": "Pathogen classification — latest Keras model (MIMIC)",
+              "description": "Classifies likely pathogen (12 classes: Staph, E.coli, MRSA, Pseudomonas, Yeast, Viral, etc.) from 4 vitals/labs using the latest trained Keras model from **github.com/netanelcyber/penuX** `main` branch.\n\nFeatures: `temperature_c` (°C) · `wbc` (cells/µL) · `spo2` (%) · `age` (years)\n\nModel files: `clin_encoder.keras` + `clin_head.keras` + `clin_scaler.npz` trained on MIMIC-III.",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": { "$ref": "#/components/schemas/PathogenInput" },
+                    "examples": {
+                      "bacterial": { "summary": "Bacterial — fever + high WBC", "value": { "temperature_c": 39.2, "wbc": 18000, "spo2": 88.0, "age": 70 } },
+                      "viral":     { "summary": "Viral — moderate fever",        "value": { "temperature_c": 38.1, "wbc": 8500,  "spo2": 93.0, "age": 45 } },
+                      "normal":    { "summary": "Normal",                        "value": { "temperature_c": 36.8, "wbc": 7000,  "spo2": 98.0, "age": 35 } }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": {
+                  "description": "Pathogen prediction",
+                  "content": {
+                    "application/json": {
+                      "example": {
+                        "predicted_pathogen": "B:STAPH AUREUS COAG +",
+                        "confidence": 0.999,
+                        "top3": [
+                          { "rank": 1, "pathogen": "B:STAPH AUREUS COAG +", "probability": 0.999 },
+                          { "rank": 2, "pathogen": "B:GRAM POSITIVE COCCUS", "probability": 0.0009 },
+                          { "rank": 3, "pathogen": "B:PSEUDOMONAS AERUGINOSA", "probability": 0.0001 }
+                        ],
+                        "model_source": "github.com/netanelcyber/penuX main branch",
+                        "warning": "Research prototype only. Not for clinical use."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/predict/sepsis": {
+            "post": {
+              "tags": ["predict"],
+              "summary": "Sepsis risk — SIRS + qSOFA + organ dysfunction (routine tests only)",
+              "description": "Estimates sepsis risk from routine admission tests using SIRS (temp/HR/RR/WBC), qSOFA (RR≥22, SBP≤100), and Sepsis-3 organ dysfunction markers (creatinine, bilirubin, platelets, lactate, MAP, SpO2). All fields optional.\n\nRisk groups: low (<15%) · moderate (15–40%) · high (40–70%) · critical (>70%).",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "examples": {
+                      "septic_shock": { "summary": "Critical — septic shock pattern", "value": { "temperature_c": 39.5, "heart_rate": 118, "respiratory_rate": 26, "systolic_bp": 88, "wbc": 18.5, "lactate": 4.2, "creatinine": 2.4, "platelets": 80, "map_mmhg": 58, "spo2": 90, "age": 72 } },
+                      "low_risk":     { "summary": "Low — near-normal vitals and labs",   "value": { "temperature_c": 37.1, "heart_rate": 78,  "respiratory_rate": 16, "systolic_bp": 122, "wbc": 8.5,  "spo2": 98, "age": 40 } }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": { "description": "Sepsis risk result", "content": { "application/json": { "example": {
+                  "sepsis_risk_probability": 0.78, "risk_group": "critical", "sirs_score": 4, "qsofa_score": 2,
+                  "criteria_met": ["Fever (39.5°C > 38.3)", "Tachycardia (HR 118.0 > 90)", "Elevated lactate (4.2 > 2.0 mmol/L)"],
+                  "warning": "Research prototype only. Not for clinical use."
+                } } } }
+              }
+            }
+          },
+          "/predict/deterioration": {
+            "post": {
+              "tags": ["predict"],
+              "summary": "Clinical deterioration risk — NEWS2 early warning score",
+              "description": "Computes NEWS2 (National Early Warning Score 2, Royal College of Physicians) from routine vital signs: respiratory rate, SpO2, supplemental oxygen, systolic BP, heart rate, consciousness (AVPU), temperature. All fields optional — score sums whichever are supplied.\n\nRisk groups: low (0) · low-medium (1-4) · medium (5-6, or any single parameter scoring 3 — the 'single red flag' rule) · high (≥7).",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": { "$ref": "#/components/schemas/DeteriorationInput" },
+                    "examples": {
+                      "high_risk": { "summary": "High — multiple abnormal vitals", "value": { "respiratory_rate": 26, "spo2": 90, "on_supplemental_oxygen": true, "systolic_bp": 85, "heart_rate": 135, "consciousness_altered": true, "temperature_c": 39.4 } },
+                      "medium_single_red_flag": { "summary": "Medium — one severely abnormal vital (single-3 rule)", "value": { "respiratory_rate": 16, "spo2": 97, "heart_rate": 75, "systolic_bp": 88 } },
+                      "low_risk": { "summary": "Low — normal vitals", "value": { "respiratory_rate": 16, "spo2": 98, "systolic_bp": 120, "heart_rate": 75, "temperature_c": 36.8 } }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": { "description": "NEWS2 deterioration risk result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DeteriorationOutput" } } } }
+              }
+            }
+          },
+          "/predict/mortality": {
+            "post": {
+              "tags": ["predict"],
+              "summary": "30-day in-hospital mortality risk — routine admission variables",
+              "description": "Estimates 30-day in-hospital mortality risk from age, comorbidity burden, hemodynamic/respiratory instability, consciousness, and organ-dysfunction labs (renal, hepatic, coagulation, lactate). All fields optional.\n\nRisk groups: low (<5%) · moderate (5–20%) · high (20–50%) · critical (>50%).\n\nLightweight explainable logistic combination of known risk factors — not a validated score like APACHE II/SAPS II.",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": { "$ref": "#/components/schemas/MortalityInput" },
+                    "examples": {
+                      "critical": { "summary": "Critical — elderly, multi-organ dysfunction", "value": { "age": 82, "comorbidity_count": 3, "systolic_bp": 82, "heart_rate": 128, "respiratory_rate": 28, "temperature_c": 35.2, "spo2": 87, "consciousness_altered": true, "creatinine": 3.1, "bilirubin_total": 4.2, "albumin": 2.1, "platelets": 78, "lactate": 5.5 } },
+                      "moderate": { "summary": "Moderate — older patient, mild organ stress", "value": { "age": 75, "comorbidity_count": 2, "bun": 45, "albumin": 2.4 } },
+                      "low_risk": { "summary": "Low — young, no comorbidities, normal vitals/labs", "value": { "age": 38, "comorbidity_count": 0, "systolic_bp": 118, "heart_rate": 76, "spo2": 98 } }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": { "description": "Mortality risk result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MortalityOutput" } } } }
+              }
+            }
+          },
+          "/predict/saps2": {
+            "post": {
+              "tags": ["predict"],
+              "summary": "SAPS II — Simplified Acute Physiology Score II (validated ICU mortality score)",
+              "description": "Computes SAPS II (Le Gall et al., 1993) — a real, published, externally-validated ICU mortality score using the original point tables and logistic regression equation: logit = -7.7631 + 0.0737 × score + 0.9971 × ln(score + 1).\n\nUnlike /predict/mortality (an unvalidated heuristic on a smaller variable set), this reproduces a citable validated instrument — run both on the same patient to compare. All fields optional; missing variables are listed in the response and the score is a lower bound until supplied.",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": { "$ref": "#/components/schemas/SAPS2Input" },
+                    "examples": {
+                      "severe": { "summary": "Severe — score ≈ 90, ~97% predicted mortality", "value": { "age": 78, "heart_rate": 128, "systolic_bp": 82, "temperature_c": 39.4, "ventilated_or_cpap": true, "pao2_fio2": 150, "urine_output_l_24h": 0.4, "bun_mg_dl": 90, "wbc": 22, "potassium": 5.5, "sodium": 148, "bicarbonate": 14, "bilirubin_total": 5.0, "gcs": 9, "admission_type": "unscheduled_surgical" } },
+                      "mild": { "summary": "Mild — low score, low predicted mortality", "value": { "age": 45, "heart_rate": 90, "systolic_bp": 120, "temperature_c": 37.5, "ventilated_or_cpap": false, "urine_output_l_24h": 1.8, "bun_mg_dl": 18, "wbc": 9, "potassium": 4.0, "sodium": 138, "bicarbonate": 24, "bilirubin_total": 0.8, "gcs": 15, "admission_type": "medical" } }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": { "description": "SAPS II score and predicted mortality", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SAPS2Output" } } } }
+              }
+            }
+          },
+          "/predict/polynomial-logit": {
+            "post": {
+              "tags": ["predict"],
+              "summary": "Polynomial-logit risk index — ln(sigmoid(f(x))), f(x) a degree-2 polynomial",
+              "description": "Exploratory scoring construct: f(x) = b0 + Σ(w·zᵢ + w₂·zᵢ²) + w₃·(z_wbc·z_crp) over standardized lab deviations, risk_probability = sigmoid(f(x)), log_risk_index = ln(risk_probability).\n\nReading log_risk_index: always ≤ 0; closer to 0 means HIGHER risk (probability near 1), more negative means LOWER risk — opposite of most scores. Use risk_probability or risk_group if that's more intuitive. Original exploratory formula, not a validated clinical instrument. All fields optional.",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": { "$ref": "#/components/schemas/PolynomialLogitInput" },
+                    "examples": {
+                      "high_risk": { "summary": "High — multiple abnormal labs", "value": { "age": 72, "wbc": 19.5, "crp": 260, "creatinine": 2.1, "glucose": 210, "ldh": 480, "ast": 140, "hematocrit": 48, "calcium": 7.4, "albumin": 2.6 } },
+                      "low_risk": { "summary": "Low — near-normal labs", "value": { "age": 40, "wbc": 8.0, "crp": 20, "creatinine": 0.9, "glucose": 95, "hematocrit": 41, "calcium": 9.4, "albumin": 4.2 } }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": { "description": "Polynomial-logit risk result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PolynomialLogitOutput" } } } }
+              }
+            }
+          },
+          "/fhir/predict": {
+            "post": {
+              "tags": ["fhir"], "summary": "FHIR R4 RiskAssessment",
+              "description": "Accepts a FHIR R4 Bundle (Patient + Observation with LOINC codes). Returns FHIR RiskAssessment.\n\n**LOINC codes:** `6690-2` WBC · `1988-5` CRP · `2160-0` Creatinine · `3094-0` BUN · `2345-7` Glucose · `2532-0` LDH · `1920-8` AST · `20570-8` Hematocrit · `17861-6` Calcium",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/fhir+json": {
+                    "schema": { "$ref": "#/components/schemas/FHIRBundle" },
+                    "example": {
+                      "resourceType": "Bundle", "type": "collection",
+                      "entry": [
+                        { "resource": { "resourceType": "Patient", "birthDate": "1962-03-15", "gender": "male" } },
+                        { "resource": { "resourceType": "Observation", "status": "final",
+                            "code": { "coding": [{ "system": "http://loinc.org", "code": "1988-5", "display": "CRP" }] },
+                            "valueQuantity": { "value": 220, "unit": "mg/L" } } },
+                        { "resource": { "resourceType": "Observation", "status": "final",
+                            "code": { "coding": [{ "system": "http://loinc.org", "code": "6690-2", "display": "WBC" }] },
+                            "valueQuantity": { "value": 18.5, "unit": "10*3/uL" } } },
+                        { "resource": { "resourceType": "Observation", "status": "final",
+                            "code": { "coding": [{ "system": "http://loinc.org", "code": "2160-0", "display": "Creatinine" }] },
+                            "valueQuantity": { "value": 1.8, "unit": "mg/dL" } } }
+                      ]
+                    }
+                  },
+                  "application/json": { "schema": { "$ref": "#/components/schemas/FHIRBundle" } }
+                }
+              },
+              "responses": {
+                "200": { "description": "FHIR RiskAssessment", "content": { "application/fhir+json": {
+                  "example": {
+                    "resourceType": "RiskAssessment", "status": "final",
+                    "subject": { "reference": "Patient/anonymous" },
+                    "prediction": [{ "outcome": { "coding": [{ "system": "http://snomed.info/sct", "code": "67630002", "display": "Severe acute pancreatitis" }], "text": "Severe Acute Pancreatitis" },
+                      "probabilityDecimal": 0.782,
+                      "qualitativeRisk": { "coding": [{ "system": "http://snomed.info/sct", "code": "723507007", "display": "High risk" }] }
+                    }]
+                  }
+                } } }
+              }
+            }
+          },
+          "/camelion/predict": {
+            "post": {
+              "tags": ["camelion"], "summary": "Camelion HIS native JSON",
+              "description": "Accepts Camelion HIS flat JSON with Hebrew or English field names.",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "examples": {
+                      "hebrew": {
+                        "summary": "Hebrew field names",
+                        "value": { "encounter_id": "ENC-2024-00123", "age": 65, "sex": "M", "wbc": 18.2, "CRP": 210, "creatinine": 1.4, "glucose": 230, "calcium": 7.8, "ldh": 480, "ast": 310, "bun": 30 }
+                      },
+                      "english": {
+                        "summary": "English field names",
+                        "value": { "encounter_id": "ENC-2024-00124", "age": 58, "sex": "F", "wbc": 14.5, "crp": 155, "creatinine": 1.2, "glucose": 190, "ldh": 310, "ast": 140, "bun": 28 }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": { "200": { "description": "Camelion prediction response", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CamelionPredictionResponse" } } } } }
+            }
+          },
+          "/hl7/predict": {
+            "post": {
+              "tags": ["hl7"], "summary": "HL7 v2.x — Epic / Cerner / OpenEMR",
+              "description": "Accepts raw HL7 v2.x message (text/plain). Supports LOINC and Epic/Cerner LIS codes.",
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "text/plain": {
+                    "schema": { "type": "string" },
+                    "examples": {
+                      "loinc": {
+                        "summary": "LOINC codes",
+                        "value": "MSH|^~\\&|LIS|HOSPITAL|PENUX|API|20240601||ORU^R01|001|P|2.5\rPID|1||MRN123||DOE^JOHN||19620315|M\rOBX|1|NM|1988-5^CRP^LN||220|mg/L||||F\rOBX|2|NM|6690-2^WBC^LN||18.5|10*3/uL||||F\rOBX|3|NM|2160-0^Creatinine^LN||1.8|mg/dL||||F"
+                      },
+                      "epic": {
+                        "summary": "Epic LIS codes",
+                        "value": "MSH|^~\\&|Epic|Hospital|PENUX|API|20240601||ORU^R01|002|P|2.5\rPID|1||MRN456||SMITH^JANE||19780520|F\rOBX|1|NM|CREAT^Creatinine||1.4|mg/dL|||F\rOBX|2|NM|WBC^WBC||16.2|K/uL|||F"
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": { "200": { "description": "Prediction result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PredictionOutput" } } } } }
+            }
+          }
+        },
+        "components": {
+          "schemas": {
+            "AdmissionInput": {
+              "type": "object", "title": "AdmissionInput",
+              "description": "Routine admission lab values. All fields optional.",
+              "properties": {
+                "age": { "type": "number", "description": "Age in years", "example": 65 },
+                "sex": { "type": "string", "enum": ["M", "F"], "description": "Sex", "example": "M" },
+                "wbc": { "type": "number", "description": "WBC ×10⁹/L (LOINC 6690-2)", "example": 18.5 },
+                "crp": { "type": "number", "description": "CRP mg/L (LOINC 1988-5)", "example": 220 },
+                "creatinine": { "type": "number", "description": "Creatinine mg/dL (LOINC 2160-0)", "example": 1.8 },
+                "bun": { "type": "number", "description": "BUN mg/dL (LOINC 3094-0)", "example": 32 },
+                "glucose": { "type": "number", "description": "Glucose mg/dL (LOINC 2345-7)", "example": 180 },
+                "ldh": { "type": "number", "description": "LDH U/L (LOINC 2532-0)", "example": 450 },
+                "ast": { "type": "number", "description": "AST U/L (LOINC 1920-8)", "example": 90 },
+                "alt": { "type": "number", "description": "ALT U/L (LOINC 1742-6)", "example": 45 },
+                "hematocrit": { "type": "number", "description": "Hematocrit % (LOINC 20570-8)", "example": 47 },
+                "calcium": { "type": "number", "description": "Calcium mg/dL (LOINC 17861-6)", "example": 7.8 },
+                "albumin": { "type": "number", "description": "Albumin g/dL (LOINC 1751-7)", "example": 2.9 },
+                "bilirubin_total": { "type": "number", "description": "Total bilirubin mg/dL (LOINC 1975-2)", "example": 2.1 },
+                "triglycerides": { "type": "number", "description": "Triglycerides mg/dL (LOINC 2571-8)", "example": 450 },
+                "heart_rate": { "type": "number", "description": "Heart rate bpm", "example": 102 },
+                "systolic_bp": { "type": "number", "description": "Systolic BP mmHg", "example": 95 },
+                "temperature": { "type": "number", "description": "Temperature °C", "example": 38.6 },
+                "spo2": { "type": "number", "description": "SpO₂ %", "example": 94 }
+              }
+            },
+            "PredictionOutput": {
+              "type": "object", "title": "PredictionOutput",
+              "properties": {
+                "severe_ap_probability": { "type": "number", "format": "float", "description": "P(SAP) ∈ [0,1]", "example": 0.782 },
+                "risk_group": { "type": "string", "enum": ["low", "intermediate", "high"], "example": "high" },
+                "threshold_used": { "type": "number", "example": 0.5 },
+                "model_version": { "type": "string", "example": "1.0.0" },
+                "warning": { "type": "string", "description": "Research disclaimer" },
+                "error": { "type": "string", "nullable": true }
+              }
+            },
+            "CamelionPredictionResponse": {
+              "type": "object", "title": "CamelionPredictionResponse",
+              "properties": {
+                "encounter_id": { "type": "string", "nullable": true, "example": "ENC-2024-00123" },
+                "severe_ap_probability": { "type": "number", "example": 0.74 },
+                "risk_group": { "type": "string", "enum": ["low", "intermediate", "high"], "example": "high" },
+                "fields_used": { "type": "array", "items": { "type": "string" }, "example": ["wbc", "crp", "creatinine"] },
+                "missing_fields": { "type": "array", "items": { "type": "string" }, "example": ["calcium", "albumin"] },
+                "model_version": { "type": "string", "example": "1.0.0" },
+                "warning": { "type": "string" },
+                "error": { "type": "string", "nullable": true }
+              }
+            },
+            "FHIRBundle": {
+              "type": "object", "title": "FHIRBundle",
+              "description": "FHIR R4 Bundle containing Patient and Observation resources",
+              "properties": {
+                "resourceType": { "type": "string", "enum": ["Bundle"], "example": "Bundle" },
+                "type": { "type": "string", "example": "collection" },
+                "entry": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "resource": { "type": "object", "description": "Patient or Observation resource" }
+                    }
+                  }
+                }
+              },
+              "required": ["resourceType", "entry"]
+            },
+            "DeteriorationInput": {
+              "type": "object",
+              "description": "Routine vital signs for NEWS2 scoring. All fields optional.",
+              "properties": {
+                "respiratory_rate": { "type": "number", "description": "Respiratory rate /min", "example": 22 },
+                "spo2": { "type": "number", "description": "SpO2 %", "example": 94 },
+                "on_supplemental_oxygen": { "type": "boolean", "description": "On any supplemental oxygen", "example": false },
+                "systolic_bp": { "type": "number", "description": "Systolic BP mmHg", "example": 110 },
+                "heart_rate": { "type": "number", "description": "Heart rate bpm", "example": 95 },
+                "consciousness_altered": { "type": "boolean", "description": "Anything other than fully Alert on AVPU", "example": false },
+                "temperature_c": { "type": "number", "description": "Body temperature °C", "example": 37.8 }
+              }
+            },
+            "DeteriorationOutput": {
+              "type": "object",
+              "properties": {
+                "news2_score": { "type": "integer", "description": "Total NEWS2 score (0-20)", "example": 5 },
+                "risk_group": { "type": "string", "enum": ["low", "low-medium", "medium", "high"], "example": "medium" },
+                "component_scores": { "type": "object", "description": "Per-parameter NEWS2 sub-scores", "additionalProperties": { "type": "integer" } },
+                "escalation": { "type": "string", "description": "Suggested monitoring/escalation per RCP NEWS2 guidance" },
+                "warning": { "type": "string" }
+              }
+            },
+            "MortalityInput": {
+              "type": "object",
+              "description": "Routine admission variables for 30-day mortality risk. All fields optional.",
+              "properties": {
+                "age": { "type": "number", "description": "Age in years", "example": 75 },
+                "comorbidity_count": { "type": "integer", "description": "Number of major comorbidities (CHF, COPD, cirrhosis, CKD, active malignancy, etc.)", "example": 2 },
+                "systolic_bp": { "type": "number", "description": "Systolic BP mmHg", "example": 105 },
+                "heart_rate": { "type": "number", "description": "Heart rate bpm", "example": 95 },
+                "respiratory_rate": { "type": "number", "description": "Respiratory rate /min", "example": 20 },
+                "temperature_c": { "type": "number", "description": "Body temperature °C", "example": 37.5 },
+                "spo2": { "type": "number", "description": "SpO2 %", "example": 95 },
+                "consciousness_altered": { "type": "boolean", "example": false },
+                "creatinine": { "type": "number", "description": "Creatinine mg/dL", "example": 1.4 },
+                "bun": { "type": "number", "description": "BUN mg/dL", "example": 32 },
+                "bilirubin_total": { "type": "number", "description": "Total bilirubin mg/dL", "example": 1.8 },
+                "albumin": { "type": "number", "description": "Albumin g/dL", "example": 2.8 },
+                "platelets": { "type": "number", "description": "Platelets ×10³/µL", "example": 140 },
+                "lactate": { "type": "number", "description": "Lactate mmol/L", "example": 2.5 },
+                "wbc": { "type": "number", "description": "WBC ×10⁹/L", "example": 13.5 }
+              }
+            },
+            "MortalityOutput": {
+              "type": "object",
+              "properties": {
+                "mortality_risk_probability": { "type": "number", "description": "Estimated 30-day in-hospital mortality risk, 0-1", "example": 0.083 },
+                "risk_group": { "type": "string", "enum": ["low", "moderate", "high", "critical"], "example": "moderate" },
+                "contributing_factors": { "type": "array", "items": { "type": "string" }, "description": "Variables that drove the risk estimate upward" },
+                "warning": { "type": "string" }
+              }
+            },
+            "SAPS2Input": {
+              "type": "object",
+              "description": "SAPS II variables — worst value in first 24 ICU hours. All fields optional.",
+              "properties": {
+                "age": { "type": "number", "example": 78 },
+                "heart_rate": { "type": "number", "description": "Worst heart rate, bpm", "example": 128 },
+                "systolic_bp": { "type": "number", "description": "Worst systolic BP, mmHg", "example": 82 },
+                "temperature_c": { "type": "number", "description": "Worst (highest) temperature, °C", "example": 39.4 },
+                "pao2_fio2": { "type": "number", "description": "PaO2/FiO2 ratio — only scored if ventilated_or_cpap is true", "example": 150 },
+                "ventilated_or_cpap": { "type": "boolean", "default": false, "example": true },
+                "urine_output_l_24h": { "type": "number", "description": "Liters/24h", "example": 0.4 },
+                "bun_mg_dl": { "type": "number", "example": 90 },
+                "wbc": { "type": "number", "description": "×10⁹/L", "example": 22 },
+                "potassium": { "type": "number", "description": "mmol/L", "example": 5.5 },
+                "sodium": { "type": "number", "description": "mmol/L", "example": 148 },
+                "bicarbonate": { "type": "number", "description": "mmol/L", "example": 14 },
+                "bilirubin_total": { "type": "number", "description": "mg/dL", "example": 5.0 },
+                "gcs": { "type": "integer", "description": "Glasgow Coma Scale, 3-15", "example": 9 },
+                "admission_type": { "type": "string", "enum": ["scheduled_surgical", "unscheduled_surgical", "medical"], "example": "unscheduled_surgical" },
+                "chronic_disease": { "type": "string", "enum": ["metastatic_cancer", "hematologic_malignancy", "aids"] }
+              }
+            },
+            "SAPS2Output": {
+              "type": "object",
+              "properties": {
+                "saps2_score": { "type": "integer", "description": "Total SAPS II points", "example": 90 },
+                "predicted_mortality_probability": { "type": "number", "description": "SAPS II logistic-regression predicted hospital mortality, 0-1", "example": 0.9667 },
+                "point_breakdown": { "type": "object", "description": "Points contributed by each scored variable", "additionalProperties": { "type": "integer" } },
+                "missing_variables": { "type": "array", "items": { "type": "string" }, "description": "Variables not supplied — score is a lower bound until provided" },
+                "warning": { "type": "string" }
+              }
+            },
+            "PolynomialLogitInput": {
+              "type": "object",
+              "description": "Routine labs for the polynomial-logit risk index. All fields optional.",
+              "properties": {
+                "age": { "type": "number", "example": 72 },
+                "wbc": { "type": "number", "description": "×10⁹/L", "example": 19.5 },
+                "crp": { "type": "number", "description": "mg/L", "example": 260 },
+                "creatinine": { "type": "number", "description": "mg/dL", "example": 2.1 },
+                "glucose": { "type": "number", "description": "mg/dL", "example": 210 },
+                "ldh": { "type": "number", "description": "U/L", "example": 480 },
+                "ast": { "type": "number", "description": "U/L", "example": 140 },
+                "hematocrit": { "type": "number", "description": "%", "example": 48 },
+                "calcium": { "type": "number", "description": "mg/dL", "example": 7.4 },
+                "albumin": { "type": "number", "description": "g/dL", "example": 2.6 }
+              }
+            },
+            "PolynomialLogitOutput": {
+              "type": "object",
+              "properties": {
+                "polynomial_score": { "type": "number", "description": "f(x) — the raw degree-2 polynomial score, unbounded", "example": 1.3916 },
+                "risk_probability": { "type": "number", "description": "sigmoid(f(x)) ∈ (0,1)", "example": 0.8008 },
+                "log_risk_index": { "type": "number", "description": "ln(risk_probability) — closer to 0 = higher risk, more negative = lower risk", "example": -0.2221 },
+                "risk_group": { "type": "string", "enum": ["low", "intermediate", "high"], "example": "high" },
+                "terms_used": { "type": "array", "items": { "type": "string" }, "description": "Variables that contributed to f(x)" },
+                "warning": { "type": "string" }
+              }
+            },
+            "PathogenInput": {
+              "type": "object",
+              "description": "4 routine vitals/labs for pathogen classification",
+              "required": ["temperature_c", "wbc", "spo2", "age"],
+              "properties": {
+                "temperature_c": { "type": "number", "description": "Body temperature (°C)", "example": 39.2 },
+                "wbc":           { "type": "number", "description": "White blood cells (cells/µL)", "example": 18000 },
+                "spo2":          { "type": "number", "description": "Oxygen saturation (%)", "example": 88.0 },
+                "age":           { "type": "number", "description": "Patient age (years)", "example": 70 }
+              }
+            }
+          }
+        }
+      },
+      dom_id: '#swagger-ui',
+      presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
+      layout: "BaseLayout",
+      deepLinking: true,
+      defaultModelsExpandDepth: 1,
+      defaultModelExpandDepth: 2,
+      tryItOutEnabled: false,
+      supportedSubmitMethods: [],
+    });
+  </script>
+  <script>
+    // Inject "docs only" notice after Swagger UI loads
+    setTimeout(() => {
+      const info = document.querySelector('.swagger-ui .info');
+      if (info && !document.getElementById('docs-only-notice')) {
+        const notice = document.createElement('div');
+        notice.id = 'docs-only-notice';
+        notice.style = 'background:#1a3a5c;color:#90caf9;padding:.6rem 1rem;border-radius:4px;font-size:.85rem;margin-top:.5rem;';
+        notice.innerHTML = '📖 <strong>Documentation only</strong> — live server not deployed. To run locally: <code style="background:#0d2137;padding:2px 5px;border-radius:3px;">cd PenuX-AP-Severity &amp;&amp; uvicorn api.main:app --reload</code>';
+        info.appendChild(notice);
+      }
+    }, 800);
+  </script>
+</body>
+</html>

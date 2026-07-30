@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>PenuX — Task Board</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  :root {
+    --blue:   #1F497D;
+    --blue2:  #2563EB;
+    --green:  #16A34A;
+    --amber:  #D97706;
+    --red:    #DC2626;
+    --gray:   #6B7280;
+    --light:  #F3F4F6;
+    --border: #E5E7EB;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #F9FAFB; color: #111827; }
+
+  /* ── SHABBAT/HOLIDAY GATE (highest z-index — blocks everything else) ── */
+  #shabbat-gate {
+    display: none; position: fixed; inset: 0; background: #0f172a;
+    align-items: center; justify-content: center; z-index: 10000; text-align: center;
+    padding: 2rem;
+  }
+  #shabbat-gate .box { max-width: 420px; }
+  #shabbat-gate .icon { font-size: 3rem; margin-bottom: 1rem; }
+  #shabbat-gate h2 { color: #f1f5f9; font-size: 1.4rem; margin-bottom: .75rem; }
+  #shabbat-gate p { color: #94a3b8; font-size: .95rem; line-height: 1.6; margin-bottom: .5rem; }
+  #shabbat-gate .until { color: #60a5fa; font-weight: 600; margin-top: 1rem; }
+
+  /* ── AUTH OVERLAY ── */
+  #auth-overlay {
+    position: fixed; inset: 0; background: #0f172a;
+    display: flex; align-items: center; justify-content: center; z-index: 9999;
+  }
+  #auth-box {
+    background: #1e293b; border: 1px solid #334155; border-radius: 12px;
+    padding: 2.5rem; width: 360px; text-align: center;
+  }
+  #auth-box h2 { color: #f1f5f9; font-size: 1.3rem; margin-bottom: .25rem; }
+  #auth-box p  { color: #94a3b8; font-size: .85rem; margin-bottom: 1.5rem; }
+  #auth-box input {
+    width: 100%; padding: .75rem 1rem; background: #0f172a;
+    border: 1px solid #475569; border-radius: 8px; color: #f1f5f9;
+    font-size: 1rem; margin-bottom: .75rem; text-align: center; letter-spacing: .15em;
+  }
+  #auth-box input:focus { outline: none; border-color: #3b82f6; }
+  #auth-box button {
+    width: 100%; padding: .75rem; background: #2563EB; color: #fff;
+    border: none; border-radius: 8px; font-size: 1rem; font-weight: 600;
+    cursor: pointer; transition: background .2s;
+  }
+  #auth-box button:hover { background: #1d4ed8; }
+  #auth-error { color: #f87171; font-size: .85rem; margin-top: .75rem; min-height: 1.2em; }
+  #auth-logo { font-size: 2rem; font-weight: 800; color: #3b82f6; margin-bottom: 1rem; }
+
+  /* ── MAIN APP ── */
+  #app { display: none; min-height: 100vh; }
+
+  nav {
+    background: var(--blue); color: #fff; padding: .75rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  nav .brand { font-size: 1.1rem; font-weight: 700; }
+  nav .brand span { opacity: .6; font-weight: 400; font-size: .9rem; margin-left: .5rem; }
+  nav button {
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+    color: #fff; padding: .35rem .9rem; border-radius: 6px; cursor: pointer; font-size: .85rem;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  h1 { font-size: 1.5rem; font-weight: 700; color: var(--blue); margin-bottom: .25rem; }
+  .subtitle { color: var(--gray); font-size: .9rem; margin-bottom: 2rem; }
+
+  /* ── STATS BAR ── */
+  .stats { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .stat {
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    padding: .75rem 1.25rem; flex: 1; min-width: 130px; text-align: center;
+  }
+  .stat-val { font-size: 1.6rem; font-weight: 800; }
+  .stat-lbl { font-size: .75rem; color: var(--gray); margin-top: .1rem; }
+  .c-green { color: var(--green); } .c-amber { color: var(--amber); }
+  .c-red   { color: var(--red);  } .c-blue  { color: var(--blue2); }
+
+  /* ── ADD TASK ── */
+  .add-bar {
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+    display: flex; gap: .75rem; flex-wrap: wrap; align-items: flex-end;
+  }
+  .add-bar input, .add-bar select {
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: .5rem .75rem; font-size: .9rem; flex: 1; min-width: 140px;
+  }
+  .add-bar input:focus, .add-bar select:focus { outline: none; border-color: var(--blue2); }
+  .add-bar .btn-add {
+    background: var(--blue2); color: #fff; border: none; border-radius: 6px;
+    padding: .55rem 1.25rem; font-size: .9rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .add-bar .btn-add:hover { background: #1d4ed8; }
+
+  /* ── FILTER BAR ── */
+  .filter-bar { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .filter-btn {
+    padding: .35rem .9rem; border-radius: 20px; font-size: .82rem; cursor: pointer;
+    border: 1px solid var(--border); background: #fff; color: var(--gray); transition: all .15s;
+  }
+  .filter-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+  /* ── CALENDAR (ASP.NET WebForms Calendar-control style) ── */
+  .cal-wrap {
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    padding: 0; margin-bottom: 1.5rem; overflow: hidden;
+  }
+  .cal-titlebar {
+    background: var(--blue); color: #fff; display: flex; align-items: center;
+    justify-content: space-between; padding: .5rem .75rem;
+  }
+  .cal-titlebar button {
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); color: #fff;
+    width: 28px; height: 28px; border-radius: 4px; cursor: pointer; font-size: .95rem; line-height: 1;
+  }
+  .cal-titlebar button:hover { background: rgba(255,255,255,.28); }
+  .cal-titlebar .cal-title { font-weight: 700; font-size: .95rem; }
+  .cal-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .cal-table th {
+    background: var(--light); color: var(--gray); font-size: .72rem; font-weight: 600;
+    padding: .4rem 0; text-align: center; border: 1px solid var(--border);
+  }
+  .cal-table td {
+    border: 1px solid var(--border); height: 64px; vertical-align: top; padding: .25rem;
+    cursor: pointer; transition: background .12s; position: relative;
+  }
+  .cal-table td:hover { background: #EFF6FF; }
+  .cal-table td.cal-other-month { background: #FAFAFA; color: #C7CCD4; cursor: default; }
+  .cal-table td.cal-other-month:hover { background: #FAFAFA; }
+  .cal-table td.cal-today { background: #FEF9C3; }
+  .cal-table td.cal-selected { background: var(--blue2) !important; }
+  .cal-table td.cal-selected .cal-daynum { color: #fff; }
+  .cal-daynum { font-size: .78rem; font-weight: 600; color: var(--gray); }
+  .cal-badges { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 2px; }
+  .cal-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .cal-dot.urgent  { background: var(--red); }
+  .cal-dot.pending { background: var(--amber); }
+  .cal-dot.waiting { background: #3730A3; }
+  .cal-dot.done    { background: var(--green); }
+  .cal-count {
+    font-size: .68rem; background: var(--blue2); color: #fff; border-radius: 8px;
+    padding: 0 5px; margin-top: 2px; display: inline-block;
+  }
+  .cal-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .5rem .75rem; border-top: 1px solid var(--border); font-size: .78rem; color: var(--gray);
+  }
+  .cal-footer button {
+    background: none; border: none; color: var(--blue2); cursor: pointer; font-size: .78rem; font-weight: 600;
+  }
+
+  /* ── TABLE ── */
+  .table-wrap { background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    background: var(--light); padding: .65rem 1rem; text-align: left;
+    font-size: .78rem; font-weight: 600; color: var(--gray); border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #F9FAFB; }
+  tbody td { padding: .7rem 1rem; font-size: .88rem; vertical-align: middle; }
+  .task-title { font-weight: 500; }
+  .task-sub   { font-size: .78rem; color: var(--gray); margin-top: .15rem; }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-block; padding: .2rem .6rem; border-radius: 20px;
+    font-size: .74rem; font-weight: 600; white-space: nowrap;
+  }
+  .badge-done    { background: #DCFCE7; color: #15803D; }
+  .badge-pending { background: #FEF9C3; color: #92400E; }
+  .badge-urgent  { background: #FEE2E2; color: #991B1B; }
+  .badge-waiting { background: #E0E7FF; color: #3730A3; }
+
+  .cat-badge {
+    display: inline-block; padding: .15rem .5rem; border-radius: 4px;
+    font-size: .72rem; font-weight: 500;
+  }
+  .cat-meeting  { background: #DBEAFE; color: #1e40af; }
+  .cat-follow   { background: #F3E8FF; color: #6B21A8; }
+  .cat-research { background: #DCFCE7; color: #166534; }
+  .cat-admin    { background: #FEF3C7; color: #92400E; }
+
+  .btn-done, .btn-del {
+    border: none; border-radius: 5px; padding: .25rem .6rem;
+    font-size: .78rem; cursor: pointer; font-weight: 500; margin-left: .25rem;
+  }
+  .btn-done { background: #DCFCE7; color: #15803D; }
+  .btn-done:hover { background: #BBF7D0; }
+  .btn-del  { background: #FEE2E2; color: #991B1B; }
+  .btn-del:hover  { background: #FECACA; }
+
+  .empty-state { text-align: center; padding: 3rem; color: var(--gray); }
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: .5rem; }
+
+  /* ── EMAIL MODAL ── */
+  #email-modal {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
+    z-index: 10000; align-items: center; justify-content: center;
+  }
+  #email-modal.show { display: flex; }
+  #email-box {
+    background: #fff; border-radius: 12px; padding: 2rem; max-width: 600px;
+    width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,.3);
+  }
+  #email-box h2 { color: var(--blue); margin-bottom: 1rem; font-size: 1.3rem; }
+  #email-box .form-group { margin-bottom: 1rem; }
+  #email-box label { display: block; font-weight: 600; margin-bottom: .25rem; font-size: .9rem; color: var(--gray); }
+  #email-box input, #email-box textarea {
+    width: 100%; padding: .75rem; border: 1px solid var(--border); border-radius: 6px;
+    font-family: monospace; font-size: .85rem;
+  }
+  #email-box textarea { min-height: 300px; resize: vertical; }
+  #email-box input:focus, #email-box textarea:focus { outline: none; border-color: var(--blue2); }
+  .email-actions { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1.5rem; flex-wrap: wrap; }
+  .btn-cancel { background: var(--light); color: var(--gray); border: none; padding: .5rem 1rem; border-radius: 6px; cursor: pointer; }
+  .btn-cancel:hover { background: var(--border); }
+  .btn-copy { background: var(--blue2); color: #fff; border: none; padding: .5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  .btn-copy:hover { background: #1d4ed8; }
+  .btn-gmail { background: #EA4335; color: #fff; border: none; padding: .5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  .btn-gmail:hover { background: #C5221F; }
+  .btn-email { background: #EA4335; color: #fff; border: none; border-radius: 5px; padding: .25rem .6rem;
+    font-size: .78rem; cursor: pointer; font-weight: 500; margin-left: .25rem; }
+  .btn-email:hover { background: #C5221F; }
+
+  @media (max-width: 700px) {
+    thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── SHABBAT / HOLIDAY GATE ── -->
+<div id="shabbat-gate">
+  <div class="box">
+    <div class="icon">🕯️</div>
+    <h2 id="shabbat-title">האתר סגור לרגל שבת</h2>
+    <p id="shabbat-sub">שבת שלום! האתר ייפתח מחדש עם צאת השבת.</p>
+    <p class="until" id="shabbat-until"></p>
+  </div>
+</div>
+
+<!-- ── AUTH OVERLAY ── -->
+<div id="auth-overlay">
+  <div id="auth-box">
+    <div id="auth-logo">PenuX</div>
+    <h2>Task Board</h2>
+    <p>Protected area — enter password</p>
+    <input type="password" id="pw-input" placeholder="••••••••••"
+           onkeydown="if(event.key==='Enter')tryLogin()">
+    <button onclick="tryLogin()">Sign In</button>
+    <div id="auth-error"></div>
+  </div>
+</div>
+
+<!-- ── EMAIL MODAL ── -->
+<div id="email-modal">
+  <div id="email-box">
+    <h2>Send Follow-Up Email</h2>
+    <div class="form-group">
+      <label>To:</label>
+      <input type="email" id="email-to" readonly>
+    </div>
+    <div class="form-group">
+      <label>Subject:</label>
+      <input type="text" id="email-subject">
+    </div>
+    <div class="form-group">
+      <label>Message:</label>
+      <textarea id="email-body"></textarea>
+    </div>
+    <div class="email-actions">
+      <button class="btn-cancel" onclick="closeEmailModal()">Cancel</button>
+      <button class="btn-copy" onclick="copyEmailToClipboard()">📋 Copy to Clipboard</button>
+      <button class="btn-gmail" onclick="openGmailDraft()">📧 Open Gmail</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN APP ── -->
+<div id="app">
+  <nav>
+    <div class="brand">PenuX <span>Task Board</span></div>
+    <div>
+      <a href="hospitals.html" style="background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); color:#fff; padding:.35rem .9rem; border-radius:6px; font-size:.85rem; text-decoration:none; margin-right:.5rem;">Hospital Trees</a>
+      <button onclick="logout()">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>Task Board</h1>
+    <p class="subtitle" id="last-updated"></p>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat"><div class="stat-val c-blue"  id="cnt-total">0</div><div class="stat-lbl">Total Tasks</div></div>
+      <div class="stat"><div class="stat-val c-red"   id="cnt-urgent">0</div><div class="stat-lbl">Urgent</div></div>
+      <div class="stat"><div class="stat-val c-amber" id="cnt-pending">0</div><div class="stat-lbl">Pending</div></div>
+      <div class="stat"><div class="stat-val c-green" id="cnt-done">0</div><div class="stat-lbl">Done</div></div>
+    </div>
+
+    <!-- Add Task -->
+    <div class="add-bar">
+      <input  id="new-title" placeholder="Task title..." style="flex:2; min-width:200px;">
+      <input  id="new-sub"   placeholder="Details / contact...">
+      <input  id="new-due"   type="date">
+      <select id="new-cat">
+        <option value="meeting">Meeting</option>
+        <option value="follow">Follow-Up</option>
+        <option value="research">Research</option>
+        <option value="admin">Admin</option>
+      </select>
+      <select id="new-status">
+        <option value="pending">Pending</option>
+        <option value="urgent">Urgent</option>
+        <option value="waiting">Waiting</option>
+        <option value="done">Done</option>
+      </select>
+      <button class="btn-add" onclick="addTask()">+ Add Task</button>
+    </div>
+
+    <!-- Calendar (ASP.NET WebForms Calendar-control style) -->
+    <div class="cal-wrap">
+      <div class="cal-titlebar">
+        <button onclick="calNav(-1)" type="button">‹</button>
+        <span class="cal-title" id="cal-title"></span>
+        <button onclick="calNav(1)" type="button">›</button>
+      </div>
+      <table class="cal-table">
+        <thead><tr id="cal-weekdays"></tr></thead>
+        <tbody id="cal-body"></tbody>
+      </table>
+      <div class="cal-footer">
+        <span id="cal-selected-label">לחץ על יום להצגת המשימות שלו</span>
+        <button onclick="calClearSelection()" type="button">נקה בחירה</button>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('urgent',this)">🔴 Urgent</button>
+      <button class="filter-btn" onclick="setFilter('pending',this)">🟡 Pending</button>
+      <button class="filter-btn" onclick="setFilter('waiting',this)">🔵 Waiting</button>
+      <button class="filter-btn" onclick="setFilter('done',this)">✅ Done</button>
+      <button class="filter-btn" onclick="setFilter('meeting',this)">📅 Meetings</button>
+      <button class="filter-btn" onclick="setFilter('follow',this)">📬 Follow-Ups</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:35%">Task</th>
+            <th>Category</th>
+            <th>Due</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="task-tbody"></tbody>
+      </table>
+      <div class="empty-state" id="empty-state" style="display:none">
+        <div class="icon">📋</div>
+        <div>No tasks found</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── BACKEND API (external tasks-api server, deployed separately from this
+// static site — see tasks-api/README.md > "Deployment (free tier)") ────────
+const API_BASE = 'https://penux-1.onrender.com';
+const API = `${API_BASE}/api`;
+
+// ── PASSWORD (SHA-256 of "penux2026") ───────────────────────────────────────
+const HASH = '5b1a03055e62917d46aa4e7377050da381f80a98a8e14c40a72677f04c32c9a2';
+
+async function sha256(msg) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function tryLogin() {
+  const pw = document.getElementById('pw-input').value;
+  const h  = await sha256(pw);
+  if (h === HASH) {
+    sessionStorage.setItem('penux_auth', '1');
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadTasks();
+  } else {
+    document.getElementById('auth-error').textContent = 'Incorrect password.';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('penux_auth');
+  location.reload();
+}
+
+// ── DATA (server-backed, via the external tasks-api — see API_BASE above) ──
+let allTasks = [];
+
+async function loadTasks() {
+  try {
+    const res = await fetch(`${API}/tasks`);
+    allTasks = await res.json();
+    renderTasks();
+  } catch (err) {
+    console.error('Error loading tasks:', err);
+  }
+}
+
+// ── RENDER ──────────────────────────────────────────────────────────────────
+let currentFilter = 'all';
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTasks();
+}
+
+// ── CALENDAR (ASP.NET WebForms Calendar-control style) ──────────────────────
+const today = new Date();
+let calViewYear = today.getFullYear();
+let calViewMonth = today.getMonth(); // 0-based
+let selectedCalDate = null; // 'YYYY-MM-DD' or null
+
+const CAL_WEEKDAYS_HE = ['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ש׳'];
+const CAL_MONTHS_HE = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+
+function calNav(delta) {
+  calViewMonth += delta;
+  if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
+  if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+  renderCalendar();
+}
+
+function calClearSelection() {
+  selectedCalDate = null;
+  renderTasks();
+}
+
+function calSelectDay(iso) {
+  selectedCalDate = (selectedCalDate === iso) ? null : iso;
+  renderTasks();
+}
+
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+function renderCalendar() {
+  const tasks = allTasks;
+  const byDate = {};
+  tasks.forEach(t => {
+    if (!t.due) return;
+    (byDate[t.due] = byDate[t.due] || []).push(t);
+  });
+
+  document.getElementById('cal-title').textContent = `${CAL_MONTHS_HE[calViewMonth]} ${calViewYear}`;
+
+  const weekdaysRow = document.getElementById('cal-weekdays');
+  weekdaysRow.innerHTML = CAL_WEEKDAYS_HE.map(w => `<th>${w}</th>`).join('');
+
+  const firstOfMonth = new Date(calViewYear, calViewMonth, 1);
+  const startWeekday = firstOfMonth.getDay(); // 0=Sunday
+  const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+  const daysInPrevMonth = new Date(calViewYear, calViewMonth, 0).getDate();
+  const todayIso = `${today.getFullYear()}-${pad2(today.getMonth()+1)}-${pad2(today.getDate())}`;
+
+  const cells = [];
+  for (let i = 0; i < startWeekday; i++) {
+    cells.push({ day: daysInPrevMonth - startWeekday + 1 + i, otherMonth: true });
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    cells.push({ day: d, otherMonth: false, iso: `${calViewYear}-${pad2(calViewMonth+1)}-${pad2(d)}` });
+  }
+  while (cells.length % 7 !== 0) {
+    cells.push({ day: cells.length - (startWeekday + daysInMonth) + 1, otherMonth: true });
+  }
+
+  const body = document.getElementById('cal-body');
+  body.innerHTML = '';
+  for (let row = 0; row < cells.length / 7; row++) {
+    const tr = body.insertRow();
+    for (let col = 0; col < 7; col++) {
+      const cell = cells[row * 7 + col];
+      const td = tr.insertCell();
+      td.className = 'cal-daynum-cell';
+      if (cell.otherMonth) {
+        td.classList.add('cal-other-month');
+        td.innerHTML = `<div class="cal-daynum">${cell.day}</div>`;
+        continue;
+      }
+      if (cell.iso === todayIso) td.classList.add('cal-today');
+      if (cell.iso === selectedCalDate) td.classList.add('cal-selected');
+      const dayTasks = byDate[cell.iso] || [];
+      const dots = dayTasks.slice(0, 6).map(t => `<span class="cal-dot ${t.status}"></span>`).join('');
+      td.innerHTML = `
+        <div class="cal-daynum">${cell.day}</div>
+        ${dayTasks.length ? `<div class="cal-badges">${dots}</div><span class="cal-count">${dayTasks.length}</span>` : ''}
+      `;
+      td.onclick = () => calSelectDay(cell.iso);
+    }
+  }
+
+  const label = document.getElementById('cal-selected-label');
+  if (selectedCalDate) {
+    const [y,m,d] = selectedCalDate.split('-');
+    label.textContent = `מציג משימות ל-${d}/${m}/${y} (${(byDate[selectedCalDate]||[]).length})`;
+  } else {
+    label.textContent = 'לחץ על יום להצגת המשימות שלו';
+  }
+}
+
+const STATUS_BADGE = {
+  done:    '<span class="badge badge-done">✓ Done</span>',
+  pending: '<span class="badge badge-pending">⏳ Pending</span>',
+  urgent:  '<span class="badge badge-urgent">🔴 Urgent</span>',
+  waiting: '<span class="badge badge-waiting">⏸ Waiting</span>',
+};
+const CAT_BADGE = {
+  meeting:  '<span class="cat-badge cat-meeting">📅 Meeting</span>',
+  follow:   '<span class="cat-badge cat-follow">📬 Follow-Up</span>',
+  research: '<span class="cat-badge cat-research">🔬 Research</span>',
+  admin:    '<span class="cat-badge cat-admin">⚙️ Admin</span>',
+};
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function isOverdue(iso) {
+  if (!iso) return false;
+  return new Date(iso) < new Date(new Date().toDateString());
+}
+
+function renderTasks() {
+  const tasks = allTasks;
+  const tbody = document.getElementById('task-tbody');
+  const empty = document.getElementById('empty-state');
+
+  // Stats
+  document.getElementById('cnt-total').textContent  = tasks.length;
+  document.getElementById('cnt-urgent').textContent  = tasks.filter(t=>t.status==='urgent').length;
+  document.getElementById('cnt-pending').textContent = tasks.filter(t=>t.status==='pending').length;
+  document.getElementById('cnt-done').textContent    = tasks.filter(t=>t.status==='done').length;
+  document.getElementById('last-updated').textContent =
+    'Last updated ' + new Date().toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
+
+  // Filter
+  let filtered = tasks;
+  if (['urgent','pending','waiting','done'].includes(currentFilter))
+    filtered = tasks.filter(t => t.status === currentFilter);
+  else if (['meeting','follow','research','admin'].includes(currentFilter))
+    filtered = tasks.filter(t => t.cat === currentFilter);
+  if (selectedCalDate) filtered = filtered.filter(t => t.due === selectedCalDate);
+
+  renderCalendar();
+
+  // Sort: urgent first, then by due date
+  const order = {urgent:0, pending:1, waiting:2, done:3};
+  filtered.sort((a,b) => {
+    if (order[a.status] !== order[b.status]) return order[a.status] - order[b.status];
+    return (a.due||'9').localeCompare(b.due||'9');
+  });
+
+  tbody.innerHTML = '';
+  if (!filtered.length) { empty.style.display='block'; return; }
+  empty.style.display = 'none';
+
+  filtered.forEach(t => {
+    const overdue = t.status !== 'done' && isOverdue(t.due);
+    const row = tbody.insertRow();
+    if (overdue) row.style.background = '#FFF7F7';
+    row.innerHTML = `
+      <td>
+        <div class="task-title" style="${t.status==='done'?'text-decoration:line-through;color:#9CA3AF':''}">
+          ${t.title}
+        </div>
+        ${t.sub ? `<div class="task-sub">${t.sub}</div>` : ''}
+      </td>
+      <td>${CAT_BADGE[t.cat]||''}</td>
+      <td style="white-space:nowrap; ${overdue?'color:#DC2626;font-weight:600':''}">
+        ${fmtDate(t.due)}${overdue?' ⚠️':''}
+      </td>
+      <td>${STATUS_BADGE[t.status]||t.status}</td>
+      <td style="white-space:nowrap">
+        ${t.status!=='done'?`<button class="btn-done" onclick="markDone(${t.id})">✓</button>`:''}
+        ${t.cat==='follow' && getEmailTemplate(t.title) ? `<button class="btn-email" onclick="openEmailModal('${getEmailTemplate(t.title)}')">✉️</button>` : ''}
+        <button class="btn-del" onclick="deleteTask(${t.id})">✕</button>
+      </td>`;
+  });
+}
+
+// ── FOLLOW-UP EMAIL TEMPLATES ────────────────────────────────────────────────
+// All PenuX Zoom availability is limited to this window, Israel time. If a
+// contact's timezone/schedule genuinely doesn't overlap, templates fall back
+// to offering email-only correspondence instead of insisting on a call.
+const AVAILABILITY_WINDOW = '9:00 AM–7:00 PM Israel time';
+
+const EMAIL_TEMPLATES = {
+  buxbaum: {
+    to: 'james.buxbaum@usc.edu',
+    subject: 'Re: PenuX Collaboration — Timeline Coordination',
+    body: `Dear Dr. Buxbaum,
+
+Thank you for your enthusiastic response to the PenuX severe acute pancreatitis severity project. We are very excited about the potential collaboration with USC.
+
+Following up on our conversation, Cindy will be in touch shortly to schedule a Zoom meeting at your earliest convenience. All our meetings are conducted via Zoom, and we are available ${AVAILABILITY_WINDOW} — if that doesn't overlap well with your schedule, we're also very happy to continue by email instead.
+
+In the meantime, please let us know if you would like us to send over any preliminary data or methodology details for your review.
+
+Looking forward to connecting soon.
+
+Best regards,
+PenuX Research Team`
+  },
+  chawla: {
+    to: 'saurabh.chawla@emory.edu',
+    subject: 'Re: PenuX Study — Meeting Confirmation',
+    body: `Dear Dr. Chawla,
+
+Thank you for your interest in the PenuX project. Following your suggestion, we would like to schedule a Zoom meeting for Monday at your convenience.
+
+Could you please confirm a time that falls within ${AVAILABILITY_WINDOW}? We realize a typical US afternoon may fall outside that window — if a suitable overlap isn't possible, we are also very happy to continue this conversation by email instead of Zoom.
+
+All our meetings are conducted via Zoom — once we hear from you, we will send a Zoom invite with the link.
+
+Looking forward to discussing how we can work together.
+
+Best regards,
+PenuX Research Team`
+  },
+  hegyi: {
+    to: 'hegyi2009@gmail.com',
+    subject: 'Re: PenuX Collaboration — Follow-up',
+    body: `Dear Prof. Hegyi,
+
+Thank you for your positive response to the PenuX project. We understand you are working on gathering available dates for a potential Zoom meeting.
+
+We are very interested in collaborating with Semmelweis University on this important research. All our meetings are conducted via Zoom, and we are available ${AVAILABILITY_WINDOW} — please let us know a time within that window and we will send a Zoom invite. If that doesn't work for you, we're also happy to continue by email.
+
+If you need any additional information about the project to facilitate scheduling, please do not hesitate to reach out.
+
+Best regards,
+PenuX Research Team`
+  },
+  frulloni: {
+    to: 'luca.frulloni@univr.it',
+    subject: 'Re: PenuX Collaboration — Welcome Back',
+    body: `Dear Prof. Frulloni,
+
+Welcome back! We hope you had a restful time away.
+
+We wanted to follow up on the PenuX severe acute pancreatitis severity project and see if you had a chance to review our previous message. We would love to schedule a brief Zoom call to discuss a potential collaboration — we are available ${AVAILABILITY_WINDOW}, but are just as happy to continue this conversation by email if that's easier for your schedule.
+
+Please let us know your availability.
+
+Best regards,
+PenuX Research Team`
+  },
+  mentula: {
+    to: 'panu.mentula@hus.fi',
+    subject: 'Re: PenuX Collaboration — Welcome Back',
+    body: `Dear Dr. Mentula,
+
+Welcome back! We hope you had a restful time away.
+
+We wanted to follow up on the PenuX severe acute pancreatitis severity project and see if you had a chance to review our previous message. We would love to schedule a brief Zoom call to discuss a potential collaboration — we are available ${AVAILABILITY_WINDOW}, but are just as happy to continue this conversation by email if that's easier for your schedule.
+
+Please let us know your availability.
+
+Best regards,
+PenuX Research Team`
+  }
+};
+
+function getEmailTemplate(title) {
+  if (title.includes('Buxbaum')) return 'buxbaum';
+  if (title.includes('Chawla')) return 'chawla';
+  if (title.includes('Hegyi')) return 'hegyi';
+  if (title.includes('Frulloni')) return 'frulloni';
+  if (title.includes('Mentula')) return 'mentula';
+  return null;
+}
+
+function openEmailModal(template) {
+  const email = EMAIL_TEMPLATES[template];
+  if (!email) return;
+  document.getElementById('email-to').value = email.to;
+  document.getElementById('email-subject').value = email.subject;
+  document.getElementById('email-body').value = email.body;
+  document.getElementById('email-modal').classList.add('show');
+}
+
+function closeEmailModal() {
+  document.getElementById('email-modal').classList.remove('show');
+}
+
+function copyEmailToClipboard() {
+  const to = document.getElementById('email-to').value;
+  const subject = document.getElementById('email-subject').value;
+  const body = document.getElementById('email-body').value;
+  const text = `To: ${to}\nSubject: ${subject}\n\n${body}`;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('✅ Email copied to clipboard');
+    closeEmailModal();
+  });
+}
+
+function openGmailDraft() {
+  const to = document.getElementById('email-to').value;
+  const subject = document.getElementById('email-subject').value;
+  const body = document.getElementById('email-body').value;
+  const gmailUrl = `https://mail.google.com/mail/?ui=2&fs=1&tf=cm&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.open(gmailUrl, '_blank');
+  closeEmailModal();
+}
+
+async function addTask() {
+  const title = document.getElementById('new-title').value.trim();
+  if (!title) { document.getElementById('new-title').focus(); return; }
+
+  const task = {
+    title,
+    sub:    document.getElementById('new-sub').value.trim(),
+    due:    document.getElementById('new-due').value,
+    cat:    document.getElementById('new-cat').value,
+    status: document.getElementById('new-status').value,
+  };
+
+  try {
+    const res = await fetch(`${API}/tasks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(task),
+    });
+    if (res.ok) {
+      document.getElementById('new-title').value = '';
+      document.getElementById('new-sub').value   = '';
+      document.getElementById('new-due').value   = '';
+      loadTasks();
+    }
+  } catch (err) {
+    console.error('Error adding task:', err);
+  }
+}
+
+async function markDone(id) {
+  try {
+    await fetch(`${API}/tasks/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'done' }),
+    });
+    loadTasks();
+  } catch (err) {
+    console.error('Error updating task:', err);
+  }
+}
+
+async function deleteTask(id) {
+  if (!confirm('Delete this task?')) return;
+  try {
+    await fetch(`${API}/tasks/${id}`, { method: 'DELETE' });
+    loadTasks();
+  } catch (err) {
+    console.error('Error deleting task:', err);
+  }
+}
+
+// ── SHABBAT / ISRAELI HOLIDAY GATE ──────────────────────────────────────────
+// Blocks the site during Shabbat and Israeli Yom Tov, using the client's own
+// geolocation (falls back to Jerusalem if denied/unavailable) so times are
+// accurate for wherever the user actually is. Fails OPEN on any error (no
+// geolocation, API unreachable, etc.) — a gate that can accidentally lock
+// someone out due to a network hiccup is worse than no gate at all.
+const SHABBAT_CACHE_KEY = 'penux_shabbat_cache_v1';
+const SHABBAT_CACHE_TTL_MS = 30 * 60 * 1000; // 30 min
+
+function getClientPosition() {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) return resolve(null);
+    navigator.geolocation.getCurrentPosition(
+      pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+      () => resolve(null),
+      { timeout: 4000, maximumAge: 3600000 }
+    );
+  });
+}
+
+function showShabbatGate(untilDate, isHoliday) {
+  document.getElementById('shabbat-title').textContent = isHoliday ? 'האתר סגור לרגל החג' : 'האתר סגור לרגל שבת';
+  document.getElementById('shabbat-sub').textContent = isHoliday
+    ? 'מועדים טובים! האתר ייפתח מחדש עם צאת החג.'
+    : 'שבת שלום! האתר ייפתח מחדש עם צאת השבת.';
+  if (untilDate) {
+    document.getElementById('shabbat-until').textContent =
+      'ייפתח מחדש: ' + untilDate.toLocaleString('he-IL', { weekday: 'long', hour: '2-digit', minute: '2-digit' });
+  }
+  document.getElementById('shabbat-gate').style.display = 'flex';
+  document.getElementById('auth-overlay').style.display = 'none';
+  document.getElementById('app').style.display = 'none';
+  document.documentElement.style.overflow = 'hidden';
+}
+
+async function checkShabbatGate() {
+  try {
+    let items;
+    const cached = JSON.parse(localStorage.getItem(SHABBAT_CACHE_KEY) || 'null');
+    if (cached && (Date.now() - cached.fetchedAt) < SHABBAT_CACHE_TTL_MS) {
+      items = cached.items;
+    } else {
+      const pos = (await getClientPosition()) || { lat: 31.7683, lon: 35.2137 }; // fallback: Jerusalem
+      const today = new Date();
+      const start = new Date(today); start.setDate(start.getDate() - 1);
+      const end = new Date(today); end.setDate(end.getDate() + 5);
+      const fmt = d => d.toISOString().slice(0, 10);
+      const tzid = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Jerusalem';
+      const url = `https://www.hebcal.com/hebcal?cfg=json&maj=on&c=on&il=on&geo=pos` +
+        `&latitude=${pos.lat}&longitude=${pos.lon}&tzid=${encodeURIComponent(tzid)}` +
+        `&start=${fmt(start)}&end=${fmt(end)}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Hebcal API error ' + res.status);
+      const data = await res.json();
+      items = data.items || [];
+      localStorage.setItem(SHABBAT_CACHE_KEY, JSON.stringify({ fetchedAt: Date.now(), items }));
+    }
+
+    const candles = items.filter(i => i.category === 'candles').map(i => new Date(i.date)).sort((a, b) => a - b);
+    const havdalahs = items.filter(i => i.category === 'havdalah').map(i => new Date(i.date)).sort((a, b) => a - b);
+    const holidays = items.filter(i => i.yomtov === true).map(i => new Date(i.date));
+
+    const now = new Date();
+    for (const c of candles) {
+      const nextHavdalah = havdalahs.filter(h => h > c).sort((a, b) => a - b)[0];
+      if (nextHavdalah && now >= c && now < nextHavdalah) {
+        const isHoliday = holidays.some(hd => hd >= c && hd <= nextHavdalah);
+        showShabbatGate(nextHavdalah, isHoliday);
+        return true;
+      }
+    }
+    return false;
+  } catch (err) {
+    console.warn('Shabbat gate check failed — defaulting to open:', err);
+    return false;
+  }
+}
+
+// ── BOOT ────────────────────────────────────────────────────────────────────
+checkShabbatGate().then(isClosed => {
+  if (isClosed) return;
+  if (sessionStorage.getItem('penux_auth') === '1') {
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadTasks();
+  } else {
+    setTimeout(() => document.getElementById('pw-input').focus(), 100);
+  }
+});
+</script>
+</body>
+</html>
