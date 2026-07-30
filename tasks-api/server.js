@@ -6,7 +6,7 @@ import nodemailer from 'nodemailer';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { startReplyWatcher } from './reply-watcher.js';
-import { startCorrespondenceTracker } from './correspondence-tracker.js';
+import { startCorrespondenceTracker, startTaskBoardSync } from './correspondence-tracker.js';
 import { getClient, wrapCompat } from './db.js';
 import predictRoutes from './predict-routes.js';
 
@@ -409,4 +409,5 @@ app.listen(PORT, () => {
   console.log(`🎯 PenuX Tasks API running on http://localhost:${PORT}`);
   startReplyWatcher(db);
   startCorrespondenceTracker(db);
+  startTaskBoardSync(db);
 });
