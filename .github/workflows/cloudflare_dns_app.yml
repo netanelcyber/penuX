@@ -1,10 +1,10 @@
-name: Point app.penux.uk to tasks-api (Railway)
+name: Point app.penux.uk to tasks-api (Render)
 
 on:
   workflow_dispatch:
     inputs:
-      railway_domain:
-        description: 'Railway domain for tasks-api (e.g. penux-tasks-production.up.railway.app) — get this by running `railway domain` in tasks-api/'
+      render_domain:
+        description: 'Render domain for tasks-api (e.g. penux-1.onrender.com) — get this from the Render dashboard service page'
         required: true
         type: string
 
@@ -12,16 +12,16 @@ jobs:
   add-dns:
     runs-on: ubuntu-latest
     steps:
-      - name: Add/update CNAME for app.penux.uk -> Railway
+      - name: Add/update CNAME for app.penux.uk -> Render
         env:
           CF_TOKEN: ${{ secrets.CF_TOKEN }}
-          RAILWAY_DOMAIN: ${{ inputs.railway_domain }}
+          RENDER_DOMAIN: ${{ inputs.render_domain }}
         run: |
           python3 << 'EOF'
           import requests, os
 
           TOKEN   = os.environ["CF_TOKEN"]
-          TARGET  = os.environ["RAILWAY_DOMAIN"]
+          TARGET  = os.environ["RENDER_DOMAIN"]
           HEADERS = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
           BASE    = "https://api.cloudflare.com/client/v4"
 
@@ -43,7 +43,7 @@ jobs:
               "type": "CNAME",
               "name": "app",
               "content": TARGET,
-              "proxied": False,  # unproxied so Railway's own TLS cert / routing works directly
+              "proxied": False,  # unproxied so Render's own TLS cert / routing works directly
               "ttl": 1,
           }
 
@@ -64,6 +64,6 @@ jobs:
               exit(1)
 
           print("Done! app.penux.uk should resolve within a few minutes.")
-          print("Remember to also add 'app.penux.uk' as a custom domain in the Railway service settings,")
-          print("so Railway issues a TLS certificate for it.")
+          print("Remember to also add 'app.penux.uk' as a custom domain in the Render service settings,")
+          print("so Render issues a TLS certificate for it.")
           EOF
