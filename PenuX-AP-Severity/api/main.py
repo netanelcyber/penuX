@@ -622,6 +622,157 @@ def get_score_distribution_png():
 
 
 # ---------------------------------------------------------------------------
+# lognormal(p) - lognormal(1-p) — asymmetry analysis
+#
+# For each model, fit a lognormal to p (the predicted probability) and a
+# separate lognormal to 1-p (its complement), then take the pointwise
+# difference of the two fitted PDFs over x in (0,1). Because lognormal is
+# not symmetric under x -> 1-x, this difference curve is a diagnostic for
+# how asymmetric the predicted-score distribution really is: a curve at
+# ~0 everywhere would mean p and 1-p happen to be fit almost as mirror
+# images of each other; the actual shape here (large positive lobe at low
+# x, negative lobe at high x) reflects that most predicted probabilities
+# sit well below 0.5, so lognormal(p) concentrates near 0 while
+# lognormal(1-p) concentrates near 1.
+# ---------------------------------------------------------------------------
+
+class LognormalDiffCurve(BaseModel):
+    model_key: str
+    model_label: str
+    fit_p: LognormalFit
+    fit_one_minus_p: LognormalFit
+    x: list[float] = Field(description="X values (0-1) shared by both PDFs and their difference")
+    pdf_p: list[float] = Field(description="Fitted lognormal PDF of p, evaluated at x")
+    pdf_one_minus_p: list[float] = Field(description="Fitted lognormal PDF of (1-p), evaluated at x")
+    diff: list[float] = Field(description="pdf_p(x) - pdf_one_minus_p(x) — the asymmetry curve")
+    max_abs_diff: float = Field(description="max(|diff|) over x — a single-number asymmetry magnitude")
+
+
+class LognormalDiffResponse(BaseModel):
+    dataset: str
+    n_patients: int
+    curves: list[LognormalDiffCurve]
+    caveats: list[str]
+
+
+def _compute_lognormal_diffs() -> tuple[pd.DataFrame, dict[str, LognormalDiffCurve]]:
+    if not _SCORE_RESULTS_FILE.exists():
+        raise HTTPException(status_code=404, detail=f"Score results not found at {_SCORE_RESULTS_FILE}")
+
+    from scipy import stats as _stats
+
+    df = pd.read_csv(_SCORE_RESULTS_FILE)
+    curves: dict[str, LognormalDiffCurve] = {}
+    x = np.linspace(0.001, 0.999, 200)
+
+    for key, label in _SCORE_MODELS.items():
+        if key not in df.columns:
+            continue
+        p = df[key].dropna().clip(lower=1e-6, upper=1 - 1e-6).to_numpy()
+        one_minus_p = 1.0 - p
+
+        shape_p, loc_p, scale_p = _stats.lognorm.fit(p, floc=0)
+        shape_q, loc_q, scale_q = _stats.lognorm.fit(one_minus_p, floc=0)
+
+        pdf_p = _stats.lognorm.pdf(x, shape_p, loc=loc_p, scale=scale_p)
+        pdf_q = _stats.lognorm.pdf(x, shape_q, loc=loc_q, scale=scale_q)
+        diff = pdf_p - pdf_q
+
+        curves[key] = LognormalDiffCurve(
+            model_key=key,
+            model_label=label,
+            fit_p=LognormalFit(shape=round(float(shape_p), 4), loc=round(float(loc_p), 4), scale=round(float(scale_p), 4)),
+            fit_one_minus_p=LognormalFit(shape=round(float(shape_q), 4), loc=round(float(loc_q), 4), scale=round(float(scale_q), 4)),
+            x=[round(float(v), 4) for v in x],
+            pdf_p=[round(float(v), 4) for v in pdf_p],
+            pdf_one_minus_p=[round(float(v), 4) for v in pdf_q],
+            diff=[round(float(v), 4) for v in diff],
+            max_abs_diff=round(float(np.max(np.abs(diff))), 4),
+        )
+
+    return df, curves
+
+
+@app.get(
+    "/models/score-distribution/lognormal-diff",
+    response_model=LognormalDiffResponse,
+    tags=["models"],
+    summary="lognormal(p) - lognormal(1-p) asymmetry curve, per model",
+    description=(
+        "For each of the 3 prediction targets, fits a lognormal to the "
+        "predicted probability p and a separate lognormal to its complement "
+        "1-p, then returns the pointwise difference of the two fitted PDFs "
+        "over x in (0,1) — a diagnostic for how asymmetric the predicted-"
+        "score distribution is around 0.5. `max_abs_diff` gives a single-"
+        "number summary per model. See `/models/score-distribution/"
+        "lognormal-diff.png` for a rendered chart.\n\n"
+        "⚠️ See `caveats` — same lognormal-as-descriptive-fit caveat as "
+        "`/models/score-distribution`, plus: this compares two *independent* "
+        "fits (fit to p, fit to 1-p), not a transform of one fit — the "
+        "asymmetry mostly reflects that lognormal is not symmetric under "
+        "x -> 1-x combined with predicted probabilities skewing low."
+    ),
+)
+def get_lognormal_diff():
+    _, curves = _compute_lognormal_diffs()
+    return LognormalDiffResponse(
+        dataset="data/public_sanitized/ap_model_results.csv",
+        n_patients=len(pd.read_csv(_SCORE_RESULTS_FILE)),
+        curves=list(curves.values()),
+        caveats=_SCORE_DIST_CAVEATS + [
+            "This compares two independently-fit lognormals (one to p, one to "
+            "1-p) — the difference curve is not a closed-form transform, it's "
+            "computed pointwise from both fitted PDFs."
+        ],
+    )
+
+
+@app.get(
+    "/models/score-distribution/lognormal-diff.png",
+    tags=["models"],
+    summary="lognormal(p) - lognormal(1-p) asymmetry chart (PNG)",
+    description=(
+        "Renders the same data as `/models/score-distribution/lognormal-diff` "
+        "as a PNG: one panel per model, each showing both fitted PDFs "
+        "(lognormal(p) and lognormal(1-p)) plus their difference curve."
+    ),
+)
+def get_lognormal_diff_png():
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from fastapi.responses import Response
+
+    _, curves = _compute_lognormal_diffs()
+
+    fig, axes = plt.subplots(1, len(curves), figsize=(5.5 * len(curves), 4.2))
+    if len(curves) == 1:
+        axes = [axes]
+
+    for ax, (key, c) in zip(axes, curves.items()):
+        ax.plot(c.x, c.pdf_p, color="#4A6C8C", linewidth=1.8, label="lognormal(p)")
+        ax.plot(c.x, c.pdf_one_minus_p, color="#9A7A1F", linewidth=1.8, label="lognormal(1-p)")
+        ax.plot(c.x, c.diff, color="#B4432A", linewidth=2, linestyle="--", label="diff")
+        ax.axhline(0, color="#999", linewidth=0.8)
+        ax.set_title(f"{c.model_label}\nmax|diff|={c.max_abs_diff}", fontsize=9.5)
+        ax.set_xlabel("x")
+        ax.set_ylabel("Density")
+        ax.set_xlim(0, 1)
+        ax.legend(fontsize=7.5)
+
+    fig.suptitle("lognormal(p) - lognormal(1-p) per model", fontsize=12)
+    fig.tight_layout()
+
+    from io import BytesIO
+    buf = BytesIO()
+    fig.savefig(buf, format="png", dpi=120)
+    plt.close(fig)
+    buf.seek(0)
+
+    return Response(content=buf.getvalue(), media_type="image/png")
+
+
+# ---------------------------------------------------------------------------
 # Plain JSON endpoint (original)
 # ---------------------------------------------------------------------------
 
