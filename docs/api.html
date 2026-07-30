@@ -6,6 +6,7 @@
   <title>PenuX API — Swagger UI</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
   <style>
     body { margin: 0; background: #fafafa; }
     .topbar { background: #1a56db !important; }
@@ -45,7 +46,123 @@
     ⚠️ <strong>Research use only.</strong> This API is a research prototype.
     Not validated for clinical use. Not for patient-care decisions.
   </div>
+
+  <div id="wasm-predict-panel" style="font-family:Inter,system-ui,sans-serif; background:#fff; border-bottom:1px solid #e5e7eb; padding:1rem 1.5rem;">
+    <div style="display:flex; align-items:center; gap:.6rem; cursor:pointer;" onclick="document.getElementById('wasm-predict-body').style.display = document.getElementById('wasm-predict-body').style.display === 'none' ? 'block' : 'none';">
+      <span style="font-size:1.1rem;">🧪</span>
+      <strong style="font-size:.95rem; color:#1e3a8a;">Try /predict via WASM (Pyodide)</strong>
+      <span style="font-size:.78rem; color:#6b7280;">— runs the real model logic in your browser, no request to the live API</span>
+      <span id="wasm-predict-status" style="margin-left:auto; font-size:.76rem; color:#6b7280;">Loading Pyodide…</span>
+    </div>
+    <div id="wasm-predict-body" style="margin-top:.8rem;">
+      <form id="wasm-predict-form" style="display:grid; grid-template-columns:repeat(6, 1fr); gap:.6rem; max-width:900px;">
+        <div><label style="font-size:.72rem; color:#6b7280;">Age</label><input type="number" name="age" value="65" style="width:100%; padding:.3rem .4rem; border:1px solid #ccc; border-radius:4px;"></div>
+        <div><label style="font-size:.72rem; color:#6b7280;">Sex</label><select name="sex" style="width:100%; padding:.3rem .4rem; border:1px solid #ccc; border-radius:4px;"><option value="M">M</option><option value="F">F</option></select></div>
+        <div><label style="font-size:.72rem; color:#6b7280;">WBC</label><input type="number" step="0.1" name="wbc" value="18.5" style="width:100%; padding:.3rem .4rem; border:1px solid #ccc; border-radius:4px;"></div>
+        <div><label style="font-size:.72rem; color:#6b7280;">CRP</label><input type="number" step="0.1" name="crp" value="220" style="width:100%; padding:.3rem .4rem; border:1px solid #ccc; border-radius:4px;"></div>
+        <div><label style="font-size:.72rem; color:#6b7280;">Creatinine</label><input type="number" step="0.1" name="creatinine" value="1.8" style="width:100%; padding:.3rem .4rem; border:1px solid #ccc; border-radius:4px;"></div>
+        <div><label style="font-size:.72rem; color:#6b7280;">BUN</label><input type="number" step="0.1" name="bun" value="32" style="width:100%; padding:.3rem .4rem; border:1px solid #ccc; border-radius:4px;"></div>
+        <div><label style="font-size:.72rem; color:#6b7280;">Glucose</label><input type="number" step="0.1" name="glucose" value="180" style="width:100%; padding:.3rem .4rem; border:1px solid #ccc; border-radius:4px;"></div>
+        <div><label style="font-size:.72rem; color:#6b7280;">LDH</label><input type="number" step="0.1" name="ldh" value="450" style="width:100%; padding:.3rem .4rem; border:1px solid #ccc; border-radius:4px;"></div>
+        <div><label style="font-size:.72rem; color:#6b7280;">Hematocrit</label><input type="number" step="0.1" name="hematocrit" value="47" style="width:100%; padding:.3rem .4rem; border:1px solid #ccc; border-radius:4px;"></div>
+        <div><label style="font-size:.72rem; color:#6b7280;">AST</label><input type="number" step="0.1" name="ast" value="90" style="width:100%; padding:.3rem .4rem; border:1px solid #ccc; border-radius:4px;"></div>
+        <div><label style="font-size:.72rem; color:#6b7280;">Albumin</label><input type="number" step="0.1" name="albumin" value="2.9" style="width:100%; padding:.3rem .4rem; border:1px solid #ccc; border-radius:4px;"></div>
+        <div><label style="font-size:.72rem; color:#6b7280;">Calcium</label><input type="number" step="0.1" name="calcium" value="7.8" style="width:100%; padding:.3rem .4rem; border:1px solid #ccc; border-radius:4px;"></div>
+      </form>
+      <button id="wasm-predict-btn" disabled style="margin-top:.7rem; background:#1a56db; color:#fff; border:none; border-radius:6px; padding:.5rem 1.2rem; font-size:.85rem; cursor:pointer;">Loading runtime…</button>
+      <div id="wasm-predict-result" style="display:none; margin-top:.7rem; font-size:.88rem;"></div>
+      <div style="margin-top:.6rem; font-size:.72rem; color:#9ca3af;">
+        This reproduces the same heuristic scoring logic used by the live <code>/predict</code> endpoint's fallback (no trained joblib model ships in this repo) — see <code>api/main.py</code>'s <code>_heuristic_score</code>. Kept manually in sync; not a live call to the API.
+      </div>
+    </div>
+  </div>
+
   <div id="swagger-ui"></div>
+
+  <script>
+    // Same heuristic as api/main.py's _heuristic_score / _HEURISTIC_WEIGHTS /
+    // _HEURISTIC_THRESHOLDS and penux_ap/config.py's RISK_THRESHOLDS — kept
+    // manually in sync (verified byte-for-byte identical output against the
+    // real server-side function across 4 documented test cases when this
+    // was first written for /predict/client; same source used here).
+    const WASM_PREDICT_PY = `
+import math
+
+HEURISTIC_WEIGHTS = {
+    "wbc": 0.08, "crp": 0.004, "creatinine": 0.30, "bun": 0.015,
+    "glucose": 0.002, "ldh": 0.001, "hematocrit": 0.03, "ast": 0.002,
+    "albumin": -0.30, "calcium": -0.40, "bilirubin_total": 0.05,
+}
+HEURISTIC_THRESHOLDS = {
+    "wbc": 12.0, "crp": 150.0, "creatinine": 1.5, "bun": 25.0,
+    "glucose": 200.0, "ldh": 250.0, "hematocrit": 44.0, "ast": 250.0,
+    "albumin": 3.5, "calcium": 8.0, "bilirubin_total": 3.0,
+}
+RISK_THRESHOLDS = {"low": 0.2, "intermediate": 0.5}
+
+def heuristic_score(data):
+    age = data.get("age") or 55
+    sex = str(data.get("sex") or "").upper()
+    logit = -1.8 + 0.015 * max(0, age - 55)
+    if sex in ("M", "MALE"):
+        logit += 0.15
+    for feat, w in HEURISTIC_WEIGHTS.items():
+        v = data.get(feat)
+        if v is None:
+            continue
+        t = HEURISTIC_THRESHOLDS[feat]
+        logit += w * (max(0, t - v) if feat in ("albumin", "calcium") else max(0, v - t))
+    proba = round(1.0 / (1.0 + math.exp(-logit)), 4)
+    if proba < RISK_THRESHOLDS["low"]:
+        risk_group = "low"
+    elif proba < RISK_THRESHOLDS["intermediate"]:
+        risk_group = "intermediate"
+    else:
+        risk_group = "high"
+    return proba, risk_group
+`;
+
+    let wasmPredictReady = null;
+
+    async function initWasmPredict() {
+      const statusEl = document.getElementById("wasm-predict-status");
+      const btn = document.getElementById("wasm-predict-btn");
+      try {
+        const pyodide = await loadPyodide();
+        await pyodide.runPythonAsync(WASM_PREDICT_PY);
+        wasmPredictReady = pyodide;
+        statusEl.textContent = "WASM engine ready (Pyodide/CPython)";
+        btn.disabled = false;
+        btn.textContent = "Predict (runs in-browser, no network call)";
+      } catch (e) {
+        statusEl.textContent = "Pyodide failed to load: " + e.message;
+      }
+    }
+
+    function collectWasmPredictForm() {
+      const form = document.getElementById("wasm-predict-form");
+      const data = {};
+      for (const el of form.elements) {
+        if (!el.name || el.value === "") continue;
+        data[el.name] = el.tagName === "SELECT" ? el.value : parseFloat(el.value);
+      }
+      return data;
+    }
+
+    document.getElementById("wasm-predict-btn").addEventListener("click", (e) => {
+      e.preventDefault();
+      if (!wasmPredictReady) return;
+      const data = collectWasmPredictForm();
+      const pyFunc = wasmPredictReady.globals.get("heuristic_score");
+      const [proba, riskGroup] = pyFunc(wasmPredictReady.toPy(data)).toJs();
+      const resultEl = document.getElementById("wasm-predict-result");
+      resultEl.style.display = "block";
+      const color = riskGroup === "low" ? "#059669" : riskGroup === "intermediate" ? "#92400e" : "#c81e1e";
+      resultEl.innerHTML = `<b>SAP risk probability:</b> ${proba} &nbsp; <b>Risk group:</b> <span style="color:${color}; font-weight:700;">${riskGroup}</span>`;
+    });
+
+    initWasmPredict();
+  </script>
 
   <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
   <script>
