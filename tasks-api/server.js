@@ -118,7 +118,6 @@ async function initDb() {
       { title: 'Fix bad email — Prof. Lévy (Paris)', sub: 'No personal email published — try dept. secretariat: secretariat.pancreato.bjn@aphp.fr', due: '2026-06-30', cat: 'admin', status: 'pending' },
       { title: 'Follow-Up — Dr. Amir Dagan (Shaare Zedek)', sub: 'Personalized email sent (Liver & Pancreatic Surgery Unit) — 3.7 — awaiting reply', due: '2026-07-03', cat: 'follow', status: 'waiting' },
       { title: 'Follow-Up — Dr. Michael Neuman (Shaare Zedek)', sub: 'Email sent (cardiac surgeon, not GI/pancreas — asked for referral) — 3.7 — awaiting reply', due: '2026-07-03', cat: 'follow', status: 'waiting' },
-      { title: 'Re-outreach — Prof. Wim Ceelen (UZ Gent)', sub: 'Originally declined 24.6 (mistakenly addressed as HPB surgeon) — study scope since broadened to surgical oncology/HPB-adjacent depts — re-approached 30.7 explaining updated scope', due: '2026-07-30', cat: 'follow', status: 'waiting' },
     ];
 
     for (const task of defaultTasks) {
