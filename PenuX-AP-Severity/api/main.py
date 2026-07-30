@@ -463,8 +463,11 @@ def get_model_sweep(top_n: int = 30):
 
 
 # ---------------------------------------------------------------------------
-# Score distribution — lognormal fit over the 3 primary models' predicted
-# probabilities on the real n=722 cohort (data/public_sanitized/ap_model_results.csv)
+# Raw per-patient scores — all statistics (lognormal fits, Brier score,
+# calibration curve, lognormal(p)-lognormal(1-p) diff) are computed
+# client-side in /models/analysis's embedded JS, not on the server. This
+# endpoint just serves the raw numbers so the server doesn't need
+# scipy/scikit-learn's calibration module/matplotlib for this feature.
 # ---------------------------------------------------------------------------
 
 _SCORE_RESULTS_FILE = Path(__file__).resolve().parent.parent / "data" / "public_sanitized" / "ap_model_results.csv"
@@ -474,344 +477,7 @@ _SCORE_MODELS = {
     "panc_prob": "Pancreatic complication risk",
 }
 
-
-class LognormalFit(BaseModel):
-    shape: float = Field(description="Lognormal shape parameter (sigma of the underlying normal)")
-    loc: float = Field(description="Location parameter (fixed at 0 — scipy convention for a 2-param lognormal fit)")
-    scale: float = Field(description="Scale parameter — exp(mu) of the underlying normal")
-
-
-class ModelScoreDistribution(BaseModel):
-    model_key: str
-    model_label: str
-    n: int
-    mean: float
-    median: float
-    std: float
-    lognormal_fit: LognormalFit
-    histogram_bin_edges: list[float]
-    histogram_counts: list[int]
-    pdf_x: list[float] = Field(description="X values (probability, 0-1) for the fitted lognormal PDF curve")
-    pdf_y: list[float] = Field(description="Fitted lognormal PDF density at each pdf_x")
-
-
-class ScoreDistributionResponse(BaseModel):
-    dataset: str
-    n_patients: int
-    models: list[ModelScoreDistribution]
-    caveats: list[str]
-
-
-_SCORE_DIST_CAVEATS = [
-    "Probabilities are bounded in (0, 1); a lognormal is fit as a descriptive "
-    "approximation of the right-skewed shape (common for clinical risk scores), "
-    "not a claim that the true generating process is lognormal — treat the fit "
-    "as illustrative, not a statistical test result.",
-    "These are pre-computed predictions on the primary n=722 Atlanta-2012-labeled "
-    "cohort (data/public_sanitized/ap_model_results.csv), one score per patient "
-    "per model — not a live re-run of /predict.",
-]
-
-
-def _compute_score_distributions() -> tuple[pd.DataFrame, dict[str, ModelScoreDistribution]]:
-    if not _SCORE_RESULTS_FILE.exists():
-        raise HTTPException(status_code=404, detail=f"Score results not found at {_SCORE_RESULTS_FILE}")
-
-    from scipy import stats as _stats
-
-    df = pd.read_csv(_SCORE_RESULTS_FILE)
-    fits: dict[str, ModelScoreDistribution] = {}
-
-    for key, label in _SCORE_MODELS.items():
-        if key not in df.columns:
-            continue
-        scores = df[key].dropna().clip(lower=1e-6).to_numpy()
-
-        shape, loc, scale = _stats.lognorm.fit(scores, floc=0)
-
-        counts, edges = np.histogram(scores, bins=20, range=(0.0, 1.0))
-        pdf_x = np.linspace(0.001, 1.0, 200)
-        pdf_y = _stats.lognorm.pdf(pdf_x, shape, loc=loc, scale=scale)
-
-        fits[key] = ModelScoreDistribution(
-            model_key=key,
-            model_label=label,
-            n=len(scores),
-            mean=round(float(np.mean(scores)), 4),
-            median=round(float(np.median(scores)), 4),
-            std=round(float(np.std(scores)), 4),
-            lognormal_fit=LognormalFit(shape=round(float(shape), 4), loc=round(float(loc), 4), scale=round(float(scale), 4)),
-            histogram_bin_edges=[round(float(e), 4) for e in edges],
-            histogram_counts=[int(c) for c in counts],
-            pdf_x=[round(float(x), 4) for x in pdf_x],
-            pdf_y=[round(float(y), 4) for y in pdf_y],
-        )
-
-    return df, fits
-
-
-@app.get(
-    "/models/score-distribution",
-    response_model=ScoreDistributionResponse,
-    tags=["models"],
-    summary="Predicted-score distribution across all 3 models, with lognormal fit",
-    description=(
-        "Returns the distribution of predicted risk probabilities for all three "
-        "PenuX prediction targets — SAP severity, sepsis risk, and pancreatic "
-        "complication risk — computed on the real n=722 primary cohort, each "
-        "fit to a lognormal distribution for visualization. See `/models/"
-        "score-distribution.png` for a rendered chart of the same data.\n\n"
-        "⚠️ See `caveats` — a lognormal is a descriptive fit to bounded (0,1) "
-        "probabilities, not a formal distributional claim."
-    ),
-)
-def get_score_distribution():
-    _, fits = _compute_score_distributions()
-    return ScoreDistributionResponse(
-        dataset="data/public_sanitized/ap_model_results.csv",
-        n_patients=len(pd.read_csv(_SCORE_RESULTS_FILE)),
-        models=list(fits.values()),
-        caveats=_SCORE_DIST_CAVEATS,
-    )
-
-
-@app.get(
-    "/models/score-distribution.png",
-    tags=["models"],
-    summary="Predicted-score distribution chart (PNG) — histogram + lognormal fit",
-    description=(
-        "Renders the same data as `/models/score-distribution` as a PNG image: "
-        "one panel per model (SAP severity, sepsis risk, pancreatic risk), each "
-        "showing a histogram of predicted probabilities with the fitted "
-        "lognormal PDF overlaid."
-    ),
-)
-def get_score_distribution_png():
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    from fastapi.responses import Response
-
-    df, fits = _compute_score_distributions()
-
-    fig, axes = plt.subplots(1, len(fits), figsize=(5 * len(fits), 4))
-    if len(fits) == 1:
-        axes = [axes]
-
-    for ax, (key, fit) in zip(axes, fits.items()):
-        scores = df[key].dropna().clip(lower=1e-6)
-        ax.hist(scores, bins=20, range=(0.0, 1.0), density=True, alpha=0.5,
-                color="#4A6C8C", edgecolor="white", label="Observed")
-        ax.plot(fit.pdf_x, fit.pdf_y, color="#B4432A", linewidth=2, label="Lognormal fit")
-        ax.set_title(fit.model_label, fontsize=10)
-        ax.set_xlabel("Predicted probability")
-        ax.set_ylabel("Density")
-        ax.set_xlim(0, 1)
-        ax.legend(fontsize=8)
-
-    fig.suptitle(f"PenuX predicted-score distributions (n={len(df)}, lognormal fit)", fontsize=12)
-    fig.tight_layout()
-
-    from io import BytesIO
-    buf = BytesIO()
-    fig.savefig(buf, format="png", dpi=120)
-    plt.close(fig)
-    buf.seek(0)
-
-    return Response(content=buf.getvalue(), media_type="image/png")
-
-
-# ---------------------------------------------------------------------------
-# lognormal(p) - lognormal(1-p) — asymmetry analysis
-#
-# For each model, fit a lognormal to p (the predicted probability) and a
-# separate lognormal to 1-p (its complement), then take the pointwise
-# difference of the two fitted PDFs over x in (0,1). Because lognormal is
-# not symmetric under x -> 1-x, this difference curve is a diagnostic for
-# how asymmetric the predicted-score distribution really is: a curve at
-# ~0 everywhere would mean p and 1-p happen to be fit almost as mirror
-# images of each other; the actual shape here (large positive lobe at low
-# x, negative lobe at high x) reflects that most predicted probabilities
-# sit well below 0.5, so lognormal(p) concentrates near 0 while
-# lognormal(1-p) concentrates near 1.
-# ---------------------------------------------------------------------------
-
-class LognormalDiffCurve(BaseModel):
-    model_key: str
-    model_label: str
-    fit_p: LognormalFit
-    fit_one_minus_p: LognormalFit
-    x: list[float] = Field(description="X values (0-1) shared by both PDFs and their difference")
-    pdf_p: list[float] = Field(description="Fitted lognormal PDF of p, evaluated at x")
-    pdf_one_minus_p: list[float] = Field(description="Fitted lognormal PDF of (1-p), evaluated at x")
-    diff: list[float] = Field(description="pdf_p(x) - pdf_one_minus_p(x) — the asymmetry curve")
-    max_abs_diff: float = Field(description="max(|diff|) over x — a single-number asymmetry magnitude")
-
-
-class LognormalDiffResponse(BaseModel):
-    dataset: str
-    n_patients: int
-    curves: list[LognormalDiffCurve]
-    caveats: list[str]
-
-
-def _compute_lognormal_diffs() -> tuple[pd.DataFrame, dict[str, LognormalDiffCurve]]:
-    if not _SCORE_RESULTS_FILE.exists():
-        raise HTTPException(status_code=404, detail=f"Score results not found at {_SCORE_RESULTS_FILE}")
-
-    from scipy import stats as _stats
-
-    df = pd.read_csv(_SCORE_RESULTS_FILE)
-    curves: dict[str, LognormalDiffCurve] = {}
-    x = np.linspace(0.001, 0.999, 200)
-
-    for key, label in _SCORE_MODELS.items():
-        if key not in df.columns:
-            continue
-        p = df[key].dropna().clip(lower=1e-6, upper=1 - 1e-6).to_numpy()
-        one_minus_p = 1.0 - p
-
-        shape_p, loc_p, scale_p = _stats.lognorm.fit(p, floc=0)
-        shape_q, loc_q, scale_q = _stats.lognorm.fit(one_minus_p, floc=0)
-
-        pdf_p = _stats.lognorm.pdf(x, shape_p, loc=loc_p, scale=scale_p)
-        pdf_q = _stats.lognorm.pdf(x, shape_q, loc=loc_q, scale=scale_q)
-        diff = pdf_p - pdf_q
-
-        curves[key] = LognormalDiffCurve(
-            model_key=key,
-            model_label=label,
-            fit_p=LognormalFit(shape=round(float(shape_p), 4), loc=round(float(loc_p), 4), scale=round(float(scale_p), 4)),
-            fit_one_minus_p=LognormalFit(shape=round(float(shape_q), 4), loc=round(float(loc_q), 4), scale=round(float(scale_q), 4)),
-            x=[round(float(v), 4) for v in x],
-            pdf_p=[round(float(v), 4) for v in pdf_p],
-            pdf_one_minus_p=[round(float(v), 4) for v in pdf_q],
-            diff=[round(float(v), 4) for v in diff],
-            max_abs_diff=round(float(np.max(np.abs(diff))), 4),
-        )
-
-    return df, curves
-
-
-@app.get(
-    "/models/score-distribution/lognormal-diff",
-    response_model=LognormalDiffResponse,
-    tags=["models"],
-    summary="lognormal(p) - lognormal(1-p) asymmetry curve, per model",
-    description=(
-        "For each of the 3 prediction targets, fits a lognormal to the "
-        "predicted probability p and a separate lognormal to its complement "
-        "1-p, then returns the pointwise difference of the two fitted PDFs "
-        "over x in (0,1) — a diagnostic for how asymmetric the predicted-"
-        "score distribution is around 0.5. `max_abs_diff` gives a single-"
-        "number summary per model. See `/models/score-distribution/"
-        "lognormal-diff.png` for a rendered chart.\n\n"
-        "⚠️ See `caveats` — same lognormal-as-descriptive-fit caveat as "
-        "`/models/score-distribution`, plus: this compares two *independent* "
-        "fits (fit to p, fit to 1-p), not a transform of one fit — the "
-        "asymmetry mostly reflects that lognormal is not symmetric under "
-        "x -> 1-x combined with predicted probabilities skewing low."
-    ),
-)
-def get_lognormal_diff():
-    _, curves = _compute_lognormal_diffs()
-    return LognormalDiffResponse(
-        dataset="data/public_sanitized/ap_model_results.csv",
-        n_patients=len(pd.read_csv(_SCORE_RESULTS_FILE)),
-        curves=list(curves.values()),
-        caveats=_SCORE_DIST_CAVEATS + [
-            "This compares two independently-fit lognormals (one to p, one to "
-            "1-p) — the difference curve is not a closed-form transform, it's "
-            "computed pointwise from both fitted PDFs."
-        ],
-    )
-
-
-@app.get(
-    "/models/score-distribution/lognormal-diff.png",
-    tags=["models"],
-    summary="lognormal(p) - lognormal(1-p) asymmetry chart (PNG)",
-    description=(
-        "Renders the same data as `/models/score-distribution/lognormal-diff` "
-        "as a PNG: one panel per model, each showing both fitted PDFs "
-        "(lognormal(p) and lognormal(1-p)) plus their difference curve."
-    ),
-)
-def get_lognormal_diff_png():
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    from fastapi.responses import Response
-
-    _, curves = _compute_lognormal_diffs()
-
-    fig, axes = plt.subplots(1, len(curves), figsize=(5.5 * len(curves), 4.2))
-    if len(curves) == 1:
-        axes = [axes]
-
-    for ax, (key, c) in zip(axes, curves.items()):
-        ax.plot(c.x, c.pdf_p, color="#4A6C8C", linewidth=1.8, label="lognormal(p)")
-        ax.plot(c.x, c.pdf_one_minus_p, color="#9A7A1F", linewidth=1.8, label="lognormal(1-p)")
-        ax.plot(c.x, c.diff, color="#B4432A", linewidth=2, linestyle="--", label="diff")
-        ax.axhline(0, color="#999", linewidth=0.8)
-        ax.set_title(f"{c.model_label}\nmax|diff|={c.max_abs_diff}", fontsize=9.5)
-        ax.set_xlabel("x")
-        ax.set_ylabel("Density")
-        ax.set_xlim(0, 1)
-        ax.legend(fontsize=7.5)
-
-    fig.suptitle("lognormal(p) - lognormal(1-p) per model", fontsize=12)
-    fig.tight_layout()
-
-    from io import BytesIO
-    buf = BytesIO()
-    fig.savefig(buf, format="png", dpi=120)
-    plt.close(fig)
-    buf.seek(0)
-
-    return Response(content=buf.getvalue(), media_type="image/png")
-
-
-# ---------------------------------------------------------------------------
-# Brier score + calibration curve — proper, established alternatives to the
-# lognormal-diff asymmetry curve above for actually assessing model quality.
-#
-# IMPORTANT LABEL CAVEAT: the only ground-truth outcome in this cohort is
-# the SAP-severity label (true_label in ap_model_results.csv). The sepsis-
-# risk and pancreatic-complication-risk models are evaluated against this
-# SAME label, because data/public_sanitized/ap_sepsis_risk.csv and
-# ap_pancreatic_sepsis_risk.csv carry an identically-named/valued
-# "sap_label" column (row-for-row identical to true_label — verified by
-# direct comparison), not an independently adjudicated sepsis or
-# pancreatic-complication diagnosis. So "sep_prob calibration" here really
-# means "how well does the sepsis-risk score predict SAP severity" — not
-# a validated sepsis-outcome calibration.
-# ---------------------------------------------------------------------------
-
-class CalibrationBin(BaseModel):
-    bin_mean_predicted: float
-    bin_fraction_positive: float
-    bin_count: int
-
-
-class ModelCalibration(BaseModel):
-    model_key: str
-    model_label: str
-    n: int
-    brier_score: float = Field(description="Mean squared error between predicted probability and true outcome (0=perfect, 0.25=uninformative at prevalence 0.5)")
-    prevalence: float = Field(description="Fraction of patients with the positive outcome in this cohort")
-    bins: list[CalibrationBin]
-
-
-class CalibrationResponse(BaseModel):
-    dataset: str
-    n_patients: int
-    label_caveat: str
-    models: list[ModelCalibration]
-    caveats: list[str]
-
-
-_CALIBRATION_LABEL_CAVEAT = (
+_LABEL_CAVEAT = (
     "All three probabilities are scored against the SAME ground-truth label "
     "(SAP severity, true_label in ap_model_results.csv) — sep_prob and "
     "panc_prob do NOT have independent sepsis/pancreatic-complication "
@@ -823,129 +489,357 @@ _CALIBRATION_LABEL_CAVEAT = (
 )
 
 
-def _compute_calibration(n_bins: int = 10) -> tuple[pd.DataFrame, dict[str, ModelCalibration]]:
-    if not _SCORE_RESULTS_FILE.exists():
-        raise HTTPException(status_code=404, detail=f"Score results not found at {_SCORE_RESULTS_FILE}")
+class ModelRawScores(BaseModel):
+    model_key: str
+    model_label: str
+    p: list[float] = Field(description="Predicted probability per patient")
+    y: list[int] = Field(description="True outcome label per patient (see label_caveat)")
 
-    from sklearn.calibration import calibration_curve
-    from sklearn.metrics import brier_score_loss
 
-    df = pd.read_csv(_SCORE_RESULTS_FILE)
-    if "true_label" not in df.columns:
-        raise HTTPException(status_code=500, detail="true_label column missing from ap_model_results.csv")
-
-    y = df["true_label"].to_numpy()
-    results: dict[str, ModelCalibration] = {}
-
-    for key, label in _SCORE_MODELS.items():
-        if key not in df.columns:
-            continue
-        p = df[key].dropna().clip(0.0, 1.0).to_numpy()
-        y_aligned = df.loc[df[key].notna(), "true_label"].to_numpy()
-
-        brier = brier_score_loss(y_aligned, p)
-        prob_true, prob_pred = calibration_curve(y_aligned, p, n_bins=n_bins, strategy="quantile")
-
-        # calibration_curve doesn't return per-bin counts directly — recompute via digitize on the same quantile edges.
-        edges = np.unique(np.quantile(p, np.linspace(0, 1, n_bins + 1)))
-        bin_idx = np.digitize(p, edges[1:-1], right=True)
-        counts = [int(np.sum(bin_idx == i)) for i in range(len(prob_true))]
-
-        results[key] = ModelCalibration(
-            model_key=key,
-            model_label=label,
-            n=len(p),
-            brier_score=round(float(brier), 4),
-            prevalence=round(float(np.mean(y_aligned)), 4),
-            bins=[
-                CalibrationBin(bin_mean_predicted=round(float(pp), 4), bin_fraction_positive=round(float(pt), 4), bin_count=c)
-                for pp, pt, c in zip(prob_pred, prob_true, counts)
-            ],
-        )
-
-    return df, results
+class RawScoresResponse(BaseModel):
+    dataset: str
+    n_patients: int
+    label_caveat: str
+    models: list[ModelRawScores]
 
 
 @app.get(
-    "/models/calibration",
-    response_model=CalibrationResponse,
+    "/models/raw-scores",
+    response_model=RawScoresResponse,
     tags=["models"],
-    summary="Brier score + calibration curve for all 3 models",
+    summary="Raw per-patient predicted probabilities + outcome labels (for client-side analysis)",
     description=(
-        "Proper model-quality diagnostics, as an alternative to the "
-        "lognormal-diff asymmetry curve: Brier score (mean squared error "
-        "between predicted probability and true outcome) and a quantile-"
-        "binned calibration curve (reliability diagram: mean predicted "
-        "probability vs. observed fraction positive, per bin) for each of "
-        "the 3 prediction targets.\n\n"
-        "⚠️ **Read `label_caveat` first** — sep_prob and panc_prob are "
-        "evaluated against the SAP-severity label, not independent outcome "
-        "labels (none exist in this cohort). See `/models/calibration.png` "
-        "for a rendered reliability diagram."
+        "Returns the raw (p, y) pairs for all 3 prediction targets on the "
+        "real n=722 primary cohort, with no server-side statistics computed. "
+        "This is the data source for `/models/analysis`, which computes "
+        "lognormal fits, Brier score, calibration curves, and the "
+        "lognormal(p)-lognormal(1-p) asymmetry curve entirely in the "
+        "browser — the server does no scipy/matplotlib/statistics work for "
+        "this feature.\n\n"
+        "⚠️ See `label_caveat` — sep_prob and panc_prob are scored against "
+        "the SAP-severity label, not independent outcome labels."
     ),
 )
-def get_calibration(n_bins: int = 10):
-    _, results = _compute_calibration(n_bins=n_bins)
-    return CalibrationResponse(
+def get_raw_scores():
+    if not _SCORE_RESULTS_FILE.exists():
+        raise HTTPException(status_code=404, detail=f"Score results not found at {_SCORE_RESULTS_FILE}")
+
+    df = pd.read_csv(_SCORE_RESULTS_FILE)
+    models = []
+    for key, label in _SCORE_MODELS.items():
+        if key not in df.columns:
+            continue
+        sub = df[[key, "true_label"]].dropna()
+        models.append(ModelRawScores(
+            model_key=key,
+            model_label=label,
+            p=[round(float(v), 4) for v in sub[key].clip(0.0, 1.0)],
+            y=[int(v) for v in sub["true_label"]],
+        ))
+
+    return RawScoresResponse(
         dataset="data/public_sanitized/ap_model_results.csv",
-        n_patients=len(pd.read_csv(_SCORE_RESULTS_FILE)),
-        label_caveat=_CALIBRATION_LABEL_CAVEAT,
-        models=list(results.values()),
-        caveats=[
-            "Brier score and calibration curve are computed on the full n=722 "
-            "cohort, not a held-out test split — this reflects in-sample "
-            "calibration, not generalization to new patients.",
-        ],
+        n_patients=len(df),
+        label_caveat=_LABEL_CAVEAT,
+        models=models,
     )
 
 
 @app.get(
-    "/models/calibration.png",
+    "/models/analysis",
     tags=["models"],
-    summary="Calibration curve (reliability diagram) chart, PNG",
+    summary="Interactive client-side analysis page — lognormal fits, calibration, Brier score",
     description=(
-        "Renders the same data as `/models/calibration` as a PNG reliability "
-        "diagram: one panel per model, mean predicted probability (x) vs. "
-        "observed fraction positive (y), with the perfect-calibration "
-        "diagonal for reference, and Brier score annotated per panel."
+        "Self-contained HTML page that fetches `/models/raw-scores` and "
+        "computes everything client-side in JavaScript: lognormal fits "
+        "(method-of-moments) for p and 1-p per model with their difference "
+        "curve, Brier score, and a quantile-binned calibration curve — "
+        "rendered as canvas charts. No server-side scipy/matplotlib/"
+        "scikit-learn work happens for this page; only raw numbers are "
+        "served and all statistics/plotting run in the browser."
     ),
 )
-def get_calibration_png(n_bins: int = 10):
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    from fastapi.responses import Response
+def get_models_analysis_page():
+    from fastapi.responses import HTMLResponse
+    return HTMLResponse(content=_MODELS_ANALYSIS_HTML)
 
-    _, results = _compute_calibration(n_bins=n_bins)
 
-    fig, axes = plt.subplots(1, len(results), figsize=(5 * len(results), 4.5))
-    if len(results) == 1:
-        axes = [axes]
+_MODELS_ANALYSIS_HTML = r"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PenuX — Model Score Analysis (client-side)</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", ui-sans-serif, system-ui, sans-serif; background: #F7F6F3; color: #1E2321; margin: 0; padding: 2rem 1.5rem 4rem; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 .3rem; }
+  .deck { color: #565F5B; font-size: .9rem; max-width: 70ch; margin-bottom: 1.5rem; }
+  .banner { background: #E8F1EC; border: 1px solid #2F6E5C; border-radius: 8px; padding: .8rem 1rem; font-size: .82rem; margin-bottom: 1.5rem; }
+  .banner b { color: #2F6E5C; }
+  .panel { background: #fff; border: 1px solid #E4E1D8; border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 1.2rem; }
+  .panel h2 { font-size: 1rem; margin: 0 0 .6rem; }
+  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+  canvas { width: 100%; height: 220px; background: #fff; border: 1px solid #E4E1D8; border-radius: 6px; }
+  table { border-collapse: collapse; font-size: .8rem; width: 100%; margin-top: .5rem; }
+  th, td { text-align: left; padding: .3rem .6rem; border-bottom: 1px solid #eee; }
+  .stat { font-family: ui-monospace, monospace; }
+  .caveat { font-size: .76rem; color: #9A7A1F; margin-top: .5rem; }
+  #status { font-size: .85rem; color: #565F5B; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>PenuX — Model Score Analysis</h1>
+  <div class="deck">Lognormal fits, lognormal(p)-lognormal(1-p) asymmetry, Brier score, and calibration curves — all computed here in your browser from raw (p, y) pairs fetched from <code>/models/raw-scores</code>. No server-side scipy/matplotlib/scikit-learn work for this page.</div>
+  <div class="banner"><b>Label caveat:</b> <span id="label-caveat">loading…</span></div>
+  <div id="status">Loading data…</div>
+  <div id="content" class="grid3"></div>
+</div>
 
-    for ax, (key, r) in zip(axes, results.items()):
-        xs = [b.bin_mean_predicted for b in r.bins]
-        ys = [b.bin_fraction_positive for b in r.bins]
-        sizes = [max(15, b.bin_count) for b in r.bins]
-        ax.plot([0, 1], [0, 1], color="#999", linestyle="--", linewidth=1, label="Perfect calibration")
-        ax.scatter(xs, ys, s=sizes, color="#4A6C8C", alpha=0.8, label="Observed (per bin)")
-        ax.plot(xs, ys, color="#4A6C8C", linewidth=1, alpha=0.6)
-        ax.set_title(f"{r.model_label}\nBrier={r.brier_score}", fontsize=9.5)
-        ax.set_xlabel("Mean predicted probability")
-        ax.set_ylabel("Observed fraction positive")
-        ax.set_xlim(0, 1)
-        ax.set_ylim(0, 1)
-        ax.legend(fontsize=7.5)
+<script>
+// ---- Stats helpers (pure JS, no dependencies) ----
+function mean(a) { return a.reduce((s, v) => s + v, 0) / a.length; }
+function std(a) { const m = mean(a); return Math.sqrt(mean(a.map(v => (v - m) ** 2))); }
+function median(a) { const s = [...a].sort((x, y) => x - y); const n = s.length; return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2; }
 
-    fig.suptitle("Calibration (reliability diagram) — see label_caveat in /models/calibration", fontsize=11)
-    fig.tight_layout()
+// Method-of-moments lognormal fit: mu, sigma of ln(x)
+function fitLognormal(values) {
+  const eps = 1e-6;
+  const lnv = values.map(v => Math.log(Math.max(v, eps)));
+  const mu = mean(lnv);
+  const sigma = std(lnv);
+  return { mu, sigma };
+}
+function lognormalPdf(x, mu, sigma) {
+  if (x <= 0) return 0;
+  const z = (Math.log(x) - mu) / sigma;
+  return Math.exp(-0.5 * z * z) / (x * sigma * Math.sqrt(2 * Math.PI));
+}
 
-    from io import BytesIO
-    buf = BytesIO()
-    fig.savefig(buf, format="png", dpi=120)
-    plt.close(fig)
-    buf.seek(0)
+function brierScore(p, y) {
+  let s = 0;
+  for (let i = 0; i < p.length; i++) s += (p[i] - y[i]) ** 2;
+  return s / p.length;
+}
 
-    return Response(content=buf.getvalue(), media_type="image/png")
+// Quantile-binned calibration curve
+function calibrationCurve(p, y, nBins) {
+  const idx = p.map((v, i) => i).sort((a, b) => p[a] - p[b]);
+  const n = p.length;
+  const bins = [];
+  for (let b = 0; b < nBins; b++) {
+    const lo = Math.floor((b / nBins) * n);
+    const hi = Math.floor(((b + 1) / nBins) * n);
+    const slice = idx.slice(lo, hi);
+    if (!slice.length) continue;
+    const meanP = mean(slice.map(i => p[i]));
+    const fracPos = mean(slice.map(i => y[i]));
+    bins.push({ meanP, fracPos, count: slice.length });
+  }
+  return bins;
+}
+
+function histogram(values, nBins, lo, hi) {
+  const edges = Array.from({ length: nBins + 1 }, (_, i) => lo + (i * (hi - lo)) / nBins);
+  const counts = new Array(nBins).fill(0);
+  for (const v of values) {
+    let b = Math.floor(((v - lo) / (hi - lo)) * nBins);
+    b = Math.max(0, Math.min(nBins - 1, b));
+    counts[b]++;
+  }
+  return { edges, counts };
+}
+
+// ---- Canvas drawing helpers ----
+function setupCanvas(canvas) {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+  return { ctx, w: rect.width, h: rect.height };
+}
+
+function drawHistWithFit(canvas, values, mu, sigma, color) {
+  const { ctx, w, h } = setupCanvas(canvas);
+  const pad = 28;
+  const { edges, counts } = histogram(values, 20, 0, 1);
+  const total = values.length;
+  const binWidth = edges[1] - edges[0];
+  const density = counts.map(c => c / total / binWidth);
+  const maxDensity = Math.max(...density, ...Array.from({ length: 50 }, (_, i) => lognormalPdf((i + 0.5) / 50, mu, sigma)));
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = "#ccc";
+  ctx.strokeRect(pad, 5, w - pad - 10, h - pad - 5);
+
+  // histogram bars
+  ctx.fillStyle = color + "80";
+  density.forEach((d, i) => {
+    const x0 = pad + (edges[i]) * (w - pad - 10);
+    const x1 = pad + (edges[i + 1]) * (w - pad - 10);
+    const y0 = (h - pad) - (d / maxDensity) * (h - pad - 5);
+    ctx.fillRect(x0, y0, x1 - x0 - 1, (h - pad) - y0);
+  });
+
+  // lognormal fit curve
+  ctx.strokeStyle = "#B4432A";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i <= 100; i++) {
+    const x = i / 100;
+    const y = lognormalPdf(Math.max(x, 0.001), mu, sigma);
+    const px = pad + x * (w - pad - 10);
+    const py = (h - pad) - (y / maxDensity) * (h - pad - 5);
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  ctx.fillStyle = "#565F5B";
+  ctx.font = "10px sans-serif";
+  ctx.fillText("0", pad - 4, h - pad + 12);
+  ctx.fillText("1", w - 14, h - pad + 12);
+}
+
+function drawCalibration(canvas, bins, brier) {
+  const { ctx, w, h } = setupCanvas(canvas);
+  const pad = 30;
+  const plotW = w - pad - 10, plotH = h - pad - 10;
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = "#ccc";
+  ctx.strokeRect(pad, 5, plotW, plotH);
+
+  // diagonal
+  ctx.strokeStyle = "#999";
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath();
+  ctx.moveTo(pad, 5 + plotH);
+  ctx.lineTo(pad + plotW, 5);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // observed points/line
+  ctx.strokeStyle = "#4A6C8C";
+  ctx.fillStyle = "#4A6C8C";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  bins.forEach((b, i) => {
+    const px = pad + b.meanP * plotW;
+    const py = 5 + plotH - b.fracPos * plotH;
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  });
+  ctx.stroke();
+  bins.forEach(b => {
+    const px = pad + b.meanP * plotW;
+    const py = 5 + plotH - b.fracPos * plotH;
+    ctx.beginPath();
+    ctx.arc(px, py, Math.max(3, Math.sqrt(b.count) / 2), 0, 2 * Math.PI);
+    ctx.fill();
+  });
+
+  ctx.fillStyle = "#1E2321";
+  ctx.font = "11px sans-serif";
+  ctx.fillText(`Brier=${brier.toFixed(4)}`, pad + 4, 16);
+  ctx.fillStyle = "#565F5B";
+  ctx.font = "10px sans-serif";
+  ctx.fillText("0", pad - 4, h - pad + 12);
+  ctx.fillText("1", w - 14, h - pad + 12);
+}
+
+function drawDiffCurve(canvas, muP, sigmaP, muQ, sigmaQ) {
+  const { ctx, w, h } = setupCanvas(canvas);
+  const pad = 28;
+  const plotW = w - pad - 10, plotH = h - pad - 10;
+
+  const xs = Array.from({ length: 200 }, (_, i) => 0.001 + (i / 199) * 0.998);
+  const pdfP = xs.map(x => lognormalPdf(x, muP, sigmaP));
+  const pdfQ = xs.map(x => lognormalPdf(x, muQ, sigmaQ));
+  const diff = pdfP.map((v, i) => v - pdfQ[i]);
+  const maxAbs = Math.max(...pdfP, ...pdfQ);
+  const maxDiffAbs = Math.max(...diff.map(Math.abs));
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = "#ccc";
+  ctx.strokeRect(pad, 5, plotW, plotH);
+  const zeroY = 5 + plotH / 2;
+  ctx.strokeStyle = "#999";
+  ctx.beginPath(); ctx.moveTo(pad, zeroY); ctx.lineTo(pad + plotW, zeroY); ctx.stroke();
+
+  const scaleY = (v, scaleMax) => zeroY - (v / scaleMax) * (plotH / 2 - 4);
+
+  function plotLine(vals, color, scaleMax) {
+    ctx.strokeStyle = color; ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    vals.forEach((v, i) => {
+      const px = pad + xs[i] * plotW;
+      const py = scaleY(v, scaleMax);
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    });
+    ctx.stroke();
+  }
+  plotLine(pdfP, "#4A6C8C", maxAbs);
+  plotLine(pdfQ, "#9A7A1F", maxAbs);
+  ctx.setLineDash([5, 3]);
+  plotLine(diff, "#B4432A", maxAbs);
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = "#565F5B";
+  ctx.font = "10px sans-serif";
+  ctx.fillText("0", pad - 4, h - pad + 12);
+  ctx.fillText("1", w - 14, h - pad + 12);
+  ctx.fillText(`max|diff|=${maxDiffAbs.toFixed(3)}`, pad + 4, 16);
+}
+
+// ---- Main ----
+async function main() {
+  const status = document.getElementById("status");
+  const content = document.getElementById("content");
+  try {
+    const res = await fetch("/models/raw-scores");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    document.getElementById("label-caveat").textContent = data.label_caveat;
+    status.textContent = `Loaded ${data.n_patients} patients, ${data.models.length} models. Computing client-side…`;
+
+    for (const m of data.models) {
+      const p = m.p, y = m.y;
+      const fitP = fitLognormal(p);
+      const oneMinusP = p.map(v => 1 - v);
+      const fitQ = fitLognormal(oneMinusP);
+      const brier = brierScore(p, y);
+      const bins = calibrationCurve(p, y, 10);
+
+      const panel = document.createElement("div");
+      panel.className = "panel";
+      panel.innerHTML = `
+        <h2>${m.model_label}</h2>
+        <div class="stat">n=${p.length} · mean=${mean(p).toFixed(4)} · median=${median(p).toFixed(4)} · std=${std(p).toFixed(4)}</div>
+        <div class="stat">lognormal(p): mu=${fitP.mu.toFixed(4)} sigma=${fitP.sigma.toFixed(4)}</div>
+        <canvas id="hist-${m.model_key}"></canvas>
+        <div class="stat" style="margin-top:.6rem">Brier score: ${brier.toFixed(4)} (prevalence ${mean(y).toFixed(4)})</div>
+        <canvas id="calib-${m.model_key}"></canvas>
+        <div class="stat" style="margin-top:.6rem">lognormal(p) vs lognormal(1-p)</div>
+        <canvas id="diff-${m.model_key}"></canvas>
+      `;
+      content.appendChild(panel);
+
+      drawHistWithFit(document.getElementById(`hist-${m.model_key}`), p, fitP.mu, fitP.sigma, "#4A6C8C");
+      drawCalibration(document.getElementById(`calib-${m.model_key}`), bins, brier);
+      drawDiffCurve(document.getElementById(`diff-${m.model_key}`), fitP.mu, fitP.sigma, fitQ.mu, fitQ.sigma);
+    }
+
+    status.textContent = `Done — all statistics computed client-side from ${data.n_patients} raw (p, y) pairs.`;
+  } catch (e) {
+    status.textContent = "Error loading/computing: " + e.message;
+  }
+}
+main();
+</script>
+</body>
+</html>"""
+
 
 
 # ---------------------------------------------------------------------------
