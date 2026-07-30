@@ -101,6 +101,26 @@
   .cal-titlebar button { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); color: #fff; width: 28px; height: 28px; border-radius: 4px; cursor: pointer; font-size: .95rem; line-height: 1; }
   .cal-titlebar button:hover { background: rgba(255,255,255,.28); }
   .cal-titlebar .cal-title { font-weight: 700; font-size: .95rem; }
+  .cal-title-controls { display: flex; gap: .4rem; }
+  .cal-title-controls select {
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); color: #fff;
+    border-radius: 4px; padding: .2rem .4rem; font-size: .82rem; font-weight: 600; cursor: pointer;
+  }
+  .cal-title-controls select option { color: #111827; }
+  .cal-title-right { display: flex; align-items: center; gap: .4rem; }
+  .cal-today-btn, .cal-view-toggle {
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); color: #fff;
+    border-radius: 4px; padding: 0 .55rem; height: 28px; font-size: .78rem; font-weight: 600; cursor: pointer;
+  }
+  .cal-today-btn:hover, .cal-view-toggle:hover { background: rgba(255,255,255,.28); }
+  .cal-tooltip {
+    position: fixed; z-index: 50; background: #111827; color: #fff; font-size: .76rem;
+    border-radius: 6px; padding: .5rem .65rem; max-width: 260px; box-shadow: 0 4px 14px rgba(0,0,0,.25);
+    pointer-events: none;
+  }
+  .cal-tooltip .tt-item { margin-bottom: .25rem; }
+  .cal-tooltip .tt-item:last-child { margin-bottom: 0; }
+  .cal-tooltip .tt-title { font-weight: 600; }
   .cal-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
   .cal-table th { background: var(--light); color: var(--gray); font-size: .72rem; font-weight: 600; padding: .4rem 0; text-align: center; border: 1px solid var(--border); }
   .cal-table td { border: 1px solid var(--border); height: 64px; vertical-align: top; padding: .25rem; cursor: pointer; transition: background .12s; position: relative; }
@@ -320,9 +340,17 @@
     <!-- Calendar (ASP.NET WebForms Calendar-control style, backed by the server's task data) -->
     <div class="cal-wrap">
       <div class="cal-titlebar">
-        <button onclick="calNav(-1)" type="button">‹</button>
-        <span class="cal-title" id="cal-title"></span>
-        <button onclick="calNav(1)" type="button">›</button>
+        <button onclick="calNav(-1)" type="button" title="Previous">‹</button>
+        <span class="cal-title-controls" id="cal-title-controls">
+          <select id="cal-month-select" onchange="calJumpMonth(this.value)"></select>
+          <select id="cal-year-select" onchange="calJumpYear(this.value)"></select>
+        </span>
+        <span class="cal-title" id="cal-title" style="display:none"></span>
+        <span class="cal-title-right">
+          <button class="cal-view-toggle" id="cal-view-toggle-btn" onclick="calToggleView()" type="button"></button>
+          <button class="cal-today-btn" onclick="calGoToday()" type="button">Today</button>
+          <button onclick="calNav(1)" type="button" title="Next">›</button>
+        </span>
       </div>
       <table class="cal-table">
         <thead><tr id="cal-weekdays"></tr></thead>
@@ -332,6 +360,7 @@
         <span id="cal-selected-label">Click a day to filter tasks</span>
         <button onclick="calClearSelection()" type="button">Clear selection</button>
       </div>
+      <div id="cal-tooltip" class="cal-tooltip" style="display:none"></div>
     </div>
 
     <div class="filter-bar">
@@ -478,16 +507,63 @@ function setFilter(f, btn) {
 const calToday = new Date();
 let calViewYear = calToday.getFullYear();
 let calViewMonth = calToday.getMonth();
+let calViewDay = calToday.getDate(); // anchor day, used by week view
+let calMode = 'month'; // 'month' | 'week'
 let selectedCalDate = null;
 
 const CAL_WEEKDAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const CAL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 function calNav(delta) {
-  calViewMonth += delta;
-  if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
-  if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+  if (calMode === 'week') {
+    const anchor = new Date(calViewYear, calViewMonth, calViewDay + delta * 7);
+    calViewYear = anchor.getFullYear();
+    calViewMonth = anchor.getMonth();
+    calViewDay = anchor.getDate();
+  } else {
+    calViewMonth += delta;
+    if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
+    if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+  }
   renderCalendar();
+}
+
+function calJumpMonth(m) {
+  calViewMonth = Number(m);
+  renderCalendar();
+}
+
+function calJumpYear(y) {
+  calViewYear = Number(y);
+  renderCalendar();
+}
+
+function calGoToday() {
+  calViewYear = calToday.getFullYear();
+  calViewMonth = calToday.getMonth();
+  calViewDay = calToday.getDate();
+  renderCalendar();
+}
+
+function calToggleView() {
+  calMode = (calMode === 'month') ? 'week' : 'month';
+  if (calMode === 'week' && !calViewDay) calViewDay = calToday.getDate();
+  renderCalendar();
+}
+
+function calShowTooltip(evt, dayTasks) {
+  const tip = document.getElementById('cal-tooltip');
+  if (!dayTasks.length) { tip.style.display = 'none'; return; }
+  tip.innerHTML = dayTasks.map(t => `<div class="tt-item"><div class="tt-title">${t.title}</div>${t.sub ? `<div>${t.sub}</div>` : ''}</div>`).join('');
+  tip.style.display = 'block';
+  const x = evt.clientX, y = evt.clientY;
+  const margin = 16;
+  tip.style.left = Math.min(x + margin, window.innerWidth - 280) + 'px';
+  tip.style.top = Math.min(y + margin, window.innerHeight - 100) + 'px';
+}
+
+function calHideTooltip() {
+  document.getElementById('cal-tooltip').style.display = 'none';
 }
 
 function calClearSelection() {
@@ -502,6 +578,27 @@ function calSelectDay(iso) {
 
 function calPad2(n) { return String(n).padStart(2, '0'); }
 
+function calPopulateJumpControls() {
+  const monthSel = document.getElementById('cal-month-select');
+  if (!monthSel.options.length) {
+    monthSel.innerHTML = CAL_MONTHS.map((m, i) => `<option value="${i}">${m}</option>`).join('');
+  }
+  monthSel.value = calViewMonth;
+
+  const yearSel = document.getElementById('cal-year-select');
+  const curYear = calToday.getFullYear();
+  if (!yearSel.options.length) {
+    const years = [];
+    for (let y = curYear - 3; y <= curYear + 3; y++) years.push(y);
+    yearSel.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+  }
+  yearSel.value = calViewYear;
+
+  document.getElementById('cal-view-toggle-btn').textContent = calMode === 'month' ? 'Week view' : 'Month view';
+  document.getElementById('cal-title-controls').style.display = calMode === 'month' ? 'flex' : 'none';
+  document.getElementById('cal-title').style.display = calMode === 'week' ? 'inline' : 'none';
+}
+
 function renderCalendar() {
   const byDate = {};
   allTasks.forEach(t => {
@@ -509,40 +606,63 @@ function renderCalendar() {
     (byDate[t.due] = byDate[t.due] || []).push(t);
   });
 
-  document.getElementById('cal-title').textContent = `${CAL_MONTHS[calViewMonth]} ${calViewYear}`;
+  calPopulateJumpControls();
 
   const weekdaysRow = document.getElementById('cal-weekdays');
   weekdaysRow.innerHTML = CAL_WEEKDAYS.map(w => `<th>${w}</th>`).join('');
 
-  const firstOfMonth = new Date(calViewYear, calViewMonth, 1);
-  const startWeekday = firstOfMonth.getDay();
-  const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
-  const daysInPrevMonth = new Date(calViewYear, calViewMonth, 0).getDate();
   const todayIso = `${calToday.getFullYear()}-${calPad2(calToday.getMonth()+1)}-${calPad2(calToday.getDate())}`;
-
-  const cells = [];
-  for (let i = 0; i < startWeekday; i++) {
-    cells.push({ day: daysInPrevMonth - startWeekday + 1 + i, otherMonth: true });
-  }
-  for (let d = 1; d <= daysInMonth; d++) {
-    cells.push({ day: d, otherMonth: false, iso: `${calViewYear}-${calPad2(calViewMonth+1)}-${calPad2(d)}` });
-  }
-  while (cells.length % 7 !== 0) {
-    cells.push({ day: cells.length - (startWeekday + daysInMonth) + 1, otherMonth: true });
-  }
-
   const body = document.getElementById('cal-body');
   body.innerHTML = '';
+
+  let cells;
+  if (calMode === 'week') {
+    const anchor = new Date(calViewYear, calViewMonth, calViewDay);
+    const weekStart = new Date(anchor);
+    weekStart.setDate(anchor.getDate() - anchor.getDay());
+    cells = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(weekStart);
+      d.setDate(weekStart.getDate() + i);
+      cells.push({
+        day: d.getDate(),
+        otherMonth: d.getMonth() !== calViewMonth,
+        iso: `${d.getFullYear()}-${calPad2(d.getMonth()+1)}-${calPad2(d.getDate())}`,
+      });
+    }
+    const rangeEnd = new Date(weekStart); rangeEnd.setDate(weekStart.getDate() + 6);
+    document.getElementById('cal-title').textContent =
+      `${CAL_MONTHS[weekStart.getMonth()].slice(0,3)} ${weekStart.getDate()} – ${CAL_MONTHS[rangeEnd.getMonth()].slice(0,3)} ${rangeEnd.getDate()}, ${rangeEnd.getFullYear()}`;
+  } else {
+    document.getElementById('cal-title').textContent = `${CAL_MONTHS[calViewMonth]} ${calViewYear}`;
+    const firstOfMonth = new Date(calViewYear, calViewMonth, 1);
+    const startWeekday = firstOfMonth.getDay();
+    const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+    const daysInPrevMonth = new Date(calViewYear, calViewMonth, 0).getDate();
+
+    cells = [];
+    for (let i = 0; i < startWeekday; i++) {
+      cells.push({ day: daysInPrevMonth - startWeekday + 1 + i, otherMonth: true });
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      cells.push({ day: d, otherMonth: false, iso: `${calViewYear}-${calPad2(calViewMonth+1)}-${calPad2(d)}` });
+    }
+    while (cells.length % 7 !== 0) {
+      cells.push({ day: cells.length - (startWeekday + daysInMonth) + 1, otherMonth: true });
+    }
+  }
+
   for (let row = 0; row < cells.length / 7; row++) {
     const tr = body.insertRow();
     for (let col = 0; col < 7; col++) {
       const cell = cells[row * 7 + col];
       const td = tr.insertCell();
-      if (cell.otherMonth) {
+      if (cell.otherMonth && !cell.iso) {
         td.classList.add('cal-other-month');
         td.innerHTML = `<div class="cal-daynum">${cell.day}</div>`;
         continue;
       }
+      if (cell.otherMonth) td.classList.add('cal-other-month');
       if (cell.iso === todayIso) td.classList.add('cal-today');
       if (cell.iso === selectedCalDate) td.classList.add('cal-selected');
       const dayTasks = byDate[cell.iso] || [];
@@ -552,6 +672,10 @@ function renderCalendar() {
         ${dayTasks.length ? `<div class="cal-badges">${dots}</div><span class="cal-count">${dayTasks.length}</span>` : ''}
       `;
       td.onclick = () => calSelectDay(cell.iso);
+      if (dayTasks.length) {
+        td.onmousemove = (evt) => calShowTooltip(evt, dayTasks);
+        td.onmouseleave = calHideTooltip;
+      }
     }
   }
 
