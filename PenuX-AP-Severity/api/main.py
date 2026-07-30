@@ -463,6 +463,165 @@ def get_model_sweep(top_n: int = 30):
 
 
 # ---------------------------------------------------------------------------
+# Score distribution — lognormal fit over the 3 primary models' predicted
+# probabilities on the real n=722 cohort (data/public_sanitized/ap_model_results.csv)
+# ---------------------------------------------------------------------------
+
+_SCORE_RESULTS_FILE = Path(__file__).resolve().parent.parent / "data" / "public_sanitized" / "ap_model_results.csv"
+_SCORE_MODELS = {
+    "sap_prob": "Severe Acute Pancreatitis (SAP) risk",
+    "sep_prob": "Sepsis risk",
+    "panc_prob": "Pancreatic complication risk",
+}
+
+
+class LognormalFit(BaseModel):
+    shape: float = Field(description="Lognormal shape parameter (sigma of the underlying normal)")
+    loc: float = Field(description="Location parameter (fixed at 0 — scipy convention for a 2-param lognormal fit)")
+    scale: float = Field(description="Scale parameter — exp(mu) of the underlying normal")
+
+
+class ModelScoreDistribution(BaseModel):
+    model_key: str
+    model_label: str
+    n: int
+    mean: float
+    median: float
+    std: float
+    lognormal_fit: LognormalFit
+    histogram_bin_edges: list[float]
+    histogram_counts: list[int]
+    pdf_x: list[float] = Field(description="X values (probability, 0-1) for the fitted lognormal PDF curve")
+    pdf_y: list[float] = Field(description="Fitted lognormal PDF density at each pdf_x")
+
+
+class ScoreDistributionResponse(BaseModel):
+    dataset: str
+    n_patients: int
+    models: list[ModelScoreDistribution]
+    caveats: list[str]
+
+
+_SCORE_DIST_CAVEATS = [
+    "Probabilities are bounded in (0, 1); a lognormal is fit as a descriptive "
+    "approximation of the right-skewed shape (common for clinical risk scores), "
+    "not a claim that the true generating process is lognormal — treat the fit "
+    "as illustrative, not a statistical test result.",
+    "These are pre-computed predictions on the primary n=722 Atlanta-2012-labeled "
+    "cohort (data/public_sanitized/ap_model_results.csv), one score per patient "
+    "per model — not a live re-run of /predict.",
+]
+
+
+def _compute_score_distributions() -> tuple[pd.DataFrame, dict[str, ModelScoreDistribution]]:
+    if not _SCORE_RESULTS_FILE.exists():
+        raise HTTPException(status_code=404, detail=f"Score results not found at {_SCORE_RESULTS_FILE}")
+
+    from scipy import stats as _stats
+
+    df = pd.read_csv(_SCORE_RESULTS_FILE)
+    fits: dict[str, ModelScoreDistribution] = {}
+
+    for key, label in _SCORE_MODELS.items():
+        if key not in df.columns:
+            continue
+        scores = df[key].dropna().clip(lower=1e-6).to_numpy()
+
+        shape, loc, scale = _stats.lognorm.fit(scores, floc=0)
+
+        counts, edges = np.histogram(scores, bins=20, range=(0.0, 1.0))
+        pdf_x = np.linspace(0.001, 1.0, 200)
+        pdf_y = _stats.lognorm.pdf(pdf_x, shape, loc=loc, scale=scale)
+
+        fits[key] = ModelScoreDistribution(
+            model_key=key,
+            model_label=label,
+            n=len(scores),
+            mean=round(float(np.mean(scores)), 4),
+            median=round(float(np.median(scores)), 4),
+            std=round(float(np.std(scores)), 4),
+            lognormal_fit=LognormalFit(shape=round(float(shape), 4), loc=round(float(loc), 4), scale=round(float(scale), 4)),
+            histogram_bin_edges=[round(float(e), 4) for e in edges],
+            histogram_counts=[int(c) for c in counts],
+            pdf_x=[round(float(x), 4) for x in pdf_x],
+            pdf_y=[round(float(y), 4) for y in pdf_y],
+        )
+
+    return df, fits
+
+
+@app.get(
+    "/models/score-distribution",
+    response_model=ScoreDistributionResponse,
+    tags=["models"],
+    summary="Predicted-score distribution across all 3 models, with lognormal fit",
+    description=(
+        "Returns the distribution of predicted risk probabilities for all three "
+        "PenuX prediction targets — SAP severity, sepsis risk, and pancreatic "
+        "complication risk — computed on the real n=722 primary cohort, each "
+        "fit to a lognormal distribution for visualization. See `/models/"
+        "score-distribution.png` for a rendered chart of the same data.\n\n"
+        "⚠️ See `caveats` — a lognormal is a descriptive fit to bounded (0,1) "
+        "probabilities, not a formal distributional claim."
+    ),
+)
+def get_score_distribution():
+    _, fits = _compute_score_distributions()
+    return ScoreDistributionResponse(
+        dataset="data/public_sanitized/ap_model_results.csv",
+        n_patients=len(pd.read_csv(_SCORE_RESULTS_FILE)),
+        models=list(fits.values()),
+        caveats=_SCORE_DIST_CAVEATS,
+    )
+
+
+@app.get(
+    "/models/score-distribution.png",
+    tags=["models"],
+    summary="Predicted-score distribution chart (PNG) — histogram + lognormal fit",
+    description=(
+        "Renders the same data as `/models/score-distribution` as a PNG image: "
+        "one panel per model (SAP severity, sepsis risk, pancreatic risk), each "
+        "showing a histogram of predicted probabilities with the fitted "
+        "lognormal PDF overlaid."
+    ),
+)
+def get_score_distribution_png():
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from fastapi.responses import Response
+
+    df, fits = _compute_score_distributions()
+
+    fig, axes = plt.subplots(1, len(fits), figsize=(5 * len(fits), 4))
+    if len(fits) == 1:
+        axes = [axes]
+
+    for ax, (key, fit) in zip(axes, fits.items()):
+        scores = df[key].dropna().clip(lower=1e-6)
+        ax.hist(scores, bins=20, range=(0.0, 1.0), density=True, alpha=0.5,
+                color="#4A6C8C", edgecolor="white", label="Observed")
+        ax.plot(fit.pdf_x, fit.pdf_y, color="#B4432A", linewidth=2, label="Lognormal fit")
+        ax.set_title(fit.model_label, fontsize=10)
+        ax.set_xlabel("Predicted probability")
+        ax.set_ylabel("Density")
+        ax.set_xlim(0, 1)
+        ax.legend(fontsize=8)
+
+    fig.suptitle(f"PenuX predicted-score distributions (n={len(df)}, lognormal fit)", fontsize=12)
+    fig.tight_layout()
+
+    from io import BytesIO
+    buf = BytesIO()
+    fig.savefig(buf, format="png", dpi=120)
+    plt.close(fig)
+    buf.seek(0)
+
+    return Response(content=buf.getvalue(), media_type="image/png")
+
+
+# ---------------------------------------------------------------------------
 # Plain JSON endpoint (original)
 # ---------------------------------------------------------------------------
 
