@@ -173,3 +173,72 @@ export function startCorrespondenceTracker(db, { schedule = '*/10 * * * *', look
   console.log(`📊 Correspondence tracker started — polling mailbox on schedule "${schedule}".`);
   return task;
 }
+
+// Links a task-board title (matched by substring) to the contact_match key
+// used above, so the task board can be kept in sync with the same
+// mailbox-derived ground truth instead of hand-edited text going stale.
+const TASK_TITLE_LINKS = [
+  { titleContains: 'Saurabh Chawla', contactMatch: 'saurabh.chawla' },
+  { titleContains: 'Peter Hegyi', contactMatch: 'hegyi2009' },
+  { titleContains: 'Luca Frulloni', contactMatch: 'luca.frulloni' },
+  { titleContains: 'Panu Mentula', contactMatch: 'panu.mentula' },
+  { titleContains: 'Puķītis', contactMatch: 'aldis.pukitis' },
+  { titleContains: 'John Windsor', contactMatch: 'j.windsor' },
+  { titleContains: 'Rohatak', contactMatch: 'rohatakmd' },
+  { titleContains: 'Klaus Sahora', contactMatch: 'klaus.sahora' },
+  { titleContains: 'Carolyn Calfee', contactMatch: 'carolyn.calfee' },
+  { titleContains: 'James Buxbaum', contactMatch: 'james.buxbaum' },
+  { titleContains: 'Vera Dreizin', contactMatch: 'verad@wmc.gov.il' },
+  { titleContains: 'Naftali', contactMatch: 'timnan@wmc.gov.il' },
+];
+
+// waiting_on_you: they replied, ball is in your court -> surface as urgent.
+// waiting_on_them: you're waiting on a reply -> keep as a passive follow-up.
+const TASK_STATUS_FROM_CORRESPONDENCE = {
+  waiting_on_you: 'urgent',
+  waiting_on_them: 'waiting',
+};
+
+export function startTaskBoardSync(db, { schedule = '0 */12 * * *' } = {}) {
+  async function syncOnce() {
+    db.all('SELECT id, title FROM tasks', [], (err, tasks) => {
+      if (err) {
+        console.error('Task board sync: failed to read tasks:', err.message);
+        return;
+      }
+      db.all('SELECT * FROM correspondence', [], (err2, rows) => {
+        if (err2) {
+          console.error('Task board sync: failed to read correspondence:', err2.message);
+          return;
+        }
+        const byMatch = new Map(rows.map(r => [r.contact_match, r]));
+        let updated = 0;
+
+        for (const task of tasks) {
+          const link = TASK_TITLE_LINKS.find(l => task.title.includes(l.titleContains));
+          if (!link) continue;
+
+          const corr = byMatch.get(link.contactMatch);
+          if (!corr || corr.status === 'no_correspondence_found') continue;
+
+          const newStatus = TASK_STATUS_FROM_CORRESPONDENCE[corr.status];
+          if (!newStatus) continue;
+
+          const dateStr = corr.last_date ? new Date(corr.last_date).toLocaleDateString('en-GB') : 'unknown date';
+          const newSub = `[Auto-synced ${dateStr}] ${corr.status_label}: "${(corr.last_snippet || corr.last_subject || '').slice(0, 160)}"`;
+
+          db.run('UPDATE tasks SET status = ?, sub = ? WHERE id = ?', [newStatus, newSub, task.id]);
+          updated++;
+        }
+
+        console.log(`🔄 Task board sync: updated ${updated} task(s) from correspondence data.`);
+      });
+    });
+  }
+
+  const task = cron.schedule(schedule, syncOnce);
+  syncOnce();
+
+  console.log(`🔄 Task board sync started — refreshing task board from correspondence on schedule "${schedule}".`);
+  return task;
+}
