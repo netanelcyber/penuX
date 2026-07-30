@@ -108,7 +108,7 @@ async function initDb() {
   if (countResult.rows[0].count === 0) {
     const defaultTasks = [
       { title: 'Zoom — Prof. Michael Kochman (UPenn Gastro)', sub: 'Confirmed: Tue 10 Jul, 08:00–09:00 EST (15:00 IL)', due: '2026-07-10', cat: 'meeting', status: 'pending' },
-      { title: 'Zoom — Dr. Nauzer Forbes (Calgary)', sub: 'Renegotiating time — asked 7/1 to reschedule off 6 Jul evening IL; awaiting reply', due: '2026-07-06', cat: 'meeting', status: 'urgent' },
+      { title: 'Zoom — Dr. Nauzer Forbes (Calgary)', sub: 'Confirmed by Dr. Forbes — meeting set for Aug 10', due: '2026-08-10', cat: 'meeting', status: 'pending' },
       { title: 'Meeting — Prof. Tamara Naftali (Wolfson)', sub: 'Tuesday 30.6, 10:00 — Wolfson Gastro Institute', due: '2026-06-30', cat: 'meeting', status: 'done' },
       { title: 'פגישת הכרות — ד"ר ורה דרייזין (וולפסון)', sub: 'התקיימה — פגישת הכרות עם ד"ר ורה דרייזין (מנהלת שירות הכבד), בהשתתפות פרופ\' תמנע נפתלי ואורית ש.', due: null, cat: 'meeting', status: 'done' },
       { title: 'Meeting חוזרת — וולפסון (מתאמת מחקר + צוות)', sub: 'נקבע: 4.8 — עם מתאמת המחקר והצוות; תרגום המאמר לעברית נשלח 6.7', due: '2026-08-04', cat: 'meeting', status: 'pending' },
