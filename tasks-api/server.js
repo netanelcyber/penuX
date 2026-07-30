@@ -111,7 +111,7 @@ async function initDb() {
       { title: 'Zoom — Dr. Nauzer Forbes (Calgary)', sub: 'Renegotiating time — asked 7/1 to reschedule off 6 Jul evening IL; awaiting reply', due: '2026-07-06', cat: 'meeting', status: 'urgent' },
       { title: 'Meeting — Prof. Tamara Naftali (Wolfson)', sub: 'Tuesday 30.6, 10:00 — Wolfson Gastro Institute', due: '2026-06-30', cat: 'meeting', status: 'done' },
       { title: 'פגישת הכרות — ד"ר ורה דרייזין (וולפסון)', sub: 'התקיימה — פגישת הכרות עם ד"ר ורה דרייזין (מנהלת שירות הכבד), בהשתתפות פרופ\' תמנע נפתלי ואורית ש.', due: null, cat: 'meeting', status: 'done' },
-      { title: 'Meeting חוזרת — וולפסון (מתאמת מחקר + צוות)', sub: 'תואם ב-6.7 — יעד: תחילת אוגוסט; מתחילים עם מתאמת המחקר; תרגום המאמר לעברית נשלח 6.7', due: '2026-08-01', cat: 'meeting', status: 'pending' },
+      { title: 'Meeting חוזרת — וולפסון (מתאמת מחקר + צוות)', sub: 'נקבע: 4.8 — עם מתאמת המחקר והצוות; תרגום המאמר לעברית נשלח 6.7', due: '2026-08-04', cat: 'meeting', status: 'pending' },
       { title: 'Meeting — Dr. James Buxbaum (USC)', sub: 'Held via Teams, Mon 6 Jul 10:00 PST (confirmed by Cindy Lee on behalf of Dr. Buxbaum) — meeting has taken place', due: '2026-07-06', cat: 'meeting', status: 'done' },
       { title: 'Follow-Up — Dr. Saurabh Chawla', sub: 'Call took place 6/29 2pm EST — confirm outcome / next steps', due: '2026-06-30', cat: 'follow', status: 'waiting' },
       { title: 'Zoom scheduling — Prof. Peter Hegyi (Semmelweis)', sub: 'Real address confirmed (hegyi2009@gmail.com). Original slot (Mon 20.7 13:00 IL) fell through — needs to be rescheduled from scratch', due: null, cat: 'meeting', status: 'urgent' },
