@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PenuX</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  :root {
+    --blue: #1a56db; --blue-dk: #1e429f;
+    --gray-50: #f9fafb; --gray-200: #e5e7eb; --gray-600: #4b5563; --gray-900: #111827;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: -apple-system, "Segoe UI", ui-sans-serif, system-ui, sans-serif; }
+  .shell { display: flex; flex-direction: column; height: 100vh; }
+
+  nav {
+    display: flex; align-items: center; gap: .3rem; flex-wrap: wrap;
+    padding: .6rem 1rem; background: #fff; border-bottom: 1px solid var(--gray-200);
+    flex-shrink: 0;
+  }
+  nav .brand { font-weight: 700; color: var(--gray-900); margin-right: .8rem; text-decoration: none; }
+  nav a {
+    padding: .4rem .7rem; border-radius: 6px; font-size: .85rem; color: var(--gray-600);
+    text-decoration: none; white-space: nowrap;
+  }
+  nav a:hover { background: var(--gray-50); }
+  nav a.active { background: var(--blue); color: #fff; }
+  nav .spacer { flex: 1; }
+  #loading-indicator {
+    font-size: .75rem; color: var(--gray-600); padding: 0 .5rem;
+    opacity: 0; transition: opacity .15s;
+  }
+  #loading-indicator.visible { opacity: 1; }
+
+  .frame-wrap { flex: 1; position: relative; background: var(--gray-50); }
+  iframe {
+    position: absolute; inset: 0; width: 100%; height: 100%; border: none;
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav id="nav-bar">
+    <a href="#/index" class="brand">PenuX</a>
+    <a href="#/index" data-route="index">Home</a>
+    <a href="#/journey" data-route="journey">Patient Journey</a>
+    <a href="#/review" data-route="review">Review Article</a>
+    <a href="#/models" data-route="models">Models</a>
+    <a href="#/predict" data-route="predict">Predict</a>
+    <a href="#/hospitals" data-route="hospitals">Hospitals</a>
+    <a href="#/tasks" data-route="tasks">Tasks</a>
+    <a href="#/tasks-api" data-route="tasks-api">Tasks API</a>
+    <a href="#/transcribe" data-route="transcribe">Transcribe</a>
+    <a href="#/api" data-route="api">Swagger UI</a>
+    <span class="spacer"></span>
+    <span id="loading-indicator">Loading…</span>
+  </nav>
+  <div class="frame-wrap">
+    <iframe id="content-frame" title="PenuX content"></iframe>
+  </div>
+</div>
+
+<script>
+// SPA shell: hash-based client-side routing, one isolated iframe per route.
+// Each route is an existing, unmodified .html file — loading it in an iframe
+// (rather than fetching+injecting its markup into a shared DOM) means every
+// page's own <script> globals (e.g. predict.html's MODEL/pyodideInstance)
+// stay fully isolated from every other page's, with zero collision risk,
+// while still giving single-page navigation: only the URL hash and the
+// iframe's src change, the outer nav chrome never reloads.
+const ROUTES = {
+  "index": "index.html",
+  "journey": "journey.html",
+  "review": "review.html",
+  "models": "models.html",
+  "predict": "predict.html",
+  "hospitals": "hospitals.html",
+  "tasks": "tasks.html",
+  "tasks-api": "tasks-api.html",
+  "transcribe": "transcribe.html",
+  "api": "api.html",
+  "secondary-analysis-he": "secondary-analysis-he.html",
+};
+const DEFAULT_ROUTE = "index";
+
+const frame = document.getElementById("content-frame");
+const loadingIndicator = document.getElementById("loading-indicator");
+const navLinks = Array.from(document.querySelectorAll("#nav-bar a[data-route]"));
+
+function currentRouteFromHash() {
+  const raw = (location.hash || "").replace(/^#\/?/, "");
+  return ROUTES[raw] ? raw : DEFAULT_ROUTE;
+}
+
+function setActiveNav(route) {
+  navLinks.forEach(a => a.classList.toggle("active", a.dataset.route === route));
+}
+
+function navigate(route, { replace = false } = {}) {
+  const target = ROUTES[route] ? route : DEFAULT_ROUTE;
+  const hash = "#/" + target;
+  if (location.hash !== hash) {
+    if (replace) history.replaceState(null, "", hash);
+    else location.hash = hash;
+  }
+  loadingIndicator.classList.add("visible");
+  frame.src = ROUTES[target];
+  setActiveNav(target);
+  document.title = "PenuX — " + target;
+}
+
+frame.addEventListener("load", () => {
+  loadingIndicator.classList.remove("visible");
+  try {
+    if (frame.contentDocument && frame.contentDocument.title) {
+      document.title = frame.contentDocument.title;
+    }
+  } catch (e) {
+    // cross-origin or sandboxed content — ignore, keep the fallback title
+  }
+});
+
+window.addEventListener("hashchange", () => navigate(currentRouteFromHash()));
+
+navigate(currentRouteFromHash(), { replace: true });
+</script>
+</body>
+</html>
