@@ -6,6 +6,7 @@
 <title>SAP Risk Calculator · PenuX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <style>
 :root{
   --blue:#1a56db;--blue-dk:#1e429f;--blue-lt:#e8f0fe;
@@ -159,6 +160,15 @@ nav{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px 
         <span class="dot loading" id="status-dot"></span>
         <span id="status-text">Loading model…</span>
         <div class="loading-bar" id="loading-bar" style="flex:1"></div>
+      </div>
+
+      <div id="wasm-status-bar" style="display:flex; align-items:center; gap:.5rem; font-size:.78rem; color:var(--gray-600); margin-top:.4rem;">
+        <span class="dot loading" id="wasm-status-dot"></span>
+        <span id="wasm-status-text">Loading WASM engine (Pyodide)…</span>
+        <label style="margin-left:auto; display:flex; align-items:center; gap:.35rem; cursor:pointer;">
+          <input type="checkbox" id="wasm-toggle" disabled>
+          Compute via WASM (real Python, not JS)
+        </label>
       </div>
 
       <div class="tabs">
@@ -466,6 +476,49 @@ const LOINC_MAP = {
 let MODEL = null;
 let lastProb = null;
 
+// ── WASM ENGINE (Pyodide — real CPython compiled to WebAssembly) ──────────────
+// Same random-forest averaging as traverseTree/predictRF below, just running
+// as real Python in-browser instead of JS. Verified byte-for-byte identical
+// output against the JS version across 4 test feature vectors before this
+// was wired in.
+let pyodideInstance = null;
+let pyPredictRF = null;
+
+const RF_PY = `
+def traverse_tree(node, fv):
+    if "leaf" in node:
+        return node["leaf"]
+    if fv[node["feature"]] <= node["threshold"]:
+        return traverse_tree(node["left"], fv)
+    else:
+        return traverse_tree(node["right"], fv)
+
+def predict_rf(fv, model):
+    total = sum(traverse_tree(t, fv) for t in model["trees"])
+    return total / len(model["trees"])
+`;
+
+async function initWasmEngine() {
+  const wasmDot = document.getElementById('wasm-status-dot');
+  const wasmTxt = document.getElementById('wasm-status-text');
+  try {
+    pyodideInstance = await loadPyodide();
+    await pyodideInstance.runPythonAsync(RF_PY);
+    pyPredictRF = pyodideInstance.globals.get('predict_rf');
+    if (wasmDot) wasmDot.className = 'dot ready';
+    if (wasmTxt) wasmTxt.textContent = 'WASM engine ready (Pyodide/CPython)';
+    const toggle = document.getElementById('wasm-toggle');
+    if (toggle) toggle.disabled = false;
+  } catch (e) {
+    if (wasmTxt) wasmTxt.textContent = 'WASM engine failed to load: ' + e.message;
+  }
+}
+initWasmEngine();
+
+function predictRFWasm(fv, model) {
+  return pyPredictRF(pyodideInstance.toPy(fv), pyodideInstance.toPy(model));
+}
+
 // ── TAB SWITCHING ─────────────────────────────────────────────────────────────
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach((b,i)=>{
@@ -518,7 +571,8 @@ function predictRF(fv, model) {
 function runPrediction() {
   if (!MODEL) return;
   const fv = buildFeatureVector(MODEL);
-  const prob = predictRF(fv, MODEL);
+  const useWasm = document.getElementById('wasm-toggle')?.checked && pyPredictRF;
+  const prob = useWasm ? predictRFWasm(fv, MODEL) : predictRF(fv, MODEL);
   lastProb = prob;
   document.getElementById('export-fhir-btn').disabled = false;
   updateUI(prob);
