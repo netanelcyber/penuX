@@ -12,7 +12,7 @@ jobs:
   add-dns:
     runs-on: ubuntu-latest
     steps:
-      - name: Add/update CNAME for api.penux.uk -> Render
+      - name: Add/update CNAME for api.penux.uk -> Render (auto-clears conflicting records)
         env:
           CF_TOKEN: ${{ secrets.CF_TOKEN }}
           RENDER_DOMAIN: ${{ inputs.render_domain }}
@@ -34,10 +34,25 @@ jobs:
           ZONE_ID = d["result"][0]["id"]
           print(f"Zone ID: {ZONE_ID}")
 
-          # Check for an existing 'api' record to update instead of duplicating.
-          r = requests.get(f"{BASE}/zones/{ZONE_ID}/dns_records?type=CNAME&name=api.penux.uk",
+          # DNS doesn't allow a CNAME to coexist with any other record type
+          # for the same name. Fetch EVERY record for api.penux.uk (any type)
+          # and delete anything that isn't the CNAME we're about to write —
+          # this is what causes Render's "DNS points to prohibited IP": a
+          # leftover A record (e.g. added manually via a Render UI suggestion)
+          # sitting alongside/instead of the CNAME.
+          r = requests.get(f"{BASE}/zones/{ZONE_ID}/dns_records?name=api.penux.uk",
                             headers=HEADERS, timeout=15)
-          existing = r.json().get("result", [])
+          all_existing = r.json().get("result", [])
+
+          cname_record = None
+          for rec in all_existing:
+              if rec["type"] == "CNAME":
+                  cname_record = rec
+              else:
+                  print(f"Removing conflicting record: {rec['type']} api.penux.uk -> {rec['content']}")
+                  del_r = requests.delete(f"{BASE}/zones/{ZONE_ID}/dns_records/{rec['id']}", headers=HEADERS, timeout=15)
+                  if not del_r.json().get("success"):
+                      print(f"WARNING: failed to delete conflicting record {rec['id']}: {del_r.json().get('errors')}")
 
           record = {
               "type": "CNAME",
@@ -47,8 +62,8 @@ jobs:
               "ttl": 1,
           }
 
-          if existing:
-              rec_id = existing[0]["id"]
+          if cname_record:
+              rec_id = cname_record["id"]
               r = requests.put(f"{BASE}/zones/{ZONE_ID}/dns_records/{rec_id}", headers=HEADERS, json=record, timeout=15)
               action = "UPDATED"
           else:
@@ -62,6 +77,15 @@ jobs:
           else:
               print(f"FAIL: {res.get('errors')}")
               exit(1)
+
+          # Final sanity check: confirm exactly one record remains for this name.
+          r = requests.get(f"{BASE}/zones/{ZONE_ID}/dns_records?name=api.penux.uk", headers=HEADERS, timeout=15)
+          final = r.json().get("result", [])
+          print(f"Final state — {len(final)} record(s) for api.penux.uk:")
+          for rec in final:
+              print(f"  {rec['type']:5} -> {rec['content']} (proxied={rec['proxied']})")
+          if len(final) != 1:
+              print("::warning::Expected exactly 1 record for api.penux.uk after cleanup, found", len(final))
 
           print("Done! api.penux.uk should resolve within a few minutes.")
           print("Remember to also add 'api.penux.uk' as a custom domain in the Render service settings,")
