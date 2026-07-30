@@ -1,0 +1,23 @@
+# Fly.io app config for PenuX-AP-Severity.
+# Run `fly launch` from inside PenuX-AP-Severity/ and point it at this file
+# (fly launch --config deploy/flyio/fly.toml), or copy it to
+# PenuX-AP-Severity/fly.toml before running `fly deploy`.
+
+app = "penux-ap-severity"   # change to a globally-unique app name — fly launch will prompt for this
+primary_region = "iad"      # change to whichever region is closest to you
+
+[build]
+  dockerfile = "Dockerfile.fly"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    path = "/health"
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
