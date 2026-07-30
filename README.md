@@ -1,3 +1,31 @@
+# penuX
+
+This repo now hosts several related-but-distinct projects. Start here to
+find the right one — the rest of this file (below the map) is the original
+README for the pathogen-prediction pipeline specifically.
+
+## Project map
+
+| Project | Where | What it is | Live |
+|---|---|---|---|
+| **PenuX-AP-Severity** | `PenuX-AP-Severity/` | FastAPI service — early prediction of Severe Acute Pancreatitis (SAP) risk from admission labs. Swagger docs, model-sweep/calibration/lognormal analysis endpoints, and a client-side (Pyodide/WASM) prediction page. | [api.penux.uk/docs](https://api.penux.uk/docs) |
+| **PenuX Task Board** | `tasks-api/` | Node/Express task board + correspondence tracker (auto-syncs outreach status from a mailbox every 12h). | [app.penux.uk](https://app.penux.uk) |
+| **Static docs site** | `docs/` | GitHub Pages site — includes a fully client-side SAP risk calculator (`docs/predict.html`, optional WASM/Pyodide compute path) and model comparison pages. | [penux.uk](https://penux.uk) |
+| **Pathogen class prediction** (legacy, below) | `mimic3.py` | Single-file MIMIC-III/IV pathogen-class prediction demo pipeline. | — |
+
+### Deploy branches
+
+- `claude/pensive-pascal-a0l7a8` — main working branch; source of truth for everything above.
+- `render-ap-severity-deploy` — minimal mirror of `PenuX-AP-Severity/` (no monorepo history) that Render deploys the API from.
+- `render-tasks-api-deploy` — mirror of `tasks-api/` at repo root, so Render's Node buildpack finds it directly.
+
+### Alternative deploy configs (prepared, not live)
+
+- `PenuX-AP-Severity/deploy/pythonanywhere/` — run the API on PythonAnywhere (WSGI via `a2wsgi`).
+- `PenuX-AP-Severity/deploy/flyio/` — run the API on Fly.io (`Dockerfile.fly` + `fly.toml`).
+
+---
+
 # penuX — MIMIC-III / MIMIC-IV Pathogen Class Prediction (`mimic3.py`)
 
 > **מטרה / Objective**
