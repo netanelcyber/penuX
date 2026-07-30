@@ -841,6 +841,190 @@ main();
 </html>"""
 
 
+# ---------------------------------------------------------------------------
+# Client-side prediction via Pyodide (real Python/WASM, not JS reimplementation)
+#
+# No trained joblib model ships in this repo (PENUX_AP_MODEL_PATH is unset
+# by default), so /predict currently falls back to _heuristic_score — a
+# fixed-weight logistic heuristic. This page runs that EXACT same Python
+# function client-side via Pyodide (CPython compiled to WebAssembly), so
+# the prediction never touches the server at all, not even as a JS port —
+# it's the real Python source executing in-browser.
+#
+# CAVEAT: Pyodide itself loads from a CDN (jsdelivr) — this sandbox's
+# network policy blocks that CDN, so this couldn't be loaded in a live
+# browser here to visually confirm. The embedded Python logic below is
+# byte-for-byte the same as _heuristic_score/_HEURISTIC_WEIGHTS/
+# _HEURISTIC_THRESHOLDS above and RISK_THRESHOLDS from penux_ap.config,
+# and was diffed against them, but the actual Pyodide load/run round-trip
+# is unverified in this environment.
+# ---------------------------------------------------------------------------
+
+@app.get(
+    "/predict/client",
+    tags=["predict"],
+    summary="Client-side SAP risk prediction via Pyodide (real Python/WASM in-browser)",
+    description=(
+        "Runs the exact same heuristic scoring function used server-side by "
+        "/predict (when no trained model is loaded, which is the current "
+        "default) entirely in the browser via Pyodide — real CPython "
+        "compiled to WebAssembly, not a JavaScript reimplementation. No "
+        "network request is made for the prediction itself once the page "
+        "and Pyodide runtime have loaded."
+    ),
+)
+def get_predict_client_page():
+    from fastapi.responses import HTMLResponse
+    return HTMLResponse(content=_PREDICT_CLIENT_HTML)
+
+
+_PREDICT_CLIENT_HTML = r"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PenuX — Client-side Prediction (Pyodide/WASM)</title>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<style>
+  body { font-family: -apple-system, "Segoe UI", ui-sans-serif, system-ui, sans-serif; background: #F7F6F3; color: #1E2321; margin: 0; padding: 2rem 1.5rem 4rem; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 .3rem; }
+  .deck { color: #565F5B; font-size: .9rem; max-width: 65ch; margin-bottom: 1.2rem; }
+  .banner { background: #E8F1EC; border: 1px solid #2F6E5C; border-radius: 8px; padding: .8rem 1rem; font-size: .8rem; margin-bottom: 1.2rem; }
+  .banner b { color: #2F6E5C; }
+  form { background: #fff; border: 1px solid #E4E1D8; border-radius: 10px; padding: 1.2rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: .7rem; }
+  label { font-size: .76rem; color: #565F5B; display: block; }
+  input, select { width: 100%; padding: .35rem .5rem; border: 1px solid #ccc; border-radius: 5px; font-size: .85rem; box-sizing: border-box; }
+  button { margin-top: 1rem; background: #2F6E5C; color: #fff; border: none; border-radius: 6px; padding: .6rem 1.4rem; font-size: .9rem; cursor: pointer; }
+  button:disabled { background: #aaa; cursor: wait; }
+  #result { margin-top: 1.2rem; background: #fff; border: 1px solid #E4E1D8; border-radius: 10px; padding: 1rem 1.2rem; font-size: .9rem; display: none; }
+  #status { font-size: .85rem; color: #565F5B; margin-bottom: 1rem; }
+  .risk-low { color: #2F6E5C; font-weight: 700; }
+  .risk-intermediate { color: #9A7A1F; font-weight: 700; }
+  .risk-high { color: #B4432A; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>PenuX — Client-side SAP Risk Prediction</h1>
+  <div class="deck">Runs the same heuristic scoring logic as the server's <code>/predict</code> fallback, but entirely in your browser via <a href="https://pyodide.org" target="_blank">Pyodide</a> (real CPython compiled to WebAssembly) — no network request for the prediction itself.</div>
+  <div class="banner"><b>Research prototype only.</b> No trained ML model is loaded server-side by default, so this reproduces the fixed-weight logistic heuristic used as a fallback — not a validated clinical model.</div>
+  <div id="status">Loading Pyodide (WebAssembly Python runtime)…</div>
+
+  <form id="form">
+    <div><label>Age</label><input type="number" name="age" value="65"></div>
+    <div><label>Sex</label><select name="sex"><option value="M">M</option><option value="F">F</option></select></div>
+    <div><label>WBC (×10⁹/L)</label><input type="number" step="0.1" name="wbc" value="18.5"></div>
+    <div><label>CRP (mg/L)</label><input type="number" step="0.1" name="crp" value="220"></div>
+    <div><label>Creatinine (mg/dL)</label><input type="number" step="0.1" name="creatinine" value="1.8"></div>
+    <div><label>BUN (mg/dL)</label><input type="number" step="0.1" name="bun" value="32"></div>
+    <div><label>Glucose (mg/dL)</label><input type="number" step="0.1" name="glucose" value="180"></div>
+    <div><label>LDH (U/L)</label><input type="number" step="0.1" name="ldh" value="450"></div>
+    <div><label>Hematocrit (%)</label><input type="number" step="0.1" name="hematocrit" value="47"></div>
+    <div><label>AST (U/L)</label><input type="number" step="0.1" name="ast" value="90"></div>
+    <div><label>Albumin (g/dL)</label><input type="number" step="0.1" name="albumin" value="2.9"></div>
+    <div><label>Calcium (mg/dL)</label><input type="number" step="0.1" name="calcium" value="7.8"></div>
+    <div><label>Bilirubin total (mg/dL)</label><input type="number" step="0.1" name="bilirubin_total" value=""></div>
+  </form>
+  <button id="run-btn" disabled>Loading runtime…</button>
+
+  <div id="result"></div>
+</div>
+
+<script>
+// This is the EXACT same logic as _heuristic_score / _HEURISTIC_WEIGHTS /
+// _HEURISTIC_THRESHOLDS in api/main.py and RISK_THRESHOLDS in
+// penux_ap/config.py — kept in sync manually since Pyodide can't import
+// the FastAPI app's own modules without shipping the whole package to it.
+const HEURISTIC_PY = `
+import math
+
+HEURISTIC_WEIGHTS = {
+    "wbc": 0.08, "crp": 0.004, "creatinine": 0.30, "bun": 0.015,
+    "glucose": 0.002, "ldh": 0.001, "hematocrit": 0.03, "ast": 0.002,
+    "albumin": -0.30, "calcium": -0.40, "bilirubin_total": 0.05,
+}
+HEURISTIC_THRESHOLDS = {
+    "wbc": 12.0, "crp": 150.0, "creatinine": 1.5, "bun": 25.0,
+    "glucose": 200.0, "ldh": 250.0, "hematocrit": 44.0, "ast": 250.0,
+    "albumin": 3.5, "calcium": 8.0, "bilirubin_total": 3.0,
+}
+RISK_THRESHOLDS = {"low": 0.2, "intermediate": 0.5}
+
+def heuristic_score(data):
+    age = data.get("age") or 55
+    sex = str(data.get("sex") or "").upper()
+    logit = -1.8 + 0.015 * max(0, age - 55)
+    if sex in ("M", "MALE"):
+        logit += 0.15
+    for feat, w in HEURISTIC_WEIGHTS.items():
+        v = data.get(feat)
+        if v is None:
+            continue
+        t = HEURISTIC_THRESHOLDS[feat]
+        logit += w * (max(0, t - v) if feat in ("albumin", "calcium") else max(0, v - t))
+    proba = round(1.0 / (1.0 + math.exp(-logit)), 4)
+    if proba < RISK_THRESHOLDS["low"]:
+        risk_group = "low"
+    elif proba < RISK_THRESHOLDS["intermediate"]:
+        risk_group = "intermediate"
+    else:
+        risk_group = "high"
+    return proba, risk_group
+`;
+
+let pyodideReady = null;
+
+async function initPyodide() {
+  const status = document.getElementById("status");
+  const btn = document.getElementById("run-btn");
+  try {
+    const pyodide = await loadPyodide();
+    await pyodide.runPythonAsync(HEURISTIC_PY);
+    pyodideReady = pyodide;
+    status.textContent = "Pyodide loaded — real CPython running in this tab via WebAssembly.";
+    btn.disabled = false;
+    btn.textContent = "Predict (runs in-browser, no network call)";
+  } catch (e) {
+    status.textContent = "Failed to load Pyodide: " + e.message;
+  }
+}
+
+function collectFormData() {
+  const form = document.getElementById("form");
+  const data = {};
+  for (const el of form.elements) {
+    if (!el.name) continue;
+    if (el.value === "") continue;
+    data[el.name] = el.tagName === "SELECT" ? el.value : parseFloat(el.value);
+  }
+  return data;
+}
+
+async function runPrediction() {
+  if (!pyodideReady) return;
+  const data = collectFormData();
+  const pyFunc = pyodideReady.globals.get("heuristic_score");
+  const [proba, riskGroup] = pyFunc(pyodideReady.toPy(data)).toJs();
+
+  const result = document.getElementById("result");
+  result.style.display = "block";
+  result.innerHTML = `
+    <div><b>SAP risk probability:</b> ${proba}</div>
+    <div><b>Risk group:</b> <span class="risk-${riskGroup}">${riskGroup}</span></div>
+    <div style="margin-top:.5rem; font-size:.78rem; color:#565F5B;">Computed entirely in this browser tab via Pyodide (WebAssembly) — the inputs above never left your machine.</div>
+  `;
+}
+
+document.getElementById("run-btn").addEventListener("click", (e) => {
+  e.preventDefault();
+  runPrediction();
+});
+
+initPyodide();
+</script>
+</body>
+</html>"""
+
 
 # ---------------------------------------------------------------------------
 # Plain JSON endpoint (original)
