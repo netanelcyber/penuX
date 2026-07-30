@@ -773,6 +773,182 @@ def get_lognormal_diff_png():
 
 
 # ---------------------------------------------------------------------------
+# Brier score + calibration curve — proper, established alternatives to the
+# lognormal-diff asymmetry curve above for actually assessing model quality.
+#
+# IMPORTANT LABEL CAVEAT: the only ground-truth outcome in this cohort is
+# the SAP-severity label (true_label in ap_model_results.csv). The sepsis-
+# risk and pancreatic-complication-risk models are evaluated against this
+# SAME label, because data/public_sanitized/ap_sepsis_risk.csv and
+# ap_pancreatic_sepsis_risk.csv carry an identically-named/valued
+# "sap_label" column (row-for-row identical to true_label — verified by
+# direct comparison), not an independently adjudicated sepsis or
+# pancreatic-complication diagnosis. So "sep_prob calibration" here really
+# means "how well does the sepsis-risk score predict SAP severity" — not
+# a validated sepsis-outcome calibration.
+# ---------------------------------------------------------------------------
+
+class CalibrationBin(BaseModel):
+    bin_mean_predicted: float
+    bin_fraction_positive: float
+    bin_count: int
+
+
+class ModelCalibration(BaseModel):
+    model_key: str
+    model_label: str
+    n: int
+    brier_score: float = Field(description="Mean squared error between predicted probability and true outcome (0=perfect, 0.25=uninformative at prevalence 0.5)")
+    prevalence: float = Field(description="Fraction of patients with the positive outcome in this cohort")
+    bins: list[CalibrationBin]
+
+
+class CalibrationResponse(BaseModel):
+    dataset: str
+    n_patients: int
+    label_caveat: str
+    models: list[ModelCalibration]
+    caveats: list[str]
+
+
+_CALIBRATION_LABEL_CAVEAT = (
+    "All three probabilities are scored against the SAME ground-truth label "
+    "(SAP severity, true_label in ap_model_results.csv) — sep_prob and "
+    "panc_prob do NOT have independent sepsis/pancreatic-complication "
+    "outcome labels in this cohort (their source CSVs carry an identically-"
+    "valued 'sap_label' column, confirmed row-for-row identical to "
+    "true_label). Read 'sep_prob calibration' as 'how well does the "
+    "sepsis-risk score predict SAP severity', not a validated sepsis-"
+    "outcome calibration."
+)
+
+
+def _compute_calibration(n_bins: int = 10) -> tuple[pd.DataFrame, dict[str, ModelCalibration]]:
+    if not _SCORE_RESULTS_FILE.exists():
+        raise HTTPException(status_code=404, detail=f"Score results not found at {_SCORE_RESULTS_FILE}")
+
+    from sklearn.calibration import calibration_curve
+    from sklearn.metrics import brier_score_loss
+
+    df = pd.read_csv(_SCORE_RESULTS_FILE)
+    if "true_label" not in df.columns:
+        raise HTTPException(status_code=500, detail="true_label column missing from ap_model_results.csv")
+
+    y = df["true_label"].to_numpy()
+    results: dict[str, ModelCalibration] = {}
+
+    for key, label in _SCORE_MODELS.items():
+        if key not in df.columns:
+            continue
+        p = df[key].dropna().clip(0.0, 1.0).to_numpy()
+        y_aligned = df.loc[df[key].notna(), "true_label"].to_numpy()
+
+        brier = brier_score_loss(y_aligned, p)
+        prob_true, prob_pred = calibration_curve(y_aligned, p, n_bins=n_bins, strategy="quantile")
+
+        # calibration_curve doesn't return per-bin counts directly — recompute via digitize on the same quantile edges.
+        edges = np.unique(np.quantile(p, np.linspace(0, 1, n_bins + 1)))
+        bin_idx = np.digitize(p, edges[1:-1], right=True)
+        counts = [int(np.sum(bin_idx == i)) for i in range(len(prob_true))]
+
+        results[key] = ModelCalibration(
+            model_key=key,
+            model_label=label,
+            n=len(p),
+            brier_score=round(float(brier), 4),
+            prevalence=round(float(np.mean(y_aligned)), 4),
+            bins=[
+                CalibrationBin(bin_mean_predicted=round(float(pp), 4), bin_fraction_positive=round(float(pt), 4), bin_count=c)
+                for pp, pt, c in zip(prob_pred, prob_true, counts)
+            ],
+        )
+
+    return df, results
+
+
+@app.get(
+    "/models/calibration",
+    response_model=CalibrationResponse,
+    tags=["models"],
+    summary="Brier score + calibration curve for all 3 models",
+    description=(
+        "Proper model-quality diagnostics, as an alternative to the "
+        "lognormal-diff asymmetry curve: Brier score (mean squared error "
+        "between predicted probability and true outcome) and a quantile-"
+        "binned calibration curve (reliability diagram: mean predicted "
+        "probability vs. observed fraction positive, per bin) for each of "
+        "the 3 prediction targets.\n\n"
+        "⚠️ **Read `label_caveat` first** — sep_prob and panc_prob are "
+        "evaluated against the SAP-severity label, not independent outcome "
+        "labels (none exist in this cohort). See `/models/calibration.png` "
+        "for a rendered reliability diagram."
+    ),
+)
+def get_calibration(n_bins: int = 10):
+    _, results = _compute_calibration(n_bins=n_bins)
+    return CalibrationResponse(
+        dataset="data/public_sanitized/ap_model_results.csv",
+        n_patients=len(pd.read_csv(_SCORE_RESULTS_FILE)),
+        label_caveat=_CALIBRATION_LABEL_CAVEAT,
+        models=list(results.values()),
+        caveats=[
+            "Brier score and calibration curve are computed on the full n=722 "
+            "cohort, not a held-out test split — this reflects in-sample "
+            "calibration, not generalization to new patients.",
+        ],
+    )
+
+
+@app.get(
+    "/models/calibration.png",
+    tags=["models"],
+    summary="Calibration curve (reliability diagram) chart, PNG",
+    description=(
+        "Renders the same data as `/models/calibration` as a PNG reliability "
+        "diagram: one panel per model, mean predicted probability (x) vs. "
+        "observed fraction positive (y), with the perfect-calibration "
+        "diagonal for reference, and Brier score annotated per panel."
+    ),
+)
+def get_calibration_png(n_bins: int = 10):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from fastapi.responses import Response
+
+    _, results = _compute_calibration(n_bins=n_bins)
+
+    fig, axes = plt.subplots(1, len(results), figsize=(5 * len(results), 4.5))
+    if len(results) == 1:
+        axes = [axes]
+
+    for ax, (key, r) in zip(axes, results.items()):
+        xs = [b.bin_mean_predicted for b in r.bins]
+        ys = [b.bin_fraction_positive for b in r.bins]
+        sizes = [max(15, b.bin_count) for b in r.bins]
+        ax.plot([0, 1], [0, 1], color="#999", linestyle="--", linewidth=1, label="Perfect calibration")
+        ax.scatter(xs, ys, s=sizes, color="#4A6C8C", alpha=0.8, label="Observed (per bin)")
+        ax.plot(xs, ys, color="#4A6C8C", linewidth=1, alpha=0.6)
+        ax.set_title(f"{r.model_label}\nBrier={r.brier_score}", fontsize=9.5)
+        ax.set_xlabel("Mean predicted probability")
+        ax.set_ylabel("Observed fraction positive")
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+        ax.legend(fontsize=7.5)
+
+    fig.suptitle("Calibration (reliability diagram) — see label_caveat in /models/calibration", fontsize=11)
+    fig.tight_layout()
+
+    from io import BytesIO
+    buf = BytesIO()
+    fig.savefig(buf, format="png", dpi=120)
+    plt.close(fig)
+    buf.seek(0)
+
+    return Response(content=buf.getvalue(), media_type="image/png")
+
+
+# ---------------------------------------------------------------------------
 # Plain JSON endpoint (original)
 # ---------------------------------------------------------------------------
 
