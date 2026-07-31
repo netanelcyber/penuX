@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Model Compression Studio · PenuX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<style>
+:root{
+  --blue:#1a56db;--blue-dk:#1e429f;--blue-lt:#e8f0fe;
+  --green:#057a55;--green-lt:#f0fdf4;
+  --amber:#92400e;--amber-lt:#fffbeb;
+  --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;
+  --gray-400:#9ca3af;--gray-500:#6b7280;--gray-600:#4b5563;--gray-800:#1f2937;--gray-900:#111827;
+  --white:#ffffff;--radius:10px;--shadow:0 1px 3px rgba(0,0,0,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--gray-50);color:var(--gray-800);min-height:100vh}
+.hero{background:linear-gradient(135deg,#1e3a8a 0%,#1a56db 55%,#4f46e5 100%);color:#fff;padding:2.5rem 2rem 2rem;text-align:center}
+.hero h1{font-size:1.9rem;font-weight:700;margin-bottom:.5rem}
+.hero p{font-size:1rem;opacity:.9;max-width:640px;margin:0 auto}
+.hero-badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:.3rem .9rem;font-size:.75rem;font-weight:600;letter-spacing:.03em;margin-bottom:.75rem}
+.container{max-width:1000px;margin:0 auto;padding:2rem 1.5rem}
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--gray-200);margin-bottom:1.5rem;overflow:hidden}
+.card-header{padding:1.1rem 1.4rem;border-bottom:1px solid var(--gray-200)}
+.card-header h2{font-size:1rem;font-weight:600}
+.card-header p{font-size:.8rem;color:var(--gray-500);margin-top:.2rem}
+.card-body{padding:1.4rem}
+.status-row{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--gray-600);margin-bottom:1rem}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--gray-400)}
+.dot.ready{background:var(--green)}
+.dot.error{background:#c81e1e}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:600px){.field-row{grid-template-columns:1fr}}
+.field label{display:block;font-size:.8rem;font-weight:500;color:var(--gray-700);margin-bottom:.35rem}
+.field input[type=range]{width:100%}
+.field .val{font-size:.8rem;color:var(--blue);font-weight:600}
+.field select,.field input[type=number]{width:100%;border:1px solid var(--gray-200);border-radius:6px;padding:.45rem .6rem;font-size:.85rem;font-family:inherit}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:.7rem 1.4rem;font-size:.9rem;font-weight:600;cursor:pointer;transition:background .15s}
+.btn:hover{background:var(--blue-dk)}
+.btn:disabled{background:var(--gray-400);cursor:not-allowed}
+.btn-outline{background:#fff;color:var(--blue);border:1px solid var(--blue)}
+.btn-outline:hover{background:var(--blue-lt)}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.9rem;margin-top:1.2rem}
+.stat{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;padding:.85rem}
+.stat .label{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gray-500);font-weight:600}
+.stat .value{font-size:1.3rem;font-weight:700;color:var(--gray-900);margin-top:.2rem}
+.stat .value.good{color:var(--green)}
+.caveat{background:var(--amber-lt);border:1px solid #fde68a;border-radius:8px;padding:.9rem 1.1rem;font-size:.8rem;color:var(--amber);margin-top:1.2rem;line-height:1.5}
+.actions{display:flex;gap:.75rem;margin-top:1.2rem;flex-wrap:wrap}
+a.back{display:inline-block;margin-bottom:1rem;font-size:.85rem;color:var(--blue);text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">⚙️ Runs entirely in your browser — Pyodide / WASM</div>
+  <h1>Model Compression Studio</h1>
+  <p>Shrink the PenuX random-forest severity model — fewer trees, shallower trees — and measure how closely the compressed model still agrees with the original, all client-side.</p>
+</div>
+
+<div class="container">
+  <a class="back" href="predict.html">&larr; Back to SAP Risk Calculator</a>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>1. Engine status</h2>
+    </div>
+    <div class="card-body">
+      <div class="status-row"><span class="dot" id="wasm-dot"></span><span id="wasm-text">Starting Pyodide…</span></div>
+      <div class="status-row"><span class="dot" id="model-dot"></span><span id="model-text">Loading model…</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>2. Compression settings</h2>
+      <p>Reduce tree count and/or cap tree depth. Pruned subtrees collapse to the average of the leaves they replace.</p>
+    </div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field">
+          <label>Trees to keep: <span class="val" id="n-trees-val">200</span> / <span id="n-trees-max">200</span></label>
+          <input type="range" id="n-trees" min="1" max="200" value="200"/>
+        </div>
+        <div class="field">
+          <label>Max tree depth: <span class="val" id="max-depth-val">no limit</span></label>
+          <input type="range" id="max-depth" min="1" max="20" value="20"/>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Fidelity-test sample count</label>
+          <select id="n-samples">
+            <option value="200">200 (fast)</option>
+            <option value="1000" selected>1000</option>
+            <option value="5000">5000 (slower)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Random seed</label>
+          <input type="number" id="seed" value="42"/>
+        </div>
+      </div>
+      <button class="btn" id="run-btn" disabled>Compress &amp; test fidelity</button>
+    </div>
+  </div>
+
+  <div class="card" id="results-card" style="display:none">
+    <div class="card-header">
+      <h2>3. Results</h2>
+      <p>Fidelity is measured by comparing full-model vs. compressed-model output on synthetic feature vectors sampled across the observed threshold ranges of the original 200 trees — this is a self-consistency check, not a clinical validation against real patients.</p>
+    </div>
+    <div class="card-body">
+      <div class="result-grid">
+        <div class="stat"><div class="label">Original size</div><div class="value" id="stat-orig-size">–</div></div>
+        <div class="stat"><div class="label">Compressed size</div><div class="value good" id="stat-comp-size">–</div></div>
+        <div class="stat"><div class="label">Size reduction</div><div class="value good" id="stat-reduction">–</div></div>
+        <div class="stat"><div class="label">Mean abs. score diff</div><div class="value" id="stat-mae">–</div></div>
+        <div class="stat"><div class="label">Max score diff</div><div class="value" id="stat-max-diff">–</div></div>
+        <div class="stat"><div class="label">Classification agreement</div><div class="value" id="stat-agreement">–</div></div>
+        <div class="stat"><div class="label">Pearson correlation</div><div class="value" id="stat-corr">–</div></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-outline" id="download-btn">Download compressed model JSON</button>
+      </div>
+      <div class="caveat">
+        ⚠️ Classification agreement is measured at the model's own decision threshold (0.535) between full and compressed outputs on <em>synthetic</em> inputs — it tells you how much the compression changed the model's behavior, not how accurate either model is on real patients. Always re-run the model's real held-out evaluation before deploying a compressed version.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const MODEL_URL = 'penux_rf_model.json';
+let pyodideInstance = null;
+let fullModel = null;
+let compressResultCache = null;
+
+const COMPRESS_PY = `
+import random
+
+def traverse_tree(node, fv):
+    if "leaf" in node:
+        return node["leaf"]
+    if fv[node["feature"]] <= node["threshold"]:
+        return traverse_tree(node["left"], fv)
+    else:
+        return traverse_tree(node["right"], fv)
+
+def predict_rf(fv, trees):
+    return sum(traverse_tree(t, fv) for t in trees) / len(trees)
+
+def _collect_leaves(node, acc):
+    if "leaf" in node:
+        acc.append(node["leaf"])
+    else:
+        _collect_leaves(node["left"], acc)
+        _collect_leaves(node["right"], acc)
+
+def _prune(node, depth, max_depth):
+    if "leaf" in node:
+        return node
+    if depth >= max_depth:
+        acc = []
+        _collect_leaves(node, acc)
+        return {"leaf": sum(acc) / len(acc)}
+    return {
+        "feature": node["feature"],
+        "threshold": node["threshold"],
+        "left": _prune(node["left"], depth + 1, max_depth),
+        "right": _prune(node["right"], depth + 1, max_depth),
+    }
+
+def compress_model(model, n_trees, max_depth):
+    trees = model["trees"][:n_trees]
+    if max_depth is not None:
+        trees = [_prune(t, 0, max_depth) for t in trees]
+    return {
+        "n_features": model["n_features"],
+        "feature_names": model["feature_names"],
+        "n_trees": len(trees),
+        "threshold": model["threshold"],
+        "trees": trees,
+    }
+
+def _feature_ranges(model):
+    n = model["n_features"]
+    lo = [None] * n
+    hi = [None] * n
+
+    def walk(node):
+        if "leaf" in node:
+            return
+        f, t = node["feature"], node["threshold"]
+        if lo[f] is None or t < lo[f]:
+            lo[f] = t
+        if hi[f] is None or t > hi[f]:
+            hi[f] = t
+        walk(node["left"])
+        walk(node["right"])
+
+    for tree in model["trees"]:
+        walk(tree)
+    return [
+        (lo[i] - 1.0 if lo[i] is not None else 0.0,
+         hi[i] + 1.0 if hi[i] is not None else 1.0)
+        for i in range(n)
+    ]
+
+def evaluate_fidelity(full_model, compressed_trees, n_samples, seed, decision_threshold):
+    rng = random.Random(seed)
+    ranges = _feature_ranges(full_model)
+    n = full_model["n_features"]
+    diffs = []
+    full_scores = []
+    comp_scores = []
+    agree = 0
+    for _ in range(n_samples):
+        fv = [rng.uniform(lo, hi) for (lo, hi) in ranges]
+        pf = predict_rf(fv, full_model["trees"])
+        pc = predict_rf(fv, compressed_trees)
+        diffs.append(abs(pf - pc))
+        full_scores.append(pf)
+        comp_scores.append(pc)
+        if (pf >= decision_threshold) == (pc >= decision_threshold):
+            agree += 1
+
+    mean_full = sum(full_scores) / n_samples
+    mean_comp = sum(comp_scores) / n_samples
+    cov = sum((a - mean_full) * (b - mean_comp) for a, b in zip(full_scores, comp_scores))
+    var_full = sum((a - mean_full) ** 2 for a in full_scores)
+    var_comp = sum((b - mean_comp) ** 2 for b in comp_scores)
+    denom = (var_full * var_comp) ** 0.5
+    corr = cov / denom if denom > 0 else 1.0
+
+    return {
+        "mae": sum(diffs) / n_samples,
+        "max_diff": max(diffs),
+        "agreement": agree / n_samples,
+        "corr": corr,
+    }
+`;
+
+function setDot(id, textId, state, text) {
+  document.getElementById(id).className = 'dot' + (state ? ' ' + state : '');
+  document.getElementById(textId).textContent = text;
+}
+
+async function init() {
+  try {
+    pyodideInstance = await loadPyodide();
+    await pyodideInstance.runPythonAsync(COMPRESS_PY);
+    setDot('wasm-dot', 'wasm-text', 'ready', 'Pyodide / CPython engine ready');
+  } catch (e) {
+    setDot('wasm-dot', 'wasm-text', 'error', 'Failed to load Pyodide: ' + e.message);
+    return;
+  }
+
+  try {
+    const res = await fetch(MODEL_URL);
+    fullModel = await res.json();
+    setDot('model-dot', 'model-text', 'ready',
+      `Model loaded: ${fullModel.n_trees} trees, ${fullModel.n_features} features (${(JSON.stringify(fullModel).length/1024).toFixed(0)} KB)`);
+    document.getElementById('n-trees').max = fullModel.n_trees;
+    document.getElementById('n-trees').value = fullModel.n_trees;
+    document.getElementById('n-trees-val').textContent = fullModel.n_trees;
+    document.getElementById('n-trees-max').textContent = fullModel.n_trees;
+    document.getElementById('run-btn').disabled = false;
+  } catch (e) {
+    setDot('model-dot', 'model-text', 'error', 'Failed to load model: ' + e.message);
+  }
+}
+init();
+
+const nTreesInput = document.getElementById('n-trees');
+const maxDepthInput = document.getElementById('max-depth');
+nTreesInput.addEventListener('input', () => {
+  document.getElementById('n-trees-val').textContent = nTreesInput.value;
+});
+maxDepthInput.addEventListener('input', () => {
+  const v = parseInt(maxDepthInput.value, 10);
+  document.getElementById('max-depth-val').textContent = v >= 20 ? 'no limit' : v;
+});
+
+document.getElementById('run-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('run-btn');
+  btn.disabled = true;
+  btn.textContent = 'Compressing…';
+
+  const nTrees = parseInt(nTreesInput.value, 10);
+  const depthVal = parseInt(maxDepthInput.value, 10);
+  const maxDepth = depthVal >= 20 ? null : depthVal;
+  const nSamples = parseInt(document.getElementById('n-samples').value, 10);
+  const seed = parseInt(document.getElementById('seed').value, 10) || 42;
+
+  const compressModel = pyodideInstance.globals.get('compress_model');
+  const evaluateFidelity = pyodideInstance.globals.get('evaluate_fidelity');
+
+  const compressedPy = compressModel(pyodideInstance.toPy(fullModel), nTrees, maxDepth);
+  const compressed = compressedPy.toJs({ dict_converter: Object.fromEntries });
+  compressedPy.destroy();
+
+  const fidelityPy = evaluateFidelity(
+    pyodideInstance.toPy(fullModel),
+    pyodideInstance.toPy(compressed.trees),
+    nSamples, seed, fullModel.threshold
+  );
+  const fidelity = fidelityPy.toJs({ dict_converter: Object.fromEntries });
+  fidelityPy.destroy();
+
+  const origSize = JSON.stringify(fullModel).length;
+  const compJson = JSON.stringify(compressed);
+  const compSize = compJson.length;
+
+  document.getElementById('stat-orig-size').textContent = (origSize/1024).toFixed(1) + ' KB';
+  document.getElementById('stat-comp-size').textContent = (compSize/1024).toFixed(1) + ' KB';
+  document.getElementById('stat-reduction').textContent = (100*(1-compSize/origSize)).toFixed(1) + '%';
+  document.getElementById('stat-mae').textContent = fidelity.mae.toFixed(4);
+  document.getElementById('stat-max-diff').textContent = fidelity.max_diff.toFixed(4);
+  document.getElementById('stat-agreement').textContent = (fidelity.agreement*100).toFixed(1) + '%';
+  document.getElementById('stat-corr').textContent = fidelity.corr.toFixed(4);
+
+  compressResultCache = compJson;
+  document.getElementById('results-card').style.display = 'block';
+  btn.disabled = false;
+  btn.textContent = 'Compress & test fidelity';
+});
+
+document.getElementById('download-btn').addEventListener('click', () => {
+  if (!compressResultCache) return;
+  const blob = new Blob([compressResultCache], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'penux_rf_model_compressed.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
