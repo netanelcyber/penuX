@@ -1,1 +1,311 @@
-PenuX Pages build trigger: 2026-08-04T20:57:00+03:00
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="PenuX-AP-Severity is an open research project for predicting severe acute pancreatitis from routinely collected first-24-hour hospital data. Hospital data specification, missing-data policy and research API." />
+  <title>PenuX-AP-Severity — Hospital Data & Research Model</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --navy:#172554;
+      --blue:#1d4ed8;
+      --blue2:#2563eb;
+      --teal:#0f766e;
+      --green:#047857;
+      --amber:#b45309;
+      --red:#b91c1c;
+      --ink:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --soft:#f8fafc;
+      --white:#ffffff;
+      --radius:12px;
+      --shadow:0 8px 28px rgba(15,23,42,.08);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:Inter,Arial,"Noto Sans Hebrew",sans-serif;color:var(--ink);background:var(--white);line-height:1.65}
+    a{color:var(--blue)}
+    nav{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+    .nav-inner{max-width:1180px;margin:0 auto;min-height:64px;padding:.6rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+    .brand{display:flex;align-items:center;gap:.65rem;text-decoration:none;color:var(--navy);font-weight:800;font-size:1.05rem;white-space:nowrap}
+    .logo{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:white;background:linear-gradient(135deg,var(--blue),#4f46e5)}
+    .nav-links{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;justify-content:flex-end}
+    .nav-links a{text-decoration:none;color:var(--muted);font-size:.86rem;font-weight:650}
+    .nav-links a:hover{color:var(--blue)}
+    .nav-links .cta{background:var(--blue);color:#fff;padding:.45rem .8rem;border-radius:8px}
+    .lang{display:flex;gap:.25rem}
+    .lang button{border:1px solid var(--line);background:#fff;color:var(--muted);padding:.32rem .55rem;border-radius:7px;cursor:pointer;font-weight:700}
+    .lang button.active{background:var(--navy);border-color:var(--navy);color:#fff}
+    .hero{background:linear-gradient(135deg,#172554 0%,#1d4ed8 55%,#0891b2 100%);color:#fff;padding:5rem 1rem 4rem}
+    .hero-inner,.container{max-width:1180px;margin:0 auto}
+    .kicker{display:inline-flex;align-items:center;gap:.4rem;padding:.32rem .8rem;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);border-radius:999px;font-size:.8rem;font-weight:700;margin-bottom:1.2rem}
+    .hero h1{font-size:clamp(2rem,5vw,3.8rem);line-height:1.12;margin:0 0 1rem;max-width:900px}
+    .hero h1 span{color:#bfdbfe}
+    .hero p{max-width:820px;color:#dbeafe;font-size:1.1rem;margin:.45rem 0}
+    .buttons{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.6rem}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.72rem 1.15rem;border-radius:9px;text-decoration:none;font-weight:750;border:1px solid transparent}
+    .btn-white{background:#fff;color:var(--navy)}
+    .btn-outline{border-color:rgba(255,255,255,.65);color:#fff;background:transparent}
+    .btn-blue{background:var(--blue);color:#fff}
+    .btn-soft{background:#eff6ff;color:#1e40af;border-color:#bfdbfe}
+    .status-strip{background:#fff;border-bottom:1px solid var(--line)}
+    .status-grid{max-width:1180px;margin:0 auto;padding:1.25rem 1rem;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem}
+    .status-item{text-align:center}
+    .status-value{font-size:1.45rem;font-weight:850;color:var(--navy)}
+    .status-label{font-size:.79rem;color:var(--muted)}
+    main{background:var(--soft)}
+    section{padding:4rem 1rem}
+    .container{width:100%}
+    .section-head{text-align:center;margin-bottom:2.1rem}
+    .section-head h2{font-size:clamp(1.55rem,3vw,2.2rem);margin:0 0 .45rem;color:var(--navy)}
+    .section-head p{max-width:760px;margin:0 auto;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+    .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:1.25rem;box-shadow:0 2px 8px rgba(15,23,42,.03)}
+    .card h3{margin:.15rem 0 .45rem;color:var(--navy);font-size:1.02rem}
+    .card p{margin:.25rem 0;color:var(--muted);font-size:.91rem}
+    .icon{font-size:1.45rem}
+    .notice{border-radius:var(--radius);padding:1.1rem 1.2rem;border:1px solid;margin-bottom:1rem}
+    .notice strong{display:block;margin-bottom:.2rem}
+    .notice-warn{background:#fffbeb;border-color:#fcd34d;color:#78350f}
+    .notice-info{background:#eff6ff;border-color:#93c5fd;color:#1e3a8a}
+    .notice-green{background:#ecfdf5;border-color:#6ee7b7;color:#065f46}
+    .policy{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    .policy ul{padding-left:1.2rem;margin:.4rem 0}
+    html[dir="rtl"] .policy ul{padding-left:0;padding-right:1.2rem}
+    .policy li{margin:.35rem 0;color:var(--muted)}
+    .table-wrap{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:var(--radius)}
+    table{width:100%;border-collapse:collapse;min-width:720px;font-size:.9rem}
+    th{background:var(--navy);color:#fff;text-align:left;padding:.7rem .8rem}
+    td{padding:.68rem .8rem;border-bottom:1px solid var(--line);vertical-align:top}
+    tr:nth-child(even) td{background:#f8fafc}
+    html[dir="rtl"] th,html[dir="rtl"] td{text-align:right}
+    .pill{display:inline-block;border-radius:999px;padding:.14rem .5rem;font-size:.72rem;font-weight:800;white-space:nowrap}
+    .pill-green{background:#dcfce7;color:#166534}
+    .pill-blue{background:#dbeafe;color:#1e40af}
+    .pill-amber{background:#fef3c7;color:#92400e}
+    .pill-red{background:#fee2e2;color:#991b1b}
+    .code{direction:ltr;text-align:left;background:#0f172a;color:#e2e8f0;border-radius:var(--radius);padding:1rem;overflow:auto;font:13px/1.55 Consolas,monospace}
+    .link-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem}
+    .link-card{display:block;text-decoration:none;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:1.15rem;color:var(--ink);transition:.15s}
+    .link-card:hover{transform:translateY(-2px);border-color:#93c5fd;box-shadow:var(--shadow)}
+    .link-card strong{display:block;color:var(--navy);margin:.35rem 0}
+    .link-card span{font-size:.86rem;color:var(--muted)}
+    .cta-section{background:linear-gradient(135deg,#172554,#1d4ed8);color:#fff;text-align:center}
+    .cta-section h2{color:#fff;margin:0 0 .6rem;font-size:2rem}
+    .cta-section p{max-width:740px;margin:0 auto;color:#dbeafe}
+    footer{background:#0f172a;color:#94a3b8;padding:2.5rem 1rem}
+    .footer-inner{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;gap:1.5rem;flex-wrap:wrap}
+    footer strong{color:#e2e8f0}
+    footer a{color:#bfdbfe}
+    .t-he{display:none}
+    html[data-lang="he"] .t-en{display:none}
+    html[data-lang="he"] .t-he{display:initial}
+    html[data-lang="he"] .block.t-he{display:block}
+    html[data-lang="he"] .grid.t-he{display:grid}
+    html:not([data-lang="he"]) .block.t-en{display:block}
+    html:not([data-lang="he"]) .grid.t-en{display:grid}
+    @media(max-width:960px){.nav-links{display:none}.grid{grid-template-columns:1fr 1fr}.link-cards{grid-template-columns:1fr 1fr}.status-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:650px){.hero{padding-top:3.5rem}.grid,.policy,.link-cards{grid-template-columns:1fr}.status-grid{grid-template-columns:1fr 1fr}.buttons{flex-direction:column}.btn{width:100%}}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="brand" href="/"><span class="logo">P</span>PenuX-AP-Severity</a>
+    <div class="nav-links">
+      <a href="#status"><span class="t-en">Study status</span><span class="t-he">מצב המחקר</span></a>
+      <a href="#data"><span class="t-en">Hospital data</span><span class="t-he">נתוני בית חולים</span></a>
+      <a href="#model"><span class="t-en">Model adaptation</span><span class="t-he">התאמת המודל</span></a>
+      <a href="models.html"><span class="t-en">Public results</span><span class="t-he">תוצאות ציבוריות</span></a>
+      <a href="review.html"><span class="t-en">Review</span><span class="t-he">סקירה</span></a>
+      <a class="cta" href="api.html"><span class="t-en">API & validator</span><span class="t-he">API ובודק זכאות</span></a>
+    </div>
+    <div class="lang">
+      <button id="lang-en" class="active" type="button" onclick="setLang('en')">EN</button>
+      <button id="lang-he" type="button" onclick="setLang('he')">עברית</button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="kicker"><span>🔬</span><span class="t-en">Hospital-focused clinical prediction research</span><span class="t-he">מחקר חיזוי קליני ממוקד בית חולים</span></div>
+    <div class="block t-en">
+      <h1>Early prediction of <span>severe acute pancreatitis</span> from routinely collected hospital data</h1>
+      <p>PenuX-AP-Severity is an open research project developing a first-24-hour prediction model for persistent organ failure. The current hospital specification does not depend on structured imaging data and explicitly handles incomplete records.</p>
+    </div>
+    <div class="block t-he">
+      <h1>חיזוי מוקדם של <span>דלקת לבלב חריפה חמורה</span> באמצעות נתוני בית חולים שגרתיים</h1>
+      <p>PenuX-AP-Severity הוא פרויקט מחקר פתוח לפיתוח מודל המבוסס על 24 השעות הראשונות, לצורך חיזוי כשל איברים מתמשך. מפרט בית החולים אינו תלוי בנתוני הדמיה מובנים ומגדיר טיפול מפורש ברשומות חלקיות.</p>
+    </div>
+    <div class="buttons">
+      <a class="btn btn-white" href="hospital-data.html">📋 <span class="t-en">Hospital data specification</span><span class="t-he">מפרט נתוני בית החולים</span></a>
+      <a class="btn btn-outline" href="api.html">⚙️ <span class="t-en">API, validator & model</span><span class="t-he">API, בודק זכאות והמודל</span></a>
+      <a class="btn btn-outline" href="https://github.com/netanelcyber/penuX" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</header>
+
+<div class="status-strip">
+  <div class="status-grid">
+    <div class="status-item"><div class="status-value">0–24h</div><div class="status-label"><span class="t-en">Predictor window</span><span class="t-he">חלון משתני הניבוי</span></div></div>
+    <div class="status-item"><div class="status-value">48</div><div class="status-label"><span class="t-en">Laboratory extraction envelope</span><span class="t-he">מעטפת בדיקות המעבדה</span></div></div>
+    <div class="status-item"><div class="status-value">8/16</div><div class="status-label"><span class="t-en">Proposed minimum core coverage</span><span class="t-he">כיסוי ליבה מינימלי מוצע</span></div></div>
+    <div class="status-item"><div class="status-value">Stage 0</div><div class="status-label"><span class="t-en">Hospital data partnership</span><span class="t-he">שותפות נתונים עם בית חולים</span></div></div>
+  </div>
+</div>
+
+<main>
+<section id="status">
+  <div class="container">
+    <div class="section-head block t-en">
+      <h2>Current study status</h2>
+      <p>The hospital-oriented pipeline and data contract are ready for mapping and retrospective development. A hospital model has not yet been trained or externally validated.</p>
+    </div>
+    <div class="section-head block t-he">
+      <h2>מצב המחקר הנוכחי</h2>
+      <p>תשתית הנתונים והאימון המותאמת לבית חולים מוכנה למיפוי ולמחקר רטרוספקטיבי. טרם אומן מודל על נתוני בית חולים וטרם בוצע אימות חיצוני.</p>
+    </div>
+    <div class="notice notice-warn block t-en"><strong>Research use only</strong>The public models and the hospital pipeline are research artifacts. They are not medical devices and must not be used for diagnosis, treatment, triage or patient-care decisions.</div>
+    <div class="notice notice-warn block t-he"><strong>לשימוש מחקרי בלבד</strong>המודלים הציבוריים ותשתית בית החולים הם תוצרי מחקר. הם אינם מכשירים רפואיים ואין להשתמש בהם לאבחון, טיפול, מיון או קבלת החלטות רפואיות.</div>
+    <div class="grid t-en">
+      <div class="card"><div class="icon">🏥</div><h3>Hospital collaboration</h3><p>Define local codes, availability, extraction sources and a pseudonymised retrospective cohort under hospital governance.</p></div>
+      <div class="card"><div class="icon">🧪</div><h3>No additional tests</h3><p>The 48-test list is an extraction envelope. The study does not require clinicians to order every test or add tests solely for research.</p></div>
+      <div class="card"><div class="icon">📊</div><h3>Performance still to be established</h3><p>Hospital AUROC, calibration, sensitivity and specificity will only be reported after local model development and validation.</p></div>
+    </div>
+    <div class="grid t-he">
+      <div class="card"><div class="icon">🏥</div><h3>שיתוף פעולה עם בית חולים</h3><p>מיפוי קודים מקומיים, זמינות, מקורות שליפה ועוקבה רטרוספקטיבית שעברה פסאודונימיזציה תחת ממשל בית החולים.</p></div>
+      <div class="card"><div class="icon">🧪</div><h3>ללא בדיקות נוספות</h3><p>רשימת 48 הבדיקות היא מעטפת שליפה. אין דרישה לבצע את כולן או להזמין בדיקות במיוחד לצורך המחקר.</p></div>
+      <div class="card"><div class="icon">📊</div><h3>הביצועים טרם נקבעו</h3><p>AUROC, כיול, רגישות וסגוליות בבית החולים ידווחו רק לאחר פיתוח ואימות מקומיים.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="data" style="background:#eef5ff">
+  <div class="container">
+    <div class="section-head block t-en"><h2>Hospital data policy</h2><p>Case eligibility, predictor completeness and outcome ascertainment are handled separately. Missing one laboratory result is not an automatic exclusion.</p></div>
+    <div class="section-head block t-he"><h2>מדיניות נתוני בית החולים</h2><p>זכאות המקרה, שלמות משתני הניבוי וקביעת התוצא מטופלות בנפרד. חוסר בבדיקת מעבדה אחת אינו גורם לפסילה אוטומטית.</p></div>
+    <div class="policy">
+      <div class="card">
+        <h3><span class="t-en">Essential for the primary development cohort</span><span class="t-he">הכרחי לעוקבת הפיתוח הראשית</span></h3>
+        <ul class="t-en">
+          <li>Pseudonymised encounter identifier and admission time T0.</li>
+          <li>Adult age and documented acute-pancreatitis diagnosis.</li>
+          <li>Lipase or amylase at least 3× the local upper reference limit under the current no-imaging operational definition.</li>
+          <li>Sufficient follow-up to determine the prespecified outcome.</li>
+          <li>At least 8 of 16 proposed core predictor groups, with some vital-sign and laboratory information.</li>
+        </ul>
+        <ul class="t-he">
+          <li>מזהה אשפוז מקודד וזמן קבלה T0.</li>
+          <li>גיל בגיר ואבחנה מתועדת של דלקת לבלב חריפה.</li>
+          <li>ליפאז או עמילאז ברמה של פי 3 לפחות מהגבול העליון המקומי, לפי הגדרת המקרה התפעולית הנוכחית ללא הדמיה.</li>
+          <li>מעקב מספיק לקביעת התוצא שהוגדר מראש.</li>
+          <li>לפחות 8 מתוך 16 קבוצות ליבה מוצעות, כולל מידע כלשהו ממדדים חיוניים וממעבדה.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3><span class="t-en">Not an automatic exclusion</span><span class="t-he">אינו גורם לפסילה אוטומטית</span></h3>
+        <ul class="t-en">
+          <li>Five missing optional variables.</li>
+          <li>Missing CRP, LDH, triglycerides, blood gas, lactate, D-dimer or procalcitonin.</li>
+          <li>Missing smoking, alcohol or medication history.</li>
+          <li>Diabetes, stable heart failure, CKD without chronic dialysis, COPD, cirrhosis, malignancy or immunosuppression.</li>
+          <li>Absence of structured CT, MRI or ultrasound fields.</li>
+        </ul>
+        <ul class="t-he">
+          <li>חמישה משתנים אופציונליים חסרים.</li>
+          <li>חוסר ב־CRP, LDH, טריגליצרידים, גזים, לקטט, D-dimer או פרוקלציטונין.</li>
+          <li>חוסר בתיעוד עישון, אלכוהול או תרופות.</li>
+          <li>סוכרת, אי־ספיקת לב יציבה, CKD ללא דיאליזה כרונית, COPD, שחמת, ממאירות או דיכוי חיסוני.</li>
+          <li>היעדר שדות מובנים של CT, MRI או אולטרסאונד.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="buttons" style="margin-top:1rem">
+      <a class="btn btn-blue" href="hospital-data.html">📋 <span class="t-en">Open full data dictionary</span><span class="t-he">פתיחת מילון הנתונים המלא</span></a>
+      <a class="btn btn-soft" href="api.html#validator">✅ <span class="t-en">Open eligibility validator</span><span class="t-he">פתיחת בודק הזכאות</span></a>
+    </div>
+  </div>
+</section>
+
+<section id="model">
+  <div class="container">
+    <div class="section-head block t-en"><h2>Hospital model adaptation</h2><p>The codebase now contains a separate hospital training and inference path that preserves the original public API while enforcing the hospital feature contract.</p></div>
+    <div class="section-head block t-he"><h2>התאמת המודל לבית החולים</h2><p>המאגר כולל כעת מסלול נפרד לאימון ולחיזוי על נתוני בית חולים, תוך שמירת תאימות ל־API הציבורי הקודם ואכיפת חוזה המאפיינים החדש.</p></div>
+    <div class="grid t-en">
+      <div class="card"><div class="icon">🧹</div><h3>Missing-data pipeline</h3><p>Numeric median imputation with missing indicators and categorical imputation are fitted inside each cross-validation fold—not before splitting.</p></div>
+      <div class="card"><div class="icon">📐</div><h3>Unit normalisation</h3><p>Canonical SI fields and legacy units are reconciled. Derived features include lipase/ULN, amylase/ULN, NLR, CRP/albumin, MAP, BMI and shock index.</p></div>
+      <div class="card"><div class="icon">🎯</div><h3>Prespecified operating point</h3><p>The training script can choose an out-of-fold threshold targeting 98% sensitivity while maximising specificity among thresholds that meet the target.</p></div>
+      <div class="card"><div class="icon">🚫</div><h3>No outcome leakage</h3><p>Persistent organ failure, ICU admission, ventilation after the predictor window, mortality and length of stay are excluded from predictor features.</p></div>
+      <div class="card"><div class="icon">🧾</div><h3>Case-level audit</h3><p>Training produces an eligibility audit and a machine-readable metrics file containing feature availability, threshold and out-of-fold results.</p></div>
+      <div class="card"><div class="icon">🛑</div><h3>No heuristic presented as a trained model</h3><p>The hospital API returns service unavailable when no trained hospital model bundle is configured.</p></div>
+    </div>
+    <div class="grid t-he">
+      <div class="card"><div class="icon">🧹</div><h3>Pipeline לטיפול בחוסרים</h3><p>אימפוטציית חציון מספרית עם דגלי חוסר ואימפוטציה קטגוריאלית מותאמות בתוך כל קפל של Cross-Validation ולא לפני החלוקה.</p></div>
+      <div class="card"><div class="icon">📐</div><h3>תקנון יחידות</h3><p>השדות הקנוניים ביחידות SI מותאמים ליחידות ה־API הישן. נגזרים יחס ליפאז/ULN, עמילאז/ULN, NLR, יחס CRP/אלבומין, MAP, BMI ו־Shock Index.</p></div>
+      <div class="card"><div class="icon">🎯</div><h3>נקודת הפעלה מוגדרת מראש</h3><p>סקריפט האימון יכול לבחור סף Out-of-Fold המכוון לרגישות של 98%, תוך מקסום הסגוליות מבין הספים שעומדים ביעד.</p></div>
+      <div class="card"><div class="icon">🚫</div><h3>ללא דליפת תוצא</h3><p>כשל איברים מתמשך, קבלה לטיפול נמרץ, הנשמה לאחר חלון הניבוי, תמותה ומשך אשפוז אינם נכנסים למאפייני הניבוי.</p></div>
+      <div class="card"><div class="icon">🧾</div><h3>דוח ביקורת לכל מקרה</h3><p>האימון מפיק דוח זכאות וקובץ מדדים קריא למכונה הכולל זמינות מאפיינים, סף ותוצאות Out-of-Fold.</p></div>
+      <div class="card"><div class="icon">🛑</div><h3>אין נוסחת גיבוי שמוצגת כמודל מאומן</h3><p>ה־API של בית החולים מחזיר Service Unavailable כאשר לא הוגדר קובץ מודל שאומן בפועל.</p></div>
+    </div>
+    <div class="notice notice-info block t-en" style="margin-top:1rem"><strong>Important limitation</strong>The software adaptation is complete, but model fitting, calibration and local validation require a pseudonymised hospital dataset. No hospital-specific performance claim is made yet.</div>
+    <div class="notice notice-info block t-he" style="margin-top:1rem"><strong>מגבלה חשובה</strong>התאמת התוכנה הושלמה, אך אימון, כיול ואימות מקומי דורשים מאגר בית חולים שעבר פסאודונימיזציה. בשלב זה אין טענה לביצועים ספציפיים בבית החולים.</div>
+    <pre class="code">python scripts/train_hospital_model.py \
+  --input hospital_ap_pseudonymised.csv \
+  --target persistent_organ_failure_gt_48h \
+  --output models/hospital_ap_model.joblib \
+  --minimum-availability 0.80 \
+  --target-sensitivity 0.98 \
+  --cv-folds 5</pre>
+  </div>
+</section>
+
+<section style="background:#fff">
+  <div class="container">
+    <div class="section-head block t-en"><h2>Research resources</h2><p>Use the focused pages below for the current hospital collaboration and the exploratory public-data work.</p></div>
+    <div class="section-head block t-he"><h2>משאבי המחקר</h2><p>העמודים הבאים מרכזים את שיתוף הפעולה עם בית החולים ואת העבודה החקרנית על הנתונים הציבוריים.</p></div>
+    <div class="link-cards">
+      <a class="link-card" href="hospital-data.html"><span>📋</span><strong><span class="t-en">Hospital data specification</span><span class="t-he">מפרט נתוני בית החולים</span></strong><span class="t-en">Eligibility, missing data, demographics, comorbidities, vital signs, medications and TOP 48 labs.</span><span class="t-he">זכאות, חוסרים, דמוגרפיה, מחלות רקע, מדדים חיוניים, תרופות ו־TOP 48 בדיקות.</span></a>
+      <a class="link-card" href="api.html"><span>⚙️</span><strong><span class="t-en">API & model documentation</span><span class="t-he">תיעוד API והמודל</span></strong><span class="t-en">Interactive eligibility validator, hospital request contract and training instructions.</span><span class="t-he">בודק זכאות אינטראקטיבי, חוזה קלט והוראות אימון.</span></a>
+      <a class="link-card" href="review.html"><span>📖</span><strong><span class="t-en">Scientific review</span><span class="t-he">סקירה מדעית</span></strong><span class="t-en">Background, public-data experiments, limitations and research context.</span><span class="t-he">רקע, ניסויים בנתונים ציבוריים, מגבלות והקשר מחקרי.</span></a>
+      <a class="link-card" href="models.html"><span>📊</span><strong><span class="t-en">Exploratory model results</span><span class="t-he">תוצאות מודלים חקרניות</span></strong><span class="t-en">Cross-validated public-cohort results; not an external hospital validation.</span><span class="t-he">תוצאות Cross-Validation בעוקבות ציבוריות; לא אימות חיצוני בבית חולים.</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="container">
+    <h2><span class="t-en">Seeking a hospital data partner</span><span class="t-he">מחפשים שותף נתונים בבית חולים</span></h2>
+    <p class="block t-en">The immediate next step is a structured feasibility and availability audit with gastroenterology, research authority, information systems and clinical investigators.</p>
+    <p class="block t-he">השלב הבא הוא בדיקת היתכנות וזמינות מובנית בשיתוף גסטרואנטרולוגיה, רשות המחקר, מערכות המידע והחוקרים הקליניים.</p>
+    <div class="buttons" style="justify-content:center">
+      <a class="btn btn-white" href="mailto:nsh531@gmail.com?subject=PenuX-AP-Severity%20Hospital%20Data%20Collaboration">✉️ nsh531@gmail.com</a>
+      <a class="btn btn-outline" href="https://github.com/netanelcyber/penuX" target="_blank" rel="noopener">GitHub repository</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div><strong>PenuX-AP-Severity</strong><br><span class="t-en">Open research software for acute-pancreatitis severity prediction.</span><span class="t-he">תוכנת מחקר פתוחה לחיזוי חומרת דלקת לבלב חריפה.</span></div>
+    <div><span class="t-en">Research use only · Not a medical device · No hospital validation yet</span><span class="t-he">לשימוש מחקרי בלבד · אינו מכשיר רפואי · טרם בוצע אימות בבית חולים</span></div>
+  </div>
+</footer>
+
+<script>
+  function setLang(lang){
+    const html=document.documentElement;
+    html.dataset.lang=lang;
+    html.lang=lang;
+    html.dir=lang==='he'?'rtl':'ltr';
+    document.getElementById('lang-en').classList.toggle('active',lang==='en');
+    document.getElementById('lang-he').classList.toggle('active',lang==='he');
+    localStorage.setItem('penux-lang',lang);
+  }
+  setLang(localStorage.getItem('penux-lang')||'en');
+</script>
+</body>
+</html>
