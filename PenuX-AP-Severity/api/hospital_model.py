@@ -2,8 +2,8 @@
 
 This module does not claim clinical validity. It implements the agreed data
 policy: no imaging dependency, no complete-case deletion, no outcome leakage,
-minimum patient-level predictor coverage, and preprocessing fitted inside each
-cross-validation fold.
+minimum patient-level predictor coverage, unit-normalised derived features,
+and preprocessing fitted inside each cross-validation fold.
 """
 from __future__ import annotations
 
@@ -32,34 +32,28 @@ RESEARCH_WARNING = (
 )
 
 OUTCOME_OR_LEAKAGE_COLUMNS: frozenset[str] = frozenset({
-    "persistent_organ_failure_gt_48h",
-    "severe_acute_pancreatitis",
-    "sap",
-    "target",
-    "label",
-    "icu_admission",
-    "invasive_ventilation_after_24h",
-    "renal_replacement_therapy",
-    "length_of_stay",
-    "mortality_30d",
+    "persistent_organ_failure_gt_48h", "severe_acute_pancreatitis", "sap",
+    "target", "label", "icu_admission", "invasive_ventilation_after_24h",
+    "renal_replacement_therapy", "length_of_stay", "mortality_30d",
     "discharge_disposition",
 })
 
 NUMERIC_CANDIDATES: tuple[str, ...] = (
     "age", "bmi", "heart_rate", "systolic_bp", "diastolic_bp",
-    "mean_arterial_pressure", "respiratory_rate", "temperature", "spo2",
-    "oxygen_flow_l_min", "fio2", "gcs", "urine_output_ml_24h",
-    "wbc", "anc", "alc", "monocytes_absolute", "rbc", "hemoglobin",
-    "hematocrit", "platelets", "mcv", "rdw_cv", "mpv",
-    "urea_mmol_l", "creatinine_umol_l", "egfr", "sodium", "potassium",
-    "chloride", "bicarbonate_total", "glucose_mmol_l", "calcium_mmol_l",
-    "ionized_calcium_mmol_l", "magnesium_mmol_l", "phosphate_mmol_l",
-    "bicarbonate_blood_gas", "albumin_g_l", "total_protein_g_l",
-    "bilirubin_total_umol_l", "bilirubin_direct_umol_l", "ast", "alt",
-    "alp", "ggt", "ldh", "lipase", "amylase", "crp",
-    "procalcitonin_ng_ml", "triglycerides_mmol_l", "pt_seconds", "inr",
-    "aptt_seconds", "fibrinogen_g_l", "d_dimer_mg_l_feu", "lactate",
-    "ph", "pao2", "paco2", "base_excess",
+    "mean_arterial_pressure", "shock_index", "respiratory_rate",
+    "temperature", "spo2", "oxygen_flow_l_min", "fio2", "gcs",
+    "urine_output_ml_24h", "wbc", "anc", "alc", "nlr",
+    "monocytes_absolute", "rbc", "hemoglobin", "hematocrit", "platelets",
+    "mcv", "rdw_cv", "mpv", "urea_mmol_l", "creatinine_umol_l", "egfr",
+    "sodium", "potassium", "chloride", "bicarbonate_total",
+    "glucose_mmol_l", "calcium_mmol_l", "ionized_calcium_mmol_l",
+    "magnesium_mmol_l", "phosphate_mmol_l", "bicarbonate_blood_gas",
+    "albumin_g_l", "total_protein_g_l", "bilirubin_total_umol_l",
+    "bilirubin_direct_umol_l", "ast", "alt", "alp", "ggt", "ldh",
+    "lipase_uln_ratio", "amylase_uln_ratio", "crp",
+    "crp_albumin_ratio", "procalcitonin_ng_ml", "triglycerides_mmol_l",
+    "pt_seconds", "inr", "aptt_seconds", "fibrinogen_g_l",
+    "d_dimer_mg_l_feu", "lactate", "ph", "pao2", "paco2", "base_excess",
 )
 
 CATEGORICAL_CANDIDATES: tuple[str, ...] = (
@@ -71,15 +65,10 @@ CATEGORICAL_CANDIDATES: tuple[str, ...] = (
 )
 
 CORE_ALTERNATIVES: dict[str, tuple[str, ...]] = {
-    "age": ("age",),
-    "sex": ("sex",),
-    "heart_rate": ("heart_rate",),
-    "systolic_bp": ("systolic_bp",),
-    "respiratory_rate": ("respiratory_rate",),
-    "temperature": ("temperature",),
-    "spo2": ("spo2",),
-    "consciousness": ("gcs", "avpu"),
-    "wbc": ("wbc",),
+    "age": ("age",), "sex": ("sex",), "heart_rate": ("heart_rate",),
+    "systolic_bp": ("systolic_bp",), "respiratory_rate": ("respiratory_rate",),
+    "temperature": ("temperature",), "spo2": ("spo2",),
+    "consciousness": ("gcs", "avpu"), "wbc": ("wbc",),
     "hemoglobin_or_hematocrit": ("hemoglobin", "hematocrit"),
     "urea_or_bun": ("urea_mmol_l", "bun"),
     "creatinine": ("creatinine_umol_l", "creatinine"),
@@ -95,6 +84,72 @@ REQUIRED_DEVELOPMENT_COLUMNS: tuple[str, ...] = (
 )
 
 
+def _as_frame(records: Any) -> pd.DataFrame:
+    if isinstance(records, pd.DataFrame):
+        return records.copy()
+    if isinstance(records, Mapping):
+        return pd.DataFrame([dict(records)])
+    return pd.DataFrame(records)
+
+
+def _fill_if_absent(frame: pd.DataFrame, target: str, source: str, factor: float) -> None:
+    if source not in frame.columns:
+        return
+    converted = pd.to_numeric(frame[source], errors="coerce") * factor
+    if target not in frame.columns:
+        frame[target] = converted
+    else:
+        frame[target] = frame[target].where(frame[target].notna(), converted)
+
+
+def _safe_ratio(numerator: pd.Series, denominator: pd.Series) -> pd.Series:
+    num = pd.to_numeric(numerator, errors="coerce")
+    den = pd.to_numeric(denominator, errors="coerce").replace(0, np.nan)
+    return num / den
+
+
+def prepare_hospital_frame(records: Any) -> pd.DataFrame:
+    """Create canonical SI and derived features without changing raw values."""
+    frame = _as_frame(records)
+
+    # Convert legacy endpoint units to the canonical hospital units when the SI
+    # field is absent. Existing canonical values always win.
+    _fill_if_absent(frame, "urea_mmol_l", "bun", 1.0 / 2.801)
+    _fill_if_absent(frame, "creatinine_umol_l", "creatinine", 88.4)
+    _fill_if_absent(frame, "glucose_mmol_l", "glucose", 1.0 / 18.018)
+    _fill_if_absent(frame, "calcium_mmol_l", "calcium", 1.0 / 4.008)
+    _fill_if_absent(frame, "albumin_g_l", "albumin", 10.0)
+    _fill_if_absent(frame, "bilirubin_total_umol_l", "bilirubin_total", 17.1)
+    _fill_if_absent(frame, "triglycerides_mmol_l", "triglycerides", 1.0 / 88.57)
+
+    if {"height_cm", "weight_kg"}.issubset(frame.columns):
+        height_m = pd.to_numeric(frame["height_cm"], errors="coerce") / 100.0
+        calculated = pd.to_numeric(frame["weight_kg"], errors="coerce") / height_m.pow(2).replace(0, np.nan)
+        frame["bmi"] = frame["bmi"].where(frame["bmi"].notna(), calculated) if "bmi" in frame.columns else calculated
+
+    if {"systolic_bp", "diastolic_bp"}.issubset(frame.columns):
+        calculated = (
+            pd.to_numeric(frame["systolic_bp"], errors="coerce")
+            + 2.0 * pd.to_numeric(frame["diastolic_bp"], errors="coerce")
+        ) / 3.0
+        frame["mean_arterial_pressure"] = (
+            frame["mean_arterial_pressure"].where(frame["mean_arterial_pressure"].notna(), calculated)
+            if "mean_arterial_pressure" in frame.columns else calculated
+        )
+
+    if {"heart_rate", "systolic_bp"}.issubset(frame.columns):
+        frame["shock_index"] = _safe_ratio(frame["heart_rate"], frame["systolic_bp"])
+    if {"anc", "alc"}.issubset(frame.columns):
+        frame["nlr"] = _safe_ratio(frame["anc"], frame["alc"])
+    if {"crp", "albumin_g_l"}.issubset(frame.columns):
+        frame["crp_albumin_ratio"] = _safe_ratio(frame["crp"], frame["albumin_g_l"])
+    if {"lipase", "lipase_uln"}.issubset(frame.columns):
+        frame["lipase_uln_ratio"] = _safe_ratio(frame["lipase"], frame["lipase_uln"])
+    if {"amylase", "amylase_uln"}.issubset(frame.columns):
+        frame["amylase_uln_ratio"] = _safe_ratio(frame["amylase"], frame["amylase_uln"])
+    return frame
+
+
 @dataclass
 class HospitalModelBundle:
     """Serializable model wrapper that enforces the fitted feature contract."""
@@ -108,12 +163,7 @@ class HospitalModelBundle:
     warning: str = RESEARCH_WARNING
 
     def _frame(self, records: Any) -> pd.DataFrame:
-        if isinstance(records, pd.DataFrame):
-            frame = records.copy()
-        elif isinstance(records, Mapping):
-            frame = pd.DataFrame([dict(records)])
-        else:
-            frame = pd.DataFrame(records)
+        frame = prepare_hospital_frame(records)
         for name in self.feature_names:
             if name not in frame.columns:
                 frame[name] = np.nan
@@ -131,46 +181,29 @@ def _core_presence(frame: pd.DataFrame) -> pd.DataFrame:
     result: dict[str, pd.Series] = {}
     for group, alternatives in CORE_ALTERNATIVES.items():
         available = [name for name in alternatives if name in frame.columns]
-        if not available:
-            result[group] = pd.Series(False, index=frame.index)
-        else:
-            result[group] = frame[available].notna().any(axis=1)
+        result[group] = (
+            frame[available].notna().any(axis=1)
+            if available else pd.Series(False, index=frame.index)
+        )
     return pd.DataFrame(result, index=frame.index)
 
 
 def _enzyme_criterion(frame: pd.DataFrame) -> pd.Series:
-    has_lipase_pair = {"lipase", "lipase_uln"}.issubset(frame.columns)
-    has_amylase_pair = {"amylase", "amylase_uln"}.issubset(frame.columns)
-    if not has_lipase_pair and not has_amylase_pair:
+    has_lipase = "lipase_uln_ratio" in frame.columns
+    has_amylase = "amylase_uln_ratio" in frame.columns
+    if not has_lipase and not has_amylase:
         raise ValueError(
             "The cohort file must contain either lipase + lipase_uln or "
             "amylase + amylase_uln. Imaging is not required."
         )
-    lipase_ok = pd.Series(False, index=frame.index)
-    amylase_ok = pd.Series(False, index=frame.index)
-    if has_lipase_pair:
-        lipase_ok = (
-            frame["lipase"].notna()
-            & frame["lipase_uln"].notna()
-            & (frame["lipase"] >= 3.0 * frame["lipase_uln"])
-        )
-    if has_amylase_pair:
-        amylase_ok = (
-            frame["amylase"].notna()
-            & frame["amylase_uln"].notna()
-            & (frame["amylase"] >= 3.0 * frame["amylase_uln"])
-        )
+    lipase_ok = frame["lipase_uln_ratio"].ge(3.0).fillna(False) if has_lipase else pd.Series(False, index=frame.index)
+    amylase_ok = frame["amylase_uln_ratio"].ge(3.0).fillna(False) if has_amylase else pd.Series(False, index=frame.index)
     return lipase_ok | amylase_ok
 
 
-def development_eligibility_mask(frame: pd.DataFrame) -> tuple[pd.Series, pd.DataFrame]:
-    """Return the prespecified primary-development eligibility mask.
-
-    Imaging is intentionally absent from the rule. A documented AP diagnosis
-    plus lipase or amylase at least three times the local ULN is required for
-    the operational case definition. The outcome must be observable beyond
-    48 hours, and at least 8 of 16 core predictor groups must be present.
-    """
+def development_eligibility_mask(records: Any) -> tuple[pd.Series, pd.DataFrame]:
+    """Return the prespecified primary-development eligibility mask."""
+    frame = prepare_hospital_frame(records)
     missing_columns = [name for name in REQUIRED_DEVELOPMENT_COLUMNS if name not in frame.columns]
     if missing_columns:
         raise ValueError(
@@ -188,7 +221,6 @@ def development_eligibility_mask(frame: pd.DataFrame) -> tuple[pd.Series, pd.Dat
     ]
     has_any_vital = core[vital_groups].any(axis=1)
     has_any_lab = core[lab_groups].any(axis=1)
-
     eligibility = (
         frame["encounter_id"].notna()
         & frame["admission_time"].notna()
@@ -201,7 +233,6 @@ def development_eligibility_mask(frame: pd.DataFrame) -> tuple[pd.Series, pd.Dat
         & has_any_vital
         & has_any_lab
     )
-
     audit = core.copy()
     audit["core_present"] = core_count
     audit["enzyme_criterion_met"] = enzyme_ok
@@ -223,42 +254,42 @@ def select_features_by_availability(
     availability = frame.notna().mean().to_dict()
     numeric = [
         name for name in numeric_candidates
-        if name in frame.columns
-        and name not in OUTCOME_OR_LEAKAGE_COLUMNS
+        if name in frame.columns and name not in OUTCOME_OR_LEAKAGE_COLUMNS
         and availability.get(name, 0.0) >= minimum_availability
     ]
     categorical = [
         name for name in categorical_candidates
-        if name in frame.columns
-        and name not in OUTCOME_OR_LEAKAGE_COLUMNS
+        if name in frame.columns and name not in OUTCOME_OR_LEAKAGE_COLUMNS
         and availability.get(name, 0.0) >= minimum_availability
     ]
     if not numeric and not categorical:
         raise ValueError("No predictor met the requested availability threshold")
-    selected_availability = {name: float(availability[name]) for name in numeric + categorical}
-    return numeric, categorical, selected_availability
+    return numeric, categorical, {name: float(availability[name]) for name in numeric + categorical}
 
 
 def build_pipeline(numeric_features: Sequence[str], categorical_features: Sequence[str]) -> Pipeline:
     transformers: list[tuple[str, Pipeline, Sequence[str]]] = []
     if numeric_features:
-        numeric_pipe = Pipeline([
-            ("imputer", SimpleImputer(strategy="median", add_indicator=True, keep_empty_features=True)),
-            ("scaler", StandardScaler()),
-        ])
-        transformers.append(("numeric", numeric_pipe, list(numeric_features)))
+        transformers.append((
+            "numeric",
+            Pipeline([
+                ("imputer", SimpleImputer(strategy="median", add_indicator=True, keep_empty_features=True)),
+                ("scaler", StandardScaler()),
+            ]),
+            list(numeric_features),
+        ))
     if categorical_features:
-        categorical_pipe = Pipeline([
-            ("imputer", SimpleImputer(strategy="most_frequent")),
-            ("onehot", OneHotEncoder(handle_unknown="ignore")),
-        ])
-        transformers.append(("categorical", categorical_pipe, list(categorical_features)))
+        transformers.append((
+            "categorical",
+            Pipeline([
+                ("imputer", SimpleImputer(strategy="most_frequent")),
+                ("onehot", OneHotEncoder(handle_unknown="ignore")),
+            ]),
+            list(categorical_features),
+        ))
     preprocessor = ColumnTransformer(transformers=transformers, remainder="drop")
     classifier = LogisticRegression(
-        class_weight="balanced",
-        max_iter=3000,
-        solver="liblinear",
-        random_state=42,
+        class_weight="balanced", max_iter=3000, solver="liblinear", random_state=42,
     )
     return Pipeline([("preprocess", preprocessor), ("classifier", classifier)])
 
@@ -290,17 +321,14 @@ def threshold_for_target_sensitivity(
     sensitivity = tp / (tp + fn) if tp + fn else 0.0
     specificity = tn / (tn + fp) if tn + fp else 0.0
     return float(threshold), {
-        "sensitivity": float(sensitivity),
-        "specificity": float(specificity),
-        "true_positive": float(tp),
-        "false_positive": float(fp),
-        "true_negative": float(tn),
-        "false_negative": float(fn),
+        "sensitivity": float(sensitivity), "specificity": float(specificity),
+        "true_positive": float(tp), "false_positive": float(fp),
+        "true_negative": float(tn), "false_negative": float(fn),
     }
 
 
 def train_hospital_model(
-    frame: pd.DataFrame,
+    records: Any,
     *,
     target_column: str,
     minimum_availability: float = 0.80,
@@ -308,6 +336,7 @@ def train_hospital_model(
     cv_folds: int = 5,
 ) -> tuple[HospitalModelBundle, pd.DataFrame]:
     """Fit a leakage-resistant hospital model and return its audit table."""
+    frame = prepare_hospital_frame(records)
     if target_column not in frame.columns:
         raise ValueError(f"Target column not found: {target_column}")
     unsupported_outcomes = OUTCOME_OR_LEAKAGE_COLUMNS - {
@@ -321,7 +350,6 @@ def train_hospital_model(
     development = frame.loc[eligibility].copy()
     if development.empty:
         raise ValueError("No case met the prespecified development eligibility rules")
-
     y = pd.to_numeric(development[target_column], errors="raise").astype(int)
     if set(y.unique()) - {0, 1}:
         raise ValueError("Target must be binary and encoded as 0/1")
@@ -332,25 +360,17 @@ def train_hospital_model(
         raise ValueError("The minority class has fewer cases than cv_folds")
 
     numeric, categorical, availability = select_features_by_availability(
-        development,
-        minimum_availability=minimum_availability,
+        development, minimum_availability=minimum_availability,
     )
     feature_names = numeric + categorical
     pipeline = build_pipeline(numeric, categorical)
     cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=42)
     oof_probability = cross_val_predict(
-        pipeline,
-        development[feature_names],
-        y,
-        cv=cv,
-        method="predict_proba",
-        n_jobs=None,
+        pipeline, development[feature_names], y, cv=cv,
+        method="predict_proba", n_jobs=None,
     )[:, 1]
-
     threshold, operating = threshold_for_target_sensitivity(
-        y,
-        oof_probability,
-        target_sensitivity=target_sensitivity,
+        y, oof_probability, target_sensitivity=target_sensitivity,
     )
     oof_prediction = (oof_probability >= threshold).astype(int)
     metrics = {
@@ -358,20 +378,14 @@ def train_hospital_model(
         "average_precision_oof": float(average_precision_score(y, oof_probability)),
         "f1_oof": float(f1_score(y, oof_prediction, zero_division=0)),
         "f2_oof": float(fbeta_score(y, oof_prediction, beta=2, zero_division=0)),
-        "threshold": threshold,
-        "target_sensitivity": float(target_sensitivity),
-        **operating,
-        "n_development_cases": float(len(development)),
+        "threshold": threshold, "target_sensitivity": float(target_sensitivity),
+        **operating, "n_development_cases": float(len(development)),
         "n_predictors": float(len(feature_names)),
     }
-
     pipeline.fit(development[feature_names], y)
     bundle = HospitalModelBundle(
-        estimator=pipeline,
-        feature_names=feature_names,
-        threshold=threshold,
-        metrics=metrics,
-        feature_availability=availability,
+        estimator=pipeline, feature_names=feature_names, threshold=threshold,
+        metrics=metrics, feature_availability=availability,
     )
     audit = audit.copy()
     audit["selected_for_development"] = eligibility
