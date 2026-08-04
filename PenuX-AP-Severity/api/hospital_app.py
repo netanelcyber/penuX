@@ -16,11 +16,14 @@ from pathlib import Path
 from typing import Any, Optional
 
 import joblib
-import pandas as pd
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-from api.hospital_model import HospitalModelBundle, RESEARCH_WARNING
+from api.hospital_model import (
+    HospitalModelBundle,
+    RESEARCH_WARNING,
+    prepare_hospital_frame,
+)
 from api.schemas import AdmissionInput
 
 log = logging.getLogger(__name__)
@@ -141,8 +144,7 @@ def health() -> dict[str, Any]:
 @app.post("/validate", response_model=ValidationOutput, tags=["data-quality"])
 def validate_research_case(data: AdmissionInput) -> ValidationOutput:
     """Validate a retrospective model-development case without scoring it."""
-    result = data.research_eligibility_summary()
-    return ValidationOutput(**result)
+    return ValidationOutput(**data.research_eligibility_summary())
 
 
 @app.post("/predict", response_model=HospitalPredictionOutput, tags=["prediction"])
@@ -175,12 +177,12 @@ def predict_hospital_case(data: AdmissionInput) -> HospitalPredictionOutput:
             ),
         )
 
-    full = data.hospital_data_dict()
-    frame = pd.DataFrame([full])
-    probability = float(bundle.predict_proba(frame)[0, 1])
+    prepared = prepare_hospital_frame(data.hospital_data_dict())
+    probability = float(bundle.predict_proba(prepared)[0, 1])
     risk_group = "high" if probability >= bundle.threshold else "lower"
-    fields_used = [name for name in bundle.feature_names if full.get(name) is not None]
-    missing_model_fields = [name for name in bundle.feature_names if full.get(name) is None]
+    row = prepared.iloc[0].to_dict()
+    fields_used = [name for name in bundle.feature_names if row.get(name) is not None and not _is_nan(row.get(name))]
+    missing_model_fields = [name for name in bundle.feature_names if name not in fields_used]
 
     warnings: list[str] = []
     if summary["completeness_level"] == "intermediate":
@@ -202,3 +204,10 @@ def predict_hospital_case(data: AdmissionInput) -> HospitalPredictionOutput:
         missing_model_fields=missing_model_fields,
         data_quality_warnings=warnings,
     )
+
+
+def _is_nan(value: Any) -> bool:
+    try:
+        return bool(value != value)
+    except Exception:
+        return False
