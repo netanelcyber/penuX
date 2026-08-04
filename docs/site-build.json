@@ -1,0 +1,13 @@
+{
+  "site": "https://penux.uk",
+  "branch": "mimic3+4",
+  "source": "docs",
+  "build_version": "hospital-research-1.2.0",
+  "built_at": "2026-08-04T20:57:00+03:00",
+  "pages": [
+    "index.html",
+    "api.html",
+    "hospital-data.html"
+  ],
+  "research_use_only": true
+}
