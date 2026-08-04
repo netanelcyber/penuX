@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="מפרט נתונים לבית חולים עבור מחקר PenuX-AP-Severity: קריטריוני הכללה, טיפול בחוסרים, נתונים דמוגרפיים, מחלות רקע, מדדים חיוניים, תרופות ו-48 בדיקות מעבדה." />
+  <title>מפרט נתונים לבית חולים — PenuX-AP-Severity</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --navy:#1e3a8a;
+      --blue:#1d4ed8;
+      --teal:#0f766e;
+      --green:#047857;
+      --amber:#b45309;
+      --red:#b91c1c;
+      --ink:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --soft:#f8fafc;
+      --white:#fff;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:Arial,"Noto Sans Hebrew",sans-serif;background:var(--soft);color:var(--ink);line-height:1.65}
+    a{color:var(--blue)}
+    .topbar{background:var(--navy);color:#fff;padding:.75rem 1.25rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+    .topbar a{color:#dbeafe;text-decoration:none;font-weight:700}
+    .topbar .status{background:rgba(255,255,255,.13);padding:.28rem .7rem;border-radius:999px;font-size:.82rem}
+    .hero{background:linear-gradient(135deg,#172554,#1d4ed8);color:#fff;padding:3.2rem 1.25rem 2.7rem}
+    .hero-inner,.container{max-width:1120px;margin:0 auto}
+    .hero h1{font-size:clamp(1.8rem,4vw,3rem);margin:0 0 .8rem;line-height:1.2}
+    .hero p{max-width:850px;margin:.35rem 0;color:#dbeafe;font-size:1.05rem}
+    .badges{display:flex;gap:.55rem;flex-wrap:wrap;margin-top:1.25rem}
+    .badge{display:inline-block;padding:.3rem .75rem;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);font-size:.82rem}
+    .container{padding:2rem 1rem 4rem}
+    .notice{border-radius:10px;padding:1rem 1.15rem;margin:0 0 1.4rem;border:1px solid}
+    .notice strong{display:block;margin-bottom:.25rem}
+    .notice-warn{background:#fffbeb;border-color:#fcd34d;color:#78350f}
+    .notice-info{background:#eff6ff;border-color:#93c5fd;color:#1e3a8a}
+    .notice-green{background:#ecfdf5;border-color:#6ee7b7;color:#065f46}
+    .toc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.6rem;box-shadow:0 1px 2px rgba(15,23,42,.05)}
+    .toc h2{font-size:1rem;margin:0 0 .55rem;color:var(--navy)}
+    .toc ul{columns:2;margin:.2rem 0 0;padding-right:1.2rem}
+    .toc li{margin:.3rem 0}
+    section{background:#fff;border:1px solid var(--line);border-radius:12px;padding:1.35rem 1.4rem;margin:1.2rem 0;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+    h2{font-size:1.35rem;color:var(--navy);margin:0 0 .85rem;border-bottom:2px solid #bfdbfe;padding-bottom:.45rem}
+    h3{font-size:1.05rem;color:var(--teal);margin:1.1rem 0 .45rem}
+    p{margin:.55rem 0}
+    ul,ol{margin:.45rem 0;padding-right:1.35rem}
+    li{margin:.3rem 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem}
+    .card{border:1px solid var(--line);border-radius:10px;padding:1rem;background:#fff}
+    .card h3{margin-top:0}
+    .stat{font-size:1.75rem;font-weight:800;color:var(--navy)}
+    .table-wrap{overflow-x:auto;margin:.8rem 0}
+    table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:720px}
+    th{background:var(--navy);color:#fff;text-align:right;padding:.65rem .7rem;white-space:nowrap}
+    td{padding:.58rem .7rem;border-bottom:1px solid var(--line);vertical-align:top}
+    tr:nth-child(even) td{background:#f8fafc}
+    .pill{display:inline-block;border-radius:999px;padding:.12rem .48rem;font-size:.74rem;font-weight:700;white-space:nowrap}
+    .required{background:#fee2e2;color:#991b1b}
+    .core{background:#dbeafe;color:#1e40af}
+    .supp{background:#dcfce7;color:#166534}
+    .optional{background:#fef3c7;color:#92400e}
+    code{direction:ltr;unicode-bidi:embed;background:#f1f5f9;border:1px solid #e2e8f0;padding:.08rem .3rem;border-radius:4px;font-family:Consolas,monospace;font-size:.9em}
+    .formula{direction:ltr;text-align:left;background:#0f172a;color:#e2e8f0;border-radius:8px;padding:.75rem 1rem;font-family:Consolas,monospace;overflow-x:auto;margin:.6rem 0}
+    .small{font-size:.86rem;color:var(--muted)}
+    footer{background:#0f172a;color:#94a3b8;padding:2rem 1rem;margin-top:2rem}
+    footer .inner{max-width:1120px;margin:0 auto}
+    footer strong{color:#e2e8f0}
+    @media(max-width:720px){.toc ul{columns:1}.topbar{align-items:flex-start}section{padding:1.05rem}.hero{padding-top:2.4rem}}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="/">PenuX-AP-Severity ← דף הבית</a>
+    <span class="status">גרסה 1.0 · 4 באוגוסט 2026 · מסמך מחקרי</span>
+  </div>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <h1>מפרט נתונים לבית חולים</h1>
+      <p>הגדרת העוקבה, מדיניות נתונים חסרים, משתני ליבה, נתונים דמוגרפיים, מחלות רקע, מדדים חיוניים, הרגלים, תרופות קבועות ורשימת TOP 48 בדיקות מעבדה למחקר PenuX-AP-Severity.</p>
+      <div class="badges">
+        <span class="badge">חלון ניבוי: 0–24 שעות</span>
+        <span class="badge">ללא נתוני הדמיה במאגר הנוכחי</span>
+        <span class="badge">מחקר רטרוספקטיבי</span>
+        <span class="badge">Research Use Only</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="notice notice-warn">
+      <strong>אזהרה מחקרית</strong>
+      המפרט אינו הנחיה להזמנת בדיקות ואינו כלי לקבלת החלטות רפואיות. יש לשלוף רק מידע שנאסף במסגרת הטיפול הרגיל. המודל אינו מכשיר רפואי, אינו מיועד לאבחון או לטיפול, וטרם עבר אימות חיצוני או פרוספקטיבי.
+    </div>
+
+    <div class="notice notice-info">
+      <strong>הדמיה אינה קיימת בדאטה</strong>
+      CT, MRI ואולטרסאונד לא ישמשו כמשתני ניבוי או כתנאי טכני להכללה. כאשר גם נתוני כאב אינם זמינים בצורה מובנית, יש לתאר את בחירת המקרים כ<strong>הגדרת מקרה תפעולית</strong>: אבחנת אשפוז או שחרור של דלקת לבלב חריפה יחד עם ליפאז או עמילאז לפחות פי 3 מהגבול העליון התקין של המעבדה. אין לטעון שהמאגר מאמת במלואם את כל קריטריוני Atlanta.
+    </div>
+
+    <nav class="toc" aria-label="תוכן עניינים">
+      <h2>תוכן עניינים</h2>
+      <ul>
+        <li><a href="#scope">מטרת המפרט</a></li>
+        <li><a href="#inclusion">נתוני חובה להכללה</a></li>
+        <li><a href="#exclusion">קריטריוני החרגה</a></li>
+        <li><a href="#missing">מדיניות חוסרים</a></li>
+        <li><a href="#demographics">דמוגרפיה</a></li>
+        <li><a href="#comorbidities">מחלות רקע</a></li>
+        <li><a href="#vitals">מדדים חיוניים</a></li>
+        <li><a href="#habits">הרגלים</a></li>
+        <li><a href="#medications">תרופות קבועות</a></li>
+        <li><a href="#labs">TOP 48 בדיקות מעבדה</a></li>
+        <li><a href="#repeats">בדיקות חוזרות</a></li>
+        <li><a href="#export">מבנה השליפה</a></li>
+        <li><a href="#role">תפקיד איש הדאטה</a></li>
+      </ul>
+    </nav>
+
+    <section id="scope">
+      <h2>1. מטרת המפרט</h2>
+      <p>המטרה היא לפתח ולהעריך מודל מחקרי לחיזוי מוקדם של דלקת לבלב חריפה חמורה באמצעות נתונים שגרתיים הזמינים במהלך 24 השעות הראשונות לקבלה לבית החולים.</p>
+      <div class="grid">
+        <div class="card"><div class="stat">T0</div><strong>זמן אפס</strong><p class="small">תאריך ושעת הקבלה הראשונה לבית החולים.</p></div>
+        <div class="card"><div class="stat">0–24h</div><strong>חלון הניבוי</strong><p class="small">רק נתונים שנאספו עד 24 שעות לאחר T0.</p></div>
+        <div class="card"><div class="stat">&gt;48h</div><strong>תוצא ראשי</strong><p class="small">כשל איברים מתמשך, כאשר ניתן לקביעה אמינה.</p></div>
+      </div>
+      <p>חומרת דלקת הלבלב לפי Revised Atlanta נקבעת בעיקר לפי נוכחות ומשך כשל האיברים: כשל חולף נפתר בתוך 48 שעות, וכשל מתמשך נמשך יותר מ־48 שעות.</p>
+    </section>
+
+    <section id="inclusion">
+      <h2>2. נתונים שבלעדיהם לא ניתן לכלול מטופל בניתוח הראשי</h2>
+      <p>משתנים אלה מגדירים את האירוע, את הזכאות ואת התוצא. אין להשלים אותם באמצעות אימפוטציה.</p>
+      <ol>
+        <li><strong>מזהה מטופל מקודד</strong> ומזהה אשפוז או ביקור מקודד.</li>
+        <li><strong>תאריך ושעת קבלה — T0</strong>, כדי לקבוע את חלון 24 השעות.</li>
+        <li><strong>גיל בעת הקבלה</strong>, כאשר המחקר מוגבל לבני 18 ומעלה.</li>
+        <li><strong>אבחנת דלקת לבלב חריפה</strong> ברשומת הקבלה או השחרור.</li>
+        <li><strong>ליפאז או עמילאז ותוצאת ULN מתאימה</strong>. בהיעדר הדמיה מובנית, העוקבה הראשית תדרוש לפחות אנזים אחד ברמה של פי 3 ומעלה מה־ULN.</li>
+        <li><strong>מעקב מספיק לקביעת התוצא</strong>: אפשרות לקבוע אם התפתח כשל איברים ואם נמשך יותר מ־48 שעות.</li>
+        <li><strong>לפחות מידע מנבא בסיסי</strong> בתוך חלון 24 השעות; מקרה ללא כלל מדדים חיוניים וללא כלל בדיקות מעבדה לא ייכלל בפיתוח המודל.</li>
+      </ol>
+      <div class="notice notice-green">
+        <strong>אין בדיקת מעבדה יחידה שחייבת להופיע אצל כל המטופלים</strong>
+        ליפאז חסר אינו פוסל אם עמילאז עומד בהגדרה התפעולית; CRP, גזים, לקטט, D-dimer או פרוקלציטונין חסרים אינם פוסלים מקרה.
+      </div>
+      <h3>כאשר לא ניתן לקבוע את התוצא</h3>
+      <p>מקרה יסומן <code>outcome_indeterminate</code> ולא ישמש לאימון המודל הראשי אם המטופל הועבר לפני 48 שעות ללא מידע המשכי, עזב ללא מעקב מספק, או שאין אפשרות להבחין בין כשל איברים חולף למתמשך.</p>
+    </section>
+
+    <section id="exclusion">
+      <h2>3. קריטריוני החרגה עקב מצב רפואי קודם</h2>
+      <p>אבחנת רקע כשלעצמה אינה סיבה לפסילה. החרגה תתבצע רק כאשר המצב הקודם מונע אישור אמין של דלקת לבלב חריפה או מונע הבחנה בין כשל איברים כרוני לכשל חדש.</p>
+      <ol>
+        <li>דלקת לבלב כרונית ללא הוכחה מספקת לאירוע חריף חדש.</li>
+        <li>כשל איברים כרוני בסיסי שאין אפשרות להפרידו מהאירוע החריף.</li>
+        <li>דיאליזה כרונית, הנשמה פולשנית כרונית או תלות קבועה בוואזופרסורים, כאשר אין נתוני בסיס המאפשרים לזהות החמרה חדשה.</li>
+        <li>כריתה מלאה של הלבלב.</li>
+        <li>אבחנה חלופית המסבירה את הממצאים, כאשר המקרה אינו עומד בהגדרה התפעולית לדלקת לבלב חריפה.</li>
+      </ol>
+      <p>סוכרת, אי־ספיקת לב יציבה, CKD שאינו דיאליזה, COPD, שחמת, ממאירות, דיכוי חיסוני, השמנת יתר, עישון, אלכוהול או דלקת לבלב חריפה קודמת אינם פוסלים אוטומטית. הם יתועדו כמשתני רקע וייבחנו בניתוחי תת־קבוצות או רגישות.</p>
+    </section>
+
+    <section id="missing">
+      <h2>4. מדיניות נתונים חסרים</h2>
+      <h3>אין כלל אוטומטי של “חסרים 5 פרמטרים — המקרה נפסל”</h3>
+      <p>מספר החוסרים לבדו אינו מספיק. חוסר בחמש בדיקות אופציונליות שונה מחוסר בזמן הקבלה, באישור האבחנה או בתוצא הראשי.</p>
+
+      <h3>16 משתני ליבה לבדיקת שלמות המקרה</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>תחום</th><th>משתני ליבה</th></tr></thead>
+          <tbody>
+            <tr><td>דמוגרפיה</td><td>גיל, מין רשום במערכת</td></tr>
+            <tr><td>מדדים חיוניים</td><td>דופק, לחץ דם סיסטולי, קצב נשימה, חום, סטורציה, GCS/AVPU או תיעוד מצב הכרה</td></tr>
+            <tr><td>מעבדה</td><td>WBC, המוגלובין או המטוקריט, אוראה או BUN, קריאטינין, גלוקוז, סידן כללי, אלבומין, בילירובין כללי</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>שלמות מתוך 16</th><th>סיווג</th><th>שימוש מוצע</th></tr></thead>
+          <tbody>
+            <tr><td>12–16</td><td><span class="pill supp">שלמות גבוהה</span></td><td>כל הניתוחים וניתוח רגישות של שלמות גבוהה.</td></tr>
+            <tr><td>8–11</td><td><span class="pill core">שלמות בינונית</span></td><td>נכלל במודל הראשי עם טיפול בחוסרים ובניתוחי רגישות.</td></tr>
+            <tr><td>פחות מ־8</td><td><span class="pill optional">דל נתונים</span></td><td>לא ייכלל בפיתוח המודל הראשי; יישמר ביומן הסינון.</td></tr>
+            <tr><td>תחום שלם חסר</td><td><span class="pill required">חוסר מהותי</span></td><td>אין כלל מדדים חיוניים או אין כלל נתוני מעבדה — לא ייכלל במודל הראשי.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">הספים 8/16 ו־12/16 הם כללי עבודה מוצעים. יש לקבע אותם לאחר דוח זמינות פיילוט ולפני בחינת הקשר בין החוסרים לתוצא.</p>
+
+      <h3>טיפול לפי סוג המשתנה</h3>
+      <ul>
+        <li><strong>אסור להשלים:</strong> מזהה אירוע, T0, זכאות, אבחנת AP, תוצא ראשי, משך כשל איברים, מוות ומועדי אשפוז.</li>
+        <li><strong>ניתן להשלים:</strong> משתני ניבוי חלקיים, באמצעות Multiple Imputation, חציון בתוך קפל האימון, או מנגנון חוסרים מובנה במודל.</li>
+        <li><strong>מניעת דליפת מידע:</strong> כל אימפוטציה, תקנון ובחירת משתנים יותאמו בתוך נתוני האימון בלבד ובתוך כל קפל Cross-Validation.</li>
+        <li><strong>בדיקת רגישות:</strong> יש להשוות למודל complete-case ולמודל מצומצם המשתמש רק במשתנים בעלי זמינות גבוהה.</li>
+        <li><strong>חוסר אינו אפס:</strong> “לא הוזמן”, “לא בוצע”, “דגימה נפסלה” ו“לא ידוע” יקודדו בנפרד ככל האפשר.</li>
+      </ul>
+
+      <h3>סף זמינות ברמת המשתנה</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>זמינות בעוקבה</th><th>שימוש מוצע</th></tr></thead>
+          <tbody>
+            <tr><td>80% ומעלה</td><td>מועמד למודל הראשי.</td></tr>
+            <tr><td>50%–79%</td><td>מודל מורחב או ניתוח משני.</td></tr>
+            <tr><td>20%–49%</td><td>ניתוח חקרני בלבד.</td></tr>
+            <tr><td>פחות מ־20%</td><td>בדרך כלל לא ייכלל במודל; יישמר לצורכי תיאור.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="demographics">
+      <h2>5. נתונים דמוגרפיים</h2>
+      <div class="grid">
+        <div class="card"><h3>מרכזיים</h3><ul><li>גיל בעת הקבלה</li><li>מין רשום במערכת</li><li>גובה</li><li>משקל</li><li>BMI מחושב</li><li>תאריך ושעת קבלה</li><li>שנת אשפוז ואתר</li></ul></div>
+        <div class="card"><h3>פרטי האירוע</h3><ul><li>מקור הקבלה: מיון, מחלקה או העברה</li><li>אירוע ראשון או חוזר</li><li>זמן מתחילת תסמינים, אם קיים</li><li>תאריך שחרור, העברה או פטירה</li><li>היריון, כאשר רלוונטי וקיים</li></ul></div>
+        <div class="card"><h3>אופציונליים להוגנות</h3><ul><li>קבוצת אוכלוסייה כפי שמקודדת</li><li>אזור מגורים ברמת יישוב בלבד</li><li>מדד חברתי־כלכלי מקודד</li></ul><p class="small">בכפוף לאישור אתי, פרטיות ומינימיזציית מידע.</p></div>
+      </div>
+    </section>
+
+    <section id="comorbidities">
+      <h2>6. מחלות ואבחנות רקע</h2>
+      <p>יש לאסוף אבחנות שהיו קיימות לפני הקבלה או תועדו כמצב קיים בזמן הקבלה, ולא סיבוכים שנוצרו לאחר T0.</p>
+      <div class="grid">
+        <div class="card"><h3>מטבולי וביליארי</h3><ul><li>סוכרת וסיבוכיה</li><li>השמנת יתר</li><li>דיסליפידמיה</li><li>היפרטריגליצרידמיה</li><li>אבני מרה ומחלות דרכי מרה</li><li>כריתת כיס מרה</li></ul></div>
+        <div class="card"><h3>לב וכלי דם</h3><ul><li>יתר לחץ דם</li><li>אי־ספיקת לב</li><li>מחלת לב איסכמית</li><li>פרפור פרוזדורים</li><li>מחלה מוחית־וסקולרית</li></ul></div>
+        <div class="card"><h3>כליה, כבד וריאות</h3><ul><li>CKD ושלב המחלה</li><li>קריאטינין/eGFR בסיסי</li><li>דיאליזה כרונית</li><li>מחלת כבד כרונית או שחמת</li><li>COPD או אסתמה משמעותית</li><li>חמצן או הנשמה כרוניים</li></ul></div>
+        <div class="card"><h3>אונקולוגיה וחיסון</h3><ul><li>ממאירות פעילה או גרורתית</li><li>כימותרפיה או טיפול ביולוגי</li><li>דיכוי חיסוני</li><li>HIV או זיהום כרוני רלוונטי</li></ul></div>
+        <div class="card"><h3>לבלב והיסטוריה</h3><ul><li>דלקת לבלב כרונית</li><li>אירועי AP קודמים</li><li>ניתוחי לבלב</li><li>אי־ספיקה אקסוקרינית</li><li>ממאירות או חסימה לבלבית</li></ul></div>
+        <div class="card"><h3>מדדים נגזרים</h3><ul><li>Charlson Comorbidity Index</li><li>מספר מחלות רקע</li><li>דגל מחלה כלייתית/כבדית/לבבית</li><li>דגל דיכוי חיסוני</li></ul></div>
+      </div>
+    </section>
+
+    <section id="vitals">
+      <h2>7. מדדים חיוניים — Vital Signs</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>פרמטר</th><th>יחידה</th><th>שדות נלווים</th><th>עדיפות</th></tr></thead>
+          <tbody>
+            <tr><td>דופק</td><td>bpm</td><td>זמן, ראשון, מינימום, מקסימום, אחרון, מספר מדידות</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>לחץ דם סיסטולי ודיאסטולי</td><td>mmHg</td><td>זמן, תנוחה ומקור כאשר קיימים</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>MAP</td><td>mmHg</td><td>מדוד או מחושב; לציין מקור</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>קצב נשימה</td><td>נשימות/דקה</td><td>זמן וכל סיכומי 24 השעות</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>חום</td><td>°C</td><td>אתר המדידה אם קיים</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>סטורציה</td><td>%</td><td>אוויר חדר או חמצן, מכשיר ומועד</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>סוג תמיכת חמצן</td><td>קטגוריאלי</td><td>זרימה L/min ו־FiO2 כאשר קיימים</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>GCS או AVPU</td><td>ציון/קטגוריה</td><td>מצב בסיס ושינוי חדש</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>תפוקת שתן</td><td>mL ו־mL/kg/h</td><td>מרווח הזמן ומשקל</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>ואזופרסורים</td><td>כן/לא + מינון</td><td>שם, זמן התחלה וסיום</td><td><span class="pill supp">לתוצא</span></td></tr>
+            <tr><td>הנשמה פולשנית/לא פולשנית</td><td>כן/לא</td><td>זמן התחלה וסיום</td><td><span class="pill supp">לתוצא</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="formula">MAP = (SBP + 2 × DBP) / 3
+Shock Index = Heart Rate / SBP</div>
+      <p>לכל מדד יש לשמור את כל המדידות הגולמיות. נגזור ערך ראשון ב־0–6 שעות, ראשון בתוך 24 שעות, אחרון, מינימום, מקסימום ומספר מדידות.</p>
+    </section>
+
+    <section id="habits">
+      <h2>8. הרגלים</h2>
+      <div class="grid">
+        <div class="card"><h3>עישון</h3><ul><li>מעולם לא עישן</li><li>מעשן פעיל</li><li>מעשן לשעבר</li><li>לא ידוע</li><li>חפיסות ליום</li><li>שנות עישון</li><li>Pack-years</li></ul></div>
+        <div class="card"><h3>אלכוהול</h3><ul><li>ללא שימוש, נוכחי, בעבר או לא ידוע</li><li>כמות משוערת לשבוע</li><li>שתייה מרובה</li><li>הפרעת שימוש באלכוהול</li><li>האם אלכוהול הוגדר כאטיולוגיה</li></ul></div>
+        <div class="card"><h3>חומרים נוספים</h3><ul><li>אופיואידים כרוניים</li><li>ממריצים או קוקאין</li><li>קנאביס</li><li>חומר אחר שתועד כרלוונטי</li></ul><p class="small">משתנים אופציונליים ואינם תנאי להכללה.</p></div>
+      </div>
+      <p>היעדר תיעוד אינו שקול ל“לא מעשן” או “ללא אלכוהול”. יש לשמור קטגוריית <code>unknown</code>.</p>
+    </section>
+
+    <section id="medications">
+      <h2>9. תרופות קבועות לפני הקבלה</h2>
+      <p>מומלץ לשלוף את כל רשימת תרופות הבית הפעילות ב־T0, ולאחר מכן למפות לשם גנרי ולקבוצות ATC. תרופה קבועה אינה סיבה לפסילת מטופל.</p>
+      <div class="grid">
+        <div class="card"><h3>קבוצות מרכזיות</h3><ul><li>אינסולין ותרופות לסוכרת</li><li>סטטינים, פיברטים ותרופות להורדת שומנים</li><li>ACEi, ARB, חוסמי בטא ומשתנים</li><li>נוגדי קרישה ונוגדי טסיות</li><li>סטרואידים ומדכאי חיסון</li><li>כימותרפיה, אימונותרפיה וטיפול ביולוגי</li></ul></div>
+        <div class="card"><h3>תרופות רלוונטיות לאטיולוגיה אפשרית</h3><ul><li>Azathioprine ו־6-mercaptopurine</li><li>Valproate ותרופות אנטי־אפילפטיות</li><li>Thiazides ומשתנים אחרים</li><li>Estrogen וטיפול הורמונלי</li><li>Mesalazine ותרופות IBD</li><li>תרופה אחרת שסומנה על ידי חוקר קליני</li></ul></div>
+        <div class="card"><h3>שדות לכל תרופה</h3><ul><li>שם מסחרי וגנרי</li><li>קוד ATC</li><li>מינון, יחידה, תדירות ודרך מתן</li><li>תאריך התחלה והפסקה</li><li>קבוע או PRN</li><li>סטטוס ב־T0 ומועד נטילה אחרונה</li><li>מקור ורמת ודאות</li></ul></div>
+      </div>
+      <p>יש להפריד בין תרופות בית לבין טיפולים שניתנו לאחר הקבלה. ואזופרסורים, נוזלים, הנשמה ואנטיביוטיקה לאחר T0 עלולים לשקף חומרה שכבר זוהתה ולכן לא ייכללו אוטומטית במודל הבסיסי.</p>
+      <p>מצבי התרופה: <code>present</code>, <code>absent_confirmed</code>, <code>unknown</code>, <code>conflicting</code>. ערך 0 יינתן רק כאשר בוצעה השלמת תרופות מאומתת.</p>
+    </section>
+
+    <section id="labs">
+      <h2>10. TOP 48 בדיקות מעבדה</h2>
+      <p>הרשימה היא מעטפת שליפה. היא אינה חבילת בדיקות חובה ואין להזמין בדיקות במיוחד לצורך המחקר.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>בדיקה</th><th>קיצור</th><th>יחידה קנונית</th><th>מקור צפוי</th><th>עדיפות</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>ספירת תאי דם לבנים</td><td>WBC</td><td>×10⁹/L</td><td>LIS המטולוגיה</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>2</td><td>נויטרופילים מוחלטים</td><td>ANC</td><td>×10⁹/L</td><td>LIS המטולוגיה</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>3</td><td>לימפוציטים מוחלטים</td><td>ALC</td><td>×10⁹/L</td><td>LIS המטולוגיה</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>4</td><td>מונוציטים מוחלטים</td><td>AMC</td><td>×10⁹/L</td><td>LIS המטולוגיה</td><td><span class="pill optional">אופציונלי</span></td></tr>
+            <tr><td>5</td><td>כדוריות דם אדומות</td><td>RBC</td><td>×10¹²/L</td><td>LIS המטולוגיה</td><td><span class="pill optional">אופציונלי</span></td></tr>
+            <tr><td>6</td><td>המוגלובין</td><td>Hb</td><td>g/dL</td><td>LIS המטולוגיה</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>7</td><td>המטוקריט</td><td>HCT</td><td>%</td><td>LIS המטולוגיה</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>8</td><td>טסיות</td><td>PLT</td><td>×10⁹/L</td><td>LIS המטולוגיה</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>9</td><td>נפח כדורית ממוצע</td><td>MCV</td><td>fL</td><td>LIS המטולוגיה</td><td><span class="pill optional">אופציונלי</span></td></tr>
+            <tr><td>10</td><td>רוחב התפלגות כדוריות אדומות</td><td>RDW-CV</td><td>%</td><td>LIS המטולוגיה</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>11</td><td>נפח טסיות ממוצע</td><td>MPV</td><td>fL</td><td>LIS המטולוגיה</td><td><span class="pill optional">אופציונלי</span></td></tr>
+            <tr><td>12</td><td>אוראה</td><td>Urea</td><td>mmol/L</td><td>LIS כימיה</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>13</td><td>קריאטינין</td><td>Creatinine</td><td>µmol/L</td><td>LIS כימיה</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>14</td><td>קצב סינון גלומרולרי משוער</td><td>eGFR</td><td>mL/min/1.73m²</td><td>נגזר/LIS</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>15</td><td>נתרן</td><td>Na</td><td>mmol/L</td><td>LIS כימיה/גזים</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>16</td><td>אשלגן</td><td>K</td><td>mmol/L</td><td>LIS כימיה/גזים</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>17</td><td>כלוריד</td><td>Cl</td><td>mmol/L</td><td>LIS כימיה/גזים</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>18</td><td>פחמן דו־חמצני כללי בכימיה</td><td>TCO₂</td><td>mmol/L</td><td>LIS כימיה</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>19</td><td>גלוקוז</td><td>Glucose</td><td>mmol/L</td><td>LIS/POCT</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>20</td><td>סידן כללי</td><td>Total Ca</td><td>mmol/L</td><td>LIS כימיה</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>21</td><td>סידן מיונן</td><td>iCa</td><td>mmol/L</td><td>גזים/POCT</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>22</td><td>מגנזיום</td><td>Mg</td><td>mmol/L</td><td>LIS כימיה</td><td><span class="pill optional">אופציונלי</span></td></tr>
+            <tr><td>23</td><td>זרחן</td><td>Phosphate</td><td>mmol/L</td><td>LIS כימיה</td><td><span class="pill optional">אופציונלי</span></td></tr>
+            <tr><td>24</td><td>ביקרבונט בגז דם</td><td>HCO₃⁻</td><td>mmol/L</td><td>גזים/POCT</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>25</td><td>אלבומין</td><td>Albumin</td><td>g/L</td><td>LIS כימיה</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>26</td><td>חלבון כללי</td><td>Total protein</td><td>g/L</td><td>LIS כימיה</td><td><span class="pill optional">אופציונלי</span></td></tr>
+            <tr><td>27</td><td>בילירובין כללי</td><td>Total bilirubin</td><td>µmol/L</td><td>LIS כימיה</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>28</td><td>בילירובין ישיר</td><td>Direct bilirubin</td><td>µmol/L</td><td>LIS כימיה</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>29</td><td>אספרטט אמינוטרנספראז</td><td>AST</td><td>U/L</td><td>LIS כימיה</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>30</td><td>אלנין אמינוטרנספראז</td><td>ALT</td><td>U/L</td><td>LIS כימיה</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>31</td><td>פוספטזה בסיסית</td><td>ALP</td><td>U/L</td><td>LIS כימיה</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>32</td><td>גמא גלוטמיל טרנספראז</td><td>GGT</td><td>U/L</td><td>LIS כימיה</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>33</td><td>לקטט דהידרוגנאז</td><td>LDH</td><td>U/L</td><td>LIS כימיה</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>34</td><td>ליפאז</td><td>Lipase</td><td>U/L + כפולת ULN</td><td>LIS כימיה</td><td><span class="pill required">אבחנה</span></td></tr>
+            <tr><td>35</td><td>עמילאז</td><td>Amylase</td><td>U/L + כפולת ULN</td><td>LIS כימיה</td><td><span class="pill required">אבחנה חלופית</span></td></tr>
+            <tr><td>36</td><td>חלבון מגיב C</td><td>CRP</td><td>mg/L</td><td>LIS אימונוכימיה</td><td><span class="pill core">ליבה</span></td></tr>
+            <tr><td>37</td><td>פרוקלציטונין</td><td>PCT</td><td>ng/mL</td><td>LIS אימונוכימיה</td><td><span class="pill optional">אופציונלי</span></td></tr>
+            <tr><td>38</td><td>טריגליצרידים</td><td>TG</td><td>mmol/L</td><td>LIS כימיה</td><td><span class="pill supp">אטיולוגיה</span></td></tr>
+            <tr><td>39</td><td>זמן פרותרומבין</td><td>PT</td><td>שניות</td><td>LIS קרישה</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>40</td><td>יחס מנורמל בינלאומי</td><td>INR</td><td>יחס</td><td>LIS קרישה</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>41</td><td>זמן תרומבופלסטין חלקי</td><td>aPTT</td><td>שניות</td><td>LIS קרישה</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>42</td><td>פיברינוגן</td><td>Fibrinogen</td><td>g/L</td><td>LIS קרישה</td><td><span class="pill optional">אופציונלי</span></td></tr>
+            <tr><td>43</td><td>D-dimer</td><td>D-dimer</td><td>mg/L FEU + יחידה מקורית</td><td>LIS קרישה</td><td><span class="pill optional">אופציונלי</span></td></tr>
+            <tr><td>44</td><td>לקטט</td><td>Lactate</td><td>mmol/L</td><td>גזים/POCT</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>45</td><td>חומציות</td><td>pH</td><td>ללא יחידה</td><td>גזים/POCT</td><td><span class="pill supp">תוצא</span></td></tr>
+            <tr><td>46</td><td>לחץ חלקי של חמצן</td><td>PaO₂</td><td>mmHg</td><td>גזים/POCT</td><td><span class="pill supp">תוצא</span></td></tr>
+            <tr><td>47</td><td>לחץ חלקי של פחמן דו־חמצני</td><td>PaCO₂</td><td>mmHg</td><td>גזים/POCT</td><td><span class="pill supp">משלים</span></td></tr>
+            <tr><td>48</td><td>עודף בסיס</td><td>Base excess</td><td>mmol/L</td><td>גזים/POCT</td><td><span class="pill optional">אופציונלי</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>המרות מקובלות</h3>
+      <div class="formula">BUN (mg/dL) = Urea (mmol/L) × 2.801
+Creatinine (mg/dL) = Creatinine (µmol/L) ÷ 88.4
+Glucose (mg/dL) = Glucose (mmol/L) × 18.018
+Calcium (mg/dL) = Calcium (mmol/L) × 4.008
+Bilirubin (mg/dL) = Bilirubin (µmol/L) ÷ 17.1</div>
+      <ul>
+        <li>TCO₂ בכימיה וביקרבונט בגז דם יישמרו כשדות נפרדים.</li>
+        <li>סידן כללי וסידן מיונן אינם תחליפים זהים.</li>
+        <li>ליפאז ועמילאז יישמרו בנפרד, יחד עם ULN ויחס התוצאה ל־ULN.</li>
+        <li>D-dimer יישמר גם ביחידה המקורית ובסוג היחידה FEU/DDU.</li>
+        <li>eGFR יכלול את שם או גרסת הנוסחה כאשר זמינים.</li>
+      </ul>
+    </section>
+
+    <section id="repeats">
+      <h2>11. בדיקות ומדדים חוזרים</h2>
+      <p>יש לייצא את כל התוצאות הגולמיות עם זמני הדגימה. אין להחליף ערך חסר בתוך 24 שעות בתוצאה שנלקחה לאחר חלון הניבוי.</p>
+      <ul>
+        <li>ערך ראשון ב־0–6 שעות.</li>
+        <li>ערך ראשון ב־0–24 שעות; לסמן אם נלקח לאחר 6 שעות.</li>
+        <li>ערך אחרון בתוך 24 שעות.</li>
+        <li>מינימום, מקסימום ומספר מדידות.</li>
+        <li>הפרש ואחוז שינוי בין הראשון לאחרון.</li>
+        <li>תוצאה מתוקנת תחליף את התוצאה המקורית בחישובים, תוך שמירת דגל תיקון.</li>
+        <li>לשמור דגלי המוליזה, ליפמיה, איקטרוס, דגימה פסולה, תוצאה מבוטלת ותוצאה מתוקנת.</li>
+      </ul>
+    </section>
+
+    <section id="export">
+      <h2>12. מבנה השליפה ומקור הנתונים</h2>
+      <p>לכל תוצאה או תצפית יש לשמור:</p>
+      <ul>
+        <li>מזהה מטופל ואשפוז מקודדים.</li>
+        <li>קוד מקומי, שם הבדיקה ושם סטנדרטי אם קיים.</li>
+        <li>ערך מקורי, יחידה מקורית ויחידה קנונית.</li>
+        <li>טווח ייחוס, LLN ו־ULN.</li>
+        <li>זמן דגימה, זמן קבלת תוצאה וזמן תיקון.</li>
+        <li>סוג דגימה, מכשיר או אנלייזר כאשר זמינים.</li>
+        <li>מחלקה ומקור: מיון, מחלקה, טיפול נמרץ, LIS, POCT או ניטור.</li>
+        <li>סטטוס: סופי, ראשוני, מתוקן, מבוטל או לא תקין טכנית.</li>
+      </ul>
+      <p>FHIR Observation מתאים לייצוג מדדי מעבדה, סימנים חיוניים, מדידות מכשיר וממצאים קליניים. המיפוי יתבצע רק לאחר שמירת הקודים והיחידות המקוריים.</p>
+    </section>
+
+    <section id="role">
+      <h2>13. תפקיד איש הדאטה במחקר</h2>
+      <p><strong>Netanel Stern — Data Lead / Clinical Data Scientist</strong></p>
+      <ul>
+        <li>בניית מילון הנתונים ומפרט השליפה.</li>
+        <li>מיפוי קודים מקומיים, בדיקות, תרופות, אבחנות ויחידות.</li>
+        <li>בדיקת איכות, זמינות, כפילויות, חריגות וחוסרים.</li>
+        <li>הגדרת כללים לבדיקות חוזרות ולחלון 24 השעות.</li>
+        <li>בניית תהליך ניקוי, עיבוד, אימפוטציה והנדסת מאפיינים.</li>
+        <li>פיתוח מודלים, אימות פנימי, כיול, בחירת ספים וניתוחי רגישות.</li>
+        <li>הפקת דוחות, טבלאות ותיעוד ניתן לשחזור.</li>
+      </ul>
+      <p>האחריות לאישור האבחנה, הכרעת מקרים גבוליים, קביעת כשל איברים, אישור הלסינקי, הרשאות מידע וקבלת החלטות רפואיות תישאר בידי החוקרים הקליניים ובית החולים.</p>
+    </section>
+
+    <section id="limitations">
+      <h2>14. מגבלות שיש לדווח מראש</h2>
+      <ul>
+        <li>אין נתוני הדמיה במאגר הנוכחי.</li>
+        <li>כאשר אין נתוני כאב מובנים, הגדרת המקרה היא תפעולית ולא אימות מלא של שניים משלושת קריטריוני Atlanta.</li>
+        <li>אם אין נתונים המספיקים להוכחת כשל איברים מתמשך, אין להציג את התווית הקיימת כאילו נגזרה ישירות מ־Modified Marshall; יש לתארה כתווית חומרה שסופקה על ידי מקור הנתונים.</li>
+        <li>בדיקות המבוצעות בעיקר בחולים קשים עלולות ליצור חוסר אינפורמטיבי; יש לבדוק את דפוסי החוסר לפי חומרה, מחלקה, שנה ואתר.</li>
+        <li>כל תוצאה קיימת היא מחקרית בלבד עד להשלמת אימות חיצוני ופרוספקטיבי.</li>
+      </ul>
+    </section>
+
+    <section id="references">
+      <h2>15. מקורות מתודולוגיים</h2>
+      <ol>
+        <li>Banks PA, et al. Classification of acute pancreatitis—2012: revision of the Atlanta classification and definitions by international consensus. <em>Gut</em>. 2013;62:102–111. <a href="https://gut.bmj.com/content/62/1/102" target="_blank" rel="noopener">מקור</a>.</li>
+        <li>Collins GS, et al. TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods. <em>BMJ</em>. 2024;385:e078378. <a href="https://www.bmj.com/content/385/bmj-2023-078378" target="_blank" rel="noopener">מקור</a>.</li>
+        <li>HL7 FHIR R4 Observation. <a href="https://hl7.org/fhir/R4/observation.html" target="_blank" rel="noopener">מפרט רשמי</a>.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer>
+    <div class="inner">
+      <strong>PenuX-AP-Severity</strong><br />
+      Open-source clinical prediction research · Research use only · Not for clinical decision-making.<br />
+      © 2026 PenuX Research Project
+    </div>
+  </footer>
+</body>
+</html>
