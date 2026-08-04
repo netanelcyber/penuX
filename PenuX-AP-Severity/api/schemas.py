@@ -1,8 +1,8 @@
 """Pydantic schemas for the PenuX-AP research API.
 
 The public prediction contract remains backwards compatible with the original
-flat admission schema.  The expanded fields support hospital data mapping,
-unit normalisation and cohort-quality assessment.  Outcome fields are never
+flat admission schema. The expanded fields support hospital data mapping,
+unit normalisation and cohort-quality assessment. Outcome fields are never
 included in the predictor feature dictionary.
 """
 from __future__ import annotations
@@ -17,9 +17,6 @@ RESEARCH_WARNING = (
     "and must not be used for patient-care decisions."
 )
 
-# Exact fields historically supplied to the deployed estimator.  Keeping this
-# list stable prevents new metadata, outcomes, medications and comorbidities
-# from silently changing the legacy model input shape.
 LEGACY_MODEL_FIELDS: tuple[str, ...] = (
     "age", "sex", "bmi", "heart_rate", "systolic_bp", "diastolic_bp",
     "respiratory_rate", "temperature", "spo2", "wbc", "crp", "bun",
@@ -51,22 +48,21 @@ VITAL_GROUPS: tuple[str, ...] = (
 )
 LAB_GROUPS: tuple[str, ...] = (
     "wbc", "hemoglobin_or_hematocrit", "urea_or_bun", "creatinine",
-    "sodium", "glucose", "calcium", "albumin", "bilirubin", "crp",
+    "glucose", "calcium", "albumin", "bilirubin",
 )
 
 
 class AdmissionInput(BaseModel):
     """Expanded first-24-hour AP predictor input.
 
-    Values omitted from the request remain ``None``.  Absence is never treated
-    as zero or normal.  SI aliases are converted to the legacy units used by
+    Values omitted from the request remain ``None``. Absence is never treated
+    as zero or normal. SI aliases are converted to the legacy units used by
     the current endpoint, while the original SI values remain available in the
     full hospital record.
     """
 
     model_config = ConfigDict(extra="allow", populate_by_name=True)
 
-    # Encounter and cohort metadata -- not predictor features.
     patient_id: Optional[str] = Field(None, description="Pseudonymised patient identifier; never log a national ID")
     encounter_id: Optional[str] = Field(None, description="Pseudonymised hospital encounter identifier")
     admission_time: Optional[datetime] = Field(None, description="T0: first hospital arrival/admission timestamp")
@@ -78,14 +74,12 @@ class AdmissionInput(BaseModel):
     outcome_followup_available: Optional[bool] = None
     persistent_organ_failure_gt_48h: Optional[bool] = Field(None, description="Outcome only; excluded from predictor features")
 
-    # Demographics.
     age: Optional[float] = Field(None, ge=0, le=130, description="Age at T0, years")
     sex: Optional[str] = Field(None, description="Recorded sex; retain local coding")
     height_cm: Optional[float] = Field(None, gt=0, le=260)
     weight_kg: Optional[float] = Field(None, gt=0, le=500)
     bmi: Optional[float] = Field(None, gt=0, le=100, description="kg/m²")
 
-    # Vital signs and organ-support observations.
     heart_rate: Optional[float] = Field(None, ge=0, le=350, description="bpm")
     systolic_bp: Optional[float] = Field(None, ge=0, le=350, description="mmHg")
     diastolic_bp: Optional[float] = Field(None, ge=0, le=250, description="mmHg")
@@ -103,7 +97,6 @@ class AdmissionInput(BaseModel):
     invasive_ventilation: Optional[bool] = None
     noninvasive_ventilation: Optional[bool] = None
 
-    # Haematology.
     wbc: Optional[float] = Field(None, description="×10⁹/L")
     anc: Optional[float] = Field(None, description="×10⁹/L")
     alc: Optional[float] = Field(None, description="×10⁹/L")
@@ -116,7 +109,6 @@ class AdmissionInput(BaseModel):
     rdw_cv: Optional[float] = Field(None, description="%")
     mpv: Optional[float] = Field(None, description="fL")
 
-    # Renal, electrolyte and metabolic tests.  Legacy aliases are retained.
     urea_mmol_l: Optional[float] = None
     bun: Optional[float] = Field(None, description="mg/dL")
     creatinine: Optional[float] = Field(None, description="mg/dL")
@@ -135,7 +127,6 @@ class AdmissionInput(BaseModel):
     phosphate_mmol_l: Optional[float] = None
     bicarbonate_blood_gas: Optional[float] = Field(None, description="mmol/L; keep separate from chemistry TCO₂")
 
-    # Liver, pancreatic and inflammatory tests.
     albumin: Optional[float] = Field(None, description="g/dL")
     albumin_g_l: Optional[float] = None
     total_protein_g_l: Optional[float] = None
@@ -156,7 +147,6 @@ class AdmissionInput(BaseModel):
     triglycerides: Optional[float] = Field(None, description="mg/dL")
     triglycerides_mmol_l: Optional[float] = None
 
-    # Coagulation and blood gas.
     pt_seconds: Optional[float] = None
     inr: Optional[float] = None
     aptt_seconds: Optional[float] = None
@@ -168,7 +158,6 @@ class AdmissionInput(BaseModel):
     paco2: Optional[float] = Field(None, description="mmHg")
     base_excess: Optional[float] = Field(None, description="mmol/L")
 
-    # Pre-existing diagnoses, habits and home medication data.
     diabetes: Optional[bool] = None
     heart_failure: Optional[bool] = None
     ischemic_heart_disease: Optional[bool] = None
@@ -194,14 +183,10 @@ class AdmissionInput(BaseModel):
         if not isinstance(raw, dict):
             return raw
         data = dict(raw)
-
-        # Common API aliases.
         if data.get("temperature") is None and data.get("temperature_c") is not None:
             data["temperature"] = data["temperature_c"]
         if data.get("bilirubin_total") is None and data.get("bilirubin") is not None:
             data["bilirubin_total"] = data["bilirubin"]
-
-        # Convert canonical SI values only when the legacy field is absent.
         if data.get("bun") is None and data.get("urea_mmol_l") is not None:
             data["bun"] = float(data["urea_mmol_l"]) * 2.801
         if data.get("creatinine") is None and data.get("creatinine_umol_l") is not None:
@@ -216,7 +201,6 @@ class AdmissionInput(BaseModel):
             data["bilirubin_total"] = float(data["bilirubin_total_umol_l"]) / 17.1
         if data.get("triglycerides") is None and data.get("triglycerides_mmol_l") is not None:
             data["triglycerides"] = float(data["triglycerides_mmol_l"]) * 88.57
-
         if data.get("bmi") is None and data.get("height_cm") and data.get("weight_kg"):
             height_m = float(data["height_cm"]) / 100.0
             data["bmi"] = float(data["weight_kg"]) / (height_m * height_m)
@@ -227,17 +211,10 @@ class AdmissionInput(BaseModel):
         return data
 
     def model_dump(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
-        """Return the stable legacy estimator feature frame.
-
-        The full record remains available through :meth:`hospital_data_dict`.
-        This protects deployed estimators from accidental outcome leakage or a
-        changed feature count when the hospital contract grows.
-        """
         full = super().model_dump(*args, **kwargs)
         return {name: full.get(name) for name in LEGACY_MODEL_FIELDS}
 
     def hospital_data_dict(self) -> dict[str, Any]:
-        """Return all supplied hospital fields, including metadata."""
         return super().model_dump(exclude_none=False)
 
     def core_data_summary(self) -> dict[str, Any]:
@@ -250,12 +227,7 @@ class AdmissionInput(BaseModel):
             else:
                 missing.append(group)
         count = len(present)
-        if count >= 12:
-            level = "high"
-        elif count >= 8:
-            level = "intermediate"
-        else:
-            level = "data_sparse"
+        level = "high" if count >= 12 else "intermediate" if count >= 8 else "data_sparse"
         return {
             "core_present": count,
             "core_total": len(CORE_GROUPS),
@@ -271,7 +243,6 @@ class AdmissionInput(BaseModel):
         return bool(lipase_ok or amylase_ok)
 
     def research_eligibility_summary(self) -> dict[str, Any]:
-        """Assess model-development eligibility without making a clinical diagnosis."""
         missing_essential: list[str] = []
         if not self.encounter_id:
             missing_essential.append("encounter_id")
@@ -325,12 +296,6 @@ class HealthResponse(BaseModel):
 
 
 class CamelionRequest(BaseModel):
-    """Camelion HIS flat JSON request.
-
-    Hebrew or English field names may be supplied by the adapter. Identifiers
-    are for encounter correlation only and must not be logged.
-    """
-
     model_config = ConfigDict(extra="allow")
     patient_id: Optional[str] = Field(None, description="Camelion patient MRN; routing only")
     encounter_id: Optional[str] = Field(None, description="Camelion encounter ID")
