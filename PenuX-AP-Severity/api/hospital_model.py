@@ -46,26 +46,20 @@ OUTCOME_OR_LEAKAGE_COLUMNS: frozenset[str] = frozenset({
 })
 
 NUMERIC_CANDIDATES: tuple[str, ...] = (
-    # Demographics and first-24-hour vital signs.
     "age", "bmi", "heart_rate", "systolic_bp", "diastolic_bp",
     "mean_arterial_pressure", "respiratory_rate", "temperature", "spo2",
     "oxygen_flow_l_min", "fio2", "gcs", "urine_output_ml_24h",
-    # Haematology.
     "wbc", "anc", "alc", "monocytes_absolute", "rbc", "hemoglobin",
     "hematocrit", "platelets", "mcv", "rdw_cv", "mpv",
-    # Renal, electrolyte and metabolic tests.
     "urea_mmol_l", "creatinine_umol_l", "egfr", "sodium", "potassium",
     "chloride", "bicarbonate_total", "glucose_mmol_l", "calcium_mmol_l",
     "ionized_calcium_mmol_l", "magnesium_mmol_l", "phosphate_mmol_l",
-    "bicarbonate_blood_gas",
-    # Liver, pancreatic and inflammatory tests.
-    "albumin_g_l", "total_protein_g_l", "bilirubin_total_umol_l",
-    "bilirubin_direct_umol_l", "ast", "alt", "alp", "ggt", "ldh",
-    "lipase", "amylase", "crp", "procalcitonin_ng_ml",
-    "triglycerides_mmol_l",
-    # Coagulation and blood gas.
-    "pt_seconds", "inr", "aptt_seconds", "fibrinogen_g_l",
-    "d_dimer_mg_l_feu", "lactate", "ph", "pao2", "paco2", "base_excess",
+    "bicarbonate_blood_gas", "albumin_g_l", "total_protein_g_l",
+    "bilirubin_total_umol_l", "bilirubin_direct_umol_l", "ast", "alt",
+    "alp", "ggt", "ldh", "lipase", "amylase", "crp",
+    "procalcitonin_ng_ml", "triglycerides_mmol_l", "pt_seconds", "inr",
+    "aptt_seconds", "fibrinogen_g_l", "d_dimer_mg_l_feu", "lactate",
+    "ph", "pao2", "paco2", "base_excess",
 )
 
 CATEGORICAL_CANDIDATES: tuple[str, ...] = (
@@ -97,7 +91,6 @@ CORE_ALTERNATIVES: dict[str, tuple[str, ...]] = {
 
 REQUIRED_DEVELOPMENT_COLUMNS: tuple[str, ...] = (
     "encounter_id", "admission_time", "age", "acute_pancreatitis_diagnosis",
-    "lipase", "lipase_uln", "amylase", "amylase_uln",
     "outcome_followup_available",
 )
 
@@ -127,8 +120,7 @@ class HospitalModelBundle:
         return frame.loc[:, self.feature_names]
 
     def predict_proba(self, records: Any) -> np.ndarray:
-        frame = self._frame(records)
-        return self.estimator.predict_proba(frame)
+        return self.estimator.predict_proba(self._frame(records))
 
     def predict(self, records: Any) -> np.ndarray:
         probabilities = self.predict_proba(records)[:, 1]
@@ -146,6 +138,31 @@ def _core_presence(frame: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(result, index=frame.index)
 
 
+def _enzyme_criterion(frame: pd.DataFrame) -> pd.Series:
+    has_lipase_pair = {"lipase", "lipase_uln"}.issubset(frame.columns)
+    has_amylase_pair = {"amylase", "amylase_uln"}.issubset(frame.columns)
+    if not has_lipase_pair and not has_amylase_pair:
+        raise ValueError(
+            "The cohort file must contain either lipase + lipase_uln or "
+            "amylase + amylase_uln. Imaging is not required."
+        )
+    lipase_ok = pd.Series(False, index=frame.index)
+    amylase_ok = pd.Series(False, index=frame.index)
+    if has_lipase_pair:
+        lipase_ok = (
+            frame["lipase"].notna()
+            & frame["lipase_uln"].notna()
+            & (frame["lipase"] >= 3.0 * frame["lipase_uln"])
+        )
+    if has_amylase_pair:
+        amylase_ok = (
+            frame["amylase"].notna()
+            & frame["amylase_uln"].notna()
+            & (frame["amylase"] >= 3.0 * frame["amylase_uln"])
+        )
+    return lipase_ok | amylase_ok
+
+
 def development_eligibility_mask(frame: pd.DataFrame) -> tuple[pd.Series, pd.DataFrame]:
     """Return the prespecified primary-development eligibility mask.
 
@@ -161,19 +178,9 @@ def development_eligibility_mask(frame: pd.DataFrame) -> tuple[pd.Series, pd.Dat
             + ", ".join(missing_columns)
         )
 
-    lipase_ok = (
-        frame["lipase"].notna()
-        & frame["lipase_uln"].notna()
-        & (frame["lipase"] >= 3.0 * frame["lipase_uln"])
-    )
-    amylase_ok = (
-        frame["amylase"].notna()
-        & frame["amylase_uln"].notna()
-        & (frame["amylase"] >= 3.0 * frame["amylase_uln"])
-    )
+    enzyme_ok = _enzyme_criterion(frame)
     core = _core_presence(frame)
     core_count = core.sum(axis=1)
-
     vital_groups = ["heart_rate", "systolic_bp", "respiratory_rate", "temperature", "spo2"]
     lab_groups = [
         "wbc", "hemoglobin_or_hematocrit", "urea_or_bun", "creatinine",
@@ -188,7 +195,7 @@ def development_eligibility_mask(frame: pd.DataFrame) -> tuple[pd.Series, pd.Dat
         & frame["age"].notna()
         & (frame["age"] >= 18)
         & frame["acute_pancreatitis_diagnosis"].fillna(False).astype(bool)
-        & (lipase_ok | amylase_ok)
+        & enzyme_ok
         & frame["outcome_followup_available"].fillna(False).astype(bool)
         & (core_count >= 8)
         & has_any_vital
@@ -197,7 +204,7 @@ def development_eligibility_mask(frame: pd.DataFrame) -> tuple[pd.Series, pd.Dat
 
     audit = core.copy()
     audit["core_present"] = core_count
-    audit["enzyme_criterion_met"] = lipase_ok | amylase_ok
+    audit["enzyme_criterion_met"] = enzyme_ok
     audit["has_any_vital"] = has_any_vital
     audit["has_any_lab"] = has_any_lab
     audit["eligible"] = eligibility
@@ -213,7 +220,6 @@ def select_features_by_availability(
 ) -> tuple[list[str], list[str], dict[str, float]]:
     if not 0 < minimum_availability <= 1:
         raise ValueError("minimum_availability must be in (0, 1]")
-
     availability = frame.notna().mean().to_dict()
     numeric = [
         name for name in numeric_candidates
@@ -247,7 +253,6 @@ def build_pipeline(numeric_features: Sequence[str], categorical_features: Sequen
             ("onehot", OneHotEncoder(handle_unknown="ignore")),
         ])
         transformers.append(("categorical", categorical_pipe, list(categorical_features)))
-
     preprocessor = ColumnTransformer(transformers=transformers, remainder="drop")
     classifier = LogisticRegression(
         class_weight="balanced",
@@ -269,7 +274,6 @@ def threshold_for_target_sensitivity(
     y = np.asarray(list(y_true), dtype=int)
     p = np.asarray(list(probabilities), dtype=float)
     candidates = np.unique(np.concatenate(([0.0], p, [1.0])))
-
     best: tuple[float, float, float] | None = None
     for threshold in candidates:
         pred = (p >= threshold).astype(int)
@@ -280,12 +284,7 @@ def threshold_for_target_sensitivity(
             candidate = (specificity, threshold, sensitivity)
             if best is None or candidate > best:
                 best = candidate
-
-    if best is None:
-        threshold = 0.0
-    else:
-        _, threshold, _ = best
-
+    threshold = 0.0 if best is None else best[1]
     pred = (p >= threshold).astype(int)
     tn, fp, fn, tp = confusion_matrix(y, pred, labels=[0, 1]).ravel()
     sensitivity = tp / (tp + fn) if tp + fn else 0.0
@@ -311,7 +310,11 @@ def train_hospital_model(
     """Fit a leakage-resistant hospital model and return its audit table."""
     if target_column not in frame.columns:
         raise ValueError(f"Target column not found: {target_column}")
-    if target_column in OUTCOME_OR_LEAKAGE_COLUMNS - {"target", "label", "sap", "severe_acute_pancreatitis", "persistent_organ_failure_gt_48h"}:
+    unsupported_outcomes = OUTCOME_OR_LEAKAGE_COLUMNS - {
+        "target", "label", "sap", "severe_acute_pancreatitis",
+        "persistent_organ_failure_gt_48h",
+    }
+    if target_column in unsupported_outcomes:
         raise ValueError(f"Unsupported target column: {target_column}")
 
     eligibility, audit = development_eligibility_mask(frame)
@@ -334,7 +337,6 @@ def train_hospital_model(
     )
     feature_names = numeric + categorical
     pipeline = build_pipeline(numeric, categorical)
-
     cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=42)
     oof_probability = cross_val_predict(
         pipeline,
@@ -371,7 +373,6 @@ def train_hospital_model(
         metrics=metrics,
         feature_availability=availability,
     )
-
     audit = audit.copy()
     audit["selected_for_development"] = eligibility
     return bundle, audit
