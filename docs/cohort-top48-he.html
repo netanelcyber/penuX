@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>הגדרת עוקבה ללא הדמיה ו-TOP48 — PenuX-AP-Severity</title>
+  <meta name="description" content="הגדרת אוכלוסיית מחקר ללא נתוני הדמיה, רשימת TOP48 בדיקות מעבדה, כיסוי המאגרים הציבוריים וכללי חישוב לעוקבת PenuX-AP-Severity." />
+  <link rel="canonical" href="https://penux.uk/cohort-top48-he.html" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy:#172554; --blue:#1d4ed8; --blue2:#2563eb; --cyan:#0891b2;
+      --green:#047857; --amber:#b45309; --red:#b91c1c; --purple:#6d28d9;
+      --slate:#334155; --muted:#64748b; --line:#dbe3ee; --bg:#f8fafc;
+      --panel:#ffffff; --soft-blue:#eff6ff; --soft-green:#ecfdf5;
+      --soft-amber:#fffbeb; --soft-red:#fef2f2; --soft-purple:#f5f3ff;
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; font-family:'Inter',Arial,sans-serif; color:#0f172a; background:var(--bg); line-height:1.75; }
+    a { color:var(--blue); }
+    .topbar { position:sticky; top:0; z-index:20; background:rgba(23,37,84,.97); color:#fff; padding:.65rem 1.25rem; display:flex; gap:1rem; align-items:center; justify-content:space-between; box-shadow:0 2px 10px rgba(15,23,42,.2); }
+    .topbar nav { display:flex; flex-wrap:wrap; gap:.9rem; }
+    .topbar a { color:#bfdbfe; text-decoration:none; font-size:.88rem; font-weight:600; }
+    .topbar a:hover { color:#fff; }
+    .topbar .tag { background:rgba(255,255,255,.12); padding:.18rem .65rem; border-radius:999px; font-size:.76rem; color:#e0f2fe; white-space:nowrap; }
+    .hero { background:linear-gradient(135deg,#172554 0%,#1d4ed8 58%,#0891b2 100%); color:#fff; padding:4.2rem 1.5rem 3.4rem; }
+    .hero-inner { max-width:1120px; margin:0 auto; }
+    .eyebrow { display:inline-block; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.1); padding:.25rem .8rem; border-radius:999px; font-size:.78rem; font-weight:700; margin-bottom:1rem; }
+    h1 { margin:0 0 .7rem; font-size:clamp(1.8rem,4vw,3rem); line-height:1.25; }
+    .hero p { max-width:900px; color:#dbeafe; font-size:1.05rem; margin:.5rem 0 0; }
+    .meta { display:flex; flex-wrap:wrap; gap:.7rem 1.2rem; color:#bfdbfe; margin-top:1.25rem; font-size:.88rem; }
+    .container { max-width:1120px; margin:0 auto; padding:2.5rem 1.25rem 4rem; }
+    .toc { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:1.1rem 1.3rem; margin-bottom:1.6rem; box-shadow:0 1px 3px rgba(15,23,42,.05); }
+    .toc strong { color:var(--navy); }
+    .toc-links { display:flex; flex-wrap:wrap; gap:.4rem .8rem; margin-top:.6rem; }
+    .toc-links a { text-decoration:none; background:#f1f5f9; padding:.2rem .62rem; border-radius:999px; font-size:.84rem; }
+    .notice { border-radius:10px; padding:1rem 1.15rem; margin:1rem 0 1.4rem; border-right:5px solid; }
+    .notice strong { display:block; margin-bottom:.2rem; }
+    .notice-blue { background:var(--soft-blue); border-color:var(--blue); color:#1e3a8a; }
+    .notice-green { background:var(--soft-green); border-color:var(--green); color:#14532d; }
+    .notice-amber { background:var(--soft-amber); border-color:var(--amber); color:#78350f; }
+    .notice-red { background:var(--soft-red); border-color:var(--red); color:#7f1d1d; }
+    section { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:1.6rem; margin:1.3rem 0; box-shadow:0 1px 4px rgba(15,23,42,.05); }
+    h2 { color:var(--navy); font-size:1.45rem; margin:0 0 .9rem; border-bottom:2px solid #bfdbfe; padding-bottom:.4rem; }
+    h3 { color:#075985; font-size:1.08rem; margin:1.35rem 0 .45rem; }
+    h4 { color:var(--slate); margin:1rem 0 .35rem; }
+    p { color:var(--slate); margin:.45rem 0 .8rem; }
+    ul, ol { padding-right:1.35rem; margin:.45rem 0 1rem; }
+    li { margin:.28rem 0; }
+    blockquote { margin:1rem 0; padding:1rem 1.2rem; background:#f1f5f9; border-right:5px solid var(--cyan); color:#0f172a; font-weight:600; border-radius:8px; }
+    .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:1rem; margin:1rem 0; }
+    .card { background:#fff; border:1px solid var(--line); border-top:4px solid var(--blue); border-radius:10px; padding:1rem; }
+    .card.green { border-top-color:var(--green); }
+    .card.purple { border-top-color:var(--purple); }
+    .card.amber { border-top-color:var(--amber); }
+    .card .label { color:var(--muted); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+    .card .value { color:var(--navy); font-size:1.7rem; font-weight:700; line-height:1.25; margin:.2rem 0; }
+    .card .sub { color:var(--muted); font-size:.84rem; }
+    .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:10px; margin:1rem 0 1.3rem; }
+    table { width:100%; border-collapse:collapse; min-width:680px; font-size:.88rem; }
+    th { background:var(--navy); color:#fff; padding:.65rem .75rem; text-align:right; white-space:nowrap; }
+    td { padding:.58rem .75rem; border-bottom:1px solid var(--line); vertical-align:top; color:var(--slate); }
+    tbody tr:nth-child(even) td { background:#f8fafc; }
+    tbody tr:last-child td { border-bottom:0; }
+    .good { color:var(--green); font-weight:700; }
+    .warn { color:var(--amber); font-weight:700; }
+    .bad { color:var(--red); font-weight:700; }
+    code, pre { font-family:'JetBrains Mono',monospace; }
+    code { direction:ltr; unicode-bidi:embed; background:#e2e8f0; padding:.08rem .32rem; border-radius:4px; font-size:.88em; }
+    pre { direction:ltr; text-align:left; background:#0f172a; color:#e2e8f0; padding:1rem 1.15rem; border-radius:10px; overflow:auto; line-height:1.55; font-size:.84rem; }
+    .formula { direction:ltr; text-align:center; font-family:'JetBrains Mono',monospace; background:#f1f5f9; border:1px solid var(--line); border-radius:8px; padding:.85rem; margin:.8rem 0; color:#0f172a; overflow:auto; }
+    .three-col { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    .lab-group { border:1px solid var(--line); border-radius:10px; padding:1rem; background:#fff; }
+    .lab-group h3 { margin:0 0 .5rem; }
+    .lab-group ol { font-size:.88rem; }
+    .small { font-size:.84rem; color:var(--muted); }
+    .source-list a { word-break:break-word; }
+    footer { background:#0f172a; color:#94a3b8; padding:2rem 1.25rem; }
+    footer .inner { max-width:1120px; margin:0 auto; }
+    footer strong { color:#e2e8f0; }
+    @media (max-width:800px) {
+      .three-col { grid-template-columns:1fr; }
+      .topbar { position:static; align-items:flex-start; }
+      .topbar nav { gap:.5rem .8rem; }
+      section { padding:1.15rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <nav aria-label="ניווט ראשי">
+      <a href="/">דף הבית</a>
+      <a href="secondary-analysis-he.html">הניתוח המשני</a>
+      <a href="models.html">השוואת מודלים</a>
+      <a href="review.html">Review</a>
+    </nav>
+    <span class="tag">מחקר בלבד · לא לשימוש קליני</span>
+  </div>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">PenuX-AP-Severity · מתודולוגיית מחקר</div>
+      <h1>הגדרת עוקבה ללא נתוני הדמיה ויישום TOP48</h1>
+      <p>הגדרה תפעולית של אוכלוסיית המחקר, כללי הכללה והוצאה, רשימת 48 בדיקות המעבדה, כיסוי המאגרים הציבוריים ומגבלות החישוב כאשר CT, MRI ואולטרסאונד אינם זמינים.</p>
+      <div class="meta">
+        <span>עודכן: 5 באוגוסט 2026</span>
+        <span>שפה: עברית</span>
+        <span>סטטוס: פרוטוקול מחקר וניתוח חקרני</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="toc">
+      <strong>תוכן העמוד</strong>
+      <div class="toc-links">
+        <a href="#principle">עיקרון מנחה</a>
+        <a href="#cohort">הגדרת העוקבה</a>
+        <a href="#top48">TOP48</a>
+        <a href="#coverage">כיסוי המאגרים</a>
+        <a href="#limits">מגבלות היישום</a>
+        <a href="#legacy">ביצועים קיימים</a>
+        <a href="#calculation">לוגיקת חישוב</a>
+      </div>
+    </div>
+
+    <div class="notice notice-red" id="principle">
+      <strong>הבהרה מחקרית</strong>
+      הנתונים המוצגים מהמאגרים הציבוריים הם benchmark היסטורי בלבד. הם אינם עוקבה קלינית מאומתת לפי הפרוטוקול החדש, אינם כוללים ולידציה חיצונית ואינם מיועדים לקבלת החלטות רפואיות.
+    </div>
+
+    <section id="cohort">
+      <h2>1. הגדרת אוכלוסיית המחקר כאשר הדמיה אינה זמינה</h2>
+      <p>במאגר המחקר לא קיימים נתוני CT, MRI או אולטרסאונד. לכן הדמיה לא תשמש כקריטריון הכללה, כמשתנה ניבוי או כמדד השוואה.</p>
+
+      <h3>קריטריוני הכללה לעוקבה הראשית</h3>
+      <ol>
+        <li>גיל 18 ומעלה בעת הקבלה.</li>
+        <li>קיים מזהה אשפוז מקודד.</li>
+        <li>קיים תאריך ושעת קבלה המאפשרים להגדיר את חלון 24 השעות הראשונות.</li>
+        <li>קיימת אבחנה קלינית או אבחנת שחרור של דלקת לבלב חריפה.</li>
+        <li>קיים ליפאז או עמילאז ברמה של לפחות פי 3 מהגבול העליון התקין של המעבדה — ULN.</li>
+        <li>קיים מידע מספיק לקביעת התוצא הראשי: כשל איברים חולף או כשל איברים מתמשך מעל 48 שעות.</li>
+      </ol>
+      <p>כאשר קיים תיעוד של כאב בטן אופייני הוא יישמר ויחזק את אימות האבחנה, אך לא יהיה תנאי חובה כאשר נתוני התסמינים אינם זמינים באופן מובנה.</p>
+
+      <h3>הגדרת המקרה הראשית</h3>
+      <blockquote>אבחנה מתועדת של דלקת לבלב חריפה יחד עם ליפאז או עמילאז לפחות פי 3 מה־ULN.</blockquote>
+      <p>זו הגדרת מקרה תפעולית שנועדה להגדיל את הספציפיות ולהפחית הכללה של מטופלים עם עלייה לא־ספציפית באנזימי לבלב.</p>
+
+      <h3>נתונים שיש לשמור לכל בדיקת אנזים</h3>
+      <ul>
+        <li>ערך מספרי ויחידת מדידה.</li>
+        <li>ה־ULN המקומי והיחס בין התוצאה ל־ULN.</li>
+        <li>מועד הדגימה ביחס לקבלה.</li>
+        <li>סימון דגימה פסולה, המוליטית, ליפמית או מתוקנת.</li>
+      </ul>
+
+      <h3>מקרים שלא ייכללו בעוקבה הראשית</h3>
+      <ol>
+        <li>אבחנת ICD של דלקת לבלב חריפה ללא ליפאז, עמילאז או תיעוד קליני אחר המאפשר אימות.</li>
+        <li>ליפאז ועמילאז נמוכים מפי 3 מה־ULN, כאשר אין הדמיה המאשרת את האבחנה.</li>
+        <li>עלייה באנזימי לבלב ללא אבחנה קלינית של דלקת לבלב חריפה.</li>
+        <li>אבחנה חלופית המסבירה את עליית האנזימים.</li>
+        <li>אי־יכולת לקבוע את זמן הקבלה או את חלון 24 השעות.</li>
+        <li>אי־יכולת לקבוע את התוצא הראשי לאחר 48 שעות.</li>
+      </ol>
+      <div class="notice notice-amber">
+        <strong>אין לבצע אימפוטציה לאימות האבחנה</strong>
+        אין להשלים ערך חסר של ליפאז, עמילאז או ULN לצורך קביעה שהמטופל עומד בהגדרת המקרה.
+      </div>
+
+      <h3>עוקבה משנית</h3>
+      <p>מטופלים בעלי אבחנת שחרור של דלקת לבלב חריפה שאינם עומדים בדרישת האנזימים יישמרו בנפרד. הם לא ישמשו לאימון המודל הראשי, אך יוכלו להיכלל בניתוח רגישות או במדגם אימות ידני של תיקים רפואיים.</p>
+
+      <h3>כאשר קיימים נתוני כאב</h3>
+      <p>ניתן להשתמש בשילוב של כאב בטן אופייני יחד עם ליפאז או עמילאז לפחות פי 3 מה־ULN. במקרה זה אין צורך בנתוני הדמיה לצורך אישור האבחנה.</p>
+
+      <h3>כאשר אין גם נתוני כאב</h3>
+      <p>אין לטעון שכל מקרה עומד ישירות בשניים משלושת קריטריוני Atlanta. יש לדווח במפורש כי נעשה שימוש בהגדרת מקרה תפעולית המבוססת על אבחנת אשפוז או שחרור יחד עם אנזים לפחות פי 3 מה־ULN. מומלץ לבצע אימות ידני של מדגם אקראי של מקרים שנכללו ושל מקרים שנפסלו.</p>
+
+      <h3>השלכות הסרת ההדמיה</h3>
+      <p>לא ניתן לכלול במודל או בהשוואות את mCTSI, Balthazar score, אחוז הנמק הלבלבי, אוספים פריפנקריאטיים, נמק מזוהם על בסיס הדמיה או סיבוכים מקומיים שאובחנו רק ב־CT או MRI.</p>
+      <p>עדיין ניתן להגדיר SAP לפי כשל איברים מתמשך מעל 48 שעות, בתנאי שקיימים נתונים מספקים על המערכות הכלייתית, הנשימתית והקרדיווסקולרית.</p>
+
+      <h3>פרמטרים הכרחיים לאחר הסרת ההדמיה</h3>
+      <ol>
+        <li>מזהה אשפוז, גיל וזמן קבלה.</li>
+        <li>אבחנת דלקת לבלב חריפה.</li>
+        <li>ליפאז או עמילאז וה־ULN המתאים.</li>
+        <li>מידע מספיק על מדדים חיוניים ובדיקות מעבדה במהלך 24 השעות הראשונות.</li>
+        <li>מעקב המאפשר לקבוע אם התפתח כשל איברים מעל 48 שעות.</li>
+        <li>נתונים המאפשרים לקבוע שחרור, העברה, טיפול נמרץ או פטירה.</li>
+      </ol>
+      <div class="notice notice-green">
+        <strong>חוסר בהדמיה אינו סיבת הוצאה</strong>
+        CT, MRI ואולטרסאונד אינם חלק ממאגר המחקר ולכן היעדרם לא יוציא מטופל מהעוקבה.
+      </div>
+    </section>
+
+    <section id="top48">
+      <h2>2. רשימת TOP48 בדיקות המעבדה</h2>
+      <p>הבדיקות מחולקות לליבה, משתנים משלימים ומשתנים אופציונליים. הכוונה היא לשמור את המדידה הראשונה התקינה בחלון 0–6 שעות; בהיעדרה, את המדידה הראשונה בחלון 0–24 שעות. כל החזרות יישמרו לצורך חישובי שינוי לאורך זמן.</p>
+
+      <div class="three-col">
+        <div class="lab-group">
+          <h3>ליבה — 1 עד 22</h3>
+          <ol>
+            <li>Lipase</li><li>Amylase</li><li>WBC</li><li>Hemoglobin</li><li>Hematocrit</li><li>Platelets</li><li>Urea</li><li>BUN</li><li>Creatinine</li><li>Sodium</li><li>Potassium</li><li>Chloride</li><li>TCO₂ / Bicarbonate</li><li>Glucose</li><li>Total calcium</li><li>Albumin</li><li>Total bilirubin</li><li>AST</li><li>ALT</li><li>LDH</li><li>CRP</li><li>Triglycerides</li>
+          </ol>
+        </div>
+        <div class="lab-group">
+          <h3>משלימות — 23 עד 42</h3>
+          <ol start="23">
+            <li>ANC</li><li>ALC</li><li>AMC</li><li>RBC</li><li>MCV</li><li>RDW-CV</li><li>MPV</li><li>Ionized calcium</li><li>Magnesium</li><li>Phosphate</li><li>Total protein</li><li>Direct bilirubin</li><li>ALP</li><li>GGT</li><li>PT</li><li>INR</li><li>aPTT</li><li>Fibrinogen</li><li>D-dimer</li><li>Lactate</li>
+          </ol>
+        </div>
+        <div class="lab-group">
+          <h3>אופציונליות — 43 עד 48</h3>
+          <ol start="43">
+            <li>Procalcitonin</li><li>Cystatin C</li><li>pH</li><li>PaO₂</li><li>PaCO₂</li><li>Base excess</li>
+          </ol>
+          <h3>משתנים נגזרים</h3>
+          <ul>
+            <li>NLR ו־PLR</li>
+            <li>CRP/Albumin</li>
+            <li>BUN/Creatinine</li>
+            <li>Anion gap</li>
+            <li>Corrected calcium</li>
+            <li>AST/ALT</li>
+            <li>Delta BUN, Creatinine, Hct ו־CRP</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="notice notice-blue">
+        <strong>כללי שמירה</strong>
+        לכל בדיקה יש לשמור ערך, יחידה, טווח ייחוס, ULN או LLN לפי הצורך, מועד דגימה, סטטוס דגימה וסיבת חוסר. ערך חסר אינו שווה לאפס ואינו שווה לתוצאה תקינה.
+      </div>
+    </section>
+
+    <section id="coverage">
+      <h2>3. כיסוי TOP48 במאגרים הציבוריים הקיימים</h2>
+      <p>החישוב הבא מייצג קיום של עמודה בסכמת המאגר, ולא שיעור שלמות ברמת המטופל.</p>
+      <div class="cards">
+        <div class="card">
+          <div class="label">MultiML</div>
+          <div class="value">35/48</div>
+          <div class="sub">72.92% כיסוי סכמתי · n=1,289</div>
+        </div>
+        <div class="card green">
+          <div class="label">LNN</div>
+          <div class="value">46/48</div>
+          <div class="sub">95.83% כיסוי סכמתי · n=722</div>
+        </div>
+        <div class="card purple">
+          <div class="label">יעד התוצא</div>
+          <div class="value">SAP</div>
+          <div class="sub">בקבצים הציבוריים: raw 0=SAP, raw 1=non-SAP</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>מאגר</th><th>N</th><th>SAP</th><th>ליבה 22</th><th>משלימות 20</th><th>אופציונליות 6</th><th>TOP48</th></tr></thead>
+          <tbody>
+            <tr><td>MultiML</td><td>1,289</td><td>204 — 15.83%</td><td>20/22</td><td>15/20</td><td>0/6</td><td class="warn">35/48 — 72.92%</td></tr>
+            <tr><td>LNN</td><td>722</td><td>137 — 18.98%</td><td>21/22</td><td>20/20</td><td>5/6</td><td class="good">46/48 — 95.83%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>בדיקות TOP48 שאינן קיימות ב־MultiML</h3>
+      <p>Lipase, BUN, ionized calcium, magnesium, phosphate, D-dimer, lactate, procalcitonin, cystatin C, pH, PaO₂, PaCO₂ ו־base excess.</p>
+      <p class="small">העמודה PCT אינה נספרת כ־procalcitonin ללא מילון נתונים מאשר; לפי מיקומה בין מדדי הטסיות היא מתאימה יותר ל־plateletcrit.</p>
+
+      <h3>בדיקות TOP48 שאינן קיימות ב־LNN</h3>
+      <p>BUN נפרד ו־procalcitonin.</p>
+      <div class="formula">BUN (mg/dL) = Urea (mg/dL) / 2.14</div>
+      <div class="formula">BUN (mg/dL) = Urea (mmol/L) × 2.8</div>
+      <p>אין לבצע המרה אוטומטית ללא אימות יחידות המדידה במקור.</p>
+    </section>
+
+    <section id="limits">
+      <h2>4. האם ניתן להחיל את הגדרת העוקבה המחמירה על המאגרים הציבוריים?</h2>
+      <p><strong>לא במלואה.</strong> אין פירוש הדבר שאף מטופל אינו עומד בקריטריונים, אלא שלא ניתן לקבוע זאת מהקבצים הקיימים.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>דרישת הפרוטוקול</th><th>MultiML</th><th>LNN</th></tr></thead>
+          <tbody>
+            <tr><td>גיל 18 ומעלה</td><td class="bad">חסר גיל</td><td class="good">קיים</td></tr>
+            <tr><td>מזהה אשפוז מקודד</td><td>הוסר</td><td>הוסר</td></tr>
+            <tr><td>מועד קבלה</td><td class="bad">חסר</td><td class="bad">חסר</td></tr>
+            <tr><td>מועד דגימה 0–24 שעות</td><td class="bad">חסר</td><td class="bad">חסר</td></tr>
+            <tr><td>אבחנת AP נפרדת מהתוצא</td><td class="bad">חסר</td><td class="bad">חסר</td></tr>
+            <tr><td>Lipase</td><td class="bad">חסר</td><td class="good">קיים</td></tr>
+            <tr><td>Amylase</td><td class="good">קיים</td><td class="good">קיים</td></tr>
+            <tr><td>ULN לכל אנזים</td><td class="bad">חסר</td><td class="bad">חסר</td></tr>
+            <tr><td>כאב מובנה</td><td class="bad">חסר</td><td class="bad">חסר</td></tr>
+            <tr><td>משך כשל איברים מעל 48 שעות</td><td class="bad">לא ניתן לבנייה</td><td class="bad">לא ניתן לבנייה</td></tr>
+            <tr><td>שחרור, העברה, ICU או פטירה</td><td class="bad">חסר</td><td class="bad">חסר</td></tr>
+            <tr><td>סימון hemolysis/lipemia/invalid</td><td class="bad">חסר</td><td class="bad">חסר</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="notice notice-amber">
+        <strong>מסקנת היישום</strong>
+        MultiML מתאים להשוואת מודלים היסטורית. LNN מתאים גם לבדיקת היתכנות של רשימת המעבדות. אף אחד מהם אינו מאפשר לקבוע שהעוקבה עומדת בהגדרה: אבחנת AP, אנזים ≥3×ULN ותוצא של כשל איברים מתמשך מעל 48 שעות.
+      </div>
+    </section>
+
+    <section id="legacy">
+      <h2>5. חישוב ביצועים קיים לפי יעד ה־legacy</h2>
+      <p>בקבצים הציבוריים היעד מקודד בכיוון הפוך מהמקובל. לפני חישוב רגישות, PPV, NPV ו־F-scores יש להפוך את הכיוון:</p>
+      <div class="formula">y<sub>legacy</sub> = 1 − raw target &nbsp;&nbsp; כאשר 1=SAP ו־0=non-SAP</div>
+      <p>יעד הפרוטוקול העתידי שונה:</p>
+      <div class="formula">y<sub>protocol</sub> = 1{ persistent organ failure duration &gt; 48 hours }</div>
+
+      <h3>ביצועים בסף 0.50</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>מדד</th><th>MultiML</th><th>LNN</th></tr></thead>
+          <tbody>
+            <tr><td>מודל מוביל</td><td>LightGBM</td><td>HistGradientBoosting</td></tr>
+            <tr><td>N</td><td>1,289</td><td>722</td></tr>
+            <tr><td>SAP בפועל</td><td>204</td><td>137</td></tr>
+            <tr><td>TP / FN</td><td>80 / 124</td><td>67 / 70</td></tr>
+            <tr><td>TN / FP</td><td>1,051 / 34</td><td>554 / 31</td></tr>
+            <tr><td>Sensitivity</td><td class="bad">39.22%</td><td class="bad">48.91%</td></tr>
+            <tr><td>Specificity</td><td>96.87%</td><td>94.70%</td></tr>
+            <tr><td>PPV</td><td>70.18%</td><td>68.37%</td></tr>
+            <tr><td>NPV</td><td>89.45%</td><td>88.78%</td></tr>
+            <tr><td>Accuracy</td><td>87.74%</td><td>86.01%</td></tr>
+            <tr><td>F1</td><td>50.31%</td><td>57.02%</td></tr>
+            <tr><td>F2 — מחושב</td><td>43.01%</td><td>51.86%</td></tr>
+            <tr><td>Balanced accuracy</td><td>68.04%</td><td>71.80%</td></tr>
+            <tr><td>AUROC</td><td>0.854</td><td>0.886</td></tr>
+            <tr><td>AUPRC</td><td>0.604</td><td>0.660</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>בסף 0.50, MultiML מפספס 124 מתוך 204 מקרי SAP, ו־LNN מפספס 70 מתוך 137. לכן סף זה אינו מתאים למטרת סינון מחקרית המבקשת רגישות הקרובה ל־98%.</p>
+
+      <h3>גבול נדרש ליעד רגישות של 98%</h3>
+      <div class="cards">
+        <div class="card amber"><div class="label">MultiML</div><div class="value">FN ≤ 4</div><div class="sub">TP ≥ 200 מתוך 204 מקרי SAP</div></div>
+        <div class="card amber"><div class="label">LNN</div><div class="value">FN ≤ 2</div><div class="sub">TP ≥ 135 מתוך 137 מקרי SAP</div></div>
+      </div>
+      <div class="formula">t* = arg max Specificity(t), subject to Sensitivity(t) ≥ 0.98</div>
+      <p>חישוב הסף המספרי דורש תחזיות out-of-fold ברמת המטופל: <code>y_true</code> ו־<code>y_probability</code>. אין להסיק אותו מטבלת confusion matrix יחידה בסף 0.50.</p>
+    </section>
+
+    <section id="calculation">
+      <h2>6. לוגיקת החישוב על נתוני בית החולים</h2>
+      <pre><code>enzyme_confirmed = (
+    ((lipase_value / lipase_uln) &gt;= 3)
+    | ((amylase_value / amylase_uln) &gt;= 3)
+)
+
+main_cohort = (
+    (age &gt;= 18)
+    &amp; admission_id.notna()
+    &amp; admission_time.notna()
+    &amp; documented_ap_diagnosis
+    &amp; enzyme_confirmed
+    &amp; outcome_observable_after_48h
+)
+
+y_protocol = (
+    persistent_organ_failure_duration_hours &gt; 48
+).astype(int)</code></pre>
+
+      <h3>הדמיה ואימפוטציה</h3>
+      <pre><code># No imputation for case confirmation
+lipase_for_case_definition = lipase_value
+amylase_for_case_definition = amylase_value
+
+# Imaging is not an inclusion criterion or predictor
+use_imaging_for_inclusion = False
+use_imaging_as_feature = False</code></pre>
+
+      <h3>שלמות TOP48 ברמת המטופל</h3>
+      <div class="formula">ValidLab(i,j) = 1 if numeric value, mapped unit, sample within 0–24h and valid specimen</div>
+      <div class="formula">TOP48Count(i) = Σ ValidLab(i,j), j=1…48</div>
+      <div class="formula">TOP48Coverage(i) = 100 × TOP48Count(i) / 48</div>
+      <p>יש לבחור את הבדיקה הראשונה התקינה ב־0–6 שעות; בהיעדרה, את הראשונה ב־0–24 שעות. חזרות נשמרות לחישובי delta אך אינן נספרות כבדיקות נוספות.</p>
+
+      <div class="notice notice-blue">
+        <strong>אין להוציא מטופל רק מפני שאין לו 80% מ־TOP48</strong>
+        סף 80% משמש להערכת שימושיות של משתנה ברמת כלל העוקבה. תנאי ההכללה ברמת המטופל הם אימות המקרה, זמן קבלה, חלון נתונים ותוצא בר־קביעה.
+      </div>
+
+      <h3>כללי דיווח</h3>
+      <ul>
+        <li>יש לדווח בנפרד על מספר המטופלים שנפסלו בכל שלב של סינון העוקבה.</li>
+        <li>יש לשמור סיבת חוסר: לא הוזמן, בוטל, דגימה פסולה, המוליזה, ליפמיה, העברה או חוסר טכני.</li>
+        <li>יש לחשב שלמות משתנים בתוך folds בלבד כאשר נעשה שימוש באימפוטציה במסגרת אימון המודל.</li>
+        <li>יש לבצע ניתוח רגישות לעוקבה המשנית ולמקרים שעברו אימות ידני.</li>
+        <li>אין לערבב בין ביצועי benchmark ציבוריים לבין ביצועי העוקבה הקלינית העתידית.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>7. מקורות הנתונים והתוצרים</h2>
+      <ul class="source-list">
+        <li><a href="https://github.com/netanelcyber/penuX/blob/mimic3%2B4/PenuX-AP-Severity/data/public_sanitized/SOURCES.md" target="_blank" rel="noopener">תיעוד מקורות המאגרים הציבוריים וכיוון קידוד היעד</a></li>
+        <li><a href="https://github.com/netanelcyber/penuX/blob/mimic3%2B4/PenuX-AP-Severity/outputs/multiml/model_zoo_benchmark.csv" target="_blank" rel="noopener">טבלת ביצועי MultiML</a></li>
+        <li><a href="https://github.com/netanelcyber/penuX/blob/mimic3%2B4/PenuX-AP-Severity/outputs/lnn/model_zoo_benchmark.csv" target="_blank" rel="noopener">טבלת ביצועי LNN</a></li>
+        <li><a href="secondary-analysis-he.html">מאמר הניתוח המשני בעברית</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <div class="inner">
+      <strong>PenuX-AP-Severity</strong><br />
+      עמוד זה מתאר פרוטוקול מחקר וניתוח חקרני. אין מדובר בכלי רפואי, מערכת תומכת החלטה מאושרת או המלצה לטיפול. שימוש עתידי יחייב אישור אתי, אימות נתונים, ולידציה חיצונית והערכה קלינית מתאימה.
+    </div>
+  </footer>
+</body>
+</html>
