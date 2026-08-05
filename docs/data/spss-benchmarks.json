@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-08-05T10:04:00+03:00",
+  "purpose": "Public aggregate benchmark inputs for the SPSS-style WASM demonstration. No patient-level records.",
+  "datasets": {
+    "multiml": {
+      "display_name": "MultiML",
+      "n": 1289,
+      "sap": 204,
+      "model": "lightgbm_n300_leaves31_lr0.05",
+      "tp": 80,
+      "tn": 1051,
+      "fp": 34,
+      "fn": 124,
+      "top48_available": 35,
+      "top_auroc": [0.8537318153, 0.8528417819, 0.8510707509, 0.8508538899, 0.8507070570, 0.8506483238, 0.8505670010, 0.8505263396, 0.8501874944, 0.8499141592],
+      "source_csv": "PenuX-AP-Severity/outputs/multiml/model_zoo_benchmark.csv"
+    },
+    "lnn": {
+      "display_name": "LNN",
+      "n": 722,
+      "sap": 137,
+      "model": "histgbdt_n100_lr0.1",
+      "tp": 67,
+      "tn": 554,
+      "fp": 31,
+      "fn": 70,
+      "top48_available": 46,
+      "top_auroc": [0.8864994697, 0.8864308441, 0.8852954021, 0.8851456735, 0.8847089650, 0.8844843721, 0.8844469399, 0.8842098696, 0.8841661988, 0.8839915154],
+      "source_csv": "PenuX-AP-Severity/outputs/lnn/model_zoo_benchmark.csv"
+    }
+  }
+}
