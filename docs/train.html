@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Model Training Studio · PenuX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<style>
+:root{
+  --blue:#1a56db;--blue-dk:#1e429f;--blue-lt:#e8f0fe;
+  --green:#057a55;--green-lt:#f0fdf4;
+  --amber:#92400e;--amber-lt:#fffbeb;
+  --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;
+  --gray-400:#9ca3af;--gray-500:#6b7280;--gray-600:#4b5563;--gray-800:#1f2937;--gray-900:#111827;
+  --white:#ffffff;--radius:10px;--shadow:0 1px 3px rgba(0,0,0,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--gray-50);color:var(--gray-800);min-height:100vh}
+.hero{background:linear-gradient(135deg,#1e3a8a 0%,#1a56db 55%,#4f46e5 100%);color:#fff;padding:2.5rem 2rem 2rem;text-align:center}
+.hero h1{font-size:1.9rem;font-weight:700;margin-bottom:.5rem}
+.hero p{font-size:1rem;opacity:.9;max-width:680px;margin:0 auto}
+.hero-badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:.3rem .9rem;font-size:.75rem;font-weight:600;letter-spacing:.03em;margin-bottom:.75rem}
+.container{max-width:1000px;margin:0 auto;padding:2rem 1.5rem}
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--gray-200);margin-bottom:1.5rem;overflow:hidden}
+.card-header{padding:1.1rem 1.4rem;border-bottom:1px solid var(--gray-200)}
+.card-header h2{font-size:1rem;font-weight:600}
+.card-header p{font-size:.8rem;color:var(--gray-500);margin-top:.2rem}
+.card-body{padding:1.4rem}
+.status-row{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--gray-600);margin-bottom:1rem}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--gray-400);flex-shrink:0}
+.dot.ready{background:var(--green)}
+.dot.error{background:#c81e1e}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:600px){.field-row{grid-template-columns:1fr}}
+.field label{display:block;font-size:.8rem;font-weight:500;color:var(--gray-700);margin-bottom:.35rem}
+.field input,.field select{width:100%;border:1px solid var(--gray-200);border-radius:6px;padding:.5rem .65rem;font-size:.85rem;font-family:inherit}
+.field .hint{font-size:.72rem;color:var(--gray-500);margin-top:.3rem}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:.7rem 1.4rem;font-size:.9rem;font-weight:600;cursor:pointer;transition:background .15s}
+.btn:hover{background:var(--blue-dk)}
+.btn:disabled{background:var(--gray-400);cursor:not-allowed}
+.btn-outline{background:#fff;color:var(--blue);border:1px solid var(--blue)}
+.btn-outline:hover{background:var(--blue-lt)}
+.btn-ghost{background:none;color:var(--blue);border:none;font-size:.8rem;text-decoration:underline;cursor:pointer;padding:0}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.9rem;margin-top:1.2rem}
+.stat{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;padding:.85rem}
+.stat .label{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gray-500);font-weight:600}
+.stat .value{font-size:1.3rem;font-weight:700;color:var(--gray-900);margin-top:.2rem}
+.stat .value.good{color:var(--green)}
+.caveat{background:var(--amber-lt);border:1px solid #fde68a;border-radius:8px;padding:.9rem 1.1rem;font-size:.8rem;color:var(--amber);margin-top:1.2rem;line-height:1.5}
+.actions{display:flex;gap:.75rem;margin-top:1.2rem;flex-wrap:wrap}
+a.back{display:inline-block;margin-bottom:1rem;font-size:.85rem;color:var(--blue);text-decoration:none}
+textarea{width:100%;min-height:160px;border:1px solid var(--gray-200);border-radius:6px;padding:.7rem;font-family:ui-monospace,Menlo,monospace;font-size:.78rem;resize:vertical}
+.upload-row{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.log{background:var(--gray-900);color:#d1fae5;border-radius:8px;padding:.9rem 1rem;font-family:ui-monospace,Menlo,monospace;font-size:.75rem;white-space:pre-wrap;max-height:220px;overflow-y:auto;margin-top:1rem}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">🧠 Real scikit-learn training — Pyodide / WASM, in your browser</div>
+  <h1>Model Training Studio</h1>
+  <p>Fit a fresh random-forest severity model on your own CSV, entirely client-side — no data ever leaves this tab — then download it in the same format used by the PenuX calculator and compression studio.</p>
+</div>
+
+<div class="container">
+  <a class="back" href="predict.html">&larr; Back to SAP Risk Calculator</a>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>1. Engine status</h2>
+      <p>Loading Pyodide plus the real scikit-learn / numpy / pandas WASM packages — this is a larger download than the calculator or compressor and can take a while on first load.</p>
+    </div>
+    <div class="card-body">
+      <div class="status-row"><span class="dot" id="wasm-dot"></span><span id="wasm-text">Starting Pyodide…</span></div>
+      <div class="status-row"><span class="dot" id="sklearn-dot"></span><span id="sklearn-text">Waiting for Pyodide…</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>2. Training data (CSV)</h2>
+      <p>One row per patient, one column per feature, plus a binary label column (0/1). No file is uploaded anywhere — it's read directly into the in-page Python runtime.</p>
+    </div>
+    <div class="card-body">
+      <div class="upload-row" style="margin-bottom:1rem">
+        <input type="file" id="csv-file" accept=".csv"/>
+        <button class="btn-ghost" id="load-demo">or load a synthetic demo dataset</button>
+      </div>
+      <textarea id="csv-text" placeholder="label,feature_1,feature_2,...&#10;1,2.3,0.8,...&#10;0,1.1,0.4,..."></textarea>
+      <div class="field-row" style="margin-top:1rem">
+        <div class="field">
+          <label>Label column name</label>
+          <input type="text" id="label-col" value="label"/>
+        </div>
+        <div class="field">
+          <label>Holdout fraction for evaluation</label>
+          <select id="holdout-frac">
+            <option value="0.2" selected>20%</option>
+            <option value="0.3">30%</option>
+            <option value="0.5">50%</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>3. Forest hyperparameters</h2>
+    </div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field">
+          <label>Number of trees</label>
+          <input type="number" id="n-estimators" value="200" min="1" max="500"/>
+        </div>
+        <div class="field">
+          <label>Max tree depth (blank = unlimited)</label>
+          <input type="number" id="max-depth" placeholder="e.g. 8" min="1" max="30"/>
+        </div>
+      </div>
+      <button class="btn" id="train-btn" disabled>Train model in-browser</button>
+      <div class="log" id="log" style="display:none"></div>
+    </div>
+  </div>
+
+  <div class="card" id="results-card" style="display:none">
+    <div class="card-header">
+      <h2>4. Holdout results</h2>
+      <p>Computed on the held-out split defined above — never seen during training.</p>
+    </div>
+    <div class="card-body">
+      <div class="result-grid">
+        <div class="stat"><div class="label">Train / holdout rows</div><div class="value" id="stat-split">–</div></div>
+        <div class="stat"><div class="label">Accuracy</div><div class="value good" id="stat-acc">–</div></div>
+        <div class="stat"><div class="label">ROC AUC</div><div class="value good" id="stat-auc">–</div></div>
+        <div class="stat"><div class="label">Brier score</div><div class="value" id="stat-brier">–</div></div>
+        <div class="stat"><div class="label">Trees × features</div><div class="value" id="stat-shape">–</div></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-outline" id="download-btn">Download trained model JSON</button>
+      </div>
+      <div class="caveat">
+        ⚠️ A model trained on a small or non-representative CSV will not generalize. This studio is for prototyping and for re-fitting the PenuX architecture on your own cohort — treat holdout metrics from a small demo dataset as a sanity check, not clinical evidence.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let pyodideInstance = null;
+let trainedModelCache = null;
+
+const DEMO_CSV_PY = `
+import random
+
+def generate_demo_csv():
+    random.seed(7)
+    n = 400
+    cols = [f"feature_{i}" for i in range(8)]
+    weights = [1.4, -0.8, 0.6, 0.3, -1.1, 0.2, 0.9, -0.4]
+    lines = ["label," + ",".join(cols)]
+    for _ in range(n):
+        xs = [random.gauss(0, 1) for _ in cols]
+        score = sum(w * x for w, x in zip(weights, xs))
+        prob = 1 / (1 + pow(2.718281828, -score))
+        label = 1 if random.random() < prob else 0
+        lines.append(str(label) + "," + ",".join(f"{x:.4f}" for x in xs))
+    return "\\n".join(lines)
+`;
+
+const TRAIN_PY = `
+import json, io
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, roc_auc_score, brier_score_loss
+
+def export_tree(tree, node_id=0):
+    left = tree.children_left[node_id]
+    right = tree.children_right[node_id]
+    if left == -1 and right == -1:
+        value = tree.value[node_id][0]
+        proba = float(value[1] / value.sum())
+        return {"leaf": proba}
+    return {
+        "feature": int(tree.feature[node_id]),
+        "threshold": float(tree.threshold[node_id]),
+        "left": export_tree(tree, left),
+        "right": export_tree(tree, right),
+    }
+
+def train_model(csv_text, label_col, holdout_frac, n_estimators, max_depth):
+    df = pd.read_csv(io.StringIO(csv_text))
+    if label_col not in df.columns:
+        raise ValueError(f"Label column '{label_col}' not found. Columns: {list(df.columns)}")
+    y = df[label_col].astype(int).values
+    X_df = df.drop(columns=[label_col])
+    feature_names = list(X_df.columns)
+    X = X_df.values.astype(float)
+
+    X_train, X_hold, y_train, y_hold = train_test_split(
+        X, y, test_size=holdout_frac, random_state=42,
+        stratify=y if len(set(y)) > 1 else None,
+    )
+
+    clf = RandomForestClassifier(
+        n_estimators=n_estimators,
+        max_depth=max_depth,
+        random_state=42,
+    ).fit(X_train, y_train)
+
+    p_hold = clf.predict_proba(X_hold)[:, 1]
+    pred_hold = (p_hold >= 0.5).astype(int)
+
+    metrics = {
+        "n_train": int(len(y_train)),
+        "n_holdout": int(len(y_hold)),
+        "accuracy": float(accuracy_score(y_hold, pred_hold)),
+        "auc": float(roc_auc_score(y_hold, p_hold)) if len(set(y_hold)) > 1 else None,
+        "brier": float(brier_score_loss(y_hold, p_hold)),
+    }
+
+    trees_json = [export_tree(est.tree_) for est in clf.estimators_]
+    model = {
+        "n_features": len(feature_names),
+        "feature_names": feature_names,
+        "n_trees": len(trees_json),
+        "threshold": 0.5,
+        "trees": trees_json,
+    }
+    return {"model": model, "metrics": metrics}
+`;
+
+function setDot(id, textId, state, text) {
+  document.getElementById(id).className = 'dot' + (state ? ' ' + state : '');
+  document.getElementById(textId).textContent = text;
+}
+
+function log(msg) {
+  const el = document.getElementById('log');
+  el.style.display = 'block';
+  el.textContent += msg + '\n';
+  el.scrollTop = el.scrollHeight;
+}
+
+async function init() {
+  try {
+    pyodideInstance = await loadPyodide();
+    setDot('wasm-dot', 'wasm-text', 'ready', 'Pyodide / CPython engine ready');
+  } catch (e) {
+    setDot('wasm-dot', 'wasm-text', 'error', 'Failed to load Pyodide: ' + e.message);
+    return;
+  }
+  try {
+    setDot('sklearn-dot', 'sklearn-text', null, 'Loading scikit-learn, numpy, pandas (WASM packages)…');
+    await pyodideInstance.loadPackage(['scikit-learn', 'numpy', 'pandas']);
+    await pyodideInstance.runPythonAsync(TRAIN_PY);
+    await pyodideInstance.runPythonAsync(DEMO_CSV_PY);
+    setDot('sklearn-dot', 'sklearn-text', 'ready', 'scikit-learn ready — real RandomForestClassifier, fit in-browser');
+    document.getElementById('train-btn').disabled = false;
+  } catch (e) {
+    setDot('sklearn-dot', 'sklearn-text', 'error', 'Failed to load scikit-learn: ' + e.message);
+  }
+}
+init();
+
+document.getElementById('load-demo').addEventListener('click', () => {
+  if (!pyodideInstance) return;
+  const generateDemoCsv = pyodideInstance.globals.get('generate_demo_csv');
+  document.getElementById('csv-text').value = generateDemoCsv();
+  document.getElementById('label-col').value = 'label';
+});
+
+document.getElementById('csv-file').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt) => { document.getElementById('csv-text').value = evt.target.result; };
+  reader.readAsText(file);
+});
+
+document.getElementById('train-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('train-btn');
+  const csvText = document.getElementById('csv-text').value.trim();
+  if (!csvText) {
+    log('No CSV data provided.');
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Training…';
+  document.getElementById('log').textContent = '';
+  log('Starting training run in Pyodide…');
+
+  const labelCol = document.getElementById('label-col').value.trim() || 'label';
+  const holdoutFrac = parseFloat(document.getElementById('holdout-frac').value);
+  const nEstimators = parseInt(document.getElementById('n-estimators').value, 10) || 100;
+  const maxDepthRaw = document.getElementById('max-depth').value.trim();
+  const maxDepth = maxDepthRaw === '' ? null : parseInt(maxDepthRaw, 10);
+
+  try {
+    const trainModel = pyodideInstance.globals.get('train_model');
+    const resultPy = trainModel(csvText, labelCol, holdoutFrac, nEstimators, maxDepth);
+    const result = resultPy.toJs({ dict_converter: Object.fromEntries });
+    resultPy.destroy();
+
+    const model = result.model;
+    const metrics = result.metrics;
+
+    document.getElementById('stat-split').textContent = `${metrics.n_train} / ${metrics.n_holdout}`;
+    document.getElementById('stat-acc').textContent = (metrics.accuracy * 100).toFixed(1) + '%';
+    document.getElementById('stat-auc').textContent = metrics.auc !== null && metrics.auc !== undefined ? metrics.auc.toFixed(4) : 'n/a (single class)';
+    document.getElementById('stat-brier').textContent = metrics.brier.toFixed(4);
+    document.getElementById('stat-shape').textContent = `${model.n_trees} × ${model.n_features}`;
+
+    trainedModelCache = JSON.stringify(model);
+    document.getElementById('results-card').style.display = 'block';
+    log('Done. Holdout accuracy=' + (metrics.accuracy*100).toFixed(1) + '%, AUC=' + (metrics.auc ?? 'n/a'));
+  } catch (e) {
+    log('ERROR: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Train model in-browser';
+  }
+});
+
+document.getElementById('download-btn').addEventListener('click', () => {
+  if (!trainedModelCache) return;
+  const blob = new Blob([trainedModelCache], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'penux_rf_model_trained.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
