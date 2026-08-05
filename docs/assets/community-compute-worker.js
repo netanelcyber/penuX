@@ -1,28 +1,29 @@
 'use strict';
 
-// Compiled from a small C statistics kernel. No IBM SPSS code is included.
-// Exports: metrics_from_counts, coverage, descriptives, crosstab_2x2.
-const WASM_BASE64 = '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OQMIIAQgCTkDACAEIAAgB6NEAAAAAAAAAAAgB0QAAAAAAAAAAGQbIAIgAaNEAAAAAAAAAAAgAUQAAAAAAAAAAGQbIgKjRAAAAAAAAAAAIAJEAAAAAAAAAABkGzkDIAuuBgIEfAJ/RAAAAAAAAAAAIQECQCAARAAAAAAAAAAAY0UNAEQAAAAAAAAAQCAAmhCFgICAAKEPC0QAAAAAAADwPyAARIx7PalA99Q/okQAAAAAAADwP6CjIgJELaFVQoT78D+iRDlMAVccQPe/oCACokRX4bpVHL72P6AgAqJEaRQ8zDE10r+gIAKiRH5a7MYgT9A/oCEDAkAgAJogAKIiAEQAAAAAAABJwGMNAAJAAkBEAAAAAAAASUAgACAARAAAAAAAAElAZBsiAZogASABRAAAAAAAAAAAYxsiAETvOfr+Qi7mP6MiBJlEAAAAAAAA4EFjRQ0AIASqIQUMAQtBgICAgHghBQsgACAFt0TvOfr+Qi7mP6KhIgBEAAAAAAAA8D+gIAAgAEQAAAAAAADgP6KiIgSgIABEAAAAAAAACECjIASiIgSgIABEAAAAAAAA0D+iIASiIgSgIABEAAAAAAAAFECjIASiIgSgIABEAAAAAAAAGECjIASiIgSgIABEAAAAAAAAHECjIASiIgSgIABEAAAAAAAAwD+iIASiIgSgIABEAAAAAAAAIkCjIASiIgSgIABEAAAAAAAAJECjIASiIgSgIABEAAAAAAAAJkCjIASiIgSgIABEAAAAAAAAKECjIASiIgSgIABEAAAAAAAAKkCjIASiIgSgIABEAAAAAAAALECjIASiIgSgIABEAAAAAAAALkCjIASiIgSgIABEAAAAAAAAsD+iIASiIgSgIABEAAAAAAAAMUCjIASiIgSgIABEAAAAAAAAMkCjIASioCEERAAAAAAAAPA/IQACQCAFQQFIDQAgBUEHcSEGAkACQCAFQQhPDQBEAAAAAAAA8D8hAAwBCyAFQfj///8HcSEFRAAAAAAAAPA/IQADQCAAIACgIgAgAKAiACAAoCIAIACgIgAgAKAiACAAoCIAIACgIgAgAKAhACAFQXhqIgUNAAsLIAZFDQADQCAAIACgIQAgBkF/aiIGDQALC0QAAAAAAADwPyAEIACiIgCjIAAgAUQAAAAAAAAAAGMbIQELRAAAAAAAAPA/RAAAAAAAAPA/IAIgA6IgAaKhoQsAgQEEbmFtZQAUE3Nwc3MtY29tbXVuaXR5Lndhc20BUAYAE21ldHJpY3NfZnJvbV9jb3VudHMBCGNvdmVyYWdlAgxkZXNjcmlwdGl2ZXMDBWRzcXJ0BAxjcm9zc3RhYl8yeDIFC2VyZmNfYXBwcm94BxIBAA9fX3N0YWNrX3BvaW50ZXIAfwlwcm9kdWNlcnMBDHByb2Nlc3NlZC1ieQEFY2xhbmdfMTcuMC4wIChodHRwczovL2dpdGh1Yi5jb20vc3dpZnRsYW5nL2xsdm0tcHJvamVjdC5naXQgMTA5OTliNmQwMzRmZTMxOGYzZDU2YzgzYmRkYjY1NzI1OTNhOGJiMCkASQ90YXJnZXRfZmVhdHVyZXMEKwptdWx0aXZhbHVlKw9tdXRhYmxlLWdsb2JhbHMrD3JlZmVyZW5jZS10eXBlcysIc2lnbi1leHQ=';
-
 let wasm = null;
-
-function decodeBase64(value) {
-  const binary = atob(value);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
-  return bytes;
-}
 
 function hex(buffer) {
   return Array.from(new Uint8Array(buffer), b => b.toString(16).padStart(2, '0')).join('');
 }
 
-async function initWasm() {
+function toBytes(value) {
+  if (value instanceof ArrayBuffer) return new Uint8Array(value);
+  if (ArrayBuffer.isView(value)) return new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
+  throw new Error('WASM bytes were not supplied to the worker');
+}
+
+async function initWasm(input) {
   if (wasm) return wasm;
-  const bytes = decodeBase64(WASM_BASE64);
+  const bytes = toBytes(input);
+  if (bytes.byteLength < 8) throw new Error(`WASM download is too short (${bytes.byteLength} bytes)`);
+  if (!WebAssembly.validate(bytes)) throw new Error(`Downloaded WASM failed validation (${bytes.byteLength} bytes)`);
   const digest = await crypto.subtle.digest('SHA-256', bytes);
   const loaded = await WebAssembly.instantiate(bytes, {});
-  wasm = { instance: loaded.instance || loaded, hash: hex(digest) };
+  const instance = loaded.instance || loaded;
+  const required = ['memory', 'metrics_from_counts', 'coverage', 'descriptives', 'crosstab_2x2'];
+  const missing = required.filter(name => !(name in instance.exports));
+  if (missing.length) throw new Error(`WASM exports are incomplete: ${missing.join(', ')}`);
+  wasm = { instance, hash: hex(digest), byteLength: bytes.byteLength };
   return wasm;
 }
 
@@ -41,8 +42,13 @@ async function digestResult(value) {
   return hex(digest);
 }
 
+function requireWasm() {
+  if (!wasm) throw new Error('Worker was not initialized with the downloaded WASM module');
+  return wasm;
+}
+
 async function calculateMetrics(payload) {
-  const module = await initWasm();
+  const module = requireWasm();
   const { memory, metrics_from_counts: fn } = module.instance.exports;
   const outputOffset = 1024;
   fn(Math.trunc(safeNumber(payload.tp)), Math.trunc(safeNumber(payload.tn)), Math.trunc(safeNumber(payload.fp)), Math.trunc(safeNumber(payload.fn)), outputOffset);
@@ -57,7 +63,7 @@ async function calculateMetrics(payload) {
 }
 
 async function calculateCoverage(payload) {
-  const module = await initWasm();
+  const module = requireWasm();
   const { memory, coverage: fn } = module.instance.exports;
   const flags = Array.isArray(payload.flags) ? payload.flags.map(v => v ? 1 : 0) : [];
   const offset = 4096;
@@ -68,7 +74,7 @@ async function calculateCoverage(payload) {
 }
 
 async function calculateDescriptives(payload) {
-  const module = await initWasm();
+  const module = requireWasm();
   const { memory, descriptives: fn } = module.instance.exports;
   const values = (Array.isArray(payload.values) ? payload.values : []).map(Number).filter(Number.isFinite);
   const inputOffset = 8192;
@@ -81,7 +87,7 @@ async function calculateDescriptives(payload) {
 }
 
 async function calculateCrosstab(payload) {
-  const module = await initWasm();
+  const module = requireWasm();
   const { memory, crosstab_2x2: fn } = module.instance.exports;
   const outputOffset = 3072;
   fn(safeNumber(payload.a), safeNumber(payload.b), safeNumber(payload.c), safeNumber(payload.d), outputOffset);
@@ -92,12 +98,12 @@ async function calculateCrosstab(payload) {
 self.onmessage = async event => {
   const message = event.data || {};
   try {
-    let result;
     if (message.type === 'init') {
-      const module = await initWasm();
-      self.postMessage({ id: message.id, ok: true, type: 'ready', wasm_sha256: module.hash });
+      const module = await initWasm(message.payload && message.payload.wasmBytes);
+      self.postMessage({ id: message.id, ok: true, type: 'ready', wasm_sha256: module.hash, wasm_bytes: module.byteLength });
       return;
     }
+    let result;
     if (message.type === 'metrics') result = await calculateMetrics(message.payload || {});
     else if (message.type === 'coverage') result = await calculateCoverage(message.payload || {});
     else if (message.type === 'descriptives') result = await calculateDescriptives(message.payload || {});
