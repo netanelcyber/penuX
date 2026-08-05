@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="חישוב על המאגרים הציבוריים לפי TOP48, הגדרת עוקבה ללא הדמיה ותוצאות 120 תצורות מודל לכל מאגר במחקר PenuX-AP-Severity." />
+  <title>TOP48, הגדרת עוקבה ו-120 מודלים — PenuX-AP-Severity</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <style>
+    :root{
+      --navy:#172554;--blue:#1d4ed8;--teal:#0f766e;--green:#047857;
+      --amber:#b45309;--red:#b91c1c;--purple:#6d28d9;--ink:#0f172a;
+      --muted:#475569;--line:#dbe4f0;--soft:#f8fafc;--white:#fff;
+      --radius:14px;--shadow:0 10px 30px rgba(15,23,42,.07)
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:Inter,Arial,"Noto Sans Hebrew",sans-serif;background:var(--soft);color:var(--ink);line-height:1.7}
+    a{color:var(--blue)}
+    .topbar{position:sticky;top:0;z-index:30;background:rgba(23,37,84,.97);color:#fff;padding:.68rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;box-shadow:0 2px 12px rgba(15,23,42,.18)}
+    .topbar nav{display:flex;gap:.85rem;flex-wrap:wrap}
+    .topbar a{color:#bfdbfe;text-decoration:none;font-weight:750;font-size:.86rem}
+    .topbar a:hover{color:#fff}
+    .tag{font-size:.76rem;background:rgba(255,255,255,.12);padding:.2rem .65rem;border-radius:999px;color:#e0f2fe}
+    .hero{background:linear-gradient(135deg,#172554 0%,#1d4ed8 55%,#0f766e 100%);color:#fff;padding:4.4rem 1rem 3.7rem}
+    .hero-inner,.container{max-width:1240px;margin:auto}
+    .eyebrow{display:inline-block;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.11);padding:.3rem .8rem;border-radius:999px;font-size:.8rem;font-weight:800;margin-bottom:1rem}
+    h1{font-size:clamp(2rem,5vw,3.7rem);line-height:1.12;margin:0 0 .9rem;max-width:1050px}
+    .hero p{color:#dbeafe;max-width:980px;font-size:1.06rem;margin:.35rem 0}
+    .hero-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem;margin-top:1.5rem;max-width:980px}
+    .hero-stat{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:.75rem .9rem}
+    .hero-stat strong{display:block;font-size:1.35rem}.hero-stat span{color:#bfdbfe;font-size:.78rem}
+    .container{padding:2.2rem 1rem 4rem}
+    .toc{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.2rem;box-shadow:var(--shadow);margin-bottom:1.2rem}
+    .toc strong{color:var(--navy)}.toc-links{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.6rem}
+    .toc-links a{text-decoration:none;background:#eef2ff;border:1px solid #c7d2fe;padding:.22rem .62rem;border-radius:999px;font-size:.82rem;font-weight:700}
+    section{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:1.45rem;margin:1.2rem 0;box-shadow:0 2px 9px rgba(15,23,42,.04)}
+    h2{color:var(--navy);font-size:1.45rem;margin:0 0 .85rem;border-bottom:2px solid #bfdbfe;padding-bottom:.42rem}
+    h3{color:#075985;font-size:1.07rem;margin:1.25rem 0 .42rem}
+    h4{color:var(--navy);margin:.8rem 0 .35rem}
+    p{margin:.45rem 0 .82rem;color:#334155}
+    ul,ol{margin:.45rem 0 1rem;padding-right:1.35rem}li{margin:.28rem 0}
+    .notice{border:1px solid;border-right-width:5px;border-radius:11px;padding:1rem 1.1rem;margin:1rem 0}
+    .notice strong{display:block;margin-bottom:.2rem}.blue{background:#eff6ff;border-color:#60a5fa;color:#1e3a8a}.green{background:#ecfdf5;border-color:#34d399;color:#065f46}.amber{background:#fffbeb;border-color:#fbbf24;color:#78350f}.red{background:#fef2f2;border-color:#f87171;color:#7f1d1d}
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1rem;margin:.9rem 0}
+    .card{border:1px solid var(--line);border-top:5px solid var(--blue);border-radius:12px;padding:1rem;background:#fff}
+    .card.teal{border-top-color:var(--teal)}.card.green-card{border-top-color:var(--green)}.card.amber-card{border-top-color:var(--amber)}.card.purple-card{border-top-color:var(--purple)}
+    .card .label{font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;color:#64748b;font-weight:800}.card .value{font-size:1.7rem;font-weight:900;color:var(--navy);line-height:1.2;margin:.2rem 0}.card .sub{font-size:.82rem;color:#64748b}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:11px;margin:.85rem 0 1.2rem;max-height:720px}
+    table{width:100%;border-collapse:collapse;min-width:850px;font-size:.84rem}
+    th{position:sticky;top:0;background:var(--navy);color:#fff;padding:.62rem .7rem;text-align:right;white-space:nowrap;z-index:2}
+    td{padding:.55rem .7rem;border-bottom:1px solid var(--line);vertical-align:top;white-space:nowrap}
+    tbody tr:nth-child(even) td{background:#f8fafc}.best td{background:#ecfdf5!important;font-weight:700}.rank{font-weight:900;color:var(--navy)}
+    .good-text{color:var(--green);font-weight:800}.warn-text{color:var(--amber);font-weight:800}.bad-text{color:var(--red);font-weight:800}
+    code,pre,.formula{font-family:Consolas,"JetBrains Mono",monospace}
+    code{direction:ltr;unicode-bidi:embed;background:#e2e8f0;padding:.08rem .32rem;border-radius:4px;font-size:.88em}
+    pre{direction:ltr;text-align:left;background:#0f172a;color:#e2e8f0;padding:1rem;border-radius:10px;overflow:auto;font-size:.82rem;line-height:1.55}
+    .formula{direction:ltr;text-align:center;background:#f1f5f9;border:1px solid var(--line);padding:.82rem;border-radius:9px;overflow:auto;margin:.7rem 0;color:#0f172a}
+    blockquote{margin:.8rem 0;padding:.9rem 1.1rem;border-right:5px solid var(--teal);background:#f1f5f9;border-radius:8px;font-weight:750}
+    .controls{display:grid;grid-template-columns:1.1fr 1fr 1fr 1.2fr auto;gap:.7rem;margin:1rem 0;align-items:end}
+    label{display:block;font-size:.76rem;color:#64748b;font-weight:800;margin-bottom:.25rem}
+    input,select,button{width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:.6rem .65rem;background:#fff;color:#0f172a;font:inherit}
+    button{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:800;cursor:pointer}button:hover{background:#1e40af}
+    .loading{padding:1rem;background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;color:#1e3a8a}.error{padding:1rem;background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;color:#991b1b;display:none}
+    .model-name{direction:ltr;text-align:left;font-family:Consolas,monospace;font-size:.79rem}.family{display:inline-block;border-radius:999px;padding:.12rem .48rem;background:#ede9fe;color:#5b21b6;font-size:.7rem;font-weight:800}
+    .bar-list{display:grid;gap:.45rem;margin:.8rem 0}.bar-row{display:grid;grid-template-columns:minmax(190px,1.5fr) 4fr 65px;gap:.6rem;align-items:center;font-size:.78rem}.bar-label{direction:ltr;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:Consolas,monospace}.bar-track{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden}.bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));border-radius:999px}.bar-value{font-weight:800;color:var(--navy);direction:ltr}
+    .small{font-size:.82rem;color:#64748b}.source-links{display:flex;gap:.8rem;flex-wrap:wrap}.source-links a{font-size:.84rem}
+    footer{background:#0f172a;color:#94a3b8;padding:2rem 1rem}footer .inner{max-width:1240px;margin:auto}footer strong{color:#e2e8f0}
+    @media(max-width:900px){.hero-stats{grid-template-columns:1fr 1fr}.controls{grid-template-columns:1fr 1fr}.controls>div:last-child{grid-column:1/-1}.bar-row{grid-template-columns:1fr 2fr 55px}}
+    @media(max-width:600px){.topbar{position:static}.hero{padding-top:3rem}.hero-stats{grid-template-columns:1fr 1fr}.controls{grid-template-columns:1fr}.controls>div:last-child{grid-column:auto}section{padding:1rem}.bar-row{grid-template-columns:1fr}.bar-value{text-align:left}}
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <nav aria-label="ניווט ראשי">
+    <a href="index.html">דף הבית</a>
+    <a href="hospital-data.html">מפרט נתוני בית חולים</a>
+    <a href="models.html">ארכיטקטורת המודל</a>
+    <a href="api.html">API ובודק זכאות</a>
+  </nav>
+  <span class="tag">Research use only · לא לשימוש קליני</span>
+</div>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="eyebrow">PenuX-AP-Severity · Existing public datasets</span>
+    <h1>חישוב לפי TOP48, הגדרת עוקבה ללא הדמיה ותוצאות 120 מודלים</h1>
+    <p>העמוד מפריד בין תוצא ה־legacy במאגרים הציבוריים לבין תוצא הפרוטוקול המתוכנן בבית החולים, בוחן את כיסוי TOP48 ומציג 120 תצורות מודל מדורגות מתוך תוצאות ה־benchmark הקיימות.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><strong>1,289</strong><span>מטופלים ב־MultiML</span></div>
+      <div class="hero-stat"><strong>722</strong><span>מטופלים ב־LNN</span></div>
+      <div class="hero-stat"><strong>120</strong><span>תצורות מודל מוצגות לכל מאגר</span></div>
+      <div class="hero-stat"><strong>98%</strong><span>רגישות יעד מחקרית עתידית</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <div class="toc">
+    <strong>תוכן העמוד</strong>
+    <div class="toc-links">
+      <a href="#targets">שני יעדי Y</a><a href="#coverage">כיסוי TOP48</a><a href="#eligibility">ישימות העוקבה</a><a href="#legacy">ביצועים בסף 0.50</a><a href="#target98">גבול רגישות 98%</a><a href="#models120">120 מודלים</a><a href="#hospital">לוגיקת בית החולים</a>
+    </div>
+  </div>
+
+  <div class="notice red"><strong>הבהרה מחקרית</strong>תוצאות המאגרים הציבוריים הן benchmark היסטורי וחקרני. הן אינן תוצאות של מודל שאומן בבית החולים, אינן ולידציה חיצונית ואינן מיועדות לקבלת החלטות רפואיות.</div>
+
+  <section id="targets">
+    <h2>1. הפרדה בין שני יעדי Y</h2>
+    <p>במאגרים הציבוריים ערך המקור מקודד בכיוון הפוך מהמקובל, ולכן לצורך מדדי SAP יש להשתמש ב־:</p>
+    <div class="formula">y_legacy = 1 - raw_target</div>
+    <p>לאחר ההיפוך: <code>1=SAP</code> ו־<code>0=non-SAP</code>. לעומת זאת, יעד הפרוטוקול לבית החולים יהיה:</p>
+    <div class="formula">y_protocol = 𝟙{persistent organ failure duration &gt; 48 hours}</div>
+    <div class="notice amber"><strong>מגבלת הנתונים הציבוריים</strong>ניתן לחשב בהם את <code>y_legacy</code>, אך אין מספיק מידע כדי לבנות מחדש באופן מהימן את <code>y_protocol</code>.</div>
+  </section>
+
+  <section id="coverage">
+    <h2>2. כיסוי TOP48 במאגרים הקיימים</h2>
+    <p>זהו כיסוי ברמת הסכמה — קיום עמודה במאגר — ולא שיעור השלמות של הבדיקה בכל מטופל.</p>
+    <div class="cards">
+      <div class="card"><div class="label">MultiML TOP48</div><div class="value">35/48</div><div class="sub">72.92% · Core 20/22 · Complementary 15/20 · Optional 0/6</div></div>
+      <div class="card teal"><div class="label">LNN TOP48</div><div class="value">46/48</div><div class="sub">95.83% · Core 21/22 · Complementary 20/20 · Optional 5/6</div></div>
+      <div class="card green-card"><div class="label">MultiML SAP</div><div class="value">204</div><div class="sub">15.83% מתוך 1,289</div></div>
+      <div class="card purple-card"><div class="label">LNN SAP</div><div class="value">137</div><div class="sub">18.98% מתוך 722</div></div>
+    </div>
+    <div class="table-wrap" style="max-height:none">
+      <table>
+        <thead><tr><th>מאגר</th><th>N</th><th>SAP</th><th>Core 22</th><th>Complementary 20</th><th>Optional 6</th><th>סה״כ TOP48</th></tr></thead>
+        <tbody>
+          <tr><td>MultiML</td><td>1,289</td><td>204 — 15.83%</td><td>20/22</td><td>15/20</td><td>0/6</td><td class="warn-text">35/48 — 72.92%</td></tr>
+          <tr><td>LNN</td><td>722</td><td>137 — 18.98%</td><td>21/22</td><td>20/20</td><td>5/6</td><td class="good-text">46/48 — 95.83%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>MultiML — 13 בדיקות TOP48 שאינן קיימות</h3>
+    <p>Lipase, BUN, ionized calcium, magnesium, phosphate, D-dimer, lactate, procalcitonin, cystatin C, pH, PaO₂, PaCO₂ ו־base excess.</p>
+    <p class="small">העמודה <code>PCT</code> אינה נספרת כ־procalcitonin ללא מילון נתונים המאשר זאת; מיקומה בין מדדי הטסיות מתאים יותר ל־plateletcrit.</p>
+    <h3>LNN — שתי בדיקות TOP48 שאינן קיימות</h3>
+    <p>BUN נפרד ו־procalcitonin. במאגר קיימים Lipase, Amylase, גיל, D-dimer, lactate, ionized calcium, magnesium, phosphate, cystatin C, pH, PaO₂, PaCO₂ ו־base excess.</p>
+    <div class="formula">BUN (mg/dL) = Urea (mg/dL) ÷ 2.14</div>
+    <div class="formula">BUN (mg/dL) = Urea (mmol/L) × 2.8</div>
+    <p>אין לבצע המרה אוטומטית ללא אימות יחידות המקור.</p>
+  </section>
+
+  <section id="eligibility">
+    <h2>3. האם ניתן להחיל את הגדרת העוקבה המחמירה?</h2>
+    <p><strong>לא במלואה.</strong> אין פירוש הדבר שאפס מטופלים עומדים בתנאים, אלא שאין בקבצים מספיק שדות כדי לקבוע מי עומד בהם.</p>
+    <div class="table-wrap" style="max-height:none">
+      <table>
+        <thead><tr><th>דרישת פרוטוקול</th><th>MultiML</th><th>LNN</th></tr></thead>
+        <tbody>
+          <tr><td>גיל ≥18</td><td class="bad-text">חסר גיל</td><td class="good-text">קיים</td></tr>
+          <tr><td>מזהה אשפוז מקודד</td><td>הוסר</td><td>הוסר</td></tr>
+          <tr><td>מועד קבלה</td><td>חסר</td><td>חסר</td></tr>
+          <tr><td>מועד דגימה 0–24 שעות</td><td>חסר</td><td>חסר</td></tr>
+          <tr><td>אבחנת AP נפרדת מהתוצא</td><td>חסר</td><td>חסר</td></tr>
+          <tr><td>Lipase</td><td class="bad-text">חסר</td><td class="good-text">קיים</td></tr>
+          <tr><td>Amylase</td><td class="good-text">קיים</td><td class="good-text">קיים</td></tr>
+          <tr><td>ULN לכל אנזים</td><td>חסר</td><td>חסר</td></tr>
+          <tr><td>כאב מובנה</td><td>חסר</td><td>חסר</td></tr>
+          <tr><td>משך כשל איברים</td><td>חסר</td><td>חסר</td></tr>
+          <tr><td>כשל מתמשך מעל 48 שעות</td><td>לא ניתן לבנייה</td><td>לא ניתן לבנייה</td></tr>
+          <tr><td>שחרור/העברה/טיפול נמרץ/פטירה</td><td>חסר</td><td>חסר</td></tr>
+          <tr><td>דגל hemolysis/lipemia/invalid</td><td>חסר</td><td>חסר</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li><strong>MultiML:</strong> מתאים להשוואת מודלים היסטורית בלבד.</li>
+      <li><strong>LNN:</strong> מתאים גם לבדיקת היתכנות של רשימת המעבדות, עם 46 מתוך 48 בדיקות בסכמה.</li>
+      <li>אף מאגר אינו מאפשר לאשר: <code>AP diagnosis + enzyme ≥3×ULN + observable persistent organ failure &gt;48h</code>.</li>
+    </ul>
+  </section>
+
+  <section id="legacy">
+    <h2>4. ביצועים קיימים לפי y_legacy בסף 0.50</h2>
+    <div class="table-wrap" style="max-height:none">
+      <table>
+        <thead><tr><th>מדד</th><th>MultiML</th><th>LNN</th></tr></thead>
+        <tbody>
+          <tr><td>מודל מוביל</td><td>LightGBM</td><td>HistGradientBoosting</td></tr>
+          <tr><td>N</td><td>1,289</td><td>722</td></tr><tr><td>SAP בפועל</td><td>204</td><td>137</td></tr>
+          <tr><td>TP / FN</td><td>80 / 124</td><td>67 / 70</td></tr><tr><td>TN / FP</td><td>1,051 / 34</td><td>554 / 31</td></tr>
+          <tr><td>Sensitivity</td><td class="bad-text">39.22%</td><td class="bad-text">48.91%</td></tr>
+          <tr><td>Specificity</td><td>96.87%</td><td>94.70%</td></tr><tr><td>PPV</td><td>70.18%</td><td>68.37%</td></tr><tr><td>NPV</td><td>89.45%</td><td>88.78%</td></tr>
+          <tr><td>Accuracy</td><td>87.74%</td><td>86.01%</td></tr><tr><td>F1</td><td>50.31%</td><td>57.02%</td></tr><tr><td>F2 — מחושב</td><td>43.01%</td><td>51.86%</td></tr>
+          <tr><td>Balanced accuracy</td><td>68.04%</td><td>71.80%</td></tr><tr><td>AUROC</td><td>0.854</td><td>0.886</td></tr><tr><td>AUPRC</td><td>0.604</td><td>0.660</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="formula">F₂ = (5 × Precision × Recall) ÷ (4 × Precision + Recall)</div>
+    <ul><li>MultiML מפספס 124 מתוך 204 מקרי SAP — 60.78%.</li><li>LNN מפספס 70 מתוך 137 מקרי SAP — 51.09%.</li></ul>
+    <div class="notice amber"><strong>משמעות</strong>סף 0.50 אינו נקודת הפעלה מתאימה למחקר המבקש רגישות הקרובה ל־98%, גם כאשר AUROC נראה טוב.</div>
+  </section>
+
+  <section id="target98">
+    <h2>5. הגבול הנדרש לרגישות של 98%</h2>
+    <div class="formula">Sensitivity ≥ 0.98</div>
+    <div class="cards">
+      <div class="card amber-card"><div class="label">MultiML</div><div class="value">FN ≤ 4</div><div class="sub">TP ≥ 200 מתוך 204 מקרי SAP</div></div>
+      <div class="card amber-card"><div class="label">LNN</div><div class="value">FN ≤ 2</div><div class="sub">TP ≥ 135 מתוך 137 מקרי SAP</div></div>
+    </div>
+    <div class="formula">t* = argmax Specificity(t), subject to Sensitivity(t) ≥ 0.98</div>
+    <p>הסף המספרי אינו נגזר מטבלת confusion matrix בסף יחיד. נדרשות תחזיות OOF ברמת המטופל — <code>y_true</code> ו־<code>y_probability</code> — לצורך threshold sweep.</p>
+  </section>
+
+  <section id="models120">
+    <h2>6. תוצאות 120 תצורות מודל שונות</h2>
+    <p>הטבלה טוענת את תוצאות ה־benchmark הקיימות מהמאגר, משאירה רק ריצות שהסתיימו בהצלחה ומציגה את 120 התצורות המדורגות הראשונות בכל מאגר. F2 ו־balanced accuracy מחושבים בדפדפן מתוך המדדים הקיימים.</p>
+    <div class="notice blue"><strong>מה הטבלה אינה עושה</strong>היא אינה מאמנת מחדש את המודלים ואינה מחילה בדיעבד את קריטריוני העוקבה החדשים. אלה תוצאות <code>y_legacy</code> הקיימות, המוצגות לצורכי benchmark בלבד.</div>
+
+    <div class="controls">
+      <div><label for="datasetSelect">מאגר</label><select id="datasetSelect"><option value="multiml">MultiML — n=1,289</option><option value="lnn">LNN — n=722</option></select></div>
+      <div><label for="familySelect">משפחת מודל</label><select id="familySelect"><option value="all">כל המשפחות</option></select></div>
+      <div><label for="sortSelect">מיון</label><select id="sortSelect"><option value="rank">דירוג מקור</option><option value="auroc">AUROC</option><option value="auprc">AUPRC</option><option value="sensitivity">Sensitivity</option><option value="specificity">Specificity</option><option value="f2">F2</option></select></div>
+      <div><label for="searchInput">חיפוש בשם המודל</label><input id="searchInput" type="search" placeholder="לדוגמה lightgbm, rf, logreg" /></div>
+      <div><label>&nbsp;</label><button type="button" id="resetButton">איפוס</button></div>
+    </div>
+
+    <div id="loading" class="loading">טוען תוצאות benchmark...</div>
+    <div id="error" class="error"></div>
+    <div id="summaryCards" class="cards" hidden></div>
+    <div id="topBars" class="bar-list" hidden></div>
+    <div class="table-wrap" id="resultsWrap" hidden>
+      <table>
+        <thead><tr><th>Rank</th><th>Model</th><th>Family</th><th>AUROC</th><th>AUPRC</th><th>Brier</th><th>Accuracy</th><th>Sensitivity</th><th>Specificity</th><th>PPV</th><th>NPV</th><th>F1</th><th>F2</th><th>Balanced Acc.</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th><th>Seconds</th></tr></thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+    <p class="small" id="rowCount"></p>
+    <div class="source-links">
+      <a href="https://github.com/netanelcyber/penuX/blob/mimic3%2B4/PenuX-AP-Severity/outputs/multiml/model_zoo_benchmark.csv" target="_blank" rel="noopener">קובץ תוצאות MultiML</a>
+      <a href="https://github.com/netanelcyber/penuX/blob/mimic3%2B4/PenuX-AP-Severity/outputs/lnn/model_zoo_benchmark.csv" target="_blank" rel="noopener">קובץ תוצאות LNN</a>
+      <a href="models.html">ארכיטקטורת המודל</a>
+    </div>
+  </section>
+
+  <section id="hospital">
+    <h2>7. נוסחת העוקבה שתופעל על נתוני בית החולים</h2>
+<pre>enzyme_confirmed = (
+    ((lipase_value / lipase_uln) &gt;= 3)
+    | ((amylase_value / amylase_uln) &gt;= 3)
+)
+
+main_cohort = (
+    (age &gt;= 18)
+    &amp; admission_id.notna()
+    &amp; admission_time.notna()
+    &amp; documented_ap_diagnosis
+    &amp; enzyme_confirmed
+    &amp; outcome_observable_after_48h
+)
+
+y_protocol = (
+    persistent_organ_failure_duration_hours &gt; 48
+).astype(int)</pre>
+    <h3>כללים מחייבים</h3>
+<pre># אין אימפוטציה לצורך אימות עצם האבחנה
+lipase_for_case_definition = lipase_value
+amylase_for_case_definition = amylase_value
+
+# הדמיה אינה תנאי הכללה ואינה predictor
+use_imaging_for_inclusion = False
+use_imaging_as_feature = False</pre>
+    <blockquote>כאשר אין כאב מובנה ואין הדמיה: הגדרת מקרה תפעולית היא אבחנת AP מתועדת יחד עם Lipase או Amylase ברמה של לפחות 3×ULN.</blockquote>
+
+    <h3>חישוב שלמות TOP48 למטופל</h3>
+    <div class="formula">ValidLabᵢⱼ = 𝟙{numeric value ∧ mapped unit ∧ 0≤sample-admission≤24h ∧ sample valid}</div>
+    <div class="formula">TOP48Countᵢ = Σⱼ₌₁⁴⁸ ValidLabᵢⱼ</div>
+    <div class="formula">TOP48Coverageᵢ = 100 × TOP48Countᵢ ÷ 48</div>
+    <ul>
+      <li>יש לבחור את הבדיקה התקינה הראשונה ב־0–6 שעות; אם אינה קיימת, את הראשונה ב־0–24 שעות.</li>
+      <li>בדיקות חוזרות נשמרות לחישוב delta, אך אינן נספרות כבדיקות נוספות.</li>
+      <li><strong>אין להוציא מטופל רק משום שאין לו 80% מ־TOP48.</strong> סף 80% נועד להערכת זמינות משתנה בכלל העוקבה.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>8. מסקנה מחושבת</h2>
+    <ul>
+      <li>ל־MultiML התאמה של <strong>72.92%</strong> לסכמת TOP48.</li>
+      <li>ל־LNN התאמה של <strong>95.83%</strong> לסכמת TOP48.</li>
+      <li>אף מאגר ציבורי אינו מאפשר לבנות מחדש את העוקבה המחמירה או את <code>y_protocol</code>.</li>
+      <li>בסף 0.50 הרגישות היא רק <strong>39.22%–48.91%</strong>.</li>
+      <li>ליעד רגישות 98%, מותר להחמיץ לכל היותר ארבעה מקרי SAP ב־MultiML או שניים ב־LNN.</li>
+      <li>תוצאות 120 המודלים נשמרות כ־<strong>legacy benchmark</strong>; כללי העוקבה החדשים יחולו רק על נתוני בית החולים הכוללים ULN, זמנים ומעקב כשל איברים.</li>
+    </ul>
+  </section>
+</main>
+
+<footer><div class="inner"><strong>PenuX-AP-Severity</strong><br />TOP48 cohort specification and 120-model public-dataset benchmark · Research use only · Not a medical device.</div></footer>
+
+<script>
+const SOURCES={
+  multiml:'https://raw.githubusercontent.com/netanelcyber/penuX/mimic3%2B4/PenuX-AP-Severity/outputs/multiml/model_zoo_benchmark.csv',
+  lnn:'https://raw.githubusercontent.com/netanelcyber/penuX/mimic3%2B4/PenuX-AP-Severity/outputs/lnn/model_zoo_benchmark.csv'
+};
+const cache={};
+const el=id=>document.getElementById(id);
+
+function parseCSV(text){
+  const rows=[];let row=[],cell='',quoted=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i],next=text[i+1];
+    if(ch==='"'&&quoted&&next==='"'){cell+='"';i++;continue;}
+    if(ch==='"'){quoted=!quoted;continue;}
+    if(ch===','&&!quoted){row.push(cell);cell='';continue;}
+    if((ch==='\n'||ch==='\r')&&!quoted){
+      if(ch==='\r'&&next==='\n')i++;
+      row.push(cell);cell='';if(row.some(v=>v!==''))rows.push(row);row=[];continue;
+    }
+    cell+=ch;
+  }
+  if(cell!==''||row.length){row.push(cell);rows.push(row);}
+  const headers=rows.shift().map(h=>h.trim());
+  return rows.map(values=>Object.fromEntries(headers.map((h,i)=>[h,values[i]??''])));
+}
+function num(v){const n=Number(v);return Number.isFinite(n)?n:NaN;}
+function pct(v){return Number.isFinite(v)?(v*100).toFixed(2)+'%':'—';}
+function dec(v,d=3){return Number.isFinite(v)?v.toFixed(d):'—';}
+function family(name){
+  const n=(name||'').toLowerCase();
+  if(n.startsWith('lightgbm'))return 'LightGBM';if(n.startsWith('xgboost'))return 'XGBoost';if(n.startsWith('catboost'))return 'CatBoost';
+  if(n.startsWith('histgbdt'))return 'HistGBDT';if(n.startsWith('gbdt_sklearn'))return 'Sklearn GBDT';if(n.startsWith('rf_'))return 'Random Forest';
+  if(n.startsWith('extra_trees'))return 'Extra Trees';if(n.startsWith('extra_tree'))return 'Extra Tree';if(n.startsWith('dtree'))return 'Decision Tree';
+  if(n.startsWith('logreg'))return 'Logistic Regression';if(n.startsWith('ridge'))return 'Ridge';if(n.startsWith('sgd'))return 'SGD';if(n.startsWith('perceptron'))return 'Perceptron';
+  if(n.startsWith('linear_svc'))return 'Linear SVC';if(n.startsWith('svc_'))return 'Kernel SVC';if(n.startsWith('knn'))return 'KNN';
+  if(n.startsWith('gaussian_nb'))return 'Gaussian NB';if(n.startsWith('bernoulli_nb'))return 'Bernoulli NB';if(n.startsWith('adaboost'))return 'AdaBoost';
+  if(n.startsWith('bagging'))return 'Bagging';if(n.startsWith('mlp'))return 'MLP';if(n.startsWith('lda'))return 'LDA';if(n.startsWith('qda'))return 'QDA';
+  if(n.startsWith('gaussian_process'))return 'Gaussian Process';return 'Other';
+}
+function enrich(r){
+  const p=num(r.ppv),s=num(r.sensitivity),sp=num(r.specificity);
+  const f2=(Number.isFinite(p)&&Number.isFinite(s)&&(4*p+s)>0)?5*p*s/(4*p+s):NaN;
+  return {...r,rankN:num(r.rank),aurocN:num(r.auroc),auprcN:num(r.auprc),brierN:num(r.brier_score),accuracyN:num(r.accuracy),sensitivityN:s,specificityN:sp,ppvN:p,npvN:num(r.npv),f1N:num(r.f1),f2N:f2,balancedN:(s+sp)/2,tpN:num(r.tp),tnN:num(r.tn),fpN:num(r.fp),fnN:num(r.fn),secondsN:num(r.seconds),family:family(r.model)};
+}
+async function loadDataset(key){
+  if(cache[key])return cache[key];
+  const response=await fetch(SOURCES[key],{cache:'no-store'});
+  if(!response.ok)throw new Error('לא ניתן לטעון את קובץ התוצאות ('+response.status+').');
+  const all=parseCSV(await response.text()).filter(r=>r.status==='ok').map(enrich).sort((a,b)=>a.rankN-b.rankN);
+  cache[key]=all.slice(0,120);return cache[key];
+}
+function median(values){const x=values.filter(Number.isFinite).sort((a,b)=>a-b);if(!x.length)return NaN;const m=Math.floor(x.length/2);return x.length%2?x[m]:(x[m-1]+x[m])/2;}
+function populateFamilies(rows){
+  const current=el('familySelect').value;const families=[...new Set(rows.map(r=>r.family))].sort();
+  el('familySelect').innerHTML='<option value="all">כל המשפחות</option>'+families.map(f=>`<option value="${f}">${f}</option>`).join('');
+  if(families.includes(current))el('familySelect').value=current;
+}
+function renderSummary(rows){
+  const best=[...rows].sort((a,b)=>b.aurocN-a.aurocN)[0];
+  const maxSens=[...rows].sort((a,b)=>b.sensitivityN-a.sensitivityN)[0];
+  const families=new Set(rows.map(r=>r.family)).size;
+  el('summaryCards').innerHTML=`
+    <div class="card"><div class="label">תצורות נטענו</div><div class="value">${rows.length}</div><div class="sub">ריצות benchmark תקינות</div></div>
+    <div class="card green-card"><div class="label">AUROC מוביל</div><div class="value">${dec(best.aurocN)}</div><div class="sub model-name">${best.model}</div></div>
+    <div class="card teal"><div class="label">AUROC חציוני</div><div class="value">${dec(median(rows.map(r=>r.aurocN)))}</div><div class="sub">בין 120 התצורות</div></div>
+    <div class="card purple-card"><div class="label">משפחות אלגוריתם</div><div class="value">${families}</div><div class="sub">ב־120 התוצאות</div></div>
+    <div class="card amber-card"><div class="label">רגישות מרבית בסף 0.50</div><div class="value">${pct(maxSens.sensitivityN)}</div><div class="sub model-name">${maxSens.model}</div></div>`;
+  el('summaryCards').hidden=false;
+  const top=[...rows].sort((a,b)=>b.aurocN-a.aurocN).slice(0,10);const min=Math.min(...top.map(r=>r.aurocN));
+  el('topBars').innerHTML='<h3>עשרת המודלים המובילים לפי AUROC</h3>'+top.map(r=>{const width=55+45*((r.aurocN-min)/Math.max(.0001,1-min));return `<div class="bar-row"><div class="bar-label" title="${r.model}">${r.model}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,width)}%"></div></div><div class="bar-value">${dec(r.aurocN)}</div></div>`}).join('');
+  el('topBars').hidden=false;
+}
+function renderTable(baseRows){
+  const q=el('searchInput').value.trim().toLowerCase(),fam=el('familySelect').value,sort=el('sortSelect').value;
+  let rows=baseRows.filter(r=>(fam==='all'||r.family===fam)&&(!q||r.model.toLowerCase().includes(q)));
+  const sorters={rank:(a,b)=>a.rankN-b.rankN,auroc:(a,b)=>b.aurocN-a.aurocN,auprc:(a,b)=>b.auprcN-a.auprcN,sensitivity:(a,b)=>b.sensitivityN-a.sensitivityN,specificity:(a,b)=>b.specificityN-a.specificityN,f2:(a,b)=>b.f2N-a.f2N};
+  rows=[...rows].sort(sorters[sort]||sorters.rank);
+  el('resultsBody').innerHTML=rows.map((r,i)=>`<tr class="${i===0&&sort!=='rank'?'best':''}"><td class="rank">${r.rankN}</td><td class="model-name">${r.model}</td><td><span class="family">${r.family}</span></td><td>${dec(r.aurocN)}</td><td>${dec(r.auprcN)}</td><td>${dec(r.brierN)}</td><td>${pct(r.accuracyN)}</td><td>${pct(r.sensitivityN)}</td><td>${pct(r.specificityN)}</td><td>${pct(r.ppvN)}</td><td>${pct(r.npvN)}</td><td>${pct(r.f1N)}</td><td>${pct(r.f2N)}</td><td>${pct(r.balancedN)}</td><td>${r.tpN}</td><td>${r.fpN}</td><td>${r.fnN}</td><td>${r.tnN}</td><td>${dec(r.secondsN,2)}</td></tr>`).join('');
+  el('rowCount').textContent=`מוצגות ${rows.length} מתוך ${baseRows.length} תצורות מודל.`;el('resultsWrap').hidden=false;
+}
+async function refresh(){
+  el('loading').style.display='block';el('error').style.display='none';el('resultsWrap').hidden=true;el('summaryCards').hidden=true;el('topBars').hidden=true;
+  try{const rows=await loadDataset(el('datasetSelect').value);populateFamilies(rows);renderSummary(rows);renderTable(rows);el('loading').style.display='none';window.currentRows=rows;}
+  catch(err){el('loading').style.display='none';el('error').textContent='שגיאה בטעינת התוצאות: '+err.message+' ניתן לפתוח את קובצי המקור דרך הקישורים שמתחת לטבלה.';el('error').style.display='block';}
+}
+el('datasetSelect').addEventListener('change',()=>{el('familySelect').value='all';refresh();});
+el('familySelect').addEventListener('change',()=>renderTable(window.currentRows||[]));el('sortSelect').addEventListener('change',()=>renderTable(window.currentRows||[]));el('searchInput').addEventListener('input',()=>renderTable(window.currentRows||[]));
+el('resetButton').addEventListener('click',()=>{el('familySelect').value='all';el('sortSelect').value='rank';el('searchInput').value='';renderTable(window.currentRows||[]);});
+refresh();
+</script>
+</body>
+</html>
