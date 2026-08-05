@@ -47,15 +47,32 @@ function requireWasm() {
   return wasm;
 }
 
-async function calculateMetrics(payload) {
+function metricsFromCounts(tpValue, tnValue, fpValue, fnValue) {
   const module = requireWasm();
   const { memory, metrics_from_counts: fn } = module.instance.exports;
   const outputOffset = 1024;
-  fn(Math.trunc(safeNumber(payload.tp)), Math.trunc(safeNumber(payload.tn)), Math.trunc(safeNumber(payload.fp)), Math.trunc(safeNumber(payload.fn)), outputOffset);
+  const tp = Math.trunc(safeNumber(tpValue));
+  const tn = Math.trunc(safeNumber(tnValue));
+  const fp = Math.trunc(safeNumber(fpValue));
+  const falseNegative = Math.trunc(safeNumber(fnValue));
+  fn(tp, tn, fp, falseNegative, outputOffset);
   const values = Array.from(new Float64Array(memory.buffer, outputOffset, 8));
+  return {
+    sensitivity: values[0],
+    specificity: values[1],
+    ppv: values[2],
+    npv: values[3],
+    accuracy: values[4],
+    f1: values[5],
+    f2: values[6],
+    balanced_accuracy: values[7]
+  };
+}
+
+async function calculateMetrics(payload) {
+  const module = requireWasm();
   const result = {
-    sensitivity: values[0], specificity: values[1], ppv: values[2], npv: values[3],
-    accuracy: values[4], f1: values[5], f2: values[6], balanced_accuracy: values[7],
+    ...metricsFromCounts(payload.tp, payload.tn, payload.fp, payload.fn),
     wasm_sha256: module.hash
   };
   result.digest = await digestResult({ task_id: payload.task_id || null, ...result });
@@ -95,6 +112,95 @@ async function calculateCrosstab(payload) {
   return { pearson_chi_square: out[0], p_approx_df1: out[1], phi: out[2], odds_ratio: out[3], relative_risk: out[4], yates_chi_square: out[5], wasm_sha256: module.hash };
 }
 
+function finiteOrNull(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function normalizedWeights(input) {
+  const source = input && typeof input === 'object' ? input : {};
+  const weights = {
+    auroc: Math.max(0, safeNumber(source.auroc || 0.35)),
+    auprc: Math.max(0, safeNumber(source.auprc || 0.25)),
+    f2: Math.max(0, safeNumber(source.f2 || 0.25)),
+    specificity: Math.max(0, safeNumber(source.specificity || 0.15))
+  };
+  const total = Object.values(weights).reduce((sum, value) => sum + value, 0) || 1;
+  for (const key of Object.keys(weights)) weights[key] /= total;
+  return weights;
+}
+
+function objectiveScore(row, metrics, objective, weights) {
+  const auroc = finiteOrNull(row.auroc);
+  const auprc = finiteOrNull(row.auprc);
+  if (objective === 'auroc') return auroc;
+  if (objective === 'auprc') return auprc;
+  if (objective === 'f2') return metrics.f2;
+  if (objective === 'balanced_accuracy') return metrics.balanced_accuracy;
+  if (objective === 'sensitivity') return metrics.sensitivity;
+  if (objective === 'specificity') return metrics.specificity;
+  if (auroc === null || auprc === null) return null;
+  return weights.auroc * auroc + weights.auprc * auprc + weights.f2 * metrics.f2 + weights.specificity * metrics.specificity;
+}
+
+async function rankModels(payload) {
+  const module = requireWasm();
+  const rows = Array.isArray(payload.rows) ? payload.rows : [];
+  const objective = String(payload.objective || 'composite');
+  const minSensitivity = Math.min(1, Math.max(0, safeNumber(payload.min_sensitivity)));
+  const minSpecificity = Math.min(1, Math.max(0, safeNumber(payload.min_specificity)));
+  const maxBrierInput = finiteOrNull(payload.max_brier);
+  const maxBrier = maxBrierInput === null || maxBrierInput <= 0 ? Infinity : maxBrierInput;
+  const topK = Math.min(120, Math.max(1, Math.trunc(safeNumber(payload.top_k) || 20)));
+  const weights = normalizedWeights(payload.weights);
+  const ranked = [];
+  let processed = 0;
+  let eligible = 0;
+
+  for (const row of rows) {
+    if (!row || (row.status && row.status !== 'ok')) continue;
+    const tp = Math.trunc(safeNumber(row.tp));
+    const tn = Math.trunc(safeNumber(row.tn));
+    const fp = Math.trunc(safeNumber(row.fp));
+    const falseNegative = Math.trunc(safeNumber(row.fn));
+    if (tp + tn + fp + falseNegative <= 0) continue;
+    processed += 1;
+    const metrics = metricsFromCounts(tp, tn, fp, falseNegative);
+    const brier = finiteOrNull(row.brier_score);
+    if (metrics.sensitivity + 1e-12 < minSensitivity) continue;
+    if (metrics.specificity + 1e-12 < minSpecificity) continue;
+    if (brier !== null && brier > maxBrier) continue;
+    const score = objectiveScore(row, metrics, objective, weights);
+    if (score === null || !Number.isFinite(score)) continue;
+    eligible += 1;
+    ranked.push({
+      model: String(row.model || 'unknown'),
+      family: String(row.family || 'Other'),
+      score,
+      auroc: finiteOrNull(row.auroc),
+      auprc: finiteOrNull(row.auprc),
+      brier_score: brier,
+      threshold: finiteOrNull(row.threshold),
+      seconds: finiteOrNull(row.seconds),
+      tp, tn, fp, fn: falseNegative,
+      ...metrics
+    });
+  }
+
+  ranked.sort((a, b) => b.score - a.score || (b.auroc || 0) - (a.auroc || 0) || a.model.localeCompare(b.model));
+  const result = {
+    processed,
+    eligible,
+    objective,
+    constraints: { min_sensitivity: minSensitivity, min_specificity: minSpecificity, max_brier: Number.isFinite(maxBrier) ? maxBrier : null },
+    weights,
+    results: ranked.slice(0, topK),
+    wasm_sha256: module.hash
+  };
+  result.digest = await digestResult(result);
+  return result;
+}
+
 self.onmessage = async event => {
   const message = event.data || {};
   try {
@@ -108,6 +214,7 @@ self.onmessage = async event => {
     else if (message.type === 'coverage') result = await calculateCoverage(message.payload || {});
     else if (message.type === 'descriptives') result = await calculateDescriptives(message.payload || {});
     else if (message.type === 'crosstab') result = await calculateCrosstab(message.payload || {});
+    else if (message.type === 'rank_models') result = await rankModels(message.payload || {});
     else throw new Error('Unsupported task type');
     self.postMessage({ id: message.id, ok: true, type: message.type, result });
   } catch (error) {
