@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this software in your research, please cite it as below."
+title: "PenuX-Psychosis-EarlyDetection"
+version: 0.0.1
+authors:
+  - family-names: "Stern"
+    given-names: "Netanel"
+date-released: "2026-07-09"
+url: "https://github.com/netanelcyber/penux"
+abstract: >
+  Research-in-progress exploring early prediction of a first psychotic episode
+  from routine laboratory tests. No dataset is bundled; see
+  docs/dataset_landscape.md for the current data-access assessment. For
+  research use only -- not a diagnostic or screening tool.
+license: MIT

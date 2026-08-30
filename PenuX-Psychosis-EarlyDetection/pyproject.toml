@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "penux-psychosis"
+version = "0.0.1"
+description = "Research-in-progress: early prediction of a first psychotic episode from routine laboratory tests. Not a diagnostic tool."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Netanel Stern" }]
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+]
+
+[project.optional-dependencies]
+xgboost = ["xgboost"]
+lightgbm = ["lightgbm"]
+catboost = ["catboost"]
+torch = ["torch"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
