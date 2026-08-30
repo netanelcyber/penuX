@@ -1,0 +1,424 @@
+openapi: 3.0.0
+info:
+  title: PenuX LDAP REST API
+  description: Complete REST API for LDAP directory operations
+  version: 1.0.0
+  contact:
+    name: PenuX Support
+    url: https://penux.uk
+
+servers:
+  - url: https://api.ldap.penux.uk
+    description: Production server
+  - url: http://localhost:3000
+    description: Local development server
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: HTTP Basic Authentication (Base64 encoded DN:password)
+
+  schemas:
+    User:
+      type: object
+      properties:
+        dn:
+          type: string
+          example: uid=jdoe,ou=users,dc=penux,dc=uk
+        uid:
+          type: string
+          example: jdoe
+        cn:
+          type: string
+          example: John Doe
+        givenName:
+          type: string
+          example: John
+        sn:
+          type: string
+          example: Doe
+        mail:
+          type: string
+          example: john@example.com
+        title:
+          type: string
+          example: Software Engineer
+        department:
+          type: string
+          example: Engineering
+        accountStatus:
+          type: string
+          example: active
+
+    Group:
+      type: object
+      properties:
+        dn:
+          type: string
+          example: cn=developers,ou=groups,dc=penux,dc=uk
+        cn:
+          type: string
+          example: developers
+        description:
+          type: string
+          example: Development team members
+        members:
+          type: array
+          items:
+            type: string
+          example:
+            - uid=jdoe,ou=users,dc=penux,dc=uk
+            - uid=jsmith,ou=users,dc=penux,dc=uk
+        memberCount:
+          type: integer
+          example: 2
+
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          type: string
+        message:
+          type: string
+
+    UsersResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            count:
+              type: integer
+            users:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+
+    GroupsResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            count:
+              type: integer
+            groups:
+              type: array
+              items:
+                $ref: '#/components/schemas/Group'
+
+    StatsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        stats:
+          type: object
+          properties:
+            totalUsers:
+              type: integer
+            totalGroups:
+              type: integer
+            baseDN:
+              type: string
+            timestamp:
+              type: string
+              format: date-time
+
+paths:
+  /api/health:
+    get:
+      tags:
+        - System
+      summary: Health check
+      description: Check if the API service is running
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: PenuX LDAP API
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /api/users:
+    get:
+      tags:
+        - Users
+      summary: List all users
+      description: Retrieve all LDAP users from the directory
+      operationId: listUsers
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersResponse'
+        '401':
+          description: Authentication required or failed
+        '500':
+          description: Server error
+
+  /api/users/{uid}:
+    get:
+      tags:
+        - Users
+      summary: Get specific user
+      description: Retrieve information about a specific user by UID
+      operationId: getUser
+      security:
+        - basicAuth: []
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          description: User ID (uid attribute)
+          schema:
+            type: string
+          example: jdoe
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Authentication required
+        '404':
+          description: User not found
+        '500':
+          description: Server error
+
+  /api/groups:
+    get:
+      tags:
+        - Groups
+      summary: List all groups
+      description: Retrieve all LDAP groups from the directory
+      operationId: listGroups
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved groups
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupsResponse'
+        '401':
+          description: Authentication required
+        '500':
+          description: Server error
+
+  /api/groups/{cn}:
+    get:
+      tags:
+        - Groups
+      summary: Get specific group
+      description: Retrieve information about a specific group by CN
+      operationId: getGroup
+      security:
+        - basicAuth: []
+      parameters:
+        - name: cn
+          in: path
+          required: true
+          description: Common Name of the group
+          schema:
+            type: string
+          example: developers
+      responses:
+        '200':
+          description: Group found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  group:
+                    $ref: '#/components/schemas/Group'
+        '401':
+          description: Authentication required
+        '404':
+          description: Group not found
+        '500':
+          description: Server error
+
+  /api/search:
+    get:
+      tags:
+        - Search
+      summary: Search directory
+      description: Search for users and groups in the LDAP directory
+      operationId: search
+      security:
+        - basicAuth: []
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: Search query term
+          schema:
+            type: string
+          example: john
+      responses:
+        '200':
+          description: Search completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      type: object
+        '400':
+          description: Query parameter required
+        '401':
+          description: Authentication required
+        '500':
+          description: Server error
+
+  /api/verify:
+    post:
+      tags:
+        - Authentication
+      summary: Verify user credentials
+      description: Verify that a DN and password combination is valid
+      operationId: verifyCredentials
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - dn
+                - password
+              properties:
+                dn:
+                  type: string
+                  example: cn=admin,dc=penux,dc=uk
+                password:
+                  type: string
+                  example: secretpassword
+      responses:
+        '200':
+          description: Credentials verified
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '400':
+          description: DN and password required
+        '401':
+          description: Invalid credentials
+        '500':
+          description: Server error
+
+  /api/ous:
+    get:
+      tags:
+        - Organization
+      summary: List organizational units
+      description: Retrieve all organizational units from the LDAP directory
+      operationId: listOUs
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved OUs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  ous:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        dn:
+                          type: string
+                        ou:
+                          type: string
+                        description:
+                          type: string
+        '401':
+          description: Authentication required
+        '500':
+          description: Server error
+
+  /api/stats:
+    get:
+      tags:
+        - Statistics
+      summary: Get directory statistics
+      description: Retrieve statistics about the LDAP directory
+      operationId: getStats
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Statistics retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsResponse'
+        '401':
+          description: Authentication required
+        '500':
+          description: Server error
+
+tags:
+  - name: System
+    description: System health and information
+  - name: Users
+    description: User management operations
+  - name: Groups
+    description: Group management operations
+  - name: Search
+    description: Search operations
+  - name: Authentication
+    description: Authentication operations
+  - name: Organization
+    description: Organization unit operations
+  - name: Statistics
+    description: Statistics and analytics

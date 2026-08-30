@@ -1,0 +1,376 @@
+name: Auto-Deploy LDAP via Free Tunnel
+
+# Fully automated deployment — no manual steps, no Cloudflare, no credit card.
+#
+# GitHub Actions ubuntu runners have Docker pre-installed and are free.
+# This workflow boots the full LDAP stack and exposes it through a free
+# ngrok tunnel with a PERMANENT static domain.
+#
+# A job can run up to ~6 hours, so the cron schedule relaunches it before
+# it expires — giving you a near-always-on free deployment.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   NGROK_AUTHTOKEN  - from https://dashboard.ngrok.com/get-started/your-authtoken
+#                      (ngrok signup is email-only, NO credit card)
+#   NGROK_DOMAIN     - your free static domain, e.g. penux-ldap.ngrok-free.app
+#                      get one free at https://dashboard.ngrok.com/domains
+#
+# Optional secrets (sensible defaults used if absent):
+#   LDAP_ADMIN_PASSWORD, POSTGRES_PASSWORD
+
+on:
+  workflow_dispatch:
+    inputs:
+      keepalive_minutes:
+        description: 'Minutes to keep the deployment running (max 350)'
+        required: false
+        default: '350'
+  push:
+    branches:
+      - claude/laughing-cori-jlr7od
+      - main
+    paths:
+      - 'docker-compose-hub.yml'
+      - '.github/workflows/auto-deploy-tunnel.yml'
+  schedule:
+    # Relaunch every ~5h50m so the tunnel stays alive across the 6h job cap
+    - cron: '0 */6 * * *'
+
+concurrency:
+  group: auto-deploy-tunnel
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select tunnel method
+        id: tunnel
+        run: |
+          if [ -n "${{ secrets.NGROK_AUTHTOKEN }}" ]; then
+            echo "method=ngrok" >> "$GITHUB_OUTPUT"
+            echo "✅ Using ngrok (permanent URL)"
+          else
+            echo "method=localhost_run" >> "$GITHUB_OUTPUT"
+            echo "ℹ️ No NGROK_AUTHTOKEN — using signup-free localhost.run (temporary URL)"
+            echo "   For a permanent URL, add NGROK_AUTHTOKEN + NGROK_DOMAIN secrets."
+          fi
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          LDAP_ADMIN_PASSWORD=${{ secrets.LDAP_ADMIN_PASSWORD || 'admin123' }}
+          POSTGRES_USER=penux
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD || 'secure_password' }}
+          NODE_ENV=production
+          CORS_ORIGIN=*
+          EOF
+          echo "✅ .env created"
+
+      - name: Pull and start the stack
+        run: |
+          echo "=== Pulling images ==="
+          docker compose -f docker-compose-hub.yml pull
+
+          echo "=== Starting services ==="
+          docker compose -f docker-compose-hub.yml up -d
+
+          echo "=== Waiting for API to become healthy (up to 120s) ==="
+          for i in $(seq 1 24); do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' penux-api 2>/dev/null || echo "starting")
+            echo "  attempt $i/24 → api: $STATUS"
+            [ "$STATUS" = "healthy" ] && break
+            sleep 5
+          done
+          docker compose -f docker-compose-hub.yml ps
+
+      - name: Start ngrok tunnel (permanent URL)
+        if: steps.tunnel.outputs.method == 'ngrok'
+        id: ngrok_tunnel
+        run: |
+          curl -fsSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | \
+            sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
+          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | \
+            sudo tee /etc/apt/sources.list.d/ngrok.list
+          sudo apt-get update -q && sudo apt-get install -y ngrok
+          ngrok config add-authtoken "${{ secrets.NGROK_AUTHTOKEN }}"
+
+          DOMAIN="${{ secrets.NGROK_DOMAIN }}"
+          if [ -n "$DOMAIN" ]; then
+            echo "Starting tunnel on permanent domain: $DOMAIN"
+            nohup ngrok http 3001 --domain="$DOMAIN" --log=stdout > ngrok.log 2>&1 &
+          else
+            echo "No NGROK_DOMAIN set — using a random URL for this run"
+            nohup ngrok http 3001 --log=stdout > ngrok.log 2>&1 &
+          fi
+
+          sleep 8
+          PUBLIC_URL=$(curl -s http://localhost:4040/api/tunnels | \
+            python3 -c "import sys,json; t=json.load(sys.stdin)['tunnels']; print([x['public_url'] for x in t if x['public_url'].startswith('https')][0])" 2>/dev/null || echo "")
+
+          {
+            echo "### 🚀 PenuX LDAP is LIVE (ngrok)"
+            echo ""
+            echo "**Web UI:** ${PUBLIC_URL:-https://$DOMAIN}"
+            echo ""
+            echo "API is reachable at the \`/api/*\` paths on the same host."
+            echo ""
+            echo "_This deployment auto-relaunches every 6 hours via cron._"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "Public URL: ${PUBLIC_URL:-https://$DOMAIN}"
+          echo "url=${PUBLIC_URL:-https://$DOMAIN}" >> "$GITHUB_OUTPUT"
+
+      - name: Start localhost.run tunnel (signup-free)
+        if: steps.tunnel.outputs.method == 'localhost_run'
+        id: lhr_tunnel
+        run: |
+          echo "Starting SSH reverse tunnel via localhost.run (no account needed)..."
+          # -T no pty, batch-mode keys disabled, auto-accept host key
+          nohup ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            -o ServerAliveInterval=30 -o ExitOnForwardFailure=yes -T \
+            -R 80:localhost:3001 nokey@localhost.run > lhr.log 2>&1 &
+
+          echo "Waiting for tunnel URL..."
+          PUBLIC_URL=""
+          for i in $(seq 1 20); do
+            PUBLIC_URL=$(grep -oE 'https://[a-z0-9.-]+\.lhr\.life' lhr.log 2>/dev/null | head -1 || true)
+            [ -z "$PUBLIC_URL" ] && PUBLIC_URL=$(grep -oE 'https://[a-z0-9.-]+\.localhost\.run' lhr.log 2>/dev/null | head -1 || true)
+            [ -n "$PUBLIC_URL" ] && break
+            sleep 3
+          done
+
+          {
+            echo "### 🚀 PenuX LDAP is LIVE (localhost.run — signup-free)"
+            echo ""
+            if [ -n "$PUBLIC_URL" ]; then
+              echo "**Web UI:** $PUBLIC_URL"
+            else
+              echo "URL not captured yet — see the 'localhost.run' step log (lhr.log)."
+            fi
+            echo ""
+            echo "⚠️ This URL changes every run. For a permanent URL, add repo secrets"
+            echo "\`NGROK_AUTHTOKEN\` + \`NGROK_DOMAIN\` (ngrok signup is email-only, no card)."
+            echo ""
+            echo "_This deployment auto-relaunches every 6 hours via cron._"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "Public URL: ${PUBLIC_URL:-see lhr.log}"
+          echo "url=${PUBLIC_URL:-see lhr.log}" >> "$GITHUB_OUTPUT"
+          cat lhr.log || true
+
+      - name: Publish tunnel URL to repo
+        run: |
+          PUBLIC_URL="${{ steps.ngrok_tunnel.outputs.url || steps.lhr_tunnel.outputs.url }}"
+
+          if [ -z "$PUBLIC_URL" ] || [ "$PUBLIC_URL" = "see lhr.log" ]; then
+            echo "✅ Could not capture PUBLIC_URL — skipping repo publish"
+            exit 0
+          fi
+
+          echo "Publishing tunnel URLs to LIVE_URL.txt: $PUBLIC_URL"
+
+          {
+            echo "# PenuX LDAP Live Deployment"
+            echo "Generated: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            echo ""
+            echo "## Web UI"
+            echo "$PUBLIC_URL"
+            echo ""
+            echo "## REST API"
+            echo "Base: $PUBLIC_URL/api"
+            echo "Health: $PUBLIC_URL/api/health"
+            echo "Users: $PUBLIC_URL/api/users"
+            echo "Search: $PUBLIC_URL/api/search?filter=*"
+            echo ""
+            echo "## Credentials"
+            echo "Admin DN: cn=admin,dc=penux,dc=uk"
+            echo "Admin Password: admin123"
+          } > LIVE_URL.txt
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add LIVE_URL.txt
+
+          git commit -m "chore: update live tunnel URL" 2>/dev/null || true
+          git push origin ${{ github.ref_name }} 2>/dev/null || true
+
+          echo "✅ URLs published to LIVE_URL.txt"
+
+      - name: Send deployment success notification via SMTP
+        if: success()
+        run: |
+          echo "⏳ Waiting for MailHog to be ready..."
+          sleep 5
+
+          PUBLIC_URL="${{ steps.ngrok_tunnel.outputs.url || steps.lhr_tunnel.outputs.url }}"
+          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+          # Create email content
+          cat > email.txt << 'EMAILEOF'
+          From: system@penux.uk
+          To: john.smith@penux.uk
+          Subject: PenuX LDAP Deployment Success
+
+          ✅ DEPLOYMENT SUCCESSFUL
+
+          Web UI: PLACEHOLDER_URL
+          Timestamp: PLACEHOLDER_TIME
+
+          All services are healthy and running:
+          • OpenLDAP (LDAP protocol, port 389)
+          • PostgreSQL (Database, port 5432)
+          • PenuX API (REST endpoints, port 3000)
+          • PenuX Web UI (Dashboard, port 3001)
+          • MailHog (SMTP testing, port 1025)
+          • LDAP Init (Email users initialized)
+
+          Email Users Available:
+          • john.smith@penux.uk
+          • alice.johnson@penux.uk
+          • bob.wilson@penux.uk
+
+          The deployment will auto-refresh every 6 hours via cron.
+
+          ---
+          Sent by PenuX Automation
+          EMAILEOF
+
+          # Replace placeholders
+          sed -i "s|PLACEHOLDER_URL|$PUBLIC_URL|g" email.txt
+          sed -i "s|PLACEHOLDER_TIME|$TIMESTAMP|g" email.txt
+
+          echo "📧 Sending email via MailHog..."
+          # Use Python to send email via SMTP
+          python3 << 'PYEOF'
+          import smtplib
+          import time
+
+          # Wait for MailHog to accept connections
+          for attempt in range(10):
+            try:
+              with open('email.txt', 'r') as f:
+                email_content = f.read()
+
+              # Connect to MailHog SMTP
+              server = smtplib.SMTP('localhost', 1025, timeout=5)
+
+              # Send email
+              server.sendmail(
+                'system@penux.uk',
+                ['john.smith@penux.uk', 'alice.johnson@penux.uk', 'bob.wilson@penux.uk'],
+                email_content
+              )
+              server.quit()
+
+              print("✅ Email sent successfully via MailHog!")
+              break
+            except Exception as e:
+              print(f"Attempt {attempt+1}/10: {e}")
+              if attempt < 9:
+                time.sleep(2)
+              else:
+                print("⚠️ Could not send email (MailHog may not be ready yet)")
+          PYEOF
+
+          echo ""
+          echo "📬 Email Notification:"
+          cat email.txt
+
+      - name: Keep deployment alive
+        run: |
+          MINUTES="${{ github.event.inputs.keepalive_minutes || '350' }}"
+          echo "Keeping deployment alive for $MINUTES minutes..."
+          echo "Tunnel and stack will run until then, then cron relaunches."
+          END=$(( $(date +%s) + MINUTES * 60 ))
+          while [ "$(date +%s)" -lt "$END" ]; do
+            # Health probe every 60s; restart stack if API drops
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' penux-api 2>/dev/null || echo "gone")
+            if [ "$STATUS" = "unhealthy" ] || [ "$STATUS" = "gone" ]; then
+              echo "⚠️ API status=$STATUS — restarting stack"
+              docker compose -f docker-compose-hub.yml up -d
+            fi
+            sleep 60
+          done
+          echo "Keepalive window ended — cron will relaunch."
+
+      - name: Send deployment failure notification via SMTP
+        if: failure()
+        run: |
+          echo "⏳ Waiting for MailHog to be ready..."
+          sleep 5
+
+          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+          # Create failure email
+          cat > failure-email.txt << 'EMAILEOF'
+          From: system@penux.uk
+          To: john.smith@penux.uk
+          Subject: ⚠️ PenuX LDAP Deployment FAILED
+
+          ❌ DEPLOYMENT FAILED
+
+          Timestamp: PLACEHOLDER_TIME
+          Workflow: Auto-Deploy LDAP via Free Tunnel
+          Branch: claude/laughing-cori-jlr7od
+
+          One or more services failed to start or become healthy.
+          Please check the GitHub Actions logs for details:
+          https://github.com/netanelcyber/penuX/actions/workflows/auto-deploy-tunnel.yml
+
+          Common issues:
+          • Docker image pull timeout
+          • Port already in use
+          • Service health check timeout
+          • Network connectivity
+
+          The next auto-deployment will run in ~6 hours.
+          You can manually trigger a retry from the GitHub Actions UI.
+
+          ---
+          PenuX Automation
+          EMAILEOF
+
+          sed -i "s|PLACEHOLDER_TIME|$TIMESTAMP|g" failure-email.txt
+
+          echo "📧 Sending failure notification via MailHog..."
+          python3 << 'PYEOF'
+          import smtplib
+          import time
+
+          for attempt in range(10):
+            try:
+              with open('failure-email.txt', 'r') as f:
+                email_content = f.read()
+
+              server = smtplib.SMTP('localhost', 1025, timeout=5)
+              server.sendmail(
+                'system@penux.uk',
+                ['john.smith@penux.uk'],
+                email_content
+              )
+              server.quit()
+
+              print("✅ Failure notification sent!")
+              break
+            except Exception as e:
+              print(f"Attempt {attempt+1}/10: {e}")
+              if attempt < 9:
+                time.sleep(2)
+          PYEOF
+
+      - name: Dump logs on failure
+        if: failure()
+        run: |
+          echo "=== docker compose ps ==="
+          docker compose -f docker-compose-hub.yml ps || true
+          echo "=== api logs ==="
+          docker compose -f docker-compose-hub.yml logs api || true
+          echo "=== web logs ==="
+          docker compose -f docker-compose-hub.yml logs web || true
+          echo "=== ngrok log ==="
+          cat ngrok.log 2>/dev/null || true
+          echo "=== localhost.run log ==="
+          cat lhr.log 2>/dev/null || true

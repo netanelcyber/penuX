@@ -1,0 +1,100 @@
+version: 1
+
+# Domain entry
+dn: dc=penux,dc=uk
+objectClass: dcObject
+objectClass: organization
+dc: penux
+o: PenuX Organization
+
+# Organizations Units
+dn: ou=users,dc=penux,dc=uk
+objectClass: organizationalUnit
+ou: users
+description: User accounts
+
+dn: ou=groups,dc=penux,dc=uk
+objectClass: organizationalUnit
+ou: groups
+description: User groups
+
+dn: ou=applications,dc=penux,dc=uk
+objectClass: organizationalUnit
+ou: applications
+description: Application accounts
+
+# Groups
+dn: cn=penux-admins,ou=groups,dc=penux,dc=uk
+objectClass: groupOfNames
+cn: penux-admins
+description: PenuX Administrators
+member: cn=admin,ou=users,dc=penux,dc=uk
+
+dn: cn=penux-users,ou=groups,dc=penux,dc=uk
+objectClass: groupOfNames
+cn: penux-users
+description: PenuX Standard Users
+member: cn=admin,ou=users,dc=penux,dc=uk
+
+dn: cn=penux-developers,ou=groups,dc=penux,dc=uk
+objectClass: groupOfNames
+cn: penux-developers
+description: PenuX Developers
+member: cn=admin,ou=users,dc=penux,dc=uk
+
+# Initial admin user (password: admin123)
+dn: cn=admin,ou=users,dc=penux,dc=uk
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+cn: admin
+sn: Administrator
+givenName: Admin
+uid: admin
+mail: admin@penux.uk
+userPassword: {SSHA}yVXrPlgCH2LKoHJyfYP1y3v3OWqtKMyS
+accountStatus: active
+description: LDAP Administrator
+title: System Administrator
+
+# Sample users
+dn: cn=john,ou=users,dc=penux,dc=uk
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+cn: john
+sn: Doe
+givenName: John
+uid: john
+mail: john@penux.uk
+userPassword: {SSHA}yVXrPlgCH2LKoHJyfYP1y3v3OWqtKMyS
+accountStatus: active
+description: Software Developer
+title: Developer
+department: Engineering
+
+dn: cn=jane,ou=users,dc=penux,dc=uk
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+cn: jane
+sn: Smith
+givenName: Jane
+uid: jane
+mail: jane@penux.uk
+userPassword: {SSHA}yVXrPlgCH2LKoHJyfYP1y3v3OWqtKMyS
+accountStatus: active
+description: DevOps Engineer
+title: DevOps Engineer
+department: Infrastructure
+
+# Service accounts
+dn: cn=app-service,ou=applications,dc=penux,dc=uk
+objectClass: inetOrgPerson
+objectClass: applicationProcess
+cn: app-service
+sn: Application
+uid: app-service
+mail: app-service@penux.uk
+userPassword: {SSHA}yVXrPlgCH2LKoHJyfYP1y3v3OWqtKMyS
+description: Service account for applications

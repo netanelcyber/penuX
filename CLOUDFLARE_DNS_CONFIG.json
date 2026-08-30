@@ -1,0 +1,327 @@
+{
+  "domain": "penux.uk",
+  "description": "Cloudflare DNS configuration for PenuX LDAP deployment",
+  "created_date": "2026-06-21",
+  "cloudflare_account": {
+    "email": "your-cloudflare-email@example.com",
+    "dashboard_url": "https://dash.cloudflare.com",
+    "plan": "Free"
+  },
+  "registrar_info": {
+    "example_registrars": [
+      "GoDaddy",
+      "Namecheap",
+      "Google Domains",
+      "Bluehost",
+      "HostGator"
+    ],
+    "nameserver_update_url": "Check your registrar's domain management panel"
+  },
+  "cloudflare_nameservers": {
+    "note": "Replace YOUR_ID with the nameservers provided by Cloudflare when you add the domain",
+    "ns1": "[YOUR_ID].ns.cloudflare.com",
+    "ns2": "[YOUR_ID].ns.cloudflare.com"
+  },
+  "dns_records": [
+    {
+      "type": "A",
+      "name": "@",
+      "content": "YOUR_PUBLIC_IP_ADDRESS",
+      "ttl": "Auto",
+      "proxy_status": "DNS only",
+      "priority": 1,
+      "notes": "Main domain root record. Replace with your public IP (e.g., 203.0.113.42)",
+      "example_ip": "203.0.113.42"
+    },
+    {
+      "type": "A",
+      "name": "www",
+      "content": "YOUR_PUBLIC_IP_ADDRESS",
+      "ttl": "Auto",
+      "proxy_status": "DNS only",
+      "priority": 2,
+      "notes": "WWW subdomain. Should point to same IP as root",
+      "example_ip": "203.0.113.42"
+    },
+    {
+      "type": "CNAME",
+      "name": "ldap",
+      "content": "yourusername.github.io",
+      "ttl": "Auto",
+      "proxy_status": "DNS only",
+      "priority": 3,
+      "critical": true,
+      "notes": "GitHub Pages LDAP directory. MUST be DNS only (not Proxied)",
+      "example": "john-doe.github.io",
+      "why_dns_only": "GitHub Pages requires DNS-only CNAME for custom domains"
+    },
+    {
+      "type": "CNAME",
+      "name": "api.ldap",
+      "content": "your-api.vercel.app",
+      "ttl": "Auto",
+      "proxy_status": "DNS only",
+      "priority": 4,
+      "critical": true,
+      "notes": "Vercel API backend. MUST be DNS only (not Proxied)",
+      "example": "penux-api.vercel.app",
+      "why_dns_only": "Vercel requires DNS-only CNAME for custom domains"
+    },
+    {
+      "type": "CNAME",
+      "name": "api",
+      "content": "your-api.vercel.app",
+      "ttl": "Auto",
+      "proxy_status": "DNS only",
+      "priority": 5,
+      "optional": true,
+      "notes": "Alternative API endpoint (optional). Allows api.penux.uk to work",
+      "example": "penux-api.vercel.app"
+    }
+  ],
+  "optional_dns_records": [
+    {
+      "type": "MX",
+      "name": "@",
+      "content": "mail.penux.uk",
+      "priority": 10,
+      "optional": true,
+      "notes": "Only add if you plan to use email. Replace with your mail server"
+    },
+    {
+      "type": "TXT",
+      "name": "@",
+      "content": "v=spf1 include:_spf.google.com ~all",
+      "optional": true,
+      "notes": "SPF record for email authentication (if using Google Workspace)"
+    }
+  ],
+  "ssl_tls_settings": {
+    "encryption_mode": {
+      "current": "Full",
+      "options": ["Off", "Flexible", "Full", "Full (strict)"],
+      "recommended": "Full",
+      "why": "Ensures secure connection from Cloudflare to origin"
+    },
+    "always_use_https": {
+      "current": true,
+      "recommended": true,
+      "why": "Forces all HTTP traffic to HTTPS"
+    },
+    "minimum_tls_version": {
+      "current": "TLS 1.2",
+      "options": ["TLS 1.0", "TLS 1.1", "TLS 1.2", "TLS 1.3"],
+      "recommended": "TLS 1.2",
+      "why": "Good balance between compatibility and security"
+    },
+    "http_strict_transport_security": {
+      "enabled": true,
+      "max_age": 31536000,
+      "include_subdomains": true,
+      "preload": false,
+      "notes": "Enforces HTTPS usage. Set to 1 year (31536000 seconds)"
+    }
+  },
+  "security_settings": {
+    "challenge_passage": "30 minutes",
+    "browser_integrity_check": true,
+    "hotlink_protection": true,
+    "ddos_protection_level": "High",
+    "security_level": "High",
+    "bot_management": {
+      "enabled": true,
+      "plan": "Free (basic)",
+      "notes": "Free plan includes basic bot detection"
+    }
+  },
+  "performance_settings": {
+    "caching": {
+      "cache_level": "Aggressive",
+      "browser_cache_ttl": "4 hours"
+    },
+    "compression": {
+      "brotli": true,
+      "gzip": true
+    },
+    "minification": {
+      "css": true,
+      "javascript": true,
+      "html": true
+    },
+    "image_optimization": {
+      "polish": "Lossless",
+      "webp": true,
+      "polish_all_images": false
+    }
+  },
+  "testing_commands": {
+    "windows_powershell": {
+      "test_nameservers": "nslookup -type=NS penux.uk",
+      "test_a_record": "nslookup penux.uk",
+      "test_ldap_cname": "nslookup ldap.penux.uk",
+      "test_api_cname": "nslookup api.ldap.penux.uk",
+      "test_https_ldap": "curl -I https://ldap.penux.uk",
+      "test_https_api": "curl -I https://api.ldap.penux.uk",
+      "flush_dns": "ipconfig /flushdns"
+    },
+    "linux_macos_bash": {
+      "test_nameservers": "dig penux.uk NS",
+      "test_a_record": "dig penux.uk A",
+      "test_ldap_cname": "dig ldap.penux.uk CNAME",
+      "test_api_cname": "dig api.ldap.penux.uk CNAME",
+      "test_https_ldap": "curl -I https://ldap.penux.uk",
+      "test_https_api": "curl -I https://api.ldap.penux.uk",
+      "test_certificate": "openssl s_client -connect ldap.penux.uk:443 -servername ldap.penux.uk",
+      "flush_dns_macos": "sudo dscacheutil -flushcache",
+      "flush_dns_linux": "sudo systemctl restart systemd-resolved"
+    }
+  },
+  "expected_test_results": {
+    "nameservers": {
+      "command": "nslookup -type=NS penux.uk",
+      "expected": "Shows Cloudflare nameservers",
+      "example": "[YOUR_ID].ns.cloudflare.com"
+    },
+    "a_record": {
+      "command": "nslookup penux.uk",
+      "expected": "Shows your public IP address",
+      "example": "203.0.113.42"
+    },
+    "ldap_cname": {
+      "command": "nslookup ldap.penux.uk",
+      "expected": "Shows GitHub Pages domain",
+      "example": "yourusername.github.io"
+    },
+    "api_cname": {
+      "command": "nslookup api.ldap.penux.uk",
+      "expected": "Shows Vercel domain",
+      "example": "your-api.vercel.app"
+    },
+    "https_certificate": {
+      "command": "curl -I https://ldap.penux.uk",
+      "expected": "HTTP/2 200 or 301 redirect",
+      "should_show": "secure connection indicator (🔒)"
+    }
+  },
+  "propagation_timeline": {
+    "nameserver_change": {
+      "time": "15-60 minutes",
+      "notes": "Time for registrar to process nameserver change"
+    },
+    "dns_record_updates": {
+      "time": "5-30 minutes",
+      "notes": "Time for DNS changes in Cloudflare to propagate globally"
+    },
+    "github_pages_certificate": {
+      "time": "5-24 hours",
+      "notes": "GitHub automatically issues SSL/TLS certificate"
+    },
+    "vercel_domain_activation": {
+      "time": "5-10 minutes",
+      "notes": "Vercel activates custom domain after DNS verification"
+    }
+  },
+  "troubleshooting_reference": {
+    "dns_not_resolving": {
+      "cause": "Nameserver change not propagated",
+      "solution": "Wait 15-60 minutes and flush local DNS cache"
+    },
+    "cname_conflict_error": {
+      "cause": "A record exists for same name as CNAME",
+      "solution": "Delete conflicting A record, keep CNAME only"
+    },
+    "github_pages_certificate_pending": {
+      "cause": "GitHub hasn't issued certificate yet",
+      "solution": "Wait up to 24 hours, check GitHub Pages settings"
+    },
+    "vercel_domain_404": {
+      "cause": "Vercel hasn't recognized domain yet",
+      "solution": "Wait 5 minutes and reload, or redeploy with 'vercel --prod'"
+    },
+    "too_many_redirects": {
+      "cause": "Both Cloudflare and GitHub have redirects",
+      "solution": "Disable one redirect, usually in GitHub Pages settings"
+    },
+    "proxy_status_proxied_instead_of_dns_only": {
+      "cause": "CNAME accidentally proxied through Cloudflare",
+      "solution": "Click cloud icon to change from Proxied to DNS only"
+    }
+  },
+  "external_tools": {
+    "dns_propagation_checkers": [
+      {
+        "name": "DNSChecker",
+        "url": "https://dnschecker.org/",
+        "purpose": "Check DNS propagation globally"
+      },
+      {
+        "name": "What's My DNS",
+        "url": "https://whatsmydns.net/",
+        "purpose": "Detailed global propagation map"
+      },
+      {
+        "name": "MXToolbox",
+        "url": "https://mxtoolbox.com/",
+        "purpose": "DNS record lookup and testing"
+      }
+    ],
+    "certificate_checkers": [
+      {
+        "name": "SSL Labs",
+        "url": "https://www.ssllabs.com/ssltest/",
+        "purpose": "Check SSL/TLS certificate validity"
+      },
+      {
+        "name": "Let's Encrypt",
+        "url": "https://crt.sh/",
+        "purpose": "View certificate details"
+      }
+    ]
+  },
+  "implementation_checklist": [
+    "Create Cloudflare account",
+    "Add penux.uk to Cloudflare",
+    "Note the nameservers assigned",
+    "Update nameservers at domain registrar",
+    "Wait for nameserver propagation (15-60 min)",
+    "Add A record for @ (penux.uk)",
+    "Add A record for www",
+    "Add CNAME for ldap (set to DNS only)",
+    "Add CNAME for api.ldap (set to DNS only)",
+    "Verify all DNS records with nslookup/dig",
+    "Configure SSL/TLS to Full",
+    "Enable Always Use HTTPS",
+    "Set Minimum TLS Version to 1.2",
+    "Set Security Level to High",
+    "Enable Brotli and Gzip compression",
+    "Enable minification (CSS, JS, HTML)",
+    "Configure GitHub Pages custom domain",
+    "Configure Vercel custom domain",
+    "Test https://ldap.penux.uk loads",
+    "Test https://api.ldap.penux.uk/api/health returns JSON",
+    "Verify secure connection indicator (🔒) in browser"
+  ],
+  "notes": {
+    "important": [
+      "GitHub Pages and Vercel CNAME records MUST be set to DNS only",
+      "Do NOT proxy GitHub Pages or Vercel CNAMEs through Cloudflare",
+      "Replace YOUR_PUBLIC_IP_ADDRESS with your actual public IP",
+      "Replace yourusername with your actual GitHub username",
+      "Replace your-api.vercel.app with your actual Vercel domain"
+    ],
+    "tips": [
+      "Use Auto for TTL - Cloudflare optimizes automatically",
+      "Monitor Cloudflare Analytics for traffic insights",
+      "Use Cloudflare email forwarding (free) if needed",
+      "Enable HTTP to HTTPS redirect for better SEO",
+      "Consider Page Rules for advanced caching control"
+    ],
+    "security_recommendations": [
+      "Set Security Level to High for protection",
+      "Enable Always Use HTTPS",
+      "Use TLS 1.2 or higher",
+      "Review attack analytics in Cloudflare Dashboard",
+      "Consider upgrading to Pro plan for WAF"
+    ]
+  }
+}

@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  openldap:
+    image: osixia/openldap:latest
+    container_name: ldap-server
+    environment:
+      LDAP_ORGANISATION: "PenuX"
+      LDAP_DOMAIN: "penux.uk"
+      LDAP_ADMIN_PASSWORD: "admin123"
+      LDAP_CONFIG_PASSWORD: "admin123"
+    ports:
+      - "389:389"
+      - "636:636"
+    volumes:
+      - ldap_data:/var/lib/ldap
+      - ldap_config:/etc/ldap/slapd.d
+    networks:
+      - penux-network
+    healthcheck:
+      test: ["CMD", "ldapwhoami", "-H", "ldap://localhost", "-D", "cn=admin,dc=penux,dc=uk", "-w", "admin123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak-db:
+    image: postgres:15
+    container_name: keycloak-db
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak123
+    volumes:
+      - keycloak_db:/var/lib/postgresql/data
+    networks:
+      - penux-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: keycloak/keycloak:latest
+    container_name: keycloak
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak123
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin123
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_STRICT: false
+    ports:
+      - "8080:8080"
+    networks:
+      - penux-network
+    command:
+      - "start-dev"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PenuX LDAP Web UI
+  web-ui:
+    image: node:22-alpine
+    container_name: penux-web-ui
+    working_dir: /app
+    volumes:
+      - ./services/openldap/web:/app
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+    command: sh -c "npm install && node server.js"
+    networks:
+      - penux-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  ldap_data:
+  ldap_config:
+  keycloak_db:
+
+networks:
+  penux-network:
+    driver: bridge
