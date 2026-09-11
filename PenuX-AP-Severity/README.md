@@ -25,45 +25,35 @@ when required fields are available.
 
 ---
 
-## ⚠️ No Bundled Dataset
+## Dataset policy
 
-**No dataset is bundled for demo execution.**
-Add a legally usable, de-identified dataset to `data/public_sanitized/` before running training.
+Only legally usable, de-identified research data should be used. Do not commit PHI or patient-level data that cannot be shared under the applicable data-use agreement.
+
+The repository includes sanitized research datasets under `data/public_sanitized/`; provenance and permitted use should be checked in the accompanying documentation before analysis.
 
 ---
 
 ## Installation
 
 ```bash
-git clone https://github.com/netanelcyber/PenuX-AP-Severity.git
-cd PenuX-AP-Severity
+git clone https://github.com/netanelcyber/penuX.git
+cd penuX/PenuX-AP-Severity
 pip install -e .
 ```
 
 For optional dependencies:
+
 ```bash
 pip install -e ".[xgboost,lightgbm,shap]"
 ```
 
 ---
 
-## Quick Start
+## Two analysis modes
 
-### 1. Sanitize a local dataset
+### 1. Exploratory baseline
 
-```bash
-python scripts/sanitize_datasets.py --input data/raw --output data/public_sanitized
-```
-
-### 2. Summarize a sanitized dataset
-
-```bash
-python scripts/summarize_datasets.py \
-  --data data/public_sanitized/<dataset_file.csv> \
-  --target-column severe
-```
-
-### 3. Run baseline models
+The historical baseline workflow remains available for fast exploratory comparison:
 
 ```bash
 python scripts/run_baseline.py \
@@ -72,13 +62,89 @@ python scripts/run_baseline.py \
   --outdir outputs/demo
 ```
 
-Outputs saved to `outputs/demo/`:
-- `metrics.json` — AUROC, AUPRC, sensitivity, specificity, PPV, NPV, F1, Brier score
-- `best_model.joblib` — best fitted model pipeline
-- `threshold_table.csv` — metrics at multiple decision thresholds
-- `feature_importance.csv` — permutation importance
+This is useful for rapid experimentation, but it should not be treated as the preferred confirmatory validation pathway because model ranking is based on the held-out split.
 
-### 4. Evaluate a saved model
+### 2. Leakage-resistant research validation
+
+For serious model-development experiments, use the dedicated validation workflow:
+
+```bash
+python scripts/run_research_validation.py \
+  --data data/public_sanitized/ap_multiml_sanitized.csv \
+  --target-column "Diagnostic Result" \
+  --selection-metric auprc \
+  --target-sensitivity 0.98 \
+  --beta 2.5 \
+  --cv-folds 5 \
+  --bootstraps 1000 \
+  --outdir outputs/research_validation
+```
+
+This workflow:
+
+- creates a stratified development/test split;
+- keeps the final test set untouched during candidate-model selection;
+- generates out-of-fold development probabilities;
+- selects the candidate model by development OOF AUPRC by default;
+- locks the probability threshold on development predictions only;
+- supports a prespecified 98% sensitivity research target;
+- computes F-beta with configurable beta (default 2.5);
+- evaluates the locked model once on the held-out test set;
+- produces stratified bootstrap confidence intervals;
+- exports decision-curve net-benefit data;
+- writes a validation manifest for reproducibility.
+
+A high development sensitivity target is **not** a promise that the same sensitivity will be achieved on external patients. Held-out and external performance must be reported separately.
+
+### Optional leakage-safe univariate filtering
+
+A univariate filter can be enabled as a sensitivity analysis:
+
+```bash
+--univariate-alpha 0.30
+```
+
+The filter is fitted inside each cross-validation fold. Do not pre-filter the complete dataset before cross-validation.
+
+---
+
+## Research-validation outputs
+
+`run_research_validation.py` writes:
+
+- `development_model_selection.json` — OOF candidate-model comparison
+- `development_missingness.csv` — development-set missingness audit
+- `locked_operating_point.json` — threshold chosen before test evaluation
+- `best_model.joblib` — selected pipeline refitted on the development split
+- `test_metrics.json` — held-out point estimates
+- `test_metric_intervals.json` — stratified bootstrap confidence intervals
+- `test_threshold_table.csv` — secondary threshold sweep
+- `test_confusion_matrices.json` — threshold-specific confusion matrices
+- `decision_curve.csv` — model/treat-all/treat-none net benefit
+- `feature_importance_test.csv` — permutation importance when available
+- `validation_manifest.json` — experiment design and locked choices
+
+---
+
+## Sanitize and summarize data
+
+### Sanitize a local dataset
+
+```bash
+python scripts/sanitize_datasets.py --input data/raw --output data/public_sanitized
+```
+
+### Summarize a sanitized dataset
+
+```bash
+python scripts/summarize_datasets.py \
+  --data data/public_sanitized/<dataset_file.csv> \
+  --target-column severe
+```
+
+---
+
+## Evaluate a saved model
 
 ```bash
 python scripts/evaluate_model.py \
@@ -87,6 +153,8 @@ python scripts/evaluate_model.py \
   --target-column severe \
   --outdir outputs/eval
 ```
+
+For publication-oriented experiments, prefer the locked test evaluation generated by `run_research_validation.py` rather than reusing the test set for repeated threshold tuning.
 
 ---
 
@@ -106,58 +174,96 @@ See `docs/mimic_physionet.md` for full instructions.
 
 ## Repository Structure
 
-```
+```text
 PenuX-AP-Severity/
-├── src/penux_ap/          # Core Python package
-│   ├── config.py          # Configuration constants
-│   ├── datasets.py        # Data loading & sanitization
-│   ├── preprocessing.py   # Feature engineering & splitting
-│   ├── features.py        # AP feature definitions & aliases
-│   ├── labels.py          # Target detection & binarization
-│   ├── models.py          # ML model registry
-│   ├── calibration.py     # Probability calibration
-│   ├── evaluation.py      # Metrics & bootstrapping
-│   ├── explainability.py  # Permutation importance & SHAP
-│   ├── clinical_scores.py # BISAP, APACHE II, Ranson, CTSI
-│   ├── leadtime.py        # Lead-time vs confidence analysis
-│   └── utils.py           # Logging, I/O helpers
-├── api/                   # FastAPI research endpoint
-├── scripts/               # CLI scripts
+├── src/penux_ap/
+│   ├── config.py
+│   ├── datasets.py
+│   ├── preprocessing.py
+│   ├── features.py
+│   ├── labels.py
+│   ├── models.py
+│   ├── calibration.py
+│   ├── evaluation.py
+│   ├── research_validation.py   # locked-threshold + CI + DCA utilities
+│   ├── explainability.py
+│   ├── clinical_scores.py
+│   ├── leadtime.py
+│   └── utils.py
+├── api/
+├── scripts/
+│   ├── run_baseline.py
+│   └── run_research_validation.py
 ├── data/
-│   ├── public_sanitized/  # Add de-identified datasets here
-│   └── mimic/sql/         # MIMIC-IV extraction SQL
-├── docs/                  # Documentation
-├── notebooks/             # Analysis notebooks
-├── tests/                 # Unit tests (in-memory fixtures only)
-└── outputs/               # Model and report outputs (gitignored)
+│   ├── public_sanitized/
+│   └── mimic/sql/
+├── docs/
+│   └── validation_plan.md
+├── notebooks/
+├── tests/
+└── outputs/
 ```
+
+---
+
+## Validation principles
+
+The preferred research workflow follows these principles:
+
+- prespecify the target outcome and prediction horizon;
+- separate development from final test evaluation;
+- keep imputation, encoding, scaling, and optional feature filtering inside the pipeline;
+- select the model on development data rather than the final test set;
+- lock the operating threshold before test evaluation;
+- report AUPRC and AUROC with uncertainty;
+- report sensitivity, specificity, PPV, NPV, F1/F-beta, calibration, and confusion matrices;
+- assess clinical utility with decision-curve analysis only after checking calibration and defining a plausible action threshold;
+- compare against established clinical scores only when timing and required variables make the comparison valid;
+- perform temporal and external validation before any claim of transportability.
+
+See `docs/validation_plan.md` for the detailed protocol.
+
+---
+
+## Reporting standards
+
+Prediction-model reporting should use the current AI-specific extensions where applicable:
+
+- **TRIPOD+AI** for transparent reporting of prediction-model studies using regression or machine-learning methods;
+- **PROBAST+AI** for structured assessment of risk of bias and applicability.
+
+The original TRIPOD statement remains historically important, but new AI prediction-model work should use the updated framework.
 
 ---
 
 ## Ethical & Legal Notes
 
-- This is a retrospective model-development study
-- No patient identifiers are stored or committed
-- Real hospital data requires local Helsinki / IRB approval
+- This is a retrospective model-development research project
+- No patient identifiers should be stored or committed
+- Real hospital data requires local Helsinki / IRB approval as applicable
 - MIMIC-IV requires PhysioNet credentialing and a signed DUA
 - The software is not validated for clinical use
+- Retrospective model performance does not establish clinical safety or benefit
 - See `docs/helsinki_irb_notes.md` for IRB submission guidance
 
 ## Limitations
 
-- Performance depends heavily on dataset quality and cohort selection
+- Performance depends heavily on cohort definition, case mix, prevalence, and measurement workflow
 - Atlanta 2012 SAP labels require careful operationalization from EHR data
-- External validation has not been performed
-- Small cohort sizes may limit generalizability
-- Classical score benchmarking requires complete required fields
+- Missingness may be clinically informative and may differ across institutions
+- A 98% sensitivity target can substantially reduce specificity and PPV
+- Feature importance is descriptive and should not be interpreted causally
+- External validation has not yet established transportability
+- Small subgroup sizes may produce unstable estimates
+- Classical score benchmarking requires complete and temporally valid inputs
 
 ## Citation
 
 If you use this software in your research, please cite it:
 
-```
-Stern, N. (2024). PenuX-AP-Severity [Software].
-https://github.com/netanelcyber/penux
+```text
+Stern, N. PenuX-AP-Severity [Software].
+https://github.com/netanelcyber/penuX
 ```
 
 Or see `CITATION.cff`.
