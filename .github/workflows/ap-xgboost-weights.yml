@@ -1,0 +1,50 @@
+name: Compute AP XGBoost feature weights
+
+on:
+  push:
+    branches:
+      - feature/gastro-expert-outreach
+    paths:
+      - "PenuX-AP-Severity/scripts/export_xgboost_weights.py"
+      - "PenuX-AP-Severity/data/public_sanitized/ap_multiml_sanitized.csv"
+      - ".github/workflows/ap-xgboost-weights.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  weights:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/gastro-expert-outreach
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip pandas scikit-learn xgboost
+
+      - name: Compute development-only XGBoost gain weights
+        run: |
+          python PenuX-AP-Severity/scripts/export_xgboost_weights.py \
+            --data PenuX-AP-Severity/data/public_sanitized/ap_multiml_sanitized.csv \
+            --target "Diagnostic Result" \
+            --output docs/model-weights.json
+
+      - name: Commit generated weights
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/model-weights.json
+          if git diff --cached --quiet; then
+            echo "No feature-weight changes to commit."
+          else
+            git commit -m "data(ap): export XGBoost gain weights [skip ci]"
+            git push origin HEAD:feature/gastro-expert-outreach
+          fi
