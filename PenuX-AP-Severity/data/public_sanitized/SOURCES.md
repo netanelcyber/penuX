@@ -1,6 +1,8 @@
-# Public Sanitized Dataset Sources
+# PenuX-AP-Severity Dataset Sources
 
-The first two datasets below are currently mirrored in sanitized form in this repository. Additional public sources are documented separately and are not mirrored until their source-file license and provenance are verified.
+PenuX-AP-Severity now uses a **multi-cohort design** rather than treating one file as the full evidence base. The first two datasets are mirrored in sanitized form. Additional cohorts are documented with their access and redistribution constraints.
+
+> The current planning total is **3,017 nominal AP records across four core cohorts**. This is not yet a confirmed count of unique eligible patients because the two Guilin cohorts may overlap and the eICU cohort requires PenuX-specific eligibility and outcome derivation.
 
 ---
 
@@ -12,21 +14,13 @@ The first two datasets below are currently mirrored in sanitized form in this re
 | Original file | data_V7.0-non-normalize.xlsx |
 | License | MIT |
 | Origin | Second Affiliated Hospital of Guilin Medical University, 2016–2024 |
-| N patients | 1,289 |
-| N SAP (label=1) | 204 (15.8%) |
-| N non-SAP (label=0) | 1,085 |
-| Features | 60 (after identifier removal) |
-| Target column | `Diagnostic Result` (0=non-SAP, 1=SAP) |
-| Identifiers removed | `ID No.`, `Name` |
-| Sanitized by | penux_ap.datasets.sanitize_identifiers |
+| N records | 1,289 |
+| N SAP | 204 (15.8%) |
+| N non-SAP | 1,085 |
+| Features | 60 after identifier removal |
+| Target | `Diagnostic Result` (0=non-SAP, 1=SAP) |
 
-### Usage
-```bash
-python scripts/run_baseline.py \
-  --data data/public_sanitized/ap_multiml_sanitized.csv \
-  --target-column "Diagnostic Result" \
-  --outdir outputs/multiml
-```
+Recommended role: primary development and internal validation cohort.
 
 ---
 
@@ -38,64 +32,113 @@ python scripts/run_baseline.py \
 | Original file | zhenglishuju_v1.0.xlsx |
 | License | Apache-2.0 |
 | Origin | Second Affiliated Hospital of Guilin Medical University, 2020–2024 |
-| N patients | 722 |
-| N SAP (label=1) | 137 (19.0%) |
-| N non-SAP (label=0) | 585 |
-| Features | 107 (after identifier removal) |
-| Target column | `严重程度` (severity; 0=non-SAP, 1=SAP) |
-| Identifiers removed | `序号` (serial number), `姓名` (name) |
-| Sanitized by | penux_ap.datasets.sanitize_identifiers |
-| Note | Column names are in Chinese. Use with `--target-column 严重程度` |
+| N records | 722 |
+| N SAP | 137 (19.0%) |
+| N non-SAP | 585 |
+| Features | 107 after identifier removal |
+| Target | `严重程度` (0=non-SAP, 1=SAP) |
 
-### Usage
-```bash
-python scripts/run_baseline.py \
-  --data data/public_sanitized/ap_lnn_sanitized.csv \
-  --target-column "严重程度" \
-  --outdir outputs/lnn
-```
+Recommended role: related-cohort sensitivity analysis. Do **not** describe it as institutionally independent external validation because it originates from the same hospital as the Multi-ML cohort and the study periods overlap.
 
 ---
 
-## 3. Han et al. 2024 — OSF acute-pancreatitis severity cohort
+## 3. Han et al. 2024 / OSF
 
-This source is documented under `data/external_open/han2024_osf/README.md` and is intentionally not silently mirrored into the repository.
+Detailed provenance: `data/external_open/han2024_osf/README.md`
 
 | Field | Value |
 |-------|-------|
 | Article | https://doi.org/10.1371/journal.pone.0303684 |
-| Public data repository | https://osf.io/m9ckf/ |
+| Public repository | https://osf.io/m9ckf/ |
 | Origin | Hefei Third Clinical College of Anhui Medical University / Third People's Hospital of Hefei City |
 | Development cohort | 200 AP patients |
-| Development labels | 135 NSAP, 65 SAP |
 | Validation cohort | 60 AP patients |
+| Nominal total | 260 |
+| Development labels | 135 NSAP, 65 SAP |
 | Severity definition | Revised Atlanta Classification |
-| Laboratory variables reported | WBC, RDW, neutrophil %, NLR, fasting glucose, amylase, LDH, BUN, albumin, creatinine, D-dimer, fibrinogen |
-| Additional clinical variables | age, sex, BMI, diabetes, etiology, APACHE II, BISAP |
-| Imaging-derived variables | pleural effusion, ascites, CTSI |
-| Recommended PenuX target | `0 = NSAP`, `1 = SAP` |
+| Laboratory variables | WBC, RDW, neutrophil %, NLR, glucose, amylase, LDH, BUN, albumin, creatinine, D-dimer, fibrinogen |
+| Additional variables | age, sex, BMI, diabetes, etiology, APACHE II, BISAP, pleural effusion, ascites, CTSI |
 
-### Why this source matters
-
-Unlike the two Guilin datasets, this cohort comes from a different institution and geographic setting. It is therefore a better candidate for cross-cohort transportability experiments once the exact OSF patient-level file and its redistribution terms are verified.
-
-For a strict admission-laboratory experiment, exclude CTSI, ascites, pleural effusion, APACHE II and BISAP and evaluate only predictors available at the intended prediction time.
+Recommended role: institutionally independent transportability/external validation cohort. For the primary labs-only experiment, exclude imaging-derived variables and clinical scores that are not part of the intended early prediction window.
 
 ---
 
-## Additional EHR source worth supporting (not fully open)
+## 4. eICU-CRD acute-pancreatitis cohort
 
-**MIMIC-IV-Ext Clinical Decision Making** contains 2,400 abdominal-pathology cases, including 538 pancreatitis cases, with laboratory tests and physician discharge diagnoses. It is useful for diagnosis-oriented experiments, but access is credentialed and governed by the PhysioNet DUA, so its files must never be committed or redistributed from this repository.
+Detailed governance and cohort plan: `data/credentialed/eicu/README.md`
 
-Source: https://physionet.org/content/mimic-iv-ext-cdm/
+| Field | Value |
+|-------|-------|
+| Dataset | eICU Collaborative Research Database v2.0 |
+| Provider | PhysioNet / MIT Laboratory for Computational Physiology |
+| DOI | https://doi.org/10.13026/C2WM1R |
+| Setting | 208 US hospitals, ICU-enriched |
+| Published AP candidate count | 746 |
+| Available data | laboratory measurements, vital signs, APACHE components, admission diagnoses, time-stamped diagnoses, medications and treatments |
+| Access | credentialed PhysioNet user + training + DUA |
+| Raw-data redistribution | prohibited by project governance; do not commit patient-level files |
+
+The published 746-patient count comes from an eICU acute-pancreatitis cohort study: https://pubmed.ncbi.nlm.nih.gov/33361165/ . That study used mortality as its outcome; PenuX must recompute its own analytic cohort and must **not** relabel mortality as SAP.
+
+For the PenuX severity endpoint, derive an Atlanta-compatible persistent-organ-failure outcome (>48 h) from time-stamped organ-failure variables where feasible. Final eligible N is therefore expected to differ from 746.
+
+Recommended role: multi-center US transportability and time-aware stress test.
 
 ---
 
-## Compliance Notes
+## Core multi-cohort planning total
+
+| Cohort | Nominal records | Primary role |
+|---|---:|---|
+| Guilin Multi-ML | 1,289 | Development/internal validation |
+| Guilin LNN | 722 | Related-cohort sensitivity analysis |
+| Hefei / Han et al. | 260 | Independent-institution validation |
+| eICU AP candidate cohort | 746 | Multicenter US stress test |
+| **Nominal total** | **3,017** | **Multi-cohort research program** |
+
+### Interpretation of 3,017
+
+`3,017` is a **source-record planning total**, not a confirmed unique-patient sample size. Publication-ready reporting must provide:
+
+1. source records;
+2. excluded records with reasons;
+3. final analytic N per cohort;
+4. SAP/non-SAP prevalence per cohort;
+5. whether any cross-dataset overlap can be excluded;
+6. per-cohort performance before any pooled summary.
+
+Because the two Guilin datasets come from the same institution and overlapping periods, their counts should never be presented as guaranteed unique patients unless overlap is resolved from source-level provenance.
+
+---
+
+## Auxiliary dataset: MIMIC-IV-Ext Clinical Decision Making
+
+Source: https://physionet.org/content/mimic-iv-ext-cdm/1.1/
+
+This derived MIMIC-IV resource contains **2,400 abdominal-pathology cases, including 538 pancreatitis cases**, and extensive laboratory results plus physician diagnoses. It is useful for diagnosis-oriented experiments, laboratory-schema mapping and domain adaptation.
+
+It is **not included in the 3,017 core SAP total** because it does not provide a ready-made Atlanta-compatible SAP label. It may enter the severity benchmark only after a compatible outcome is derived under the source data governance rules.
+
+---
+
+## Cross-cohort modeling rules
+
+- Preserve a `cohort_id` for every record.
+- Harmonize units and feature names before training.
+- Use only predictors available before the intended prediction time.
+- Never use future organ-failure measurements as early predictors when those measurements contribute to the SAP outcome.
+- Tune XGBoost only in development folds/cohorts.
+- Lock the high-sensitivity threshold (target ≥98%) before final external evaluation.
+- Report AUROC, AUPRC, sensitivity, specificity, PPV, NPV, Brier score and calibration per cohort.
+- Prefer leave-one-cohort-out or explicitly external validation over a pooled random split.
+- Report pooled metrics only after cohort-specific heterogeneity is shown.
+
+---
+
+## Compliance notes
 
 - Preserve the original license and attribution for every source.
-- Do not assume that an open-access article automatically grants redistribution rights for every linked patient-level file; verify the repository/file license before mirroring.
-- Direct patient identifiers must be removed before any local derivative is committed.
-- Never commit credentialed MIMIC/PhysioNet patient-level data.
-- Do not treat the two Guilin datasets as fully independent external validation cohorts because they originate from the same institution and overlapping calendar periods.
-- All datasets and outputs are for research use only and do not constitute a clinical tool.
+- Open-access publications do not automatically grant unrestricted redistribution of linked patient-level files.
+- Never commit credentialed PhysioNet/eICU/MIMIC patient-level data.
+- Only code, schema mappings and aggregate non-identifying results may be committed for credentialed datasets.
+- All datasets, models and outputs are for **research use only** and do not constitute a clinical tool.
