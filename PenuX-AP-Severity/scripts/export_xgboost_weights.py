@@ -11,7 +11,6 @@ import argparse
 import json
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
@@ -21,6 +20,13 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
     p.add_argument("--data", required=True)
     p.add_argument("--target", default="Diagnostic Result")
+    p.add_argument(
+        "--positive-raw-value",
+        type=int,
+        choices=[0, 1],
+        default=1,
+        help="Raw source value that represents SAP. Output labels are normalized to 1=SAP.",
+    )
     p.add_argument("--output", default="docs/model-weights.json")
     p.add_argument("--seed", type=int, default=42)
     return p.parse_args()
@@ -34,13 +40,14 @@ def main() -> None:
     if args.target not in df.columns:
         raise ValueError(f"Target column not found: {args.target}")
 
-    y = pd.to_numeric(df[args.target], errors="coerce")
-    keep = y.isin([0, 1])
+    raw_y = pd.to_numeric(df[args.target], errors="coerce")
+    keep = raw_y.isin([0, 1])
     X = df.loc[keep].drop(columns=[args.target]).copy()
-    y = y.loc[keep].astype(int)
+    raw_y = raw_y.loc[keep].astype(int)
 
-    # The current public cohort is numeric; coerce defensively and use
-    # development-only median imputation.
+    # Normalize outcome semantics explicitly: 1 always means SAP in this script.
+    y = (raw_y == args.positive_raw_value).astype(int)
+
     X = X.apply(pd.to_numeric, errors="coerce")
     X_dev, X_test, y_dev, y_test = train_test_split(
         X, y, test_size=0.20, stratify=y, random_state=args.seed
@@ -77,7 +84,6 @@ def main() -> None:
     gain = booster.get_score(importance_type="gain")
     split_count = booster.get_score(importance_type="weight")
 
-    # XGBoost names array features f0, f1, ... when fit without a DataFrame.
     feature_names = list(X.columns)
     gain_by_name: dict[str, float] = {}
     count_by_name: dict[str, float] = {}
@@ -109,10 +115,12 @@ def main() -> None:
         "important_note": "Gain weights are explanatory importances, not linear coefficients and cannot be multiplied by raw laboratory values to reproduce XGBoost predictions.",
         "dataset": Path(args.data).name,
         "target": args.target,
+        "raw_value_representing_SAP": int(args.positive_raw_value),
+        "normalized_target": "0=non-SAP, 1=SAP",
         "n_total": int(len(X)),
         "n_development": int(len(X_dev)),
         "n_held_out_not_used_for_weights": int(len(X_test)),
-        "development_positive_rate": float(y_dev.mean()),
+        "development_SAP_rate": float(y_dev.mean()),
         "scale_pos_weight": float(scale_pos_weight),
         "model_parameters": model.get_params(),
         "features": rows,
