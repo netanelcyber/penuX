@@ -1,6 +1,6 @@
 # PenuX-AP-Severity Dataset Sources
 
-PenuX-AP-Severity now uses a **multi-cohort design** rather than treating one file as the full evidence base. The first two datasets are mirrored in sanitized form. Additional cohorts are documented with their access and redistribution constraints.
+PenuX-AP-Severity uses a **multi-cohort design** rather than treating one file as the full evidence base. The first two datasets are mirrored in sanitized form. Additional cohorts are documented with their access and redistribution constraints.
 
 > The current planning total is **3,017 nominal AP records across four core cohorts**. This is not yet a confirmed count of unique eligible patients because the two Guilin cohorts may overlap and the eICU cohort requires PenuX-specific eligibility and outcome derivation.
 
@@ -18,7 +18,10 @@ PenuX-AP-Severity now uses a **multi-cohort design** rather than treating one fi
 | N SAP | 204 (15.8%) |
 | N non-SAP | 1,085 |
 | Features | 60 after identifier removal |
-| Target | `Diagnostic Result` (0=non-SAP, 1=SAP) |
+| Raw target | `Diagnostic Result`: **0=SAP, 1=non-SAP** |
+| PenuX normalized target | **0=non-SAP, 1=SAP** after explicit inversion |
+
+**Important target-coding correction.** The source repository's `model_construction.py` explicitly performs `y = 1 - y` with the comment that mild disease is normalized to 0 and severe disease to 1. Therefore the raw `Diagnostic Result` field must be inverted before training a PenuX SAP classifier. Do not pass the raw numeric target through a generic 0/1 binarizer without this normalization.
 
 Recommended role: primary development and internal validation cohort.
 
@@ -98,14 +101,7 @@ Recommended role: multi-center US transportability and time-aware stress test.
 
 ### Interpretation of 3,017
 
-`3,017` is a **source-record planning total**, not a confirmed unique-patient sample size. Publication-ready reporting must provide:
-
-1. source records;
-2. excluded records with reasons;
-3. final analytic N per cohort;
-4. SAP/non-SAP prevalence per cohort;
-5. whether any cross-dataset overlap can be excluded;
-6. per-cohort performance before any pooled summary.
+`3,017` is a **source-record planning total**, not a confirmed unique-patient sample size. Publication-ready reporting must provide source records, exclusions with reasons, final analytic N per cohort, SAP/non-SAP prevalence, overlap assessment, and per-cohort performance before pooled summaries.
 
 Because the two Guilin datasets come from the same institution and overlapping periods, their counts should never be presented as guaranteed unique patients unless overlap is resolved from source-level provenance.
 
@@ -125,6 +121,7 @@ It is **not included in the 3,017 core SAP total** because it does not provide a
 
 - Preserve a `cohort_id` for every record.
 - Harmonize units and feature names before training.
+- Normalize each source's outcome coding explicitly before modeling.
 - Use only predictors available before the intended prediction time.
 - Never use future organ-failure measurements as early predictors when those measurements contribute to the SAP outcome.
 - Tune XGBoost only in development folds/cohorts.
