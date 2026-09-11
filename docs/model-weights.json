@@ -1,0 +1,469 @@
+{
+  "research_use_only": true,
+  "importance_type": "xgboost_gain",
+  "important_note": "Gain weights are explanatory importances, not linear coefficients and cannot be multiplied by raw laboratory values to reproduce XGBoost predictions.",
+  "dataset": "ap_multiml_sanitized.csv",
+  "target": "Diagnostic Result",
+  "n_total": 1289,
+  "n_development": 1031,
+  "n_held_out_not_used_for_weights": 258,
+  "development_positive_rate": 0.8419010669253152,
+  "scale_pos_weight": 0.18778801843317972,
+  "model_parameters": {
+    "objective": "binary:logistic",
+    "base_score": null,
+    "booster": null,
+    "callbacks": null,
+    "colsample_bylevel": null,
+    "colsample_bynode": null,
+    "colsample_bytree": 0.8,
+    "device": null,
+    "early_stopping_rounds": null,
+    "enable_categorical": false,
+    "eval_metric": "aucpr",
+    "feature_types": null,
+    "feature_weights": null,
+    "gamma": 0.1,
+    "grow_policy": null,
+    "importance_type": null,
+    "interaction_constraints": null,
+    "learning_rate": 0.05,
+    "max_bin": null,
+    "max_cat_threshold": null,
+    "max_cat_to_onehot": null,
+    "max_delta_step": null,
+    "max_depth": 3,
+    "max_leaves": null,
+    "min_child_weight": 3,
+    "missing": NaN,
+    "monotone_constraints": null,
+    "multi_strategy": null,
+    "n_estimators": 350,
+    "n_jobs": 2,
+    "num_parallel_tree": null,
+    "random_state": 42,
+    "reg_alpha": 0.1,
+    "reg_lambda": 2.0,
+    "sampling_method": null,
+    "scale_pos_weight": 0.18778801843317972,
+    "subsample": 0.8,
+    "tree_method": "hist",
+    "validate_parameters": null,
+    "verbosity": 0
+  },
+  "features": [
+    {
+      "feature": "Ca",
+      "gain": 7.591000080108643,
+      "gain_weight": 0.0754111887520545,
+      "gain_percent": 7.54111887520545,
+      "split_count": 69.0
+    },
+    {
+      "feature": "CRP",
+      "gain": 3.515244245529175,
+      "gain_weight": 0.0349214523134849,
+      "gain_percent": 3.4921452313484904,
+      "split_count": 47.0
+    },
+    {
+      "feature": "α-HBDH",
+      "gain": 3.4667162895202637,
+      "gain_weight": 0.03443936157290794,
+      "gain_percent": 3.4439361572907936,
+      "split_count": 63.0
+    },
+    {
+      "feature": "WBC",
+      "gain": 3.3001739978790283,
+      "gain_weight": 0.03278488231357204,
+      "gain_percent": 3.278488231357204,
+      "split_count": 39.0
+    },
+    {
+      "feature": "INR",
+      "gain": 2.862295150756836,
+      "gain_weight": 0.02843486729020359,
+      "gain_percent": 2.843486729020359,
+      "split_count": 23.0
+    },
+    {
+      "feature": "Neutrophil Count ",
+      "gain": 2.791562795639038,
+      "gain_weight": 0.02773219163134768,
+      "gain_percent": 2.773219163134768,
+      "split_count": 59.0
+    },
+    {
+      "feature": "Glu",
+      "gain": 2.694298267364502,
+      "gain_weight": 0.026765937696005132,
+      "gain_percent": 2.676593769600513,
+      "split_count": 60.0
+    },
+    {
+      "feature": "APTT",
+      "gain": 2.6725356578826904,
+      "gain_weight": 0.026549741643567906,
+      "gain_percent": 2.6549741643567906,
+      "split_count": 46.0
+    },
+    {
+      "feature": "LDH",
+      "gain": 2.4818642139434814,
+      "gain_weight": 0.024655556411479134,
+      "gain_percent": 2.4655556411479136,
+      "split_count": 24.0
+    },
+    {
+      "feature": "CO₂-CP",
+      "gain": 2.4227116107940674,
+      "gain_weight": 0.02406791735546532,
+      "gain_percent": 2.4067917355465323,
+      "split_count": 37.0
+    },
+    {
+      "feature": "Hb",
+      "gain": 2.2863619327545166,
+      "gain_weight": 0.022713380245939264,
+      "gain_percent": 2.2713380245939265,
+      "split_count": 43.0
+    },
+    {
+      "feature": "PT",
+      "gain": 2.2405478954315186,
+      "gain_weight": 0.02225825035796687,
+      "gain_percent": 2.2258250357966873,
+      "split_count": 33.0
+    },
+    {
+      "feature": "RBC",
+      "gain": 1.8952691555023193,
+      "gain_weight": 0.01882815156280262,
+      "gain_percent": 1.8828151562802617,
+      "split_count": 45.0
+    },
+    {
+      "feature": "ALB",
+      "gain": 1.8863730430603027,
+      "gain_weight": 0.018739775010642865,
+      "gain_percent": 1.8739775010642865,
+      "split_count": 44.0
+    },
+    {
+      "feature": "AMY",
+      "gain": 1.8807497024536133,
+      "gain_weight": 0.018683911119794103,
+      "gain_percent": 1.8683911119794103,
+      "split_count": 45.0
+    },
+    {
+      "feature": "Neutrophil Percentage ",
+      "gain": 1.8212003707885742,
+      "gain_weight": 0.01809233084804331,
+      "gain_percent": 1.809233084804331,
+      "split_count": 38.0
+    },
+    {
+      "feature": "MCH",
+      "gain": 1.8047826290130615,
+      "gain_weight": 0.017929232256177933,
+      "gain_percent": 1.7929232256177934,
+      "split_count": 54.0
+    },
+    {
+      "feature": "LDL-C",
+      "gain": 1.7179553508758545,
+      "gain_weight": 0.017066664980281088,
+      "gain_percent": 1.7066664980281088,
+      "split_count": 22.0
+    },
+    {
+      "feature": "RDW-SD",
+      "gain": 1.6714086532592773,
+      "gain_weight": 0.01660425663319828,
+      "gain_percent": 1.660425663319828,
+      "split_count": 23.0
+    },
+    {
+      "feature": "TP",
+      "gain": 1.650285243988037,
+      "gain_weight": 0.01639441058039497,
+      "gain_percent": 1.639441058039497,
+      "split_count": 22.0
+    },
+    {
+      "feature": "A/G Ratio",
+      "gain": 1.6210777759552002,
+      "gain_weight": 0.016104255151393534,
+      "gain_percent": 1.6104255151393534,
+      "split_count": 20.0
+    },
+    {
+      "feature": "Basophil Percentage",
+      "gain": 1.6019251346588135,
+      "gain_weight": 0.015913987277245186,
+      "gain_percent": 1.5913987277245185,
+      "split_count": 9.0
+    },
+    {
+      "feature": "FIB",
+      "gain": 1.5989104509353638,
+      "gain_weight": 0.015884038537830398,
+      "gain_percent": 1.5884038537830398,
+      "split_count": 29.0
+    },
+    {
+      "feature": "Lymphocyte Percentage ",
+      "gain": 1.5962576866149902,
+      "gain_weight": 0.01585768521036797,
+      "gain_percent": 1.5857685210367969,
+      "split_count": 22.0
+    },
+    {
+      "feature": "PCT",
+      "gain": 1.5938680171966553,
+      "gain_weight": 0.015833945543702273,
+      "gain_percent": 1.5833945543702272,
+      "split_count": 15.0
+    },
+    {
+      "feature": "Monocyte Percentage",
+      "gain": 1.5185681581497192,
+      "gain_weight": 0.015085894980711062,
+      "gain_percent": 1.508589498071106,
+      "split_count": 35.0
+    },
+    {
+      "feature": "MPV",
+      "gain": 1.4809200763702393,
+      "gain_weight": 0.01471188805523827,
+      "gain_percent": 1.471188805523827,
+      "split_count": 11.0
+    },
+    {
+      "feature": "ALP",
+      "gain": 1.4403674602508545,
+      "gain_weight": 0.014309026646162279,
+      "gain_percent": 1.430902664616228,
+      "split_count": 40.0
+    },
+    {
+      "feature": "K⁺",
+      "gain": 1.41067373752594,
+      "gain_weight": 0.014014040622512065,
+      "gain_percent": 1.4014040622512065,
+      "split_count": 21.0
+    },
+    {
+      "feature": "HCT",
+      "gain": 1.4102373123168945,
+      "gain_weight": 0.014009705048349483,
+      "gain_percent": 1.4009705048349483,
+      "split_count": 27.0
+    },
+    {
+      "feature": "DBIL",
+      "gain": 1.4083466529846191,
+      "gain_weight": 0.01399092269210295,
+      "gain_percent": 1.3990922692102952,
+      "split_count": 4.0
+    },
+    {
+      "feature": "Lymphocyte Count",
+      "gain": 1.3952739238739014,
+      "gain_weight": 0.013861054422827592,
+      "gain_percent": 1.3861054422827592,
+      "split_count": 17.0
+    },
+    {
+      "feature": "CK-MB",
+      "gain": 1.3561625480651855,
+      "gain_weight": 0.013472510711546088,
+      "gain_percent": 1.3472510711546088,
+      "split_count": 11.0
+    },
+    {
+      "feature": "Eosinophil Percentage",
+      "gain": 1.3537795543670654,
+      "gain_weight": 0.013448837363414425,
+      "gain_percent": 1.3448837363414425,
+      "split_count": 5.0
+    },
+    {
+      "feature": "TC",
+      "gain": 1.3107571601867676,
+      "gain_weight": 0.013021440465264307,
+      "gain_percent": 1.3021440465264307,
+      "split_count": 38.0
+    },
+    {
+      "feature": "CK",
+      "gain": 1.3043644428253174,
+      "gain_weight": 0.01295793336336793,
+      "gain_percent": 1.295793336336793,
+      "split_count": 33.0
+    },
+    {
+      "feature": "TBIL",
+      "gain": 1.2921836376190186,
+      "gain_weight": 0.012836925723943553,
+      "gain_percent": 1.2836925723943553,
+      "split_count": 24.0
+    },
+    {
+      "feature": "PLT",
+      "gain": 1.2837841510772705,
+      "gain_weight": 0.01275348279701224,
+      "gain_percent": 1.2753482797012239,
+      "split_count": 16.0
+    },
+    {
+      "feature": "Urea",
+      "gain": 1.2489633560180664,
+      "gain_weight": 0.012407562954963092,
+      "gain_percent": 1.2407562954963092,
+      "split_count": 25.0
+    },
+    {
+      "feature": "IBIL",
+      "gain": 1.2246936559677124,
+      "gain_weight": 0.012166460740216864,
+      "gain_percent": 1.2166460740216865,
+      "split_count": 23.0
+    },
+    {
+      "feature": "MCV",
+      "gain": 1.2240374088287354,
+      "gain_weight": 0.01215994139146925,
+      "gain_percent": 1.215994139146925,
+      "split_count": 32.0
+    },
+    {
+      "feature": "TG",
+      "gain": 1.2198642492294312,
+      "gain_weight": 0.0121184840178802,
+      "gain_percent": 1.21184840178802,
+      "split_count": 17.0
+    },
+    {
+      "feature": "P-LCR",
+      "gain": 1.216350793838501,
+      "gain_weight": 0.012083580336565317,
+      "gain_percent": 1.2083580336565318,
+      "split_count": 15.0
+    },
+    {
+      "feature": "AST",
+      "gain": 1.213894009590149,
+      "gain_weight": 0.012059173931780652,
+      "gain_percent": 1.2059173931780651,
+      "split_count": 22.0
+    },
+    {
+      "feature": "ALT",
+      "gain": 1.1773921251296997,
+      "gain_weight": 0.011696553661749879,
+      "gain_percent": 1.169655366174988,
+      "split_count": 27.0
+    },
+    {
+      "feature": "MCHC",
+      "gain": 1.1762465238571167,
+      "gain_weight": 0.011685172927605543,
+      "gain_percent": 1.1685172927605543,
+      "split_count": 33.0
+    },
+    {
+      "feature": "AST/ALT",
+      "gain": 1.16461980342865,
+      "gain_weight": 0.011569669726506126,
+      "gain_percent": 1.1569669726506127,
+      "split_count": 38.0
+    },
+    {
+      "feature": "TT",
+      "gain": 1.1100434064865112,
+      "gain_weight": 0.011027492025573765,
+      "gain_percent": 1.1027492025573764,
+      "split_count": 22.0
+    },
+    {
+      "feature": "GGT",
+      "gain": 1.0453330278396606,
+      "gain_weight": 0.010384640421456178,
+      "gain_percent": 1.0384640421456177,
+      "split_count": 39.0
+    },
+    {
+      "feature": "Cr",
+      "gain": 1.0194915533065796,
+      "gain_weight": 0.010127923744723159,
+      "gain_percent": 1.012792374472316,
+      "split_count": 15.0
+    },
+    {
+      "feature": "Monocyte Count",
+      "gain": 1.010219931602478,
+      "gain_weight": 0.010035816775023897,
+      "gain_percent": 1.0035816775023898,
+      "split_count": 33.0
+    },
+    {
+      "feature": "GLB",
+      "gain": 0.9802398681640625,
+      "gain_weight": 0.009737986159967368,
+      "gain_percent": 0.9737986159967368,
+      "split_count": 26.0
+    },
+    {
+      "feature": "Na⁺",
+      "gain": 0.9503942131996155,
+      "gain_weight": 0.009441490797538074,
+      "gain_percent": 0.9441490797538075,
+      "split_count": 16.0
+    },
+    {
+      "feature": "Basophil Count",
+      "gain": 0.9388900399208069,
+      "gain_weight": 0.009327205015242028,
+      "gain_percent": 0.9327205015242028,
+      "split_count": 11.0
+    },
+    {
+      "feature": "Eosinophil Count",
+      "gain": 0.8646396994590759,
+      "gain_weight": 0.008589580673208854,
+      "gain_percent": 0.8589580673208854,
+      "split_count": 8.0
+    },
+    {
+      "feature": "PDW",
+      "gain": 0.8487953543663025,
+      "gain_weight": 0.008432178369713328,
+      "gain_percent": 0.8432178369713328,
+      "split_count": 11.0
+    },
+    {
+      "feature": "RDW-CV",
+      "gain": 0.8443498015403748,
+      "gain_weight": 0.008388014963083714,
+      "gain_percent": 0.8388014963083714,
+      "split_count": 2.0
+    },
+    {
+      "feature": "Cl⁻",
+      "gain": 0.8201072812080383,
+      "gain_weight": 0.008147182759511774,
+      "gain_percent": 0.8147182759511774,
+      "split_count": 12.0
+    },
+    {
+      "feature": "Gender",
+      "gain": 0.7320960164070129,
+      "gain_weight": 0.007272853417899886,
+      "gain_percent": 0.7272853417899886,
+      "split_count": 1.0
+    }
+  ]
+}
