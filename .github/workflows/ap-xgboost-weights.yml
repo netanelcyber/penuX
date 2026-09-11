@@ -35,6 +35,7 @@ jobs:
           python PenuX-AP-Severity/scripts/export_xgboost_weights.py \
             --data PenuX-AP-Severity/data/public_sanitized/ap_multiml_sanitized.csv \
             --target "Diagnostic Result" \
+            --positive-raw-value 0 \
             --output docs/model-weights.json
 
       - name: Commit generated weights
@@ -45,6 +46,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No feature-weight changes to commit."
           else
-            git commit -m "data(ap): export XGBoost gain weights [skip ci]"
+            git commit -m "data(ap): export corrected SAP XGBoost gain weights [skip ci]"
             git push origin HEAD:feature/gastro-expert-outreach
           fi
